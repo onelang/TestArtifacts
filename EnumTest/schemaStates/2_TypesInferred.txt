@@ -33,7 +33,7 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [console::log]
-      - TemplateString [any]
+      - TemplateString [OneString]
         - EnumMemberReference [TestEnum (enum)]
         - LocalVar: enumV [TestEnum (enum)]
         - LocalVar: check1 [TsString]

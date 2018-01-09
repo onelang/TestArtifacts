@@ -96,7 +96,7 @@ ExprLangLexer::fail(message: TsString): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static, throws) [OneError::raise]
-      - TemplateString [any]
+      - TemplateString [OneString]
         - MethodArgument: message [TsString]
         - LocalVar: context [OneString]
         - InstanceField (this): offset [any]
@@ -379,7 +379,7 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [console::log]
-      - TemplateString [any]
+      - TemplateString [OneString]
         - InstanceField: length [TsNumber]
           - InstanceField: tokens [TsArray<Token>]
             - LocalVar: lexer [ExprLangLexer]

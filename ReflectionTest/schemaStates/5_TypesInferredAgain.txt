@@ -8,14 +8,14 @@ TargetClass::staticField: OneString
 
 TargetClass::staticMethod(arg1: OneString): OneString [static]
   - Return
-    - TemplateString [any]
+    - TemplateString [OneString]
       - MethodArgument: arg1 [OneString]
       - StaticField: staticField [OneString]
         - ClassReference [TargetClass]
 
 TargetClass::instanceMethod(): OneString
   - Return
-    - TemplateString [any]
+    - TemplateString [OneString]
       - InstanceField (this): instanceField [OneNumber]
 
 TestClass::testMethod(): void
@@ -75,7 +75,7 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [OneConsole::print]
-      - TemplateString [any]
+      - TemplateString [OneString]
         - LocalVar: method1Result [any]
   - Comment: "\n"
   - Variable: method2 [OneMethod]
@@ -103,7 +103,7 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [OneConsole::print]
-      - TemplateString [any]
+      - TemplateString [OneString]
         - LocalVar: method2Result [any]
   - Comment: "\n"
   - Variable: field1 [OneField]
@@ -135,7 +135,7 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [OneConsole::print]
-      - TemplateString [any]
+      - TemplateString [OneString]
         - InstanceField: instanceField [OneNumber]
           - LocalVar: obj [TargetClass]
         - LocalVar: field1NewVal [any]
@@ -169,7 +169,7 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [OneConsole::print]
-      - TemplateString [any]
+      - TemplateString [OneString]
         - StaticField: staticField [OneString]
           - ClassReference [TargetClass]
         - LocalVar: field2NewVal [any]

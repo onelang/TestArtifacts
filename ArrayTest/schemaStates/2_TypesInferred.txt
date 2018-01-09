@@ -15,7 +15,7 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [console::log]
-      - TemplateString [any]
+      - TemplateString [OneString]
         - InstanceField: length [TsNumber]
           - LocalVar: constantArr [TsArray<TsNumber>]
         - InstanceField: length [TsNumber]

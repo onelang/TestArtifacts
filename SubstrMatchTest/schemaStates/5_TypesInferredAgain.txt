@@ -28,7 +28,7 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [OneConsole::print]
-      - TemplateString [any]
+      - TemplateString [OneString]
         - LocalVar: tA0_true [OneBoolean]
         - LocalVar: tA1_false [OneBoolean]
         - LocalVar: tB1_true [OneBoolean]

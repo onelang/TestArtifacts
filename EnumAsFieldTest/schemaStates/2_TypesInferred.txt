@@ -8,6 +8,6 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [console::log]
-      - TemplateString [any]
+      - TemplateString [OneString]
         - InstanceField (this): enumField [SomeKind (enum)]
 

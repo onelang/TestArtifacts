@@ -10,7 +10,7 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [OneConsole::print]
-      - TemplateString [any]
+      - TemplateString [OneString]
         - LocalVar: result [any]
         - LocalVar: str [OneString]
 
