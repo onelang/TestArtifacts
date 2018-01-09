@@ -1,6 +1,6 @@
 class TestClass {
   func testMethod() -> Void {
-      let map: OneMap? = [
+      let map: [String: Any]? = [
       ]
       let _: [String]? = Array(map!.keys)
   }

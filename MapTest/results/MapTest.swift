@@ -1,6 +1,6 @@
 class MapTestClass {
   func mapTest() -> Void {
-      let mapObj: OneMap? = [
+      let mapObj: [String: Int]? = [
         "x": 5
       ]
       //let containsX = "x" in mapObj;

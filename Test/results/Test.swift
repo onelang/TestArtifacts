@@ -1,6 +1,6 @@
 class TestClass {
   func mapTest() -> Int {
-      var mapObj: OneMap? = [
+      var mapObj: [String: Int]? = [
         "x": 5,
         "y": 3
       ]

@@ -1,7 +1,7 @@
 class TestClass {
   func testMethod() -> Void {
       let result: [String]? = [String]()
-      let map: OneMap? = [
+      let map: [String: Int]? = [
         "x": 5
       ]
       let keys: [String]? = Array(map!.keys)
