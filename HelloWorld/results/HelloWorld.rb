@@ -3,7 +3,13 @@ class TestClass
   end
 
   def test_method()
-      puts "Hello world!"
+      value = 1 + 2 * 3 - 4
+      map_ = {
+        "a" => 5,
+        "b" => 6,
+      }
+      text = "Hello world! value = #{value}, map[a] = #{map_["a"]}"
+      puts text
   end
 end
 

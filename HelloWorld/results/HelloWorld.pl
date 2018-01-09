@@ -13,7 +13,13 @@ sub new
 
 sub test_method {
     my ( $self ) = @_;
-    print(("Hello world!") . "\n");
+    my $value = 1 + 2 * 3 - 4;
+    my $map_ = {
+      a => 5,
+      b => 6,
+    };
+    my $text = "Hello world! value = @{[$value]}, map[a] = @{[${$map_}{\"a\"}]}";
+    print(($text) . "\n");
 }
 
 package Program;

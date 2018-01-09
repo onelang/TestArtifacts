@@ -2,7 +2,13 @@
 
 class TestClass {
     function testMethod() {
-        print(("Hello world!") . "\n");
+        $value = 1 + 2 * 3 - 4;
+        $map_ = array(
+          "a" => 5,
+          "b" => 6,
+        );
+        $text = "Hello world! value = " . ($value) . ", map[a] = " . ($map_["a"]) . "";
+        print(($text) . "\n");
     }
 }
 

@@ -1,6 +1,12 @@
 class TestClass:
     def test_method(self):
-        print "Hello world!"
+        value = 1 + 2 * 3 - 4
+        map_ = {
+          "a": 5,
+          "b": 6,
+        }
+        text = "Hello world! value = %s, map[a] = %s" % (value, map_["a"], )
+        print text
 
 try:
     TestClass().test_method()

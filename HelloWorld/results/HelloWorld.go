@@ -10,7 +10,13 @@ func NewTestClass() *TestClass {
 }
 
 func (this *TestClass) TestMethod() {
-    fmt.Println("Hello world!")
+    value := 1 + 2 * 3 - 4
+    map_ := map[string]int{
+      "a": 5,
+      "b": 6,
+    }
+    text := fmt.Sprintf("Hello world! value = %v, map[a] = %v", value, map_["a"])
+    fmt.Println(text)
 }
 
 func init() {

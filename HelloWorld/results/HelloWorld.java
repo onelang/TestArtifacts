@@ -1,7 +1,14 @@
+import java.util.HashMap;
+
 class TestClass {
     public void testMethod() throws Exception
     {
-        System.out.println("Hello world!");
+        Integer value = 1 + 2 * 3 - 4;
+        HashMap<String, Integer> map_ = new HashMap<String, Integer>();
+        map_.put("a", 5);
+        map_.put("b", 6);
+        String text = "Hello world! value = " + value + ", map[a] = " + map_.get("a");
+        System.out.println(text);
     }
 }
 
