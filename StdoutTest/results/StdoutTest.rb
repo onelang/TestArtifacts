@@ -1,7 +1,4 @@
 class TestClass 
-  def initialize()
-  end
-
   def reverse_string(str)
       result = ""
       i = str.length - 1

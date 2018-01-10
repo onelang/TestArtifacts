@@ -147,9 +147,6 @@ class ExprLangLexer
 end
 
 class TestClass 
-  def initialize()
-  end
-
   def test_method()
       lexer = ExprLangLexer.new("1+2", ["+"])
       result = ""

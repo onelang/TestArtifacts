@@ -1,7 +1,4 @@
 class TestClass 
-  def initialize()
-  end
-
   def test_method()
       value = 1 + 2 * 3 - 4
       map_ = {

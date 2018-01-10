@@ -1,7 +1,4 @@
 class MapTestClass 
-  def initialize()
-  end
-
   def map_test()
       map_obj = {
         "x" => 5,

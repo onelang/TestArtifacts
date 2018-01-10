@@ -7,9 +7,6 @@ class TokenType
   class << self
     attr_accessor :end_token, :whitespace, :identifier, :operator_x
   end
-
-  def initialize()
-  end
 end
 
 class Token 
@@ -23,9 +20,6 @@ class Token
 end
 
 class StringHelper 
-  def initialize()
-  end
-
   def self.starts_with_at_index(str, substr, idx)
       return str[idx...idx + substr.length] == substr
   end
@@ -88,9 +82,6 @@ class Tokenizer
 end
 
 class TestClass 
-  def initialize()
-  end
-
   def test_method()
       operators = ["<<", ">>", "++", "--", "==", "!=", "!", "<", ">", "=", "(", ")", "[", "]", "{", "}", ";", "+", "-", "*", "/", "&&", "&", "%", "||", "|", "^", ",", "."]
       

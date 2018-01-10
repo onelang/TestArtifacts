@@ -9,9 +9,6 @@ class ConstructorTest
 end
 
 class TestClass 
-  def initialize()
-  end
-
   def test_method()
       test = ConstructorTest.new(3)
       puts test.field2

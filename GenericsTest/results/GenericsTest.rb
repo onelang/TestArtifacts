@@ -1,9 +1,6 @@
 class MapX 
   attr_accessor(:value)
 
-  def initialize()
-  end
-
   def set(key, value)
       self.value = value
   end
@@ -14,9 +11,6 @@ class MapX
 end
 
 class TestClass 
-  def initialize()
-  end
-
   def test_method()
       map_x = MapX.new()
       map_x.set("hello", 3)

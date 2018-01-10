@@ -1,7 +1,4 @@
 class TestClass 
-  def initialize()
-  end
-
   def not_throws()
       return 5
   end

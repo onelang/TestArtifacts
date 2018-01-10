@@ -4,9 +4,6 @@ module TestEnum
 end
 
 class TestClass 
-  def initialize()
-  end
-
   def test_method()
       enum_v = TestEnum::ITEM1
       if 3 * 2 == 6

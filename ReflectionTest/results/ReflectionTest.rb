@@ -33,9 +33,6 @@ One::Reflect::setup_class(One::Class.new(TargetClass, [
   ]));
 
 class TestClass 
-  def initialize()
-  end
-
   def test_method()
       obj = TargetClass.new()
       #console.log(`instanceMethod (direct): ${obj.instanceMethod()}`);

@@ -1,7 +1,4 @@
 class TestClass 
-  def initialize()
-  end
-
   def test_method()
       a = true
       b = false

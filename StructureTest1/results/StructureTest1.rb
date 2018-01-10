@@ -1,8 +1,5 @@
 class List 
   attr_accessor(:items)
-
-  def initialize()
-  end
 end
 
 class Item 
@@ -22,9 +19,6 @@ end
 class Container 
   attr_accessor(:item_list)
   attr_accessor(:string_list)
-
-  def initialize()
-  end
 
   def method0()
   end

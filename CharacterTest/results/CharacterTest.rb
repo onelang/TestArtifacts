@@ -1,7 +1,4 @@
 class TestClass 
-  def initialize()
-  end
-
   def test_method()
       str = "a1A"
       i = 0

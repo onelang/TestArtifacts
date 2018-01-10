@@ -1,7 +1,4 @@
 class TestClass 
-  def initialize()
-  end
-
   def get_result()
       return true
   end
