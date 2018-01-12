@@ -1,0 +1,16 @@
+TestClass::get_result(): any
+  - Return
+    - Literal (boolean): true
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Conditional
+        - Call
+          - PropertyAccess (.get_result)
+            - Identifier: this
+        - Literal (string): "true"
+        - Literal (string): "false"
+

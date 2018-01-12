@@ -1,0 +1,7 @@
+TestClass::test_method(): any
+  - Variable: map [RubyMap<OneString, any>]
+    - MapLiteral [RubyMap<OneString, any>]
+  - Variable: keys [RubyMap<OneString, any>::keys]
+    - MethodReference [RubyMap<OneString, any>::keys]
+      - LocalVar: map [RubyMap<OneString, any>]
+

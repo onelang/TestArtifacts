@@ -1,0 +1,21 @@
+enum SomeKind: ENUM_VAL0, ENUM_VAL1, ENUM_VAL2
+
+TestClass::enum_field: null
+
+TestClass::initialize(): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.enum_field)
+        - Identifier: this
+      - PropertyAccess (.ENUM_VAL2)
+        - Identifier: SomeKind
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - PropertyAccess (.enum_field)
+          - Identifier: this
+

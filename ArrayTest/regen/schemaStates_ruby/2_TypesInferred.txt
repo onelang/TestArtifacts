@@ -1,0 +1,21 @@
+TestClass::test_method(): any
+  - Variable: constant_arr [RubyArray<RubyNumber>]
+    - ArrayLiteral [RubyArray<RubyNumber>]
+      - Literal (numeric): "5" [RubyNumber]
+  - Variable: mutable_arr [RubyArray<RubyNumber>]
+    - ArrayLiteral [RubyArray<RubyNumber>]
+      - Literal (numeric): "1" [RubyNumber]
+  - ExpressionStatement
+    - Binary: << [any]
+      - LocalVar: mutable_arr [RubyArray<RubyNumber>]
+      - Literal (numeric): "2" [RubyNumber]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - InstanceField: length [TsNumber]
+          - LocalVar: constant_arr [RubyArray<RubyNumber>]
+        - InstanceField: length [TsNumber]
+          - LocalVar: mutable_arr [RubyArray<RubyNumber>]
+

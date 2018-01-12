@@ -1,0 +1,34 @@
+MapX::value: null
+
+MapX::set(key: ???, value: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): value [any]
+      - MethodArgument: value [any]
+
+MapX::get(key: ???): any
+  - Return
+    - InstanceField (this): value [any]
+
+TestClass::test_method(): any
+  - Variable: map_x [any]
+    - Call [any]
+      - PropertyAccess (.new) [any]
+        - ClassReference [MapX]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.set) [any]
+        - LocalVar: map_x [any]
+      - Literal (string): "hello" [RubyString]
+      - Literal (numeric): "3" [RubyNumber]
+  - Variable: num_value [any]
+    - Call [any]
+      - PropertyAccess (.get) [any]
+        - LocalVar: map_x [any]
+      - Literal (string): "hello2" [RubyString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - LocalVar: num_value [any]
+

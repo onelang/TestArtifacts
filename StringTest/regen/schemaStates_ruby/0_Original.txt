@@ -1,0 +1,58 @@
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: x
+      - Literal (string): "x"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: y
+      - Literal (string): "y"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: z
+      - Literal (string): "z"
+  - ExpressionStatement
+    - Binary: +=
+      - Identifier: z
+      - Literal (string): "Z"
+  - ExpressionStatement
+    - Binary: +=
+      - Identifier: z
+      - Identifier: x
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: a
+      - ElementAccess
+        - Literal (string): "abcdef"
+        - Binary: ...
+          - Literal (numeric): "2"
+          - Literal (numeric): "4"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: arr
+      - Call
+        - PropertyAccess (.split)
+          - Literal (string): "ab  cd ef"
+        - Literal (string): " "
+  - Comment: "\n"
+  - Return
+    - Binary: +
+      - Binary: +
+        - Binary: +
+          - Binary: +
+            - Binary: +
+              - Binary: +
+                - Binary: +
+                  - Identifier: z
+                  - Literal (string): "|"
+                - Identifier: x
+              - Identifier: y
+            - Literal (string): "|"
+          - Identifier: a
+        - Literal (string): "|"
+      - ElementAccess
+        - Identifier: arr
+        - Literal (numeric): "2"
+

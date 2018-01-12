@@ -1,0 +1,27 @@
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: constant_arr
+      - ArrayLiteral
+        - Literal (numeric): "5"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: mutable_arr
+      - ArrayLiteral
+        - Literal (numeric): "1"
+  - ExpressionStatement
+    - Binary: <<
+      - Identifier: mutable_arr
+      - Literal (numeric): "2"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - PropertyAccess (.length)
+          - Identifier: constant_arr
+        - PropertyAccess (.length)
+          - Identifier: mutable_arr
+

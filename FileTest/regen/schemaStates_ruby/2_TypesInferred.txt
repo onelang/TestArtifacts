@@ -1,0 +1,8 @@
+TestClass::test_method(): any
+  - Variable: file_content [OneString]
+    - Call [OneString]
+      - MethodReference (static) [IO::read]
+      - Literal (string): "../../input/test.txt" [RubyString]
+  - Return
+    - LocalVar: file_content [OneString]
+

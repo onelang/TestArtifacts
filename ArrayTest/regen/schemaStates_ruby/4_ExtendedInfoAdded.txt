@@ -1,0 +1,21 @@
+TestClass::test_method(): any
+  - Variable: constant_arr [OneArray<OneNumber>]
+    - ArrayLiteral [OneArray<OneNumber>]
+      - Literal (numeric): "5" [OneNumber]
+  - Variable: mutable_arr [OneArray<OneNumber>]
+    - ArrayLiteral [OneArray<OneNumber>]
+      - Literal (numeric): "1" [OneNumber]
+  - ExpressionStatement
+    - Binary: << [any]
+      - LocalVar: mutable_arr [OneArray<OneNumber>]
+      - Literal (numeric): "2" [OneNumber]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - InstanceField: length [TsNumber]
+          - LocalVar: constant_arr [OneArray<OneNumber>]
+        - InstanceField: length [TsNumber]
+          - LocalVar: mutable_arr [OneArray<OneNumber>]
+

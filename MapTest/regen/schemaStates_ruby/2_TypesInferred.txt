@@ -1,0 +1,18 @@
+MapTestClass::map_test(): any
+  - Variable: map_obj [RubyMap<OneString, RubyNumber>]
+    - MapLiteral [RubyMap<OneString, RubyNumber>]
+      - Variable: x [RubyNumber]
+        - Literal (numeric): "5" [RubyNumber]
+  - Comment: "#let containsX = "x" in mapObj;\n#delete mapObj["x"];\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [RubyMap<OneString, RubyNumber>::set]
+        - LocalVar: map_obj [RubyMap<OneString, RubyNumber>]
+      - Literal (string): "x" [RubyString]
+      - Literal (numeric): "3" [RubyNumber]
+  - Return
+    - Call [void]
+      - MethodReference [RubyMap<OneString, RubyNumber>::get]
+        - LocalVar: map_obj [RubyMap<OneString, RubyNumber>]
+      - Literal (string): "x" [RubyString]
+

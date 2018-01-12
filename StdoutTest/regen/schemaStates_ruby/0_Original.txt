@@ -1,0 +1,42 @@
+TestClass::reverse_string(str: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: result
+      - Literal (string): ""
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: i
+      - Binary: -
+        - PropertyAccess (.length)
+          - Identifier: str
+        - Literal (numeric): "1"
+  - While
+      - Binary: >=
+        - Identifier: i
+        - Literal (numeric): "0"
+    Body
+      - ExpressionStatement
+        - Binary: +=
+          - Identifier: result
+          - ElementAccess
+            - Identifier: str
+            - Identifier: i
+      - ExpressionStatement
+        - Binary: -=
+          - Identifier: i
+          - Literal (numeric): "1"
+  - Return
+    - Identifier: result
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Call
+        - PropertyAccess (.reverse_string)
+          - Identifier: this
+        - Literal (string): "print value"
+  - Return
+    - Literal (string): "return value"
+

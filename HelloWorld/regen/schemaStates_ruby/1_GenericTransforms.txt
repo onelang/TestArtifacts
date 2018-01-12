@@ -1,0 +1,34 @@
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: value
+      - Binary: -
+        - Binary: +
+          - Literal (numeric): "1"
+          - Binary: *
+            - Literal (numeric): "2"
+            - Literal (numeric): "3"
+        - Literal (numeric): "4"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: map_
+      - MapLiteral
+        - Variable: a
+          - Literal (numeric): "5"
+        - Variable: b
+          - Literal (numeric): "6"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: text
+      - TemplateString
+        - Identifier: value
+        - Call
+          - PropertyAccess (.get)
+            - Identifier: map_
+          - Literal (string): "a"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Identifier: text
+

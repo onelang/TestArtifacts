@@ -1,0 +1,40 @@
+List::items: null
+
+Item::offset: null
+Item::str_test: null
+Item::str_constr: null
+
+Item::initialize(str_constr: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.offset)
+        - Identifier: this
+      - Literal (numeric): "5"
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.str_test)
+        - Identifier: this
+      - Binary: +
+        - Literal (string): "test"
+        - Literal (string): "test2"
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.str_constr)
+        - Identifier: this
+      - Literal (string): "constr"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.str_constr)
+        - Identifier: this
+      - Identifier: str_constr
+
+Container::item_list: null
+Container::string_list: null
+
+Container::method0(): any
+
+Container::method1(str: ???): any
+  - Return
+    - Identifier: str
+

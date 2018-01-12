@@ -1,0 +1,27 @@
+TokenType::end_token: OneString
+- Variable: end_token [OneString]
+  - Literal (string): "EndToken" [OneString]
+
+TokenType::whitespace: OneString
+- Variable: whitespace [OneString]
+  - Literal (string): "Whitespace" [OneString]
+
+TokenType::identifier: OneString
+- Variable: identifier [OneString]
+  - Literal (string): "Identifier" [OneString]
+
+TokenType::operator_x: OneString
+- Variable: operator_x [OneString]
+  - Literal (string): "Operator" [OneString]
+
+TokenType::no_initializer: null
+- Variable: no_initializer [null]
+  - Literal (null): "null" [null]
+
+TestClass::test_method(): any
+  - Variable: casing_test [OneString]
+    - StaticField: end_token [OneString]
+      - ClassReference [TokenType]
+  - Return
+    - LocalVar: casing_test [OneString]
+

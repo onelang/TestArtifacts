@@ -1,0 +1,19 @@
+TestClass::test_method(): any
+  - Variable: result [RubyArray<any>]
+    - ArrayLiteral [RubyArray<any>]
+  - Variable: map [RubyMap<OneString, RubyNumber>]
+    - MapLiteral [RubyMap<OneString, RubyNumber>]
+      - Variable: x [RubyNumber]
+        - Literal (numeric): "5" [RubyNumber]
+  - Variable: keys [RubyMap<OneString, RubyNumber>::keys]
+    - MethodReference [RubyMap<OneString, RubyNumber>::keys]
+      - LocalVar: map [RubyMap<OneString, RubyNumber>]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - LocalVar: result [RubyArray<any>]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - LocalVar: keys [RubyMap<OneString, RubyNumber>::keys]
+

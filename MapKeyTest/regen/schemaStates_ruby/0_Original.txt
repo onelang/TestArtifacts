@@ -1,0 +1,11 @@
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: map
+      - MapLiteral
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: keys
+      - PropertyAccess (.keys)
+        - Identifier: map
+

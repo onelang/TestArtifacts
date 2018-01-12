@@ -1,0 +1,37 @@
+TestClass::reverse_string(str: ???): any
+  - Variable: result [RubyString]
+    - Literal (string): "" [RubyString]
+  - Variable: i [any]
+    - Binary: - [any]
+      - PropertyAccess (.length) [any]
+        - MethodArgument: str [any]
+      - Literal (numeric): "1" [RubyNumber]
+  - While
+      - Binary: >= [OneBoolean]
+        - LocalVar: i [any]
+        - Literal (numeric): "0" [RubyNumber]
+    Body
+      - ExpressionStatement
+        - Binary: += [any]
+          - LocalVar: result [RubyString]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: str [any]
+            - LocalVar: i [any]
+      - ExpressionStatement
+        - Binary: -= [any]
+          - LocalVar: i [any]
+          - Literal (numeric): "1" [RubyNumber]
+  - Return
+    - LocalVar: result [RubyString]
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Call [any]
+        - MethodReference (this) [TestClass::reverse_string]
+        - Literal (string): "print value" [RubyString]
+  - Return
+    - Literal (string): "return value" [RubyString]
+

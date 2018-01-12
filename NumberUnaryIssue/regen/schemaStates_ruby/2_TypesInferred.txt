@@ -1,0 +1,6 @@
+NumberUnaryIssue::test(num: ???): any
+  - ExpressionStatement
+    - Binary: -= [any]
+      - MethodArgument: num [any]
+      - Literal (numeric): "1" [RubyNumber]
+

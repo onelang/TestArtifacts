@@ -1,0 +1,408 @@
+enum TokenKind: NUMBER, IDENTIFIER, OPERATOR_, STRING_
+
+Token::kind: null
+Token::value: null
+
+Token::initialize(kind: ???, value: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): kind [any]
+      - MethodArgument: kind [any]
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): value [any]
+      - MethodArgument: value [any]
+
+ExprLangLexer::offset: null
+ExprLangLexer::tokens: null
+ExprLangLexer::expression: null
+ExprLangLexer::operators: null
+
+ExprLangLexer::initialize(expression: ???, operators: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): offset [any]
+      - Literal (numeric): "0" [RubyNumber]
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): tokens [any]
+      - ArrayLiteral [RubyArray<any>]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): expression [any]
+      - MethodArgument: expression [any]
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): operators [any]
+      - MethodArgument: operators [any]
+  - If
+    - Unary (prefix): ! [any]
+      - Call [any]
+        - MethodReference (this) [ExprLangLexer::try_to_read_number]
+    Then
+      - ExpressionStatement
+        - Call [any]
+          - MethodReference (this) [ExprLangLexer::try_to_read_operator]
+      - ExpressionStatement
+        - Call [any]
+          - MethodReference (this) [ExprLangLexer::try_to_read_literal]
+  - Comment: "\n"
+  - While
+      - Call [any]
+        - MethodReference (this) [ExprLangLexer::has_more_token]
+    Body
+      - If
+        - Unary (prefix): ! [any]
+          - Call [any]
+            - MethodReference (this) [ExprLangLexer::try_to_read_operator]
+        Then
+          - ExpressionStatement
+            - Call [any]
+              - MethodReference (this) [ExprLangLexer::fail]
+              - Literal (string): "expected operator here" [RubyString]
+      - If
+        - Unary (prefix): ! [any]
+          - Call [any]
+            - MethodReference (this) [ExprLangLexer::try_to_read_literal]
+        Then
+          - ExpressionStatement
+            - Call [any]
+              - MethodReference (this) [ExprLangLexer::fail]
+              - Literal (string): "expected literal here" [RubyString]
+
+ExprLangLexer::fail(message: ???): any
+  - Variable: end_offset [any]
+    - Binary: + [any]
+      - InstanceField (this): offset [any]
+      - Literal (numeric): "30" [RubyNumber]
+  - If
+    - Binary: > [any]
+      - LocalVar: end_offset [any]
+      - PropertyAccess (.length) [any]
+        - InstanceField (this): expression [any]
+    Then
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: end_offset [any]
+          - PropertyAccess (.length) [any]
+            - InstanceField (this): expression [any]
+  - Variable: context [any]
+    - Binary: + [any]
+      - Call [any]
+        - PropertyAccess (.get) [any]
+          - InstanceField (this): expression [any]
+        - Binary: ... [any]
+          - InstanceField (this): offset [any]
+          - LocalVar: end_offset [any]
+      - Literal (string): "..." [RubyString]
+  - Throw
+    - TemplateString [OneString]
+      - MethodArgument: message [any]
+      - LocalVar: context [any]
+      - InstanceField (this): offset [any]
+
+ExprLangLexer::has_more_token(): any
+  - ExpressionStatement
+    - Call [any]
+      - MethodReference (this) [ExprLangLexer::skip_whitespace]
+  - Return
+    - Unary (prefix): ! [any]
+      - Call [any]
+        - MethodReference (this) [ExprLangLexer::eof]
+
+ExprLangLexer::add(kind: ???, value: ???): any
+  - ExpressionStatement
+    - Binary: << [any]
+      - InstanceField (this): tokens [any]
+      - Call [any]
+        - PropertyAccess (.new) [any]
+          - ClassReference [Token]
+        - MethodArgument: kind [any]
+        - MethodArgument: value [any]
+  - ExpressionStatement
+    - Binary: += [any]
+      - InstanceField (this): offset [any]
+      - PropertyAccess (.length) [any]
+        - MethodArgument: value [any]
+
+ExprLangLexer::try_to_match(pattern: ???): any
+  - Variable: matches [any]
+    - Call [any]
+      - PropertyAccess (.match_from_index) [any]
+        - PropertyAccess (.Regex) [any]
+          - Identifier: One [any]
+      - MethodArgument: pattern [any]
+      - InstanceField (this): expression [any]
+      - InstanceField (this): offset [any]
+  - Return
+    - Conditional [any]
+      - Binary: == [OneBoolean]
+        - LocalVar: matches [any]
+        - Literal (null): "null" [null]
+      - Literal (string): "" [RubyString]
+      - Call [any]
+        - PropertyAccess (.get) [any]
+          - LocalVar: matches [any]
+        - Literal (numeric): "0" [RubyNumber]
+
+ExprLangLexer::try_to_read_operator(): any
+  - ExpressionStatement
+    - Call [any]
+      - MethodReference (this) [ExprLangLexer::skip_whitespace]
+  - Foreach op: any
+    Items
+      - InstanceField (this): operators [any]
+    Body
+      - If
+        - Binary: == [OneBoolean]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - InstanceField (this): expression [any]
+            - Binary: + [any]
+              - Binary: ... [any]
+                - InstanceField (this): offset [any]
+                - InstanceField (this): offset [any]
+              - PropertyAccess (.length) [any]
+                - LocalVar: op [any]
+          - LocalVar: op [any]
+        Then
+          - ExpressionStatement
+            - Call [any]
+              - MethodReference (this) [ExprLangLexer::add]
+              - EnumMemberReference [TokenKind (enum)]
+              - LocalVar: op [any]
+          - Return
+            - Literal (boolean): true [RubyBoolean]
+  - Return
+    - Literal (boolean): false [RubyBoolean]
+
+ExprLangLexer::try_to_read_number(): any
+  - ExpressionStatement
+    - Call [any]
+      - MethodReference (this) [ExprLangLexer::skip_whitespace]
+  - Variable: number [any]
+    - Call [any]
+      - MethodReference (this) [ExprLangLexer::try_to_match]
+      - Literal (string): "[+-]?(\\\\d*\\\\.\\\\d+|\\\\d+\\\\.\\\\d+|0x[0-9a-fA-F_]+|0b[01_]+|[0-9_]+)" [RubyString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: number [any]
+      - Literal (string): "" [RubyString]
+    Then
+      - Return
+        - Literal (boolean): false [RubyBoolean]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [any]
+      - MethodReference (this) [ExprLangLexer::add]
+      - EnumMemberReference [TokenKind (enum)]
+      - LocalVar: number [any]
+  - Comment: "\n"
+  - If
+    - Binary: != [OneBoolean]
+      - Call [any]
+        - MethodReference (this) [ExprLangLexer::try_to_match]
+        - Literal (string): "[0-9a-zA-Z]" [RubyString]
+      - Literal (string): "" [RubyString]
+    Then
+      - ExpressionStatement
+        - Call [any]
+          - MethodReference (this) [ExprLangLexer::fail]
+          - Literal (string): "invalid character in number" [RubyString]
+  - Comment: "\n"
+  - Return
+    - Literal (boolean): true [RubyBoolean]
+
+ExprLangLexer::try_to_read_identifier(): any
+  - ExpressionStatement
+    - Call [any]
+      - MethodReference (this) [ExprLangLexer::skip_whitespace]
+  - Variable: identifier [any]
+    - Call [any]
+      - MethodReference (this) [ExprLangLexer::try_to_match]
+      - Literal (string): "[a-zA-Z_][a-zA-Z0-9_]*" [RubyString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: identifier [any]
+      - Literal (string): "" [RubyString]
+    Then
+      - Return
+        - Literal (boolean): false [RubyBoolean]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [any]
+      - MethodReference (this) [ExprLangLexer::add]
+      - EnumMemberReference [TokenKind (enum)]
+      - LocalVar: identifier [any]
+  - Return
+    - Literal (boolean): true [RubyBoolean]
+
+ExprLangLexer::try_to_read_string(): any
+  - ExpressionStatement
+    - Call [any]
+      - MethodReference (this) [ExprLangLexer::skip_whitespace]
+  - Variable: match [any]
+    - Call [any]
+      - MethodReference (this) [ExprLangLexer::try_to_match]
+      - Literal (string): "'(\\\\\\\\'|[^'])*'" [RubyString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: match [any]
+      - Literal (string): "" [RubyString]
+    Then
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: match [any]
+          - Call [any]
+            - MethodReference (this) [ExprLangLexer::try_to_match]
+            - Literal (string): "\\\"(\\\\\\\\\\\"|[^\\\"])*\\\"" [RubyString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: match [any]
+      - Literal (string): "" [RubyString]
+    Then
+      - Return
+        - Literal (boolean): false [RubyBoolean]
+  - Variable: str [any]
+    - Call [any]
+      - PropertyAccess (.get) [any]
+        - LocalVar: match [any]
+      - Binary: - [any]
+        - Binary: + [any]
+          - Binary: ... [any]
+            - Literal (numeric): "1" [RubyNumber]
+            - Literal (numeric): "1" [RubyNumber]
+          - PropertyAccess (.length) [any]
+            - LocalVar: match [any]
+        - Literal (numeric): "2" [RubyNumber]
+  - ExpressionStatement
+    - Binary: = [any]
+      - LocalVar: str [any]
+      - Conditional [any]
+        - Binary: == [OneBoolean]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - LocalVar: match [any]
+            - Literal (numeric): "0" [RubyNumber]
+          - Literal (string): "'" [RubyString]
+        - Call [any]
+          - PropertyAccess (.gsub) [any]
+            - LocalVar: str [any]
+          - Literal (string): "\\'" [RubyString]
+          - Literal (string): "'" [RubyString]
+        - Call [any]
+          - PropertyAccess (.gsub) [any]
+            - LocalVar: str [any]
+          - Literal (string): "\\\"" [RubyString]
+          - Literal (string): "\\\"" [RubyString]
+  - ExpressionStatement
+    - Binary: << [any]
+      - InstanceField (this): tokens [any]
+      - Call [any]
+        - PropertyAccess (.new) [any]
+          - ClassReference [Token]
+        - EnumMemberReference [TokenKind (enum)]
+        - LocalVar: str [any]
+  - ExpressionStatement
+    - Binary: += [any]
+      - InstanceField (this): offset [any]
+      - PropertyAccess (.length) [any]
+        - LocalVar: match [any]
+  - Return
+    - Literal (boolean): true [RubyBoolean]
+
+ExprLangLexer::eof(): any
+  - Return
+    - Binary: >= [OneBoolean]
+      - InstanceField (this): offset [any]
+      - PropertyAccess (.length) [any]
+        - InstanceField (this): expression [any]
+
+ExprLangLexer::skip_whitespace(): any
+  - While
+      - Unary (prefix): ! [any]
+        - Call [any]
+          - MethodReference (this) [ExprLangLexer::eof]
+    Body
+      - Variable: c [any]
+        - Call [any]
+          - PropertyAccess (.get) [any]
+            - InstanceField (this): expression [any]
+          - InstanceField (this): offset [any]
+      - If
+        - Binary: || [OneBoolean]
+          - Binary: || [OneBoolean]
+            - Binary: || [OneBoolean]
+              - Binary: == [OneBoolean]
+                - LocalVar: c [any]
+                - Literal (string): " " [RubyString]
+              - Binary: == [OneBoolean]
+                - LocalVar: c [any]
+                - Literal (string): "\\n" [RubyString]
+            - Binary: == [OneBoolean]
+              - LocalVar: c [any]
+              - Literal (string): "\\t" [RubyString]
+          - Binary: == [OneBoolean]
+            - LocalVar: c [any]
+            - Literal (string): "\\r" [RubyString]
+        Then
+          - ExpressionStatement
+            - Binary: += [any]
+              - InstanceField (this): offset [any]
+              - Literal (numeric): "1" [RubyNumber]
+        Else
+          - Break
+
+ExprLangLexer::try_to_read_literal(): any
+  - Variable: success [any]
+    - Binary: || [any]
+      - Binary: || [any]
+        - Call [any]
+          - MethodReference (this) [ExprLangLexer::try_to_read_identifier]
+        - Call [any]
+          - MethodReference (this) [ExprLangLexer::try_to_read_number]
+      - Call [any]
+        - MethodReference (this) [ExprLangLexer::try_to_read_string]
+  - Return
+    - LocalVar: success [any]
+
+TestClass::test_method(): any
+  - Variable: lexer [any]
+    - Call [any]
+      - PropertyAccess (.new) [any]
+        - ClassReference [ExprLangLexer]
+      - Literal (string): "1+2" [RubyString]
+      - ArrayLiteral [RubyArray<RubyString>]
+        - Literal (string): "+" [RubyString]
+  - Variable: result [RubyString]
+    - Literal (string): "" [RubyString]
+  - Foreach token: any
+    Items
+      - PropertyAccess (.tokens) [any]
+        - LocalVar: lexer [any]
+    Body
+      - If
+        - Binary: != [OneBoolean]
+          - LocalVar: result [RubyString]
+          - Literal (string): "" [RubyString]
+        Then
+          - ExpressionStatement
+            - Binary: += [any]
+              - LocalVar: result [RubyString]
+              - Literal (string): ", " [RubyString]
+      - ExpressionStatement
+        - Binary: += [any]
+          - LocalVar: result [RubyString]
+          - PropertyAccess (.value) [any]
+            - LocalVar: token [any]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - PropertyAccess (.length) [any]
+          - PropertyAccess (.tokens) [any]
+            - LocalVar: lexer [any]
+        - LocalVar: result [RubyString]
+

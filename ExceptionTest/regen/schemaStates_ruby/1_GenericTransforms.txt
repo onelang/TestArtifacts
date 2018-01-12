@@ -1,0 +1,21 @@
+TestClass::not_throws(): any
+  - Return
+    - Literal (numeric): "5"
+
+TestClass::f_throws(): any
+  - Throw
+    - Literal (string): "exception message"
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Call
+        - PropertyAccess (.not_throws)
+          - Identifier: this
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.f_throws)
+        - Identifier: this
+

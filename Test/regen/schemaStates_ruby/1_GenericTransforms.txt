@@ -1,0 +1,307 @@
+TestClass::map_test(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: map_obj
+      - MapLiteral
+        - Variable: x
+          - Literal (numeric): "5"
+        - Variable: y
+          - Literal (numeric): "3"
+  - Comment: "\n#let containsX = "x" in mapObj;\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.set)
+        - Identifier: map_obj
+      - Literal (string): "z"
+      - Literal (numeric): "9"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.delete)
+        - Identifier: map_obj
+      - Literal (string): "x"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: keys_var
+      - PropertyAccess (.keys)
+        - Identifier: map_obj
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: values_var
+      - PropertyAccess (.values)
+        - Identifier: map_obj
+  - Return
+    - Call
+      - PropertyAccess (.get)
+        - Identifier: map_obj
+      - Literal (string): "z"
+
+TestClass::explicit_type_test(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: op
+      - Literal (string): ""
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - PropertyAccess (.length)
+        - Identifier: op
+
+TestClass::if_test(x: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: result
+      - Literal (string): "<unk>"
+  - Comment: "\n"
+  - If
+    - Binary: >
+      - Identifier: x
+      - Literal (numeric): "3"
+    Then
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: result
+          - Literal (string): "hello"
+    Else
+      - If
+        - Binary: <
+          - Identifier: x
+          - Literal (numeric): "1"
+        Then
+          - ExpressionStatement
+            - Binary: =
+              - Identifier: result
+              - Literal (string): "bello"
+        Else
+          - If
+            - Binary: <
+              - Identifier: x
+              - Literal (numeric): "0"
+            Then
+              - ExpressionStatement
+                - Binary: =
+                  - Identifier: result
+                  - Literal (string): "bello2"
+            Else
+              - ExpressionStatement
+                - Binary: =
+                  - Identifier: result
+                  - Literal (string): "???"
+  - Comment: "\n"
+  - If
+    - Binary: >
+      - Identifier: x
+      - Literal (numeric): "3"
+    Then
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: result
+          - Literal (string): "z"
+  - Comment: "\n"
+  - If
+    - Binary: >
+      - Identifier: x
+      - Literal (numeric): "3"
+    Then
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: result
+          - Literal (string): "x"
+    Else
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: result
+          - Literal (string): "y"
+  - Comment: "\n"
+  - Return
+    - Identifier: result
+
+TestClass::array_test(): any
+  - Comment: "#const c2 = new Class2();\n\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: mutable_arr
+      - ArrayLiteral
+        - Literal (numeric): "1"
+        - Literal (numeric): "2"
+  - ExpressionStatement
+    - Binary: <<
+      - Identifier: mutable_arr
+      - Literal (numeric): "3"
+  - ExpressionStatement
+    - Binary: <<
+      - Identifier: mutable_arr
+      - Literal (numeric): "4"
+  - Comment: "# mutableArr.push(c2.property);\n# mutableArr.push(c2.child.property);\n# mutableArr.push(c2.child.child.property);\n\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: constant_arr
+      - ArrayLiteral
+        - Literal (numeric): "5"
+        - Literal (numeric): "6"
+  - Comment: "\n# some comment\n#   some comment line 2\n"
+  - Foreach item: undefined
+    Items
+      - Identifier: mutable_arr
+    Body
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Identifier: item
+  - Comment: "\n# some other comment\n# multiline and stuff\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: i
+      - Literal (numeric): "0"
+  - While
+      - Binary: <
+        - Identifier: i
+        - PropertyAccess (.length)
+          - Identifier: constant_arr
+    Body
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Call
+            - PropertyAccess (.get)
+              - Identifier: constant_arr
+            - Identifier: i
+      - ExpressionStatement
+        - Binary: +=
+          - Identifier: i
+          - Literal (numeric): "1"
+
+TestClass::calc(): any
+  - Return
+    - Binary: *
+      - Parenthesized
+        - Binary: +
+          - Literal (numeric): "1"
+          - Literal (numeric): "2"
+      - Literal (numeric): "3"
+
+TestClass::method_with_args(arg1: ???, arg2: ???, arg3: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: stuff
+      - Binary: +
+        - Binary: +
+          - Identifier: arg1
+          - Identifier: arg2
+        - Binary: *
+          - Identifier: arg3
+          - Call
+            - PropertyAccess (.calc)
+              - Identifier: this
+  - Return
+    - Identifier: stuff
+
+TestClass::string_test(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: x
+      - Literal (string): "x"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: y
+      - Literal (string): "y"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: z
+      - Literal (string): "z"
+  - ExpressionStatement
+    - Binary: +=
+      - Identifier: z
+      - Literal (string): "Z"
+  - ExpressionStatement
+    - Binary: +=
+      - Identifier: z
+      - Identifier: x
+  - Comment: "\n"
+  - Return
+    - Binary: +
+      - Binary: +
+        - Binary: +
+          - Identifier: z
+          - Literal (string): "|"
+        - Identifier: x
+      - Identifier: y
+
+TestClass::reverse_string(str: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: result
+      - Literal (string): ""
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: i
+      - Binary: -
+        - PropertyAccess (.length)
+          - Identifier: str
+        - Literal (numeric): "1"
+  - While
+      - Binary: >=
+        - Identifier: i
+        - Literal (numeric): "0"
+    Body
+      - ExpressionStatement
+        - Binary: +=
+          - Identifier: result
+          - Call
+            - PropertyAccess (.get)
+              - Identifier: str
+            - Identifier: i
+      - ExpressionStatement
+        - Binary: -=
+          - Identifier: i
+          - Literal (numeric): "1"
+  - Return
+    - Identifier: result
+
+TestClass::get_bool_result(value: ???): any
+  - Return
+    - Identifier: value
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.array_test)
+        - Identifier: this
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Call
+        - PropertyAccess (.map_test)
+          - Identifier: this
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Call
+        - PropertyAccess (.string_test)
+          - Identifier: this
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Call
+        - PropertyAccess (.reverse_string)
+          - Identifier: this
+        - Literal (string): "print value"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Conditional
+        - Call
+          - PropertyAccess (.get_bool_result)
+            - Identifier: this
+          - Literal (boolean): true
+        - Literal (string): "true"
+        - Literal (string): "false"
+

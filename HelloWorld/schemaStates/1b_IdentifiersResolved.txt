@@ -1,0 +1,28 @@
+TestClass::testMethod(): void
+  - Variable: value
+    - Binary: -
+      - Binary: +
+        - Literal (numeric): "1"
+        - Binary: *
+          - Literal (numeric): "2"
+          - Literal (numeric): "3"
+      - Literal (numeric): "4"
+  - Variable: map_
+    - MapLiteral
+      - Variable: a
+        - Literal (numeric): "5"
+      - Variable: b
+        - Literal (numeric): "6"
+  - Variable: text
+    - TemplateString
+      - LocalVar: value
+      - Call
+        - PropertyAccess (.get)
+          - LocalVar: map_
+        - Literal (string): "a"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - ClassReference
+      - LocalVar: text
+

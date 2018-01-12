@@ -1,0 +1,12 @@
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: op
+      - Literal (null): "null"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - PropertyAccess (.length)
+        - Identifier: op
+

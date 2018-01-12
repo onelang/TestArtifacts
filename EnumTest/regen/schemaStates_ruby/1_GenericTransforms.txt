@@ -1,0 +1,53 @@
+enum TestEnum: ITEM1, ITEM2
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: enum_v
+      - PropertyAccess (.ITEM1)
+        - Identifier: TestEnum
+  - If
+    - Binary: ==
+      - Binary: *
+        - Literal (numeric): "3"
+        - Literal (numeric): "2"
+      - Literal (numeric): "6"
+    Then
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: enum_v
+          - PropertyAccess (.ITEM2)
+            - Identifier: TestEnum
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: check1
+      - Conditional
+        - Binary: ==
+          - Identifier: enum_v
+          - PropertyAccess (.ITEM2)
+            - Identifier: TestEnum
+        - Literal (string): "SUCCESS"
+        - Literal (string): "FAIL"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: check2
+      - Conditional
+        - Binary: ==
+          - Identifier: enum_v
+          - PropertyAccess (.ITEM1)
+            - Identifier: TestEnum
+        - Literal (string): "FAIL"
+        - Literal (string): "SUCCESS"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - PropertyAccess (.ITEM1)
+          - Identifier: TestEnum
+        - Identifier: enum_v
+        - Identifier: check1
+        - Identifier: check2
+

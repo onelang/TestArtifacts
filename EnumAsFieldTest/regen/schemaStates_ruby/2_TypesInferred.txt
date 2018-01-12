@@ -1,0 +1,17 @@
+enum SomeKind: ENUM_VAL0, ENUM_VAL1, ENUM_VAL2
+
+TestClass::enum_field: null
+
+TestClass::initialize(): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): enum_field [any]
+      - EnumMemberReference [SomeKind (enum)]
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - InstanceField (this): enum_field [any]
+

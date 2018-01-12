@@ -1,0 +1,21 @@
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: str
+      - Literal (string): "A x B x C x D"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: result
+      - Call
+        - PropertyAccess (.gsub)
+          - Identifier: str
+        - Literal (string): "x"
+        - Literal (string): "y"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - Identifier: result
+        - Identifier: str
+

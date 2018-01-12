@@ -1,0 +1,71 @@
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: str
+      - Literal (string): "ABCDEF"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: t_a0_true
+      - Binary: ==
+        - Call
+          - PropertyAccess (.get)
+            - Identifier: str
+          - Binary: +
+            - Binary: ...
+              - Literal (numeric): "0"
+              - Literal (numeric): "0"
+            - PropertyAccess (.length)
+              - Literal (string): "A"
+        - Literal (string): "A"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: t_a1_false
+      - Binary: ==
+        - Call
+          - PropertyAccess (.get)
+            - Identifier: str
+          - Binary: +
+            - Binary: ...
+              - Literal (numeric): "1"
+              - Literal (numeric): "1"
+            - PropertyAccess (.length)
+              - Literal (string): "A"
+        - Literal (string): "A"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: t_b1_true
+      - Binary: ==
+        - Call
+          - PropertyAccess (.get)
+            - Identifier: str
+          - Binary: +
+            - Binary: ...
+              - Literal (numeric): "1"
+              - Literal (numeric): "1"
+            - PropertyAccess (.length)
+              - Literal (string): "B"
+        - Literal (string): "B"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: t_c_d2_true
+      - Binary: ==
+        - Call
+          - PropertyAccess (.get)
+            - Identifier: str
+          - Binary: +
+            - Binary: ...
+              - Literal (numeric): "2"
+              - Literal (numeric): "2"
+            - PropertyAccess (.length)
+              - Literal (string): "CD"
+        - Literal (string): "CD"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - Identifier: t_a0_true
+        - Identifier: t_a1_false
+        - Identifier: t_b1_true
+        - Identifier: t_c_d2_true
+

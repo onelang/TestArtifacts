@@ -1,0 +1,41 @@
+MapX::value: null
+
+MapX::set(key: ???, value: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.value)
+        - Identifier: this
+      - Identifier: value
+
+MapX::get(key: ???): any
+  - Return
+    - PropertyAccess (.value)
+      - Identifier: this
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: map_x
+      - Call
+        - PropertyAccess (.new)
+          - Identifier: MapX
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.set)
+        - Identifier: map_x
+      - Literal (string): "hello"
+      - Literal (numeric): "3"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: num_value
+      - Call
+        - PropertyAccess (.get)
+          - Identifier: map_x
+        - Literal (string): "hello2"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - Identifier: num_value
+

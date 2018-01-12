@@ -1,0 +1,16 @@
+TestClass::test_method(): any
+  - Variable: str [RubyString]
+    - Literal (string): "A x B x C x D" [RubyString]
+  - Variable: result [any]
+    - Call [any]
+      - PropertyAccess (.gsub) [any]
+        - LocalVar: str [RubyString]
+      - Literal (string): "x" [RubyString]
+      - Literal (string): "y" [RubyString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - LocalVar: result [any]
+        - LocalVar: str [RubyString]
+

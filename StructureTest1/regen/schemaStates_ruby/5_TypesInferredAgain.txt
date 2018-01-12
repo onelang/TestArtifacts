@@ -1,0 +1,36 @@
+List::items: null
+
+Item::offset: null
+Item::str_test: null
+Item::str_constr: null
+
+Item::initialize(str_constr: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): offset [any]
+      - Literal (numeric): "5" [OneNumber]
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): str_test [any]
+      - Binary: + [OneString]
+        - Literal (string): "test" [OneString]
+        - Literal (string): "test2" [OneString]
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): str_constr [any]
+      - Literal (string): "constr" [OneString]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): str_constr [any]
+      - MethodArgument: str_constr [any]
+
+Container::item_list: null
+Container::string_list: null
+
+Container::method0(): any
+
+Container::method1(str: ???): any
+  - Return
+    - MethodArgument: str [any]
+

@@ -1,0 +1,261 @@
+TestClass::map_test(): any
+  - Variable: map_obj [RubyMap<OneString, RubyNumber>]
+    - MapLiteral [RubyMap<OneString, RubyNumber>]
+      - Variable: x [RubyNumber]
+        - Literal (numeric): "5" [RubyNumber]
+      - Variable: y [RubyNumber]
+        - Literal (numeric): "3" [RubyNumber]
+  - Comment: "\n#let containsX = "x" in mapObj;\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [RubyMap<OneString, RubyNumber>::set]
+        - LocalVar: map_obj [RubyMap<OneString, RubyNumber>]
+      - Literal (string): "z" [RubyString]
+      - Literal (numeric): "9" [RubyNumber]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.delete) [any]
+        - LocalVar: map_obj [RubyMap<OneString, RubyNumber>]
+      - Literal (string): "x" [RubyString]
+  - Variable: keys_var [RubyMap<OneString, RubyNumber>::keys]
+    - MethodReference [RubyMap<OneString, RubyNumber>::keys]
+      - LocalVar: map_obj [RubyMap<OneString, RubyNumber>]
+  - Variable: values_var [RubyMap<OneString, RubyNumber>::values]
+    - MethodReference [RubyMap<OneString, RubyNumber>::values]
+      - LocalVar: map_obj [RubyMap<OneString, RubyNumber>]
+  - Return
+    - Call [void]
+      - MethodReference [RubyMap<OneString, RubyNumber>::get]
+        - LocalVar: map_obj [RubyMap<OneString, RubyNumber>]
+      - Literal (string): "z" [RubyString]
+
+TestClass::explicit_type_test(): any
+  - Variable: op [RubyString]
+    - Literal (string): "" [RubyString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - InstanceField: length [OneNumber]
+        - LocalVar: op [RubyString]
+
+TestClass::if_test(x: ???): any
+  - Variable: result [RubyString]
+    - Literal (string): "<unk>" [RubyString]
+  - Comment: "\n"
+  - If
+    - Binary: > [any]
+      - MethodArgument: x [any]
+      - Literal (numeric): "3" [RubyNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: result [RubyString]
+          - Literal (string): "hello" [RubyString]
+    Else
+      - If
+        - Binary: < [any]
+          - MethodArgument: x [any]
+          - Literal (numeric): "1" [RubyNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [any]
+              - LocalVar: result [RubyString]
+              - Literal (string): "bello" [RubyString]
+        Else
+          - If
+            - Binary: < [any]
+              - MethodArgument: x [any]
+              - Literal (numeric): "0" [RubyNumber]
+            Then
+              - ExpressionStatement
+                - Binary: = [any]
+                  - LocalVar: result [RubyString]
+                  - Literal (string): "bello2" [RubyString]
+            Else
+              - ExpressionStatement
+                - Binary: = [any]
+                  - LocalVar: result [RubyString]
+                  - Literal (string): "???" [RubyString]
+  - Comment: "\n"
+  - If
+    - Binary: > [any]
+      - MethodArgument: x [any]
+      - Literal (numeric): "3" [RubyNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: result [RubyString]
+          - Literal (string): "z" [RubyString]
+  - Comment: "\n"
+  - If
+    - Binary: > [any]
+      - MethodArgument: x [any]
+      - Literal (numeric): "3" [RubyNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: result [RubyString]
+          - Literal (string): "x" [RubyString]
+    Else
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: result [RubyString]
+          - Literal (string): "y" [RubyString]
+  - Comment: "\n"
+  - Return
+    - LocalVar: result [RubyString]
+
+TestClass::array_test(): any
+  - Variable: mutable_arr [RubyArray<RubyNumber>]
+    - ArrayLiteral [RubyArray<RubyNumber>]
+      - Literal (numeric): "1" [RubyNumber]
+      - Literal (numeric): "2" [RubyNumber]
+  - ExpressionStatement
+    - Binary: << [any]
+      - LocalVar: mutable_arr [RubyArray<RubyNumber>]
+      - Literal (numeric): "3" [RubyNumber]
+  - ExpressionStatement
+    - Binary: << [any]
+      - LocalVar: mutable_arr [RubyArray<RubyNumber>]
+      - Literal (numeric): "4" [RubyNumber]
+  - Variable: constant_arr [RubyArray<RubyNumber>]
+    - ArrayLiteral [RubyArray<RubyNumber>]
+      - Literal (numeric): "5" [RubyNumber]
+      - Literal (numeric): "6" [RubyNumber]
+  - Comment: "\n# some comment\n#   some comment line 2\n"
+  - Foreach item: RubyNumber
+    Items
+      - LocalVar: mutable_arr [RubyArray<RubyNumber>]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - LocalVar: item [RubyNumber]
+  - Variable: i [RubyNumber]
+    - Literal (numeric): "0" [RubyNumber]
+  - While
+      - Binary: < [any]
+        - LocalVar: i [RubyNumber]
+        - InstanceField: length [TsNumber]
+          - LocalVar: constant_arr [RubyArray<RubyNumber>]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Call [void]
+            - MethodReference [RubyArray<RubyNumber>::get]
+              - LocalVar: constant_arr [RubyArray<RubyNumber>]
+            - LocalVar: i [RubyNumber]
+      - ExpressionStatement
+        - Binary: += [any]
+          - LocalVar: i [RubyNumber]
+          - Literal (numeric): "1" [RubyNumber]
+
+TestClass::calc(): any
+  - Return
+    - Binary: * [any]
+      - Parenthesized [any]
+        - Binary: + [any]
+          - Literal (numeric): "1" [RubyNumber]
+          - Literal (numeric): "2" [RubyNumber]
+      - Literal (numeric): "3" [RubyNumber]
+
+TestClass::method_with_args(arg1: ???, arg2: ???, arg3: ???): any
+  - Variable: stuff [any]
+    - Binary: + [any]
+      - Binary: + [any]
+        - MethodArgument: arg1 [any]
+        - MethodArgument: arg2 [any]
+      - Binary: * [any]
+        - MethodArgument: arg3 [any]
+        - Call [any]
+          - MethodReference (this) [TestClass::calc]
+  - Return
+    - LocalVar: stuff [any]
+
+TestClass::string_test(): any
+  - Variable: x [RubyString]
+    - Literal (string): "x" [RubyString]
+  - Variable: y [RubyString]
+    - Literal (string): "y" [RubyString]
+  - Variable: z [RubyString]
+    - Literal (string): "z" [RubyString]
+  - ExpressionStatement
+    - Binary: += [any]
+      - LocalVar: z [RubyString]
+      - Literal (string): "Z" [RubyString]
+  - ExpressionStatement
+    - Binary: += [any]
+      - LocalVar: z [RubyString]
+      - LocalVar: x [RubyString]
+  - Comment: "\n"
+  - Return
+    - Binary: + [any]
+      - Binary: + [any]
+        - Binary: + [any]
+          - LocalVar: z [RubyString]
+          - Literal (string): "|" [RubyString]
+        - LocalVar: x [RubyString]
+      - LocalVar: y [RubyString]
+
+TestClass::reverse_string(str: ???): any
+  - Variable: result [RubyString]
+    - Literal (string): "" [RubyString]
+  - Variable: i [any]
+    - Binary: - [any]
+      - PropertyAccess (.length) [any]
+        - MethodArgument: str [any]
+      - Literal (numeric): "1" [RubyNumber]
+  - While
+      - Binary: >= [OneBoolean]
+        - LocalVar: i [any]
+        - Literal (numeric): "0" [RubyNumber]
+    Body
+      - ExpressionStatement
+        - Binary: += [any]
+          - LocalVar: result [RubyString]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: str [any]
+            - LocalVar: i [any]
+      - ExpressionStatement
+        - Binary: -= [any]
+          - LocalVar: i [any]
+          - Literal (numeric): "1" [RubyNumber]
+  - Return
+    - LocalVar: result [RubyString]
+
+TestClass::get_bool_result(value: ???): any
+  - Return
+    - MethodArgument: value [any]
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call [any]
+      - MethodReference (this) [TestClass::array_test]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Call [any]
+        - MethodReference (this) [TestClass::map_test]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Call [any]
+        - MethodReference (this) [TestClass::string_test]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Call [any]
+        - MethodReference (this) [TestClass::reverse_string]
+        - Literal (string): "print value" [RubyString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Conditional [RubyString]
+        - Call [any]
+          - MethodReference (this) [TestClass::get_bool_result]
+          - Literal (boolean): true [RubyBoolean]
+        - Literal (string): "true" [RubyString]
+        - Literal (string): "false" [RubyString]
+

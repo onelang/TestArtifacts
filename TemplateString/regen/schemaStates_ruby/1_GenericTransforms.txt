@@ -1,0 +1,60 @@
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: str_val
+      - Literal (string): "str"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: num
+      - Literal (numeric): "1337"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: b
+      - Literal (boolean): true
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: result
+      - TemplateString
+        - Identifier: str_val
+        - Identifier: num
+        - Identifier: b
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Identifier: result
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - Identifier: str_val
+        - Identifier: num
+        - Identifier: b
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: result2
+      - Binary: +
+        - Binary: +
+          - Binary: +
+            - Binary: +
+              - Binary: +
+                - Binary: +
+                  - Literal (string): "before "
+                  - Identifier: str_val
+                - Literal (string): ", num: "
+              - PropertyAccess (.to_s)
+                - Parenthesized
+                  - Identifier: num
+            - Literal (string): ", true: "
+          - PropertyAccess (.to_s)
+            - Parenthesized
+              - Identifier: b
+        - Literal (string): " after"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Identifier: result2
+

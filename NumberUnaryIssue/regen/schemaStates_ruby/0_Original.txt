@@ -1,0 +1,6 @@
+NumberUnaryIssue::test(num: ???): any
+  - ExpressionStatement
+    - Binary: -=
+      - Identifier: num
+      - Literal (numeric): "1"
+

@@ -1,0 +1,5 @@
+StrLenInferIssue::test(str: ???): any
+  - Return
+    - PropertyAccess (.length)
+      - Identifier: str
+

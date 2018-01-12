@@ -1,0 +1,219 @@
+TargetClass::instance_field: null
+TargetClass::static_field: null
+- Variable: static_field
+  - Literal (string): "hello"
+
+TargetClass::initialize(): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.instance_field)
+        - Identifier: this
+      - Literal (numeric): "5"
+
+TargetClass::static_method(arg1: ???): any [static]
+  - Return
+    - TemplateString
+      - Identifier: arg1
+      - PropertyAccess (.static_field)
+        - Identifier: TargetClass
+
+TargetClass::instance_method(): any
+  - Return
+    - TemplateString
+      - PropertyAccess (.instance_field)
+        - Identifier: this
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: obj
+      - Call
+        - PropertyAccess (.new)
+          - Identifier: TargetClass
+  - Comment: "#console.log(`instanceMethod (direct): ${obj.instanceMethod()}`);\n#console.log(`staticMethod (direct): ${TargetClass.staticMethod("arg1value")}`);\n#console.log(`instanceField (direct): ${obj.instanceField}`);\n#console.log(`staticField (direct): ${TargetClass.staticField}`);\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: cls
+      - Call
+        - PropertyAccess (.get_class)
+          - PropertyAccess (.Reflect)
+            - Identifier: One
+        - Identifier: obj
+  - If
+    - Binary: ==
+      - Identifier: cls
+      - Literal (null): "null"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Literal (string): "cls is null!"
+      - Return
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: cls2
+      - Call
+        - PropertyAccess (.get_class_by_name)
+          - PropertyAccess (.Reflect)
+            - Identifier: One
+        - Literal (string): "TargetClass"
+  - If
+    - Binary: ==
+      - Identifier: cls2
+      - Literal (null): "null"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Literal (string): "cls2 is null!"
+      - Return
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: method1
+      - Call
+        - PropertyAccess (.get_method)
+          - Identifier: cls
+        - Literal (string): "instanceMethod"
+  - If
+    - Binary: ==
+      - Identifier: method1
+      - Literal (null): "null"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Literal (string): "method1 is null!"
+      - Return
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: method1_result
+      - Call
+        - PropertyAccess (.call)
+          - Identifier: method1
+        - Identifier: obj
+        - ArrayLiteral
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - Identifier: method1_result
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: method2
+      - Call
+        - PropertyAccess (.get_method)
+          - Identifier: cls
+        - Literal (string): "staticMethod"
+  - If
+    - Binary: ==
+      - Identifier: method2
+      - Literal (null): "null"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Literal (string): "method2 is null!"
+      - Return
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: method2_result
+      - Call
+        - PropertyAccess (.call)
+          - Identifier: method2
+        - Literal (null): "null"
+        - ArrayLiteral
+          - Literal (string): "arg1value"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - Identifier: method2_result
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: field1
+      - Call
+        - PropertyAccess (.get_field)
+          - Identifier: cls
+        - Literal (string): "instanceField"
+  - If
+    - Binary: ==
+      - Identifier: field1
+      - Literal (null): "null"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Literal (string): "field1 is null!"
+      - Return
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.set_value)
+        - Identifier: field1
+      - Identifier: obj
+      - Literal (numeric): "6"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: field1_new_val
+      - Call
+        - PropertyAccess (.get_value)
+          - Identifier: field1
+        - Identifier: obj
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - PropertyAccess (.instance_field)
+          - Identifier: obj
+        - Identifier: field1_new_val
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: field2
+      - Call
+        - PropertyAccess (.get_field)
+          - Identifier: cls
+        - Literal (string): "staticField"
+  - If
+    - Binary: ==
+      - Identifier: field2
+      - Literal (null): "null"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Literal (string): "field2 is null!"
+      - Return
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.set_value)
+        - Identifier: field2
+      - Literal (null): "null"
+      - Literal (string): "bello"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: field2_new_val
+      - Call
+        - PropertyAccess (.get_value)
+          - Identifier: field2
+        - Literal (null): "null"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - PropertyAccess (.static_field)
+          - Identifier: TargetClass
+        - Identifier: field2_new_val
+

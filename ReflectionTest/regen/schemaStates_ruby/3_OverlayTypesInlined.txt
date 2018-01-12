@@ -1,0 +1,180 @@
+TargetClass::instance_field: null
+TargetClass::static_field: OneString
+- Variable: static_field [OneString]
+  - Literal (string): "hello" [OneString]
+
+TargetClass::initialize(): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): instance_field [any]
+      - Literal (numeric): "5" [OneNumber]
+
+TargetClass::static_method(arg1: ???): any [static]
+  - Return
+    - TemplateString [OneString]
+      - MethodArgument: arg1 [any]
+      - StaticField: static_field [any]
+        - ClassReference [TargetClass]
+
+TargetClass::instance_method(): any
+  - Return
+    - TemplateString [OneString]
+      - InstanceField (this): instance_field [any]
+
+TestClass::test_method(): any
+  - Variable: obj [any]
+    - Call [any]
+      - PropertyAccess (.new) [any]
+        - ClassReference [TargetClass]
+  - Variable: cls [any]
+    - Call [any]
+      - PropertyAccess (.get_class) [any]
+        - PropertyAccess (.Reflect) [any]
+          - Identifier: One [any]
+      - LocalVar: obj [any]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: cls [any]
+      - Literal (null): "null" [null]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Literal (string): "cls is null!" [OneString]
+      - Return
+  - Variable: cls2 [any]
+    - Call [any]
+      - PropertyAccess (.get_class_by_name) [any]
+        - PropertyAccess (.Reflect) [any]
+          - Identifier: One [any]
+      - Literal (string): "TargetClass" [OneString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: cls2 [any]
+      - Literal (null): "null" [null]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Literal (string): "cls2 is null!" [OneString]
+      - Return
+  - Variable: method1 [any]
+    - Call [any]
+      - PropertyAccess (.get_method) [any]
+        - LocalVar: cls [any]
+      - Literal (string): "instanceMethod" [OneString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: method1 [any]
+      - Literal (null): "null" [null]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Literal (string): "method1 is null!" [OneString]
+      - Return
+  - Variable: method1_result [any]
+    - Call [any]
+      - PropertyAccess (.call) [any]
+        - LocalVar: method1 [any]
+      - LocalVar: obj [any]
+      - ArrayLiteral [OneArray<any>]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - LocalVar: method1_result [any]
+  - Variable: method2 [any]
+    - Call [any]
+      - PropertyAccess (.get_method) [any]
+        - LocalVar: cls [any]
+      - Literal (string): "staticMethod" [OneString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: method2 [any]
+      - Literal (null): "null" [null]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Literal (string): "method2 is null!" [OneString]
+      - Return
+  - Variable: method2_result [any]
+    - Call [any]
+      - PropertyAccess (.call) [any]
+        - LocalVar: method2 [any]
+      - Literal (null): "null" [null]
+      - ArrayLiteral [OneArray<OneString>]
+        - Literal (string): "arg1value" [OneString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - LocalVar: method2_result [any]
+  - Variable: field1 [any]
+    - Call [any]
+      - PropertyAccess (.get_field) [any]
+        - LocalVar: cls [any]
+      - Literal (string): "instanceField" [OneString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: field1 [any]
+      - Literal (null): "null" [null]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Literal (string): "field1 is null!" [OneString]
+      - Return
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.set_value) [any]
+        - LocalVar: field1 [any]
+      - LocalVar: obj [any]
+      - Literal (numeric): "6" [OneNumber]
+  - Variable: field1_new_val [any]
+    - Call [any]
+      - PropertyAccess (.get_value) [any]
+        - LocalVar: field1 [any]
+      - LocalVar: obj [any]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - PropertyAccess (.instance_field) [any]
+          - LocalVar: obj [any]
+        - LocalVar: field1_new_val [any]
+  - Variable: field2 [any]
+    - Call [any]
+      - PropertyAccess (.get_field) [any]
+        - LocalVar: cls [any]
+      - Literal (string): "staticField" [OneString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: field2 [any]
+      - Literal (null): "null" [null]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Literal (string): "field2 is null!" [OneString]
+      - Return
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.set_value) [any]
+        - LocalVar: field2 [any]
+      - Literal (null): "null" [null]
+      - Literal (string): "bello" [OneString]
+  - Variable: field2_new_val [any]
+    - Call [any]
+      - PropertyAccess (.get_value) [any]
+        - LocalVar: field2 [any]
+      - Literal (null): "null" [null]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - StaticField: static_field [OneString]
+          - ClassReference [TargetClass]
+        - LocalVar: field2_new_val [any]
+

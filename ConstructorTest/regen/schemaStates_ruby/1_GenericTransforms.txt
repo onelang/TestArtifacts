@@ -1,0 +1,35 @@
+ConstructorTest::field2: null
+ConstructorTest::field1: null
+
+ConstructorTest::initialize(field1: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.field1)
+        - Identifier: this
+      - Identifier: field1
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.field2)
+        - Identifier: this
+      - Binary: *
+        - Binary: *
+          - Identifier: field1
+          - PropertyAccess (.field1)
+            - Identifier: this
+        - Literal (numeric): "5"
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: test
+      - Call
+        - PropertyAccess (.new)
+          - Identifier: ConstructorTest
+        - Literal (numeric): "3"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - PropertyAccess (.field2)
+        - Identifier: test
+

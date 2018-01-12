@@ -1,0 +1,18 @@
+TestClass::not_throws(): any
+  - Return
+    - Literal (numeric): "5" [OneNumber]
+
+TestClass::f_throws(): any
+  - Throw
+    - Literal (string): "exception message" [OneString]
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Call [any]
+        - MethodReference (this) [TestClass::not_throws]
+  - ExpressionStatement
+    - Call [any]
+      - MethodReference (this) [TestClass::f_throws]
+

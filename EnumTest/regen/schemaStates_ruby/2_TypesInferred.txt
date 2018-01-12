@@ -1,0 +1,40 @@
+enum TestEnum: ITEM1, ITEM2
+
+TestClass::test_method(): any
+  - Variable: enum_v [TestEnum (enum)]
+    - EnumMemberReference [TestEnum (enum)]
+  - If
+    - Binary: == [OneBoolean]
+      - Binary: * [any]
+        - Literal (numeric): "3" [RubyNumber]
+        - Literal (numeric): "2" [RubyNumber]
+      - Literal (numeric): "6" [RubyNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: enum_v [TestEnum (enum)]
+          - EnumMemberReference [TestEnum (enum)]
+  - Variable: check1 [RubyString]
+    - Conditional [RubyString]
+      - Binary: == [OneBoolean]
+        - LocalVar: enum_v [TestEnum (enum)]
+        - EnumMemberReference [TestEnum (enum)]
+      - Literal (string): "SUCCESS" [RubyString]
+      - Literal (string): "FAIL" [RubyString]
+  - Variable: check2 [RubyString]
+    - Conditional [RubyString]
+      - Binary: == [OneBoolean]
+        - LocalVar: enum_v [TestEnum (enum)]
+        - EnumMemberReference [TestEnum (enum)]
+      - Literal (string): "FAIL" [RubyString]
+      - Literal (string): "SUCCESS" [RubyString]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - EnumMemberReference [TestEnum (enum)]
+        - LocalVar: enum_v [TestEnum (enum)]
+        - LocalVar: check1 [RubyString]
+        - LocalVar: check2 [RubyString]
+

@@ -1,0 +1,9 @@
+TestClass::test_method(): any
+  - Variable: op [null]
+    - Literal (null): "null" [null]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - PropertyAccess (.length) [any]
+        - LocalVar: op [null]
+

@@ -1,0 +1,14 @@
+TestClass::get_result(): any
+  - Return
+    - Literal (boolean): true [RubyBoolean]
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Conditional [OneString]
+        - Call [any]
+          - MethodReference (this) [TestClass::get_result]
+        - Literal (string): "true" [OneString]
+        - Literal (string): "false" [OneString]
+

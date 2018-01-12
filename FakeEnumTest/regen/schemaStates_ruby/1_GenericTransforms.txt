@@ -1,0 +1,29 @@
+TokenType::end_token: null
+- Variable: end_token
+  - Literal (string): "EndToken"
+
+TokenType::whitespace: null
+- Variable: whitespace
+  - Literal (string): "Whitespace"
+
+TokenType::identifier: null
+- Variable: identifier
+  - Literal (string): "Identifier"
+
+TokenType::operator_x: null
+- Variable: operator_x
+  - Literal (string): "Operator"
+
+TokenType::no_initializer: null
+- Variable: no_initializer
+  - Literal (null): "null"
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: casing_test
+      - PropertyAccess (.end_token)
+        - Identifier: TokenType
+  - Return
+    - Identifier: casing_test
+

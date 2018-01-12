@@ -1,0 +1,313 @@
+TokenType::end_token: RubyString
+- Variable: end_token [RubyString]
+  - Literal (string): "EndToken" [RubyString]
+
+TokenType::whitespace: RubyString
+- Variable: whitespace [RubyString]
+  - Literal (string): "Whitespace" [RubyString]
+
+TokenType::identifier: RubyString
+- Variable: identifier [RubyString]
+  - Literal (string): "Identifier" [RubyString]
+
+TokenType::operator_x: RubyString
+- Variable: operator_x [RubyString]
+  - Literal (string): "Operator" [RubyString]
+
+Token::value: null
+Token::is_operator: null
+
+Token::initialize(value: ???, is_operator: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): value [any]
+      - MethodArgument: value [any]
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): is_operator [any]
+      - MethodArgument: is_operator [any]
+
+StringHelper::starts_with_at_index(str: ???, substr: ???, idx: ???): any [static]
+  - Return
+    - Binary: == [OneBoolean]
+      - Call [any]
+        - PropertyAccess (.get) [any]
+          - MethodArgument: str [any]
+        - Binary: + [any]
+          - Binary: ... [any]
+            - MethodArgument: idx [any]
+            - MethodArgument: idx [any]
+          - PropertyAccess (.length) [any]
+            - MethodArgument: substr [any]
+      - MethodArgument: substr [any]
+
+Tokenizer::offset: null
+Tokenizer::text: null
+Tokenizer::operators: null
+
+Tokenizer::initialize(text: ???, operators: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): text [any]
+      - MethodArgument: text [any]
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): operators [any]
+      - MethodArgument: operators [any]
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): offset [any]
+      - Literal (numeric): "0" [RubyNumber]
+
+Tokenizer::get_token_type(): any
+  - If
+    - Binary: >= [OneBoolean]
+      - InstanceField (this): offset [any]
+      - PropertyAccess (.length) [any]
+        - InstanceField (this): text [any]
+    Then
+      - Return
+        - StaticField: end_token [RubyString]
+          - ClassReference [TokenType]
+  - Variable: c [any]
+    - Call [any]
+      - PropertyAccess (.get) [any]
+        - InstanceField (this): text [any]
+      - InstanceField (this): offset [any]
+  - Return
+    - Conditional [RubyString]
+      - Binary: || [OneBoolean]
+        - Binary: || [OneBoolean]
+          - Binary: || [OneBoolean]
+            - Binary: == [OneBoolean]
+              - LocalVar: c [any]
+              - Literal (string): " " [RubyString]
+            - Binary: == [OneBoolean]
+              - LocalVar: c [any]
+              - Literal (string): "\\n" [RubyString]
+          - Binary: == [OneBoolean]
+            - LocalVar: c [any]
+            - Literal (string): "\\t" [RubyString]
+        - Binary: == [OneBoolean]
+          - LocalVar: c [any]
+          - Literal (string): "\\r" [RubyString]
+      - StaticField: whitespace [RubyString]
+        - ClassReference [TokenType]
+      - Conditional [RubyString]
+        - Binary: || [OneBoolean]
+          - Binary: || [OneBoolean]
+            - Binary: || [OneBoolean]
+              - Parenthesized [OneBoolean]
+                - Binary: && [OneBoolean]
+                  - Binary: <= [OneBoolean]
+                    - Literal (string): "A" [RubyString]
+                    - LocalVar: c [any]
+                  - Binary: <= [OneBoolean]
+                    - LocalVar: c [any]
+                    - Literal (string): "Z" [RubyString]
+              - Parenthesized [OneBoolean]
+                - Binary: && [OneBoolean]
+                  - Binary: <= [OneBoolean]
+                    - Literal (string): "a" [RubyString]
+                    - LocalVar: c [any]
+                  - Binary: <= [OneBoolean]
+                    - LocalVar: c [any]
+                    - Literal (string): "z" [RubyString]
+            - Parenthesized [OneBoolean]
+              - Binary: && [OneBoolean]
+                - Binary: <= [OneBoolean]
+                  - Literal (string): "0" [RubyString]
+                  - LocalVar: c [any]
+                - Binary: <= [OneBoolean]
+                  - LocalVar: c [any]
+                  - Literal (string): "9" [RubyString]
+          - Binary: == [OneBoolean]
+            - LocalVar: c [any]
+            - Literal (string): "_" [RubyString]
+        - StaticField: identifier [RubyString]
+          - ClassReference [TokenType]
+        - StaticField: operator_x [RubyString]
+          - ClassReference [TokenType]
+
+Tokenizer::tokenize(): any
+  - Variable: result [RubyArray<any>]
+    - ArrayLiteral [RubyArray<any>]
+  - Comment: "\n"
+  - While
+      - Binary: < [any]
+        - InstanceField (this): offset [any]
+        - PropertyAccess (.length) [any]
+          - InstanceField (this): text [any]
+    Body
+      - Variable: char_type [any]
+        - Call [any]
+          - MethodReference (this) [Tokenizer::get_token_type]
+      - If
+        - Binary: == [OneBoolean]
+          - LocalVar: char_type [any]
+          - StaticField: whitespace [RubyString]
+            - ClassReference [TokenType]
+        Then
+          - While
+              - Binary: == [OneBoolean]
+                - Call [any]
+                  - MethodReference (this) [Tokenizer::get_token_type]
+                - StaticField: whitespace [RubyString]
+                  - ClassReference [TokenType]
+            Body
+              - ExpressionStatement
+                - Binary: += [any]
+                  - InstanceField (this): offset [any]
+                  - Literal (numeric): "1" [RubyNumber]
+        Else
+          - If
+            - Binary: == [OneBoolean]
+              - LocalVar: char_type [any]
+              - StaticField: identifier [RubyString]
+                - ClassReference [TokenType]
+            Then
+              - Variable: start_offset [any]
+                - InstanceField (this): offset [any]
+              - While
+                  - Binary: == [OneBoolean]
+                    - Call [any]
+                      - MethodReference (this) [Tokenizer::get_token_type]
+                    - StaticField: identifier [RubyString]
+                      - ClassReference [TokenType]
+                Body
+                  - ExpressionStatement
+                    - Binary: += [any]
+                      - InstanceField (this): offset [any]
+                      - Literal (numeric): "1" [RubyNumber]
+              - Variable: identifier [any]
+                - Call [any]
+                  - PropertyAccess (.get) [any]
+                    - InstanceField (this): text [any]
+                  - Binary: ... [any]
+                    - LocalVar: start_offset [any]
+                    - InstanceField (this): offset [any]
+              - ExpressionStatement
+                - Binary: << [any]
+                  - LocalVar: result [RubyArray<any>]
+                  - Call [any]
+                    - PropertyAccess (.new) [any]
+                      - ClassReference [Token]
+                    - LocalVar: identifier [any]
+                    - Literal (boolean): false [RubyBoolean]
+            Else
+              - Variable: op [RubyString]
+                - Literal (string): "" [RubyString]
+              - Foreach curr_op: any
+                Items
+                  - InstanceField (this): operators [any]
+                Body
+                  - If
+                    - Call [any]
+                      - MethodReference (static) [StringHelper::starts_with_at_index]
+                      - InstanceField (this): text [any]
+                      - LocalVar: curr_op [any]
+                      - InstanceField (this): offset [any]
+                    Then
+                      - ExpressionStatement
+                        - Binary: = [any]
+                          - LocalVar: op [RubyString]
+                          - LocalVar: curr_op [any]
+                      - Break
+              - If
+                - Binary: == [OneBoolean]
+                  - LocalVar: op [RubyString]
+                  - Literal (string): "" [RubyString]
+                Then
+                  - Break
+              - ExpressionStatement
+                - Binary: += [any]
+                  - InstanceField (this): offset [any]
+                  - InstanceField: length [OneNumber]
+                    - LocalVar: op [RubyString]
+              - ExpressionStatement
+                - Binary: << [any]
+                  - LocalVar: result [RubyArray<any>]
+                  - Call [any]
+                    - PropertyAccess (.new) [any]
+                      - ClassReference [Token]
+                    - LocalVar: op [RubyString]
+                    - Literal (boolean): true [RubyBoolean]
+  - Comment: "\n"
+  - Return
+    - LocalVar: result [RubyArray<any>]
+
+TestClass::test_method(): any
+  - Variable: operators [RubyArray<RubyString>]
+    - ArrayLiteral [RubyArray<RubyString>]
+      - Literal (string): "<<" [RubyString]
+      - Literal (string): ">>" [RubyString]
+      - Literal (string): "++" [RubyString]
+      - Literal (string): "--" [RubyString]
+      - Literal (string): "==" [RubyString]
+      - Literal (string): "!=" [RubyString]
+      - Literal (string): "!" [RubyString]
+      - Literal (string): "<" [RubyString]
+      - Literal (string): ">" [RubyString]
+      - Literal (string): "=" [RubyString]
+      - Literal (string): "(" [RubyString]
+      - Literal (string): ")" [RubyString]
+      - Literal (string): "[" [RubyString]
+      - Literal (string): "]" [RubyString]
+      - Literal (string): "{" [RubyString]
+      - Literal (string): "}" [RubyString]
+      - Literal (string): ";" [RubyString]
+      - Literal (string): "+" [RubyString]
+      - Literal (string): "-" [RubyString]
+      - Literal (string): "*" [RubyString]
+      - Literal (string): "/" [RubyString]
+      - Literal (string): "&&" [RubyString]
+      - Literal (string): "&" [RubyString]
+      - Literal (string): "%" [RubyString]
+      - Literal (string): "||" [RubyString]
+      - Literal (string): "|" [RubyString]
+      - Literal (string): "^" [RubyString]
+      - Literal (string): "," [RubyString]
+      - Literal (string): "." [RubyString]
+  - Variable: input [RubyString]
+    - Literal (string): "hello * 5" [RubyString]
+  - Variable: tokenizer [any]
+    - Call [any]
+      - PropertyAccess (.new) [any]
+        - ClassReference [Tokenizer]
+      - LocalVar: input [RubyString]
+      - LocalVar: operators [RubyArray<RubyString>]
+  - Variable: result [any]
+    - Call [any]
+      - PropertyAccess (.tokenize) [any]
+        - LocalVar: tokenizer [any]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Literal (string): "token count:" [RubyString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - PropertyAccess (.length) [any]
+        - LocalVar: result [any]
+  - Foreach item: any
+    Items
+      - LocalVar: result [any]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Binary: + [any]
+            - Binary: + [any]
+              - Binary: + [any]
+                - PropertyAccess (.value) [any]
+                  - LocalVar: item [any]
+                - Literal (string): "(" [RubyString]
+              - Parenthesized [RubyString]
+                - Conditional [RubyString]
+                  - PropertyAccess (.is_operator) [any]
+                    - LocalVar: item [any]
+                  - Literal (string): "op" [RubyString]
+                  - Literal (string): "id" [RubyString]
+            - Literal (string): ")" [RubyString]
+

@@ -1,0 +1,37 @@
+TestClass::reverse_string(str: ???): any
+  - Variable: result [OneString]
+    - Literal (string): "" [OneString]
+  - Variable: i [any]
+    - Binary: - [any]
+      - PropertyAccess (.length) [any]
+        - MethodArgument: str [any]
+      - Literal (numeric): "1" [OneNumber]
+  - While
+      - Binary: >= [OneBoolean]
+        - LocalVar: i [any]
+        - Literal (numeric): "0" [OneNumber]
+    Body
+      - ExpressionStatement
+        - Binary: += [OneString]
+          - LocalVar: result [OneString]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: str [any]
+            - LocalVar: i [any]
+      - ExpressionStatement
+        - Binary: -= [any]
+          - LocalVar: i [any]
+          - Literal (numeric): "1" [OneNumber]
+  - Return
+    - LocalVar: result [OneString]
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Call [any]
+        - MethodReference (this) [TestClass::reverse_string]
+        - Literal (string): "print value" [OneString]
+  - Return
+    - Literal (string): "return value" [OneString]
+

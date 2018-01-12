@@ -1,0 +1,27 @@
+TokenType::end_token: RubyString
+- Variable: end_token [RubyString]
+  - Literal (string): "EndToken" [RubyString]
+
+TokenType::whitespace: RubyString
+- Variable: whitespace [RubyString]
+  - Literal (string): "Whitespace" [RubyString]
+
+TokenType::identifier: RubyString
+- Variable: identifier [RubyString]
+  - Literal (string): "Identifier" [RubyString]
+
+TokenType::operator_x: RubyString
+- Variable: operator_x [RubyString]
+  - Literal (string): "Operator" [RubyString]
+
+TokenType::no_initializer: null
+- Variable: no_initializer [null]
+  - Literal (null): "null" [null]
+
+TestClass::test_method(): any
+  - Variable: casing_test [RubyString]
+    - StaticField: end_token [RubyString]
+      - ClassReference [TokenType]
+  - Return
+    - LocalVar: casing_test [RubyString]
+

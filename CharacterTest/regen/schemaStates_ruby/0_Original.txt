@@ -1,0 +1,70 @@
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: str
+      - Literal (string): "a1A"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: i
+      - Literal (numeric): "0"
+  - While
+      - Binary: <
+        - Identifier: i
+        - PropertyAccess (.length)
+          - Identifier: str
+    Body
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: c
+          - ElementAccess
+            - Identifier: str
+            - Identifier: i
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: is_upper
+          - Binary: &&
+            - Binary: <=
+              - Literal (string): "A"
+              - Identifier: c
+            - Binary: <=
+              - Identifier: c
+              - Literal (string): "Z"
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: is_lower
+          - Binary: &&
+            - Binary: <=
+              - Literal (string): "a"
+              - Identifier: c
+            - Binary: <=
+              - Identifier: c
+              - Literal (string): "z"
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: is_number
+          - Binary: &&
+            - Binary: <=
+              - Literal (string): "0"
+              - Identifier: c
+            - Binary: <=
+              - Identifier: c
+              - Literal (string): "9"
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Conditional
+            - Identifier: is_upper
+            - Literal (string): "upper"
+            - Conditional
+              - Identifier: is_lower
+              - Literal (string): "lower"
+              - Conditional
+                - Identifier: is_number
+                - Literal (string): "number"
+                - Literal (string): "other"
+      - ExpressionStatement
+        - Binary: +=
+          - Identifier: i
+          - Literal (numeric): "1"
+

@@ -1,0 +1,11 @@
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: file_content
+      - Call
+        - PropertyAccess (.read)
+          - Identifier: IO
+        - Literal (string): "../../input/test.txt"
+  - Return
+    - Identifier: file_content
+
