@@ -1,6 +1,8 @@
 <?php
 
 class BasePrinter {
+    public $num_value = 42;
+
     function getValue() {
         return "Base";
     }
@@ -10,7 +12,7 @@ class BasePrinter {
     }
     
     function someBaseFunc() {
-        return 42;
+        return $this->num_value;
     }
 }
 
@@ -32,6 +34,10 @@ class TestClass {
         $base_printer->printIt();
         $child_printer->printIt();
         print(("" . ($base_printer->someBaseFunc()) . " == " . ($child_printer->someBaseFunc()) . "") . "\n");
+        
+        $base_p2 = new BasePrinter();
+        $child_p2 = new ChildPrinter();
+        print(("" . ($base_p2->num_value) . " == " . ($child_p2->num_value) . "") . "\n");
     }
 }
 

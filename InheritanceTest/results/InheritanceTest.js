@@ -1,4 +1,8 @@
 class BasePrinter {
+  constructor() {
+      this.numValue = 42;
+  }
+
   getValue() {
     return "Base";
   }
@@ -8,7 +12,7 @@ class BasePrinter {
   }
   
   someBaseFunc() {
-    return 42;
+    return this.numValue;
   }
 }
 
@@ -30,6 +34,10 @@ class TestClass {
     basePrinter.printIt();
     childPrinter.printIt();
     console.log(`${basePrinter.someBaseFunc()} == ${childPrinter.someBaseFunc()}`);
+    
+    const baseP2 = new BasePrinter();
+    const childP2 = new ChildPrinter();
+    console.log(`${baseP2.numValue} == ${childP2.numValue}`);
   }
 }
 

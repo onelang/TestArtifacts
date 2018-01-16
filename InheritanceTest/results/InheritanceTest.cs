@@ -12,6 +12,8 @@ public interface IPrinter: IPrinterBase
 
 public class BasePrinter: IPrinter
 {
+    public int NumValue = 42;
+
     public virtual string GetValue()
     {
         return "Base";
@@ -24,7 +26,7 @@ public class BasePrinter: IPrinter
     
     public int SomeBaseFunc()
     {
-        return 42;
+        return this.NumValue;
     }
 }
 
@@ -51,6 +53,10 @@ public class TestClass
         basePrinter.PrintIt();
         childPrinter.PrintIt();
         Console.WriteLine($"{basePrinter.SomeBaseFunc()} == {childPrinter.SomeBaseFunc()}");
+        
+        var baseP2 = new BasePrinter();
+        var childP2 = new ChildPrinter();
+        Console.WriteLine($"{baseP2.NumValue} == {childP2.NumValue}");
     }
 }
 

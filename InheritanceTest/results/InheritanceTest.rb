@@ -1,4 +1,10 @@
 class BasePrinter 
+  attr_accessor(:num_value)
+
+  def initialize()
+      @num_value = 42
+  end
+
   def get_value()
       return "Base"
   end
@@ -8,7 +14,7 @@ class BasePrinter
   end
 
   def some_base_func()
-      return 42
+      return self.num_value
   end
 end
 
@@ -30,6 +36,10 @@ class TestClass
       base_printer.print_it()
       child_printer.print_it()
       puts "#{base_printer.some_base_func()} == #{child_printer.some_base_func()}"
+      
+      base_p2 = BasePrinter.new()
+      child_p2 = ChildPrinter.new()
+      puts "#{base_p2.num_value} == #{child_p2.num_value}"
   end
 end
 

@@ -6,8 +6,9 @@ interface IPrinter extends IPrinterBase {
   void printIt() throws Exception;
 }
 
-class BasePrinter implements IPrinter
- {
+class BasePrinter implements IPrinter {
+    public Integer numValue = 42;
+
     public String getValue() throws Exception
     {
         return "Base";
@@ -20,20 +21,18 @@ class BasePrinter implements IPrinter
     
     public Integer someBaseFunc() throws Exception
     {
-        return 42;
+        return this.numValue;
     }
 }
 
-class ChildPrinter extends BasePrinter
- {
+class ChildPrinter extends BasePrinter {
     public String getValue() throws Exception
     {
         return "Child";
     }
 }
 
-class TestClass
- {
+class TestClass {
     public IPrinter getPrinter(String name) throws Exception
     {
         IPrinter result = name.equals("child") ? new ChildPrinter() : new BasePrinter();
@@ -47,6 +46,10 @@ class TestClass
         basePrinter.printIt();
         childPrinter.printIt();
         System.out.println(basePrinter.someBaseFunc() + " == " + childPrinter.someBaseFunc());
+        
+        BasePrinter baseP2 = new BasePrinter();
+        ChildPrinter childP2 = new ChildPrinter();
+        System.out.println(baseP2.numValue + " == " + childP2.numValue);
     }
 }
 

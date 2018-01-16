@@ -1,3 +1,7 @@
+BasePrinter::numValue: null
+- Variable: numValue
+  - Literal (numeric): "42"
+
 BasePrinter::getValue(): TsString
   - Return
     - Literal (string): "Base"
@@ -14,7 +18,8 @@ BasePrinter::printIt(): void
 
 BasePrinter::someBaseFunc(): TsNumber
   - Return
-    - Literal (numeric): "42"
+    - PropertyAccess (.numValue)
+      - Identifier: this
 
 ChildPrinter::getValue(): TsString
   - Return
@@ -61,4 +66,18 @@ TestClass::testMethod(): void
         - Call
           - PropertyAccess (.someBaseFunc)
             - Identifier: childPrinter
+  - Comment: "\n"
+  - Variable: baseP2
+    - New BasePrinter
+  - Variable: childP2
+    - New ChildPrinter
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - TemplateString
+        - PropertyAccess (.numValue)
+          - Identifier: baseP2
+        - PropertyAccess (.numValue)
+          - Identifier: childP2
 

@@ -8,6 +8,7 @@ sub new
     my $class = shift;
     my $self = {};
     bless $self, $class;
+    $self->{num_value} = 42;
     return $self;
 }
 
@@ -23,7 +24,7 @@ sub print_it {
 
 sub some_base_func {
     my ( $self ) = @_;
-    return 42;
+    return $self->{num_value};
 }
 
 package ChildPrinter;
@@ -66,6 +67,10 @@ sub test_method {
     $base_printer->print_it();
     $child_printer->print_it();
     print(("@{[$base_printer->some_base_func()]} == @{[$child_printer->some_base_func()]}") . "\n");
+    
+    my $base_p2 = new BasePrinter();
+    my $child_p2 = new ChildPrinter();
+    print(("@{[$base_p2->{num_value}]} == @{[$child_p2->{num_value}]}") . "\n");
 }
 
 package Program;

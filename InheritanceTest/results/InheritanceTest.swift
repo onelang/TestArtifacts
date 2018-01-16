@@ -7,6 +7,8 @@ protocol IPrinter: IPrinterBase {
 }
 
 class BasePrinter: IPrinter {
+  var numValue: Int = 42
+
   func getValue() -> String {
       return "Base"
   }
@@ -16,7 +18,7 @@ class BasePrinter: IPrinter {
   }
 
   func someBaseFunc() -> Int {
-      return 42
+      return self.numValue
   }
 }
 
@@ -27,17 +29,21 @@ class ChildPrinter: BasePrinter {
 }
 
 class TestClass {
-  func getPrinter(name: String) -> IPrinter {
-      let result = name == "child" ? ChildPrinter() : BasePrinter()
+  func getPrinter(name: String) -> IPrinter? {
+      let result: IPrinter? = name == "child" ? ChildPrinter() : BasePrinter()
       return result
   }
 
   func testMethod() -> Void {
-      let basePrinter = self.getPrinter(name: "base")
-      let childPrinter = self.getPrinter(name: "child")
-      basePrinter.printIt()
-      childPrinter.printIt()
-      print("\(basePrinter.someBaseFunc()) == \(childPrinter.someBaseFunc())")
+      let basePrinter: IPrinter? = self.getPrinter(name: "base")
+      let childPrinter: IPrinter? = self.getPrinter(name: "child")
+      basePrinter!.printIt()
+      childPrinter!.printIt()
+      print("\(basePrinter!.someBaseFunc()) == \(childPrinter!.someBaseFunc())")
+      
+      let baseP2: BasePrinter? = BasePrinter()
+      let childP2: ChildPrinter? = ChildPrinter()
+      print("\(baseP2!.numValue) == \(childP2!.numValue)")
   }
 }
 

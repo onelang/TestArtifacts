@@ -1,3 +1,7 @@
+BasePrinter::numValue: OneNumber
+- Variable: numValue [OneNumber]
+  - Literal (numeric): "42" [OneNumber]
+
 BasePrinter::getValue(): OneString
   - Return
     - Literal (string): "Base" [OneString]
@@ -12,7 +16,7 @@ BasePrinter::printIt(): void
 
 BasePrinter::someBaseFunc(): OneNumber
   - Return
-    - Literal (numeric): "42" [OneNumber]
+    - InstanceField (this): numValue [any]
 
 ChildPrinter::getValue(): OneString
   - Return
@@ -56,4 +60,17 @@ TestClass::testMethod(): void
         - Call [OneNumber]
           - MethodReference [(I)IPrinter::someBaseFunc]
             - LocalVar: childPrinter [(I)IPrinter]
+  - Comment: "\n"
+  - Variable: baseP2 [BasePrinter]
+    - New BasePrinter [BasePrinter]
+  - Variable: childP2 [ChildPrinter]
+    - New ChildPrinter [ChildPrinter]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - InstanceField: numValue [OneNumber]
+          - LocalVar: baseP2 [BasePrinter]
+        - InstanceField: numValue [OneNumber]
+          - LocalVar: childP2 [ChildPrinter]
 

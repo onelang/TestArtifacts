@@ -1,3 +1,7 @@
+BasePrinter::numValue: TsNumber
+- Variable: numValue [TsNumber]
+  - Literal (numeric): "42" [TsNumber]
+
 BasePrinter::getValue(): TsString
   - Return
     - Literal (string): "Base" [TsString]
@@ -12,7 +16,7 @@ BasePrinter::printIt(): void
 
 BasePrinter::someBaseFunc(): TsNumber
   - Return
-    - Literal (numeric): "42" [TsNumber]
+    - InstanceField (this): numValue [any]
 
 ChildPrinter::getValue(): TsString
   - Return
@@ -56,4 +60,17 @@ TestClass::testMethod(): void
         - Call [TsNumber]
           - MethodReference [(I)IPrinter::someBaseFunc]
             - LocalVar: childPrinter [(I)IPrinter]
+  - Comment: "\n"
+  - Variable: baseP2 [BasePrinter]
+    - New BasePrinter [BasePrinter]
+  - Variable: childP2 [ChildPrinter]
+    - New ChildPrinter [ChildPrinter]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - TemplateString [OneString]
+        - InstanceField: numValue [TsNumber]
+          - LocalVar: baseP2 [BasePrinter]
+        - InstanceField: numValue [TsNumber]
+          - LocalVar: childP2 [ChildPrinter]
 

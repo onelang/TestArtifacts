@@ -1,4 +1,7 @@
 class BasePrinter:
+    def __init__(self):
+        self.num_value = 42
+
     def get_value(self):
         return "Base"
     
@@ -6,7 +9,7 @@ class BasePrinter:
         print "BasePrinter: %s" % (self.get_value(), )
     
     def some_base_func(self):
-        return 42
+        return self.num_value
 
 class ChildPrinter(BasePrinter):
     def get_value(self):
@@ -23,6 +26,10 @@ class TestClass:
         base_printer.print_it()
         child_printer.print_it()
         print "%s == %s" % (base_printer.some_base_func(), child_printer.some_base_func(), )
+        
+        base_p2 = BasePrinter()
+        child_p2 = ChildPrinter()
+        print "%s == %s" % (base_p2.num_value, child_p2.num_value, )
 
 try:
     TestClass().test_method()

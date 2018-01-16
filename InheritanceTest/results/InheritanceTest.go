@@ -11,10 +11,12 @@ type IPrinter interface {
 }
 
 type BasePrinter struct {
+    NumValue int
 }
 
 func NewBasePrinter() *BasePrinter {
     this := new(BasePrinter)
+    this.NumValue = 42
     return this
 }
 
@@ -27,7 +29,7 @@ func (this *BasePrinter) PrintIt() {
 }
 
 func (this *BasePrinter) SomeBaseFunc() int {
-    return 42
+    return this.NumValue
 }
 
 type ChildPrinter struct {
@@ -68,6 +70,10 @@ func (this *TestClass) TestMethod() {
     basePrinter.PrintIt()
     childPrinter.PrintIt()
     fmt.Println(fmt.Sprintf("%v == %v", basePrinter.SomeBaseFunc(), childPrinter.SomeBaseFunc()))
+    
+    baseP2 := NewBasePrinter()
+    childP2 := NewChildPrinter()
+    fmt.Println(fmt.Sprintf("%v == %v", baseP2.NumValue, childP2.NumValue))
 }
 
 func init() {
