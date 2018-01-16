@@ -1,4 +1,4 @@
-class MapX {
+class MapX<K, V> {
   value: V;
 
   set(key: K, value: V) {

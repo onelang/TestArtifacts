@@ -1,4 +1,4 @@
-class List {
+class List<T> {
   items: OneArray;
 }
 
