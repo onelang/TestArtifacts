@@ -1,0 +1,64 @@
+BasePrinter::getValue(): TsString
+  - Return
+    - Literal (string): "Base"
+
+BasePrinter::printIt(): void
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - TemplateString
+        - Call
+          - PropertyAccess (.getValue)
+            - Identifier: this
+
+BasePrinter::someBaseFunc(): TsNumber
+  - Return
+    - Literal (numeric): "42"
+
+ChildPrinter::getValue(): TsString
+  - Return
+    - Literal (string): "Child"
+
+TestClass::getPrinter(name: TsString): IPrinter
+  - Variable: result [IPrinter]
+    - Conditional
+      - Binary: ==
+        - Identifier: name
+        - Literal (string): "child"
+      - New ChildPrinter
+      - New BasePrinter
+  - Return
+    - Identifier: result
+
+TestClass::testMethod(): void
+  - Variable: basePrinter
+    - Call
+      - PropertyAccess (.getPrinter)
+        - Identifier: this
+      - Literal (string): "base"
+  - Variable: childPrinter
+    - Call
+      - PropertyAccess (.getPrinter)
+        - Identifier: this
+      - Literal (string): "child"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.printIt)
+        - Identifier: basePrinter
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.printIt)
+        - Identifier: childPrinter
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - TemplateString
+        - Call
+          - PropertyAccess (.someBaseFunc)
+            - Identifier: basePrinter
+        - Call
+          - PropertyAccess (.someBaseFunc)
+            - Identifier: childPrinter
+

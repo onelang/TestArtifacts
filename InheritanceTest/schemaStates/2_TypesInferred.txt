@@ -1,0 +1,59 @@
+BasePrinter::getValue(): TsString
+  - Return
+    - Literal (string): "Base" [TsString]
+
+BasePrinter::printIt(): void
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - TemplateString [OneString]
+        - Call [TsString]
+          - MethodReference (this) [BasePrinter::getValue]
+
+BasePrinter::someBaseFunc(): TsNumber
+  - Return
+    - Literal (numeric): "42" [TsNumber]
+
+ChildPrinter::getValue(): TsString
+  - Return
+    - Literal (string): "Child" [TsString]
+
+TestClass::getPrinter(name: TsString): (I)IPrinter
+  - Variable: result [(I)IPrinter]
+    - Conditional [(I)IPrinter]
+      - Binary: == [OneBoolean]
+        - MethodArgument: name [TsString]
+        - Literal (string): "child" [TsString]
+      - New ChildPrinter [ChildPrinter]
+      - New BasePrinter [BasePrinter]
+  - Return
+    - LocalVar: result [(I)IPrinter]
+
+TestClass::testMethod(): void
+  - Variable: basePrinter [(I)IPrinter]
+    - Call [(I)IPrinter]
+      - MethodReference (this) [TestClass::getPrinter]
+      - Literal (string): "base" [TsString]
+  - Variable: childPrinter [(I)IPrinter]
+    - Call [(I)IPrinter]
+      - MethodReference (this) [TestClass::getPrinter]
+      - Literal (string): "child" [TsString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [(I)IPrinter::printIt]
+        - LocalVar: basePrinter [(I)IPrinter]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [(I)IPrinter::printIt]
+        - LocalVar: childPrinter [(I)IPrinter]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - TemplateString [OneString]
+        - Call [TsNumber]
+          - MethodReference [(I)IPrinter::someBaseFunc]
+            - LocalVar: basePrinter [(I)IPrinter]
+        - Call [TsNumber]
+          - MethodReference [(I)IPrinter::someBaseFunc]
+            - LocalVar: childPrinter [(I)IPrinter]
+
