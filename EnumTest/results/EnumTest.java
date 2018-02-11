@@ -11,7 +11,7 @@ class TestClass {
         String check1 = enumV == TestEnum.ITEM2 ? "SUCCESS" : "FAIL";
         String check2 = enumV == TestEnum.ITEM1 ? "FAIL" : "SUCCESS";
         
-        System.out.println("Item1: " + (TestEnum.ITEM1) + ", Item2: " + (enumV) + ", checks: " + (check1) + " " + (check2));
+        System.out.println("Item1: " + TestEnum.ITEM1 + ", Item2: " + enumV + ", checks: " + check1 + " " + check2);
     }
 }
 

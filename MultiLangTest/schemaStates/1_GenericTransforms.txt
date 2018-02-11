@@ -25,6 +25,12 @@ main()
       - Literal (numeric): "1"
       - Literal (numeric): "2"
       - Literal (numeric): "3"
+  - Variable: map
+    - MapLiteral
+      - Variable: a
+        - Literal (numeric): "2"
+      - Variable: b
+        - Literal (numeric): "3"
   - ExpressionStatement
     - Call
       - PropertyAccess (.log)
@@ -32,5 +38,55 @@ main()
       - TemplateString
         - Call
           - PropertyAccess (.get)
+            - Identifier: map
+          - Literal (string): "a"
+        - Call
+          - PropertyAccess (.get)
             - Identifier: arr
           - Literal (numeric): "1"
+  - Comment: "\n"
+  - If
+    - Binary: ==
+      - Call
+        - PropertyAccess (.get)
+          - Identifier: arr
+        - Literal (numeric): "0"
+      - Literal (numeric): "1"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.log)
+            - Identifier: console
+          - Literal (string): "TRUE-X"
+    Else
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.log)
+            - Identifier: console
+          - Literal (string): "FALSE"
+  - Comment: "\n"
+  - Variable: sum
+    - Literal (numeric): "0"
+  - For ("i")
+    Var
+    - Variable: i
+      - Literal (numeric): "0"
+    Condition
+      - Binary: <
+        - Identifier: i
+        - Literal (numeric): "10"
+    Incrementor
+      - Unary (postfix): ++
+        - Identifier: i
+    Body
+      - ExpressionStatement
+        - Binary: +=
+          - Identifier: sum
+          - Binary: +
+            - Identifier: i
+            - Literal (numeric): "2"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - Identifier: sum

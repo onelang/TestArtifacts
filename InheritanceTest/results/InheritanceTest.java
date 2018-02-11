@@ -16,7 +16,7 @@ class BasePrinter implements IPrinter {
     
     public void printIt() throws Exception
     {
-        System.out.println("BasePrinter: " + (this.getValue()));
+        System.out.println("BasePrinter: " + this.getValue());
     }
     
     public Integer someBaseFunc() throws Exception
@@ -45,11 +45,11 @@ class TestClass {
         IPrinter childPrinter = this.getPrinter("child");
         basePrinter.printIt();
         childPrinter.printIt();
-        System.out.println((basePrinter.someBaseFunc()) + " == " + (childPrinter.someBaseFunc()));
+        System.out.println(basePrinter.someBaseFunc() + " == " + childPrinter.someBaseFunc());
         
         BasePrinter baseP2 = new BasePrinter();
         ChildPrinter childP2 = new ChildPrinter();
-        System.out.println((baseP2.numValue) + " == " + (childP2.numValue));
+        System.out.println(baseP2.numValue + " == " + childP2.numValue);
     }
 }
 

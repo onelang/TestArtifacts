@@ -46,7 +46,7 @@ class ExprLangLexer {
             endOffset = this.expression.length();
         }
         String context = this.expression.substring(this.offset, endOffset) + "...";
-        throw new Exception("TokenizerException: " + (message) + " at '" + (context) + "' (offset: " + (this.offset) + ")");
+        throw new Exception("TokenizerException: " + message + " at '" + context + "' (offset: " + this.offset + ")");
     }
     
     public boolean hasMoreToken() throws Exception
@@ -164,7 +164,7 @@ class TestClass {
             result += token.value;
         }
         
-        System.out.println("[" + (lexer.tokens.size()) + "]: " + (result));
+        System.out.println("[" + lexer.tokens.size() + "]: " + result);
     }
 }
 

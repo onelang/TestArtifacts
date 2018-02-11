@@ -29,6 +29,6 @@ class MathUtils {
 
 class Program {
     public static void main(String[] args) throws Exception {
-        System.out.println("5 -> " + (MathUtils.calc(5)) + ", 24 -> " + (MathUtils.calcBig(24)));
+        System.out.println("5 -> " + MathUtils.calc(5) + ", 24 -> " + MathUtils.calcBig(24));
     }
 }

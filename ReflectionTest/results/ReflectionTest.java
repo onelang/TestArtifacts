@@ -11,12 +11,12 @@ class TargetClass {
 
     public static String staticMethod(String arg1) throws Exception
     {
-        return "arg1 = " + (arg1) + ", staticField = " + (TargetClass.staticField);
+        return "arg1 = " + arg1 + ", staticField = " + TargetClass.staticField;
     }
     
     public String instanceMethod() throws Exception
     {
-        return "instanceField = " + (this.instanceField);
+        return "instanceField = " + this.instanceField;
     }
 }
 
@@ -45,7 +45,7 @@ class TestClass {
             return;
         }
         Object method1Result = method1.call(obj, new ArrayList<Object>(Arrays.asList()));
-        System.out.println("instanceMethod: " + (method1Result));
+        System.out.println("instanceMethod: " + method1Result);
         
         OneMethod method2 = cls.getMethod("staticMethod");
         if (method2 == null) {
@@ -53,7 +53,7 @@ class TestClass {
             return;
         }
         Object method2Result = method2.call(null, new ArrayList<Object>(Arrays.asList("arg1value")));
-        System.out.println("staticMethod: " + (method2Result));
+        System.out.println("staticMethod: " + method2Result);
         
         OneField field1 = cls.getField("instanceField");
         if (field1 == null) {
@@ -62,7 +62,7 @@ class TestClass {
         }
         field1.setValue(obj, 6);
         Object field1NewVal = field1.getValue(obj);
-        System.out.println("new instance field value: " + (obj.instanceField) + " == " + (field1NewVal));
+        System.out.println("new instance field value: " + obj.instanceField + " == " + field1NewVal);
         
         OneField field2 = cls.getField("staticField");
         if (field2 == null) {
@@ -71,7 +71,7 @@ class TestClass {
         }
         field2.setValue(null, "bello");
         Object field2NewVal = field2.getValue(null);
-        System.out.println("new static field value: " + (TargetClass.staticField) + " == " + (field2NewVal));
+        System.out.println("new static field value: " + TargetClass.staticField + " == " + field2NewVal);
     }
 }
 

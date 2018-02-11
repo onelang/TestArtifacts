@@ -21,6 +21,6 @@ class Program {
         if (!(obj1Prop0Value.isJsonPrimitive() && ((JsonPrimitive)obj1Prop0Value).isNumber()) || obj1Prop0Value.getAsInt() != 1) {
             throw new Exception("expected 'a' to be 1 (number)");
         }
-        System.out.println("b = " + (obj1.getAsJsonObject().get("b").getAsInt()));
+        System.out.println("b = " + obj1.getAsJsonObject().get("b").getAsInt());
     }
 }

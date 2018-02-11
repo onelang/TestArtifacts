@@ -10,7 +10,7 @@ class TestClass {
         List<Integer> mutableArr = new ArrayList<Integer>(Arrays.asList(1));
         mutableArr.add(2);
         
-        System.out.println("len1: " + (constantArr.size()) + ", len2: " + (mutableArr.size()));
+        System.out.println("len1: " + constantArr.size() + ", len2: " + mutableArr.size());
     }
 }
 

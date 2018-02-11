@@ -3,7 +3,7 @@ class TestClass {
     {
         String str = "A x B x C x D";
         String result = str.replace("x", "y");
-        System.out.println("R: " + (result) + ", O: " + (str));
+        System.out.println("R: " + result + ", O: " + str);
     }
 }
 

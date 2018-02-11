@@ -8,7 +8,7 @@ public class TestClass
         var b = false;
         var c = a && b;
         var d = a || b;
-        Console.WriteLine($"a: {((a) ? "true" : "false")}, b: {((b) ? "true" : "false")}, c: {((c) ? "true" : "false")}, d: {((d) ? "true" : "false")}");
+        Console.WriteLine($"a: {(a ? "true" : "false")}, b: {(b ? "true" : "false")}, c: {(c ? "true" : "false")}, d: {(d ? "true" : "false")}");
     }
 }
 

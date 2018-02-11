@@ -7,7 +7,7 @@ class TestClass
       puts result
       puts "before #{str_val}, num: #{num}, true: #{b} after"
       
-      result2 = "before " + str_val + ", num: " + (num).to_s + ", true: " + (b).to_s + " after"
+      result2 = "before " + str_val + ", num: " + num.to_s + ", true: " + b.to_s + " after"
       puts result2
   end
 end

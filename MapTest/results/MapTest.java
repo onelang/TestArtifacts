@@ -13,7 +13,7 @@ class TestClass {
     
     public void testMethod() throws Exception
     {
-        System.out.println("Result = " + (this.getResult()));
+        System.out.println("Result = " + this.getResult());
     }
 }
 
