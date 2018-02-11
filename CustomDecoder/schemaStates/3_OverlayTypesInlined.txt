@@ -27,7 +27,7 @@ XorByte::decode(src: OneArray<OneNumber>): OneArray<OneNumber>
         - Call [void]
           - MethodReference [OneArray<T>::add]
             - LocalVar: dest [OneArray<OneNumber>]
-          - Binary: ^ [void]
+          - Binary: ^ [OneNumber]
             - Call [T]
               - MethodReference [OneArray<T>::get]
                 - MethodArgument: src [OneArray<OneNumber>]

@@ -2,7 +2,7 @@ using System;
 
 public class Calculator
 {
-    public void Calc()
+    public int Calc()
     {
         return 4;
     }

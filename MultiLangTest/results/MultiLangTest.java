@@ -1,5 +1,5 @@
 class Calculator {
-    public void calc() throws Exception
+    public Integer calc() throws Exception
     {
         return 4;
     }

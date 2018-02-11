@@ -35,7 +35,7 @@ TsArray::push(item: T): void
       - MethodReference (this) [OneArray<T>::add]
       - MethodArgument: item [T]
 
-TsArray::get(index: TsNumber): void
+TsArray::get(index: TsNumber): T
   - Return
     - Call [T]
       - MethodReference (this) [OneArray<T>::get]

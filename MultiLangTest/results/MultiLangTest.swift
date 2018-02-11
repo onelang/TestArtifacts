@@ -1,5 +1,5 @@
 class Calculator {
-  func calc() -> Void {
+  func calc() -> Int {
       return 4
   }
 }

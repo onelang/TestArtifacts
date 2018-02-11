@@ -106,13 +106,13 @@ OneJProperty::getName(): OneString
 OneJProperty::getValue(obj: OneJValue): OneJValue
   <no body>
 
-OneJObject::getProperties(): TsArray<OneJProperty>
+OneJObject::getProperties(): OneArray<OneJProperty>
   <no body>
 
 OneJObject::count(): OneNumber
   <no body>
 
-OneJObject::names(): TsArray<OneString>
+OneJObject::names(): OneArray<OneString>
   <no body>
 
 OneJObject::get(name: TsString): OneJValue
@@ -148,7 +148,7 @@ OneJValue::asBool(): OneBoolean
 OneJValue::asObject(): OneJObject
   <no body>
 
-OneJValue::getArrayItems(): TsArray<OneJValue>
+OneJValue::getArrayItems(): OneArray<OneJValue>
   <no body>
 
 OneJson::parse(str: TsString): OneJValue [static]

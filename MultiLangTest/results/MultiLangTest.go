@@ -10,7 +10,7 @@ func NewCalculator() *Calculator {
     return this
 }
 
-func (this *Calculator) Calc() {
+func (this *Calculator) Calc() int {
     return 4
 }
 

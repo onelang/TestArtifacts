@@ -1,4 +1,4 @@
-Calculator::calc(): void
+Calculator::calc(): TsNumber
   - Return
     - Literal (numeric): "4" [TsNumber]
 

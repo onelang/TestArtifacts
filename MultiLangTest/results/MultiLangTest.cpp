@@ -3,7 +3,7 @@
 
 class Calculator {
   public:
-    void calc() {
+    int calc() {
         return 4;
     }
 
