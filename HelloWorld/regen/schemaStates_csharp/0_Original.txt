@@ -1,0 +1,27 @@
+TestClass::TestMethod(): void
+  - Variable: value
+    - Binary: -
+      - Binary: +
+        - Literal (numeric): "1"
+        - Binary: *
+          - Literal (numeric): "2"
+          - Literal (numeric): "3"
+      - Literal (numeric): "4"
+  - Variable: map_
+    - MapLiteral
+      - Variable: a
+        - Literal (numeric): "5"
+      - Variable: b
+        - Literal (numeric): "6"
+  - Variable: text
+    - TemplateString
+      - Identifier: value
+      - ElementAccess
+        - Identifier: map_
+        - Literal (string): "a"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - Identifier: text
+

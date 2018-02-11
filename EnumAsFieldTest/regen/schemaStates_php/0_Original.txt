@@ -1,0 +1,31 @@
+SomeKind::EnumVal0: null
+- Variable: EnumVal0
+  - Literal (numeric): "0"
+
+SomeKind::EnumVal1: null
+- Variable: EnumVal1
+  - Literal (numeric): "1"
+
+SomeKind::EnumVal2: null
+- Variable: EnumVal2
+  - Literal (numeric): "2"
+
+TestClass::$enum_field: null
+- Variable: $enum_field
+  - PropertyAccess (.EnumVal2)
+    - Identifier: SomeKind
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Literal (string): "Value: "
+            - Parenthesized
+              - PropertyAccess (.enum_field)
+                - Identifier: $this
+          - Literal (string): ""
+

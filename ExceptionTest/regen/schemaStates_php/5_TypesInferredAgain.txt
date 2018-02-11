@@ -1,0 +1,21 @@
+TestClass::notThrows(): any
+  - Return
+    - Literal (numeric): "5" [PhpNumber]
+
+TestClass::fThrows(): any
+  - Throw
+    - New Exception [any]
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [any]
+        - Call [any]
+          - PropertyAccess (.notThrows) [any]
+            - Identifier: $this [any]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.fThrows) [any]
+        - Identifier: $this [any]
+

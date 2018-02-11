@@ -1,0 +1,22 @@
+TestClass::notThrows(): any
+  - Return
+    - Literal (numeric): "5"
+
+TestClass::fThrows(): any
+  - Throw
+    - New Exception
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Call
+          - PropertyAccess (.notThrows)
+            - Identifier: $this
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.fThrows)
+        - Identifier: $this
+

@@ -1,0 +1,41 @@
+TestClass::reverseString($str: ???): any
+  - Variable: $result [PhpString]
+    - Literal (string): "" [PhpString]
+  - For ("$i")
+    Var
+    - Variable: $i [any]
+      - Binary: - [any]
+        - Call [any]
+          - Identifier: strlen [any]
+          - MethodArgument: $str [any]
+        - Literal (numeric): "1" [PhpNumber]
+    Condition
+      - Binary: >= [OneBoolean]
+        - LocalVar: $i [any]
+        - Literal (numeric): "0" [PhpNumber]
+    Incrementor
+      - Unary (postfix): -- [any]
+        - LocalVar: $i [any]
+    Body
+      - ExpressionStatement
+        - Binary: .= [PhpString]
+          - LocalVar: $result [PhpString]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: $str [any]
+            - LocalVar: $i [any]
+  - Return
+    - LocalVar: $result [PhpString]
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [any]
+        - Call [any]
+          - PropertyAccess (.reverseString) [any]
+            - Identifier: $this [any]
+          - Literal (string): "print value" [PhpString]
+  - Return
+    - Literal (string): "return value" [PhpString]
+

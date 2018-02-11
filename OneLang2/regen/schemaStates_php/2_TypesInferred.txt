@@ -1,0 +1,476 @@
+TokenKind::Number: PhpNumber
+- Variable: Number [PhpNumber]
+  - Literal (numeric): "0" [PhpNumber]
+
+TokenKind::Identifier: PhpNumber
+- Variable: Identifier [PhpNumber]
+  - Literal (numeric): "1" [PhpNumber]
+
+TokenKind::Operator_: PhpNumber
+- Variable: Operator_ [PhpNumber]
+  - Literal (numeric): "2" [PhpNumber]
+
+TokenKind::String_: PhpNumber
+- Variable: String_ [PhpNumber]
+  - Literal (numeric): "3" [PhpNumber]
+
+Token::$kind: null
+Token::$value: null
+
+Token::__construct($kind: ???, $value: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - PropertyAccess (.kind) [any]
+        - Identifier: $this [any]
+      - MethodArgument: $kind [any]
+  - ExpressionStatement
+    - Binary: = [any]
+      - PropertyAccess (.value) [any]
+        - Identifier: $this [any]
+      - MethodArgument: $value [any]
+
+ExprLangLexer::$offset: PhpNumber
+- Variable: $offset [PhpNumber]
+  - Literal (numeric): "0" [PhpNumber]
+
+ExprLangLexer::$tokens: PhpArray<any>
+- Variable: $tokens [PhpArray<any>]
+  - ArrayLiteral [PhpArray<any>]
+
+ExprLangLexer::$expression: null
+ExprLangLexer::$operators: null
+
+ExprLangLexer::__construct($expression: ???, $operators: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - PropertyAccess (.expression) [any]
+        - Identifier: $this [any]
+      - MethodArgument: $expression [any]
+  - ExpressionStatement
+    - Binary: = [any]
+      - PropertyAccess (.operators) [any]
+        - Identifier: $this [any]
+      - MethodArgument: $operators [any]
+  - If
+    - Unary (prefix): ! [any]
+      - Call [any]
+        - PropertyAccess (.tryToReadNumber) [any]
+          - Identifier: $this [any]
+    Then
+      - ExpressionStatement
+        - Call [any]
+          - PropertyAccess (.tryToReadOperator) [any]
+            - Identifier: $this [any]
+      - ExpressionStatement
+        - Call [any]
+          - PropertyAccess (.tryToReadLiteral) [any]
+            - Identifier: $this [any]
+  - Comment: "\n"
+  - While
+      - Call [any]
+        - PropertyAccess (.hasMoreToken) [any]
+          - Identifier: $this [any]
+    Body
+      - If
+        - Unary (prefix): ! [any]
+          - Call [any]
+            - PropertyAccess (.tryToReadOperator) [any]
+              - Identifier: $this [any]
+        Then
+          - ExpressionStatement
+            - Call [any]
+              - PropertyAccess (.fail) [any]
+                - Identifier: $this [any]
+              - Literal (string): "expected operator here" [PhpString]
+      - Comment: "\n"
+      - If
+        - Unary (prefix): ! [any]
+          - Call [any]
+            - PropertyAccess (.tryToReadLiteral) [any]
+              - Identifier: $this [any]
+        Then
+          - ExpressionStatement
+            - Call [any]
+              - PropertyAccess (.fail) [any]
+                - Identifier: $this [any]
+              - Literal (string): "expected literal here" [PhpString]
+
+ExprLangLexer::fail($message: ???): any
+  - Variable: $end_offset [any]
+    - Binary: + [any]
+      - PropertyAccess (.offset) [any]
+        - Identifier: $this [any]
+      - Literal (numeric): "30" [PhpNumber]
+  - If
+    - Binary: > [any]
+      - LocalVar: $end_offset [any]
+      - Call [any]
+        - Identifier: strlen [any]
+        - PropertyAccess (.expression) [any]
+          - Identifier: $this [any]
+    Then
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: $end_offset [any]
+          - Call [any]
+            - Identifier: strlen [any]
+            - PropertyAccess (.expression) [any]
+              - Identifier: $this [any]
+  - Variable: $context [any]
+    - Binary: . [any]
+      - Call [any]
+        - Identifier: substr [any]
+        - PropertyAccess (.expression) [any]
+          - Identifier: $this [any]
+        - PropertyAccess (.offset) [any]
+          - Identifier: $this [any]
+        - Binary: - [any]
+          - LocalVar: $end_offset [any]
+          - PropertyAccess (.offset) [any]
+            - Identifier: $this [any]
+      - Literal (string): "..." [PhpString]
+  - Throw
+    - New Exception [any]
+
+ExprLangLexer::hasMoreToken(): any
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.skipWhitespace) [any]
+        - Identifier: $this [any]
+  - Return
+    - Unary (prefix): ! [any]
+      - Call [any]
+        - PropertyAccess (.eof) [any]
+          - Identifier: $this [any]
+
+ExprLangLexer::add($kind: ???, $value: ???): any
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.Add) [any]
+        - PropertyAccess (.tokens) [any]
+          - Identifier: $this [any]
+      - New Token [Token]
+  - ExpressionStatement
+    - Binary: += [any]
+      - PropertyAccess (.offset) [any]
+        - Identifier: $this [any]
+      - Call [any]
+        - Identifier: strlen [any]
+        - MethodArgument: $value [any]
+
+ExprLangLexer::tryToMatch($pattern: ???): any
+  - Variable: $matches [OneArray<OneString>]
+    - Call [OneArray<OneString>]
+      - MethodReference (static) [OneRegex::matchFromIndex]
+      - MethodArgument: $pattern [any]
+      - PropertyAccess (.expression) [any]
+        - Identifier: $this [any]
+      - PropertyAccess (.offset) [any]
+        - Identifier: $this [any]
+  - Return
+    - Conditional [any]
+      - Binary: == [OneBoolean]
+        - LocalVar: $matches [OneArray<OneString>]
+        - Identifier: NULL [any]
+      - Literal (string): "" [PhpString]
+      - Parenthesized [OneString]
+        - Call [OneString]
+          - MethodReference [OneArray<OneString>::get]
+            - LocalVar: $matches [OneArray<OneString>]
+          - Literal (numeric): "0" [PhpNumber]
+
+ExprLangLexer::tryToReadOperator(): any
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.skipWhitespace) [any]
+        - Identifier: $this [any]
+  - Foreach $op: any
+    Items
+      - PropertyAccess (.operators) [any]
+        - Identifier: $this [any]
+    Body
+      - If
+        - Binary: == [OneBoolean]
+          - Call [any]
+            - Identifier: substr_compare [any]
+            - PropertyAccess (.expression) [any]
+              - Identifier: $this [any]
+            - LocalVar: $op [any]
+            - PropertyAccess (.offset) [any]
+              - Identifier: $this [any]
+            - Call [any]
+              - Identifier: strlen [any]
+              - LocalVar: $op [any]
+          - Literal (numeric): "0" [PhpNumber]
+        Then
+          - ExpressionStatement
+            - Call [any]
+              - PropertyAccess (.add) [any]
+                - Identifier: $this [any]
+              - InstanceField: Operator_ [PhpNumber]
+                - ClassReference [TokenKind]
+              - LocalVar: $op [any]
+          - Return
+            - Literal (boolean): true [PhpBoolean]
+  - Return
+    - Literal (boolean): false [PhpBoolean]
+
+ExprLangLexer::tryToReadNumber(): any
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.skipWhitespace) [any]
+        - Identifier: $this [any]
+  - Variable: $number [any]
+    - Call [any]
+      - PropertyAccess (.tryToMatch) [any]
+        - Identifier: $this [any]
+      - Literal (string): "[+-]?(\\d*\\.\\d+|\\d+\\.\\d+|0x[0-9a-fA-F_]+|0b[01_]+|[0-9_]+)" [PhpString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: $number [any]
+      - Literal (string): "" [PhpString]
+    Then
+      - Return
+        - Literal (boolean): false [PhpBoolean]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.add) [any]
+        - Identifier: $this [any]
+      - InstanceField: Number [PhpNumber]
+        - ClassReference [TokenKind]
+      - LocalVar: $number [any]
+  - Comment: "\n"
+  - If
+    - Binary: != [OneBoolean]
+      - Call [any]
+        - PropertyAccess (.tryToMatch) [any]
+          - Identifier: $this [any]
+        - Literal (string): "[0-9a-zA-Z]" [PhpString]
+      - Literal (string): "" [PhpString]
+    Then
+      - ExpressionStatement
+        - Call [any]
+          - PropertyAccess (.fail) [any]
+            - Identifier: $this [any]
+          - Literal (string): "invalid character in number" [PhpString]
+  - Comment: "\n"
+  - Return
+    - Literal (boolean): true [PhpBoolean]
+
+ExprLangLexer::tryToReadIdentifier(): any
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.skipWhitespace) [any]
+        - Identifier: $this [any]
+  - Variable: $identifier [any]
+    - Call [any]
+      - PropertyAccess (.tryToMatch) [any]
+        - Identifier: $this [any]
+      - Literal (string): "[a-zA-Z_][a-zA-Z0-9_]*" [PhpString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: $identifier [any]
+      - Literal (string): "" [PhpString]
+    Then
+      - Return
+        - Literal (boolean): false [PhpBoolean]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.add) [any]
+        - Identifier: $this [any]
+      - InstanceField: Identifier [PhpNumber]
+        - ClassReference [TokenKind]
+      - LocalVar: $identifier [any]
+  - Return
+    - Literal (boolean): true [PhpBoolean]
+
+ExprLangLexer::tryToReadString(): any
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.skipWhitespace) [any]
+        - Identifier: $this [any]
+  - Variable: $match [any]
+    - Call [any]
+      - PropertyAccess (.tryToMatch) [any]
+        - Identifier: $this [any]
+      - Literal (string): "'(\\\\'|[^'])*'" [PhpString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: $match [any]
+      - Literal (string): "" [PhpString]
+    Then
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: $match [any]
+          - Call [any]
+            - PropertyAccess (.tryToMatch) [any]
+              - Identifier: $this [any]
+            - Literal (string): "\"(\\\\\\\"|[^\\\"])*\\\"" [PhpString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: $match [any]
+      - Literal (string): "" [PhpString]
+    Then
+      - Return
+        - Literal (boolean): false [PhpBoolean]
+  - Variable: $str [any]
+    - Call [any]
+      - Identifier: substr [any]
+      - LocalVar: $match [any]
+      - Literal (numeric): "1" [PhpNumber]
+      - Binary: - [PhpNumber]
+        - Binary: - [PhpNumber]
+          - Binary: + [PhpNumber]
+            - Literal (numeric): "1" [PhpNumber]
+            - Call [any]
+              - Identifier: strlen [any]
+              - LocalVar: $match [any]
+          - Literal (numeric): "2" [PhpNumber]
+        - Literal (numeric): "1" [PhpNumber]
+  - ExpressionStatement
+    - Binary: = [any]
+      - LocalVar: $str [any]
+      - Conditional [any]
+        - Binary: == [OneBoolean]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - LocalVar: $match [any]
+            - Literal (numeric): "0" [PhpNumber]
+          - Literal (string): "'" [PhpString]
+        - Call [any]
+          - Identifier: str_replace [any]
+          - Literal (string): "\\'" [PhpString]
+          - Literal (string): "'" [PhpString]
+          - LocalVar: $str [any]
+        - Parenthesized [any]
+          - Call [any]
+            - Identifier: str_replace [any]
+            - Literal (string): "\\\"" [PhpString]
+            - Literal (string): "\"" [PhpString]
+            - LocalVar: $str [any]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.Add) [any]
+        - PropertyAccess (.tokens) [any]
+          - Identifier: $this [any]
+      - New Token [Token]
+  - ExpressionStatement
+    - Binary: += [any]
+      - PropertyAccess (.offset) [any]
+        - Identifier: $this [any]
+      - Call [any]
+        - Identifier: strlen [any]
+        - LocalVar: $match [any]
+  - Return
+    - Literal (boolean): true [PhpBoolean]
+
+ExprLangLexer::eof(): any
+  - Return
+    - Binary: >= [OneBoolean]
+      - PropertyAccess (.offset) [any]
+        - Identifier: $this [any]
+      - Call [any]
+        - Identifier: strlen [any]
+        - PropertyAccess (.expression) [any]
+          - Identifier: $this [any]
+
+ExprLangLexer::skipWhitespace(): any
+  - While
+      - Unary (prefix): ! [any]
+        - Call [any]
+          - PropertyAccess (.eof) [any]
+            - Identifier: $this [any]
+    Body
+      - Variable: $c [any]
+        - Call [any]
+          - PropertyAccess (.get) [any]
+            - PropertyAccess (.expression) [any]
+              - Identifier: $this [any]
+          - PropertyAccess (.offset) [any]
+            - Identifier: $this [any]
+      - If
+        - Binary: || [OneBoolean]
+          - Binary: || [OneBoolean]
+            - Binary: || [OneBoolean]
+              - Binary: == [OneBoolean]
+                - LocalVar: $c [any]
+                - Literal (string): " " [PhpString]
+              - Binary: == [OneBoolean]
+                - LocalVar: $c [any]
+                - Literal (string): "\n" [PhpString]
+            - Binary: == [OneBoolean]
+              - LocalVar: $c [any]
+              - Literal (string): "\t" [PhpString]
+          - Binary: == [OneBoolean]
+            - LocalVar: $c [any]
+            - Literal (string): "\r" [PhpString]
+        Then
+          - ExpressionStatement
+            - Unary (postfix): ++ [any]
+              - PropertyAccess (.offset) [any]
+                - Identifier: $this [any]
+        Else
+          - Break
+
+ExprLangLexer::tryToReadLiteral(): any
+  - Variable: $success [any]
+    - Binary: || [any]
+      - Binary: || [any]
+        - Call [any]
+          - PropertyAccess (.tryToReadIdentifier) [any]
+            - Identifier: $this [any]
+        - Call [any]
+          - PropertyAccess (.tryToReadNumber) [any]
+            - Identifier: $this [any]
+      - Call [any]
+        - PropertyAccess (.tryToReadString) [any]
+          - Identifier: $this [any]
+  - Return
+    - LocalVar: $success [any]
+
+TestClass::testMethod(): any
+  - Variable: $lexer [ExprLangLexer]
+    - New ExprLangLexer [ExprLangLexer]
+  - Variable: $result [PhpString]
+    - Literal (string): "" [PhpString]
+  - Foreach $token: any
+    Items
+      - PropertyAccess (.tokens) [any]
+        - LocalVar: $lexer [ExprLangLexer]
+    Body
+      - If
+        - Binary: != [OneBoolean]
+          - LocalVar: $result [PhpString]
+          - Literal (string): "" [PhpString]
+        Then
+          - ExpressionStatement
+            - Binary: .= [PhpString]
+              - LocalVar: $result [PhpString]
+              - Literal (string): ", " [PhpString]
+      - ExpressionStatement
+        - Binary: .= [PhpString]
+          - LocalVar: $result [PhpString]
+          - PropertyAccess (.value) [any]
+            - LocalVar: $token [any]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Binary: . [PhpString]
+              - Binary: . [PhpString]
+                - Literal (string): "[" [PhpString]
+                - Parenthesized [any]
+                  - Call [any]
+                    - Identifier: count [any]
+                    - PropertyAccess (.tokens) [any]
+                      - LocalVar: $lexer [ExprLangLexer]
+              - Literal (string): "]: " [PhpString]
+            - Parenthesized [PhpString]
+              - LocalVar: $result [PhpString]
+          - Literal (string): "" [PhpString]
+

@@ -1,0 +1,31 @@
+List::Items: List<T>
+
+Item::Offset: int
+- Variable: Offset [int]
+  - Literal (numeric): "5" [CsNumber]
+
+Item::StrTest: CsString
+- Variable: StrTest [CsString]
+  - Binary: + [CsString]
+    - Literal (string): "test" [CsString]
+    - Literal (string): "test2" [CsString]
+
+Item::StrConstr: CsString
+- Variable: StrConstr [CsString]
+  - Literal (string): "constr" [CsString]
+
+Item::constructor
+  - ExpressionStatement
+    - Binary: = [CsString]
+      - InstanceField (this): StrConstr [CsString]
+      - MethodArgument: strConstr [CsString]
+
+Container::ItemList: List<Item>
+Container::StringList: List<CsString>
+
+Container::Method0(): void
+
+Container::Method1(str: CsString): void
+  - Return
+    - MethodArgument: str [CsString]
+

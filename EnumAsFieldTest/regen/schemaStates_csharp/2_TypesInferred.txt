@@ -1,0 +1,13 @@
+enum SomeKind: EnumVal0, EnumVal1, EnumVal2
+
+TestClass::EnumField: SomeKind (enum)
+- Variable: EnumField [SomeKind (enum)]
+  - EnumMemberReference [SomeKind (enum)]
+
+TestClass::TestMethod(): void
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - TemplateString [OneString]
+        - InstanceField (this): EnumField [SomeKind (enum)]
+

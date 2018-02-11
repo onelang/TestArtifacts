@@ -1,0 +1,263 @@
+TargetClass::$instance_field: null
+- Variable: $instance_field
+  - Literal (numeric): "5"
+
+TargetClass::$static_field: null
+- Variable: $static_field
+  - Literal (string): "hello"
+
+TargetClass::staticMethod($arg1: ???): any [static]
+  - Return
+    - Binary: .
+      - Binary: .
+        - Binary: .
+          - Binary: .
+            - Literal (string): "arg1 = "
+            - Parenthesized
+              - Identifier: $arg1
+          - Literal (string): ", staticField = "
+        - Parenthesized
+          - PropertyAccess (.$static_field)
+            - Identifier: TargetClass
+      - Literal (string): ""
+
+TargetClass::instanceMethod(): any
+  - Return
+    - Binary: .
+      - Binary: .
+        - Literal (string): "instanceField = "
+        - Parenthesized
+          - PropertyAccess (.instance_field)
+            - Identifier: $this
+      - Literal (string): ""
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $obj
+      - New TargetClass
+  - Comment: "//console.log(`instanceMethod (direct): ${obj.instanceMethod()}`);\n//console.log(`staticMethod (direct): ${TargetClass.staticMethod("arg1value")}`);\n//console.log(`instanceField (direct): ${obj.instanceField}`);\n//console.log(`staticField (direct): ${TargetClass.staticField}`);\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $cls
+      - Call
+        - PropertyAccess (.getClass)
+          - Identifier: OneReflect
+        - Identifier: $obj
+  - If
+    - Binary: ==
+      - Identifier: $cls
+      - Identifier: NULL
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Parenthesized
+            - Literal (string): "cls is null!"
+      - Return
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $cls2
+      - Call
+        - PropertyAccess (.getClassByName)
+          - Identifier: OneReflect
+        - Literal (string): "TargetClass"
+  - If
+    - Binary: ==
+      - Identifier: $cls2
+      - Identifier: NULL
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Parenthesized
+            - Literal (string): "cls2 is null!"
+      - Return
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $method1
+      - Call
+        - PropertyAccess (.getMethod)
+          - Identifier: $cls
+        - Literal (string): "instanceMethod"
+  - If
+    - Binary: ==
+      - Identifier: $method1
+      - Identifier: NULL
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Parenthesized
+            - Literal (string): "method1 is null!"
+      - Return
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $method1_result
+      - Call
+        - PropertyAccess (.call)
+          - Identifier: $method1
+        - Identifier: $obj
+        - ArrayLiteral
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Literal (string): "instanceMethod: "
+            - Parenthesized
+              - Identifier: $method1_result
+          - Literal (string): ""
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $method2
+      - Call
+        - PropertyAccess (.getMethod)
+          - Identifier: $cls
+        - Literal (string): "staticMethod"
+  - If
+    - Binary: ==
+      - Identifier: $method2
+      - Identifier: NULL
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Parenthesized
+            - Literal (string): "method2 is null!"
+      - Return
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $method2_result
+      - Call
+        - PropertyAccess (.call)
+          - Identifier: $method2
+        - Identifier: NULL
+        - ArrayLiteral
+          - Literal (string): "arg1value"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Literal (string): "staticMethod: "
+            - Parenthesized
+              - Identifier: $method2_result
+          - Literal (string): ""
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $field1
+      - Call
+        - PropertyAccess (.getField)
+          - Identifier: $cls
+        - Literal (string): "instanceField"
+  - If
+    - Binary: ==
+      - Identifier: $field1
+      - Identifier: NULL
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Parenthesized
+            - Literal (string): "field1 is null!"
+      - Return
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.setValue)
+        - Identifier: $field1
+      - Identifier: $obj
+      - Literal (numeric): "6"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $field1_new_val
+      - Call
+        - PropertyAccess (.getValue)
+          - Identifier: $field1
+        - Identifier: $obj
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Literal (string): "new instance field value: "
+                - Parenthesized
+                  - PropertyAccess (.instance_field)
+                    - Identifier: $obj
+              - Literal (string): " == "
+            - Parenthesized
+              - Identifier: $field1_new_val
+          - Literal (string): ""
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $field2
+      - Call
+        - PropertyAccess (.getField)
+          - Identifier: $cls
+        - Literal (string): "staticField"
+  - If
+    - Binary: ==
+      - Identifier: $field2
+      - Identifier: NULL
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Parenthesized
+            - Literal (string): "field2 is null!"
+      - Return
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.setValue)
+        - Identifier: $field2
+      - Identifier: NULL
+      - Literal (string): "bello"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $field2_new_val
+      - Call
+        - PropertyAccess (.getValue)
+          - Identifier: $field2
+        - Identifier: NULL
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Literal (string): "new static field value: "
+                - Parenthesized
+                  - PropertyAccess (.$static_field)
+                    - Identifier: TargetClass
+              - Literal (string): " == "
+            - Parenthesized
+              - Identifier: $field2_new_val
+          - Literal (string): ""
+
+main()
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - Identifier: require_once
+      - Literal (string): "one.php"

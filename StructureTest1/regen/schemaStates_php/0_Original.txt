@@ -1,0 +1,32 @@
+List::$items: null
+
+Item::$offset: null
+- Variable: $offset
+  - Literal (numeric): "5"
+
+Item::$str_test: null
+- Variable: $str_test
+  - Binary: .
+    - Literal (string): "test"
+    - Literal (string): "test2"
+
+Item::$str_constr: null
+- Variable: $str_constr
+  - Literal (string): "constr"
+
+Item::__construct($str_constr: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.str_constr)
+        - Identifier: $this
+      - Identifier: $str_constr
+
+Container::$item_list: null
+Container::$string_list: null
+
+Container::method0(): any
+
+Container::method1($str: ???): any
+  - Return
+    - Identifier: $str
+

@@ -1,0 +1,7 @@
+main()
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Literal (string): "Hello world!" [PhpString]

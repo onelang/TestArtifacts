@@ -1,0 +1,103 @@
+BasePrinter::$num_value: PhpNumber
+- Variable: $num_value [PhpNumber]
+  - Literal (numeric): "42" [PhpNumber]
+
+BasePrinter::getValue(): any
+  - Return
+    - Literal (string): "Base" [PhpString]
+
+BasePrinter::printIt(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Literal (string): "BasePrinter: " [PhpString]
+            - Parenthesized [any]
+              - Call [any]
+                - PropertyAccess (.getValue) [any]
+                  - Identifier: $this [any]
+          - Literal (string): "" [PhpString]
+
+BasePrinter::someBaseFunc(): any
+  - Return
+    - PropertyAccess (.num_value) [any]
+      - Identifier: $this [any]
+
+ChildPrinter::getValue(): any
+  - Return
+    - Literal (string): "Child" [PhpString]
+
+TestClass::getPrinter($name: ???): any
+  - Variable: $result [any]
+    - Conditional [any]
+      - Binary: == [OneBoolean]
+        - MethodArgument: $name [any]
+        - Literal (string): "child" [PhpString]
+      - New ChildPrinter [ChildPrinter]
+      - Parenthesized [BasePrinter]
+        - New BasePrinter [BasePrinter]
+  - Return
+    - LocalVar: $result [any]
+
+TestClass::testMethod(): any
+  - Variable: $base_printer [any]
+    - Call [any]
+      - PropertyAccess (.getPrinter) [any]
+        - Identifier: $this [any]
+      - Literal (string): "base" [PhpString]
+  - Variable: $child_printer [any]
+    - Call [any]
+      - PropertyAccess (.getPrinter) [any]
+        - Identifier: $this [any]
+      - Literal (string): "child" [PhpString]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.printIt) [any]
+        - LocalVar: $base_printer [any]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.printIt) [any]
+        - LocalVar: $child_printer [any]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Binary: . [PhpString]
+              - Binary: . [PhpString]
+                - Literal (string): "" [PhpString]
+                - Parenthesized [any]
+                  - Call [any]
+                    - PropertyAccess (.someBaseFunc) [any]
+                      - LocalVar: $base_printer [any]
+              - Literal (string): " == " [PhpString]
+            - Parenthesized [any]
+              - Call [any]
+                - PropertyAccess (.someBaseFunc) [any]
+                  - LocalVar: $child_printer [any]
+          - Literal (string): "" [PhpString]
+  - Variable: $base_p2 [BasePrinter]
+    - New BasePrinter [BasePrinter]
+  - Variable: $child_p2 [ChildPrinter]
+    - New ChildPrinter [ChildPrinter]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Binary: . [PhpString]
+              - Binary: . [PhpString]
+                - Literal (string): "" [PhpString]
+                - Parenthesized [any]
+                  - PropertyAccess (.num_value) [any]
+                    - LocalVar: $base_p2 [BasePrinter]
+              - Literal (string): " == " [PhpString]
+            - Parenthesized [any]
+              - PropertyAccess (.num_value) [any]
+                - LocalVar: $child_p2 [ChildPrinter]
+          - Literal (string): "" [PhpString]
+

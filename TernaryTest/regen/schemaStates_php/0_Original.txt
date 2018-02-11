@@ -1,0 +1,18 @@
+TestClass::getResult(): any
+  - Return
+    - Literal (boolean): true
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Conditional
+          - Call
+            - PropertyAccess (.getResult)
+              - Identifier: $this
+          - Literal (string): "true"
+          - Parenthesized
+            - Literal (string): "false"
+

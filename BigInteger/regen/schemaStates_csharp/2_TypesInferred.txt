@@ -1,0 +1,78 @@
+MathUtils::Calc(n: int): int [static]
+  - Variable: result [CsNumber]
+    - Literal (numeric): "1" [CsNumber]
+  - For ("i")
+    Var
+    - Variable: i [CsNumber]
+      - Literal (numeric): "2" [CsNumber]
+    Condition
+      - Binary: <= [OneBoolean]
+        - LocalVar: i [CsNumber]
+        - MethodArgument: n [int]
+    Incrementor
+      - Unary (postfix): ++ [any]
+        - LocalVar: i [CsNumber]
+    Body
+      - ExpressionStatement
+        - Binary: = [CsNumber]
+          - LocalVar: result [CsNumber]
+          - Binary: * [CsNumber]
+            - LocalVar: result [CsNumber]
+            - LocalVar: i [CsNumber]
+      - If
+        - Binary: > [CsNumber]
+          - LocalVar: result [CsNumber]
+          - Literal (numeric): "10" [CsNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [CsNumber]
+              - LocalVar: result [CsNumber]
+              - Binary: >> [CsNumber]
+                - LocalVar: result [CsNumber]
+                - Literal (numeric): "2" [CsNumber]
+  - Return
+    - LocalVar: result [CsNumber]
+
+MathUtils::CalcBig(n: int): BigInteger [static]
+  - Variable: result [BigInteger]
+    - New BigInteger [BigInteger]
+  - For ("i")
+    Var
+    - Variable: i [CsNumber]
+      - Literal (numeric): "2" [CsNumber]
+    Condition
+      - Binary: <= [OneBoolean]
+        - LocalVar: i [CsNumber]
+        - MethodArgument: n [int]
+    Incrementor
+      - Unary (postfix): ++ [any]
+        - LocalVar: i [CsNumber]
+    Body
+      - ExpressionStatement
+        - Binary: = [BigInteger]
+          - LocalVar: result [BigInteger]
+          - Binary: + [BigInteger]
+            - Binary: * [BigInteger]
+              - LocalVar: result [BigInteger]
+              - LocalVar: i [CsNumber]
+            - Literal (numeric): "123" [CsNumber]
+      - ExpressionStatement
+        - Binary: = [BigInteger]
+          - LocalVar: result [BigInteger]
+          - Binary: + [BigInteger]
+            - LocalVar: result [BigInteger]
+            - LocalVar: result [BigInteger]
+      - If
+        - Binary: > [BigInteger]
+          - LocalVar: result [BigInteger]
+          - Literal (numeric): "10" [CsNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [BigInteger]
+              - LocalVar: result [BigInteger]
+              - Binary: >> [BigInteger]
+                - LocalVar: result [BigInteger]
+                - Literal (numeric): "2" [CsNumber]
+  - Return
+    - LocalVar: result [BigInteger]
+

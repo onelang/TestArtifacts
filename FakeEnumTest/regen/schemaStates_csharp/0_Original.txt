@@ -1,0 +1,25 @@
+TokenType::EndToken: CsString
+- Variable: EndToken [CsString]
+  - Literal (string): "EndToken"
+
+TokenType::Whitespace: CsString
+- Variable: Whitespace [CsString]
+  - Literal (string): "Whitespace"
+
+TokenType::Identifier: CsString
+- Variable: Identifier [CsString]
+  - Literal (string): "Identifier"
+
+TokenType::OperatorX: CsString
+- Variable: OperatorX [CsString]
+  - Literal (string): "Operator"
+
+TokenType::NoInitializer: CsString
+
+TestClass::TestMethod(): CsString
+  - Variable: casingTest
+    - PropertyAccess (.EndToken)
+      - Identifier: TokenType
+  - Return
+    - Identifier: casingTest
+

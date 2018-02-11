@@ -1,0 +1,5 @@
+main()
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - Literal (string): "Hello world!" [TsString]

@@ -1,0 +1,33 @@
+TestClass::testMethod(): any
+  - Variable: $constant_arr [PhpArray<PhpNumber>]
+    - ArrayLiteral [PhpArray<PhpNumber>]
+      - Literal (numeric): "5" [PhpNumber]
+  - Variable: $mutable_arr [PhpArray<PhpNumber>]
+    - ArrayLiteral [PhpArray<PhpNumber>]
+      - Literal (numeric): "1" [PhpNumber]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.Add) [any]
+        - LocalVar: $mutable_arr [PhpArray<PhpNumber>]
+      - Literal (numeric): "2" [PhpNumber]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Binary: . [PhpString]
+              - Binary: . [PhpString]
+                - Literal (string): "len1: " [PhpString]
+                - Parenthesized [any]
+                  - Call [any]
+                    - Identifier: count [any]
+                    - LocalVar: $constant_arr [PhpArray<PhpNumber>]
+              - Literal (string): ", len2: " [PhpString]
+            - Parenthesized [any]
+              - Call [any]
+                - Identifier: count [any]
+                - LocalVar: $mutable_arr [PhpArray<PhpNumber>]
+          - Literal (string): "" [PhpString]
+

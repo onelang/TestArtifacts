@@ -1,0 +1,286 @@
+XorByte::xor_value: null
+
+XorByte::initialize(xor_value: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): xor_value [any]
+      - MethodArgument: xor_value [any]
+
+XorByte::decode(src: ???): any
+  - Variable: dest [OneArray<any>]
+    - ArrayLiteral [OneArray<any>]
+  - Variable: i [OneNumber]
+    - Literal (numeric): "0" [OneNumber]
+  - While
+      - Binary: < [OneNumber]
+        - LocalVar: i [OneNumber]
+        - PropertyAccess (.length) [any]
+          - MethodArgument: src [any]
+    Body
+      - ExpressionStatement
+        - Binary: << [OneArray<any>]
+          - LocalVar: dest [OneArray<any>]
+          - Parenthesized [any]
+            - Binary: ^ [any]
+              - Call [any]
+                - PropertyAccess (.get) [any]
+                  - MethodArgument: src [any]
+                - LocalVar: i [OneNumber]
+              - InstanceField (this): xor_value [any]
+      - ExpressionStatement
+        - Binary: += [OneNumber]
+          - LocalVar: i [OneNumber]
+          - Literal (numeric): "1" [OneNumber]
+  - Comment: "\n"
+  - Return
+    - LocalVar: dest [OneArray<any>]
+
+Base64::decode(src: ???): any
+  - Variable: dest [OneArray<any>]
+    - ArrayLiteral [OneArray<any>]
+  - Variable: i [OneNumber]
+    - Literal (numeric): "0" [OneNumber]
+  - While
+      - Binary: < [OneNumber]
+        - LocalVar: i [OneNumber]
+        - PropertyAccess (.length) [any]
+          - MethodArgument: src [any]
+    Body
+      - Variable: ch0 [any]
+        - Call [any]
+          - MethodReference (this) [Base64::decode_char]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: src [any]
+            - LocalVar: i [OneNumber]
+      - Variable: ch1 [any]
+        - Call [any]
+          - MethodReference (this) [Base64::decode_char]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: src [any]
+            - Binary: + [OneNumber]
+              - LocalVar: i [OneNumber]
+              - Literal (numeric): "1" [OneNumber]
+      - Variable: ch2 [any]
+        - Call [any]
+          - MethodReference (this) [Base64::decode_char]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: src [any]
+            - Binary: + [OneNumber]
+              - LocalVar: i [OneNumber]
+              - Literal (numeric): "2" [OneNumber]
+      - Variable: ch3 [any]
+        - Call [any]
+          - MethodReference (this) [Base64::decode_char]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: src [any]
+            - Binary: + [OneNumber]
+              - LocalVar: i [OneNumber]
+              - Literal (numeric): "3" [OneNumber]
+      - Variable: trinity [any]
+        - Binary: + [any]
+          - Binary: + [any]
+            - Binary: + [any]
+              - Parenthesized [any]
+                - Binary: << [any]
+                  - LocalVar: ch0 [any]
+                  - Literal (numeric): "18" [OneNumber]
+              - Parenthesized [any]
+                - Binary: << [any]
+                  - LocalVar: ch1 [any]
+                  - Literal (numeric): "12" [OneNumber]
+            - Parenthesized [any]
+              - Binary: << [any]
+                - LocalVar: ch2 [any]
+                - Literal (numeric): "6" [OneNumber]
+          - Parenthesized [any]
+            - LocalVar: ch3 [any]
+      - ExpressionStatement
+        - Binary: << [OneArray<any>]
+          - LocalVar: dest [OneArray<any>]
+          - Parenthesized [any]
+            - Binary: >> [any]
+              - LocalVar: trinity [any]
+              - Literal (numeric): "16" [OneNumber]
+      - ExpressionStatement
+        - Binary: << [OneArray<any>]
+          - LocalVar: dest [OneArray<any>]
+          - Parenthesized [any]
+            - Binary: & [any]
+              - Parenthesized [any]
+                - Binary: >> [any]
+                  - LocalVar: trinity [any]
+                  - Literal (numeric): "8" [OneNumber]
+              - Literal (numeric): "0xff" [OneNumber]
+      - ExpressionStatement
+        - Binary: << [OneArray<any>]
+          - LocalVar: dest [OneArray<any>]
+          - Parenthesized [any]
+            - Binary: & [any]
+              - LocalVar: trinity [any]
+              - Literal (numeric): "0xff" [OneNumber]
+      - ExpressionStatement
+        - Binary: += [OneNumber]
+          - LocalVar: i [OneNumber]
+          - Literal (numeric): "4" [OneNumber]
+  - Comment: "\n"
+  - Return
+    - LocalVar: dest [OneArray<any>]
+
+Base64::decode_char(ch: ???): any
+  - Variable: value [any]
+    - Unary (prefix): - [any]
+      - Literal (numeric): "1" [OneNumber]
+  - If
+    - Binary: && [OneBoolean]
+      - Binary: >= [OneBoolean]
+        - MethodArgument: ch [any]
+        - Literal (numeric): "65" [OneNumber]
+      - Binary: <= [OneBoolean]
+        - MethodArgument: ch [any]
+        - Literal (numeric): "90" [OneNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: value [any]
+          - Binary: - [any]
+            - MethodArgument: ch [any]
+            - Literal (numeric): "65" [OneNumber]
+    Else
+      - If
+        - Binary: && [OneBoolean]
+          - Binary: >= [OneBoolean]
+            - MethodArgument: ch [any]
+            - Literal (numeric): "97" [OneNumber]
+          - Binary: <= [OneBoolean]
+            - MethodArgument: ch [any]
+            - Literal (numeric): "122" [OneNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [any]
+              - LocalVar: value [any]
+              - Binary: + [any]
+                - Binary: - [any]
+                  - MethodArgument: ch [any]
+                  - Literal (numeric): "97" [OneNumber]
+                - Literal (numeric): "26" [OneNumber]
+        Else
+          - If
+            - Binary: && [OneBoolean]
+              - Binary: >= [OneBoolean]
+                - MethodArgument: ch [any]
+                - Literal (numeric): "48" [OneNumber]
+              - Binary: <= [OneBoolean]
+                - MethodArgument: ch [any]
+                - Literal (numeric): "57" [OneNumber]
+            Then
+              - ExpressionStatement
+                - Binary: = [any]
+                  - LocalVar: value [any]
+                  - Binary: + [any]
+                    - Binary: - [any]
+                      - MethodArgument: ch [any]
+                      - Literal (numeric): "48" [OneNumber]
+                    - Literal (numeric): "52" [OneNumber]
+            Else
+              - If
+                - Binary: || [OneBoolean]
+                  - Binary: == [OneBoolean]
+                    - MethodArgument: ch [any]
+                    - Literal (numeric): "43" [OneNumber]
+                  - Binary: == [OneBoolean]
+                    - MethodArgument: ch [any]
+                    - Literal (numeric): "45" [OneNumber]
+                Then
+                  - ExpressionStatement
+                    - Binary: = [any]
+                      - LocalVar: value [any]
+                      - Literal (numeric): "62" [OneNumber]
+                Else
+                  - If
+                    - Binary: || [OneBoolean]
+                      - Binary: == [OneBoolean]
+                        - MethodArgument: ch [any]
+                        - Literal (numeric): "47" [OneNumber]
+                      - Binary: == [OneBoolean]
+                        - MethodArgument: ch [any]
+                        - Literal (numeric): "95" [OneNumber]
+                    Then
+                      - ExpressionStatement
+                        - Binary: = [any]
+                          - LocalVar: value [any]
+                          - Literal (numeric): "63" [OneNumber]
+                    Else
+                      - If
+                        - Binary: == [OneBoolean]
+                          - MethodArgument: ch [any]
+                          - Literal (numeric): "61" [OneNumber]
+                        Then
+                          - ExpressionStatement
+                            - Binary: = [any]
+                              - LocalVar: value [any]
+                              - Literal (numeric): "0" [OneNumber]
+                        Else
+  - Return
+    - LocalVar: value [any]
+
+TestClass::test_method(): any
+  - Variable: src1 [OneArray<OneNumber>]
+    - ArrayLiteral [OneArray<OneNumber>]
+      - Literal (numeric): "4" [OneNumber]
+      - Literal (numeric): "5" [OneNumber]
+      - Literal (numeric): "6" [OneNumber]
+  - Variable: decoder [any]
+    - Call [any]
+      - PropertyAccess (.new) [any]
+        - ClassReference [XorByte]
+      - Literal (numeric): "0xff" [OneNumber]
+  - Variable: dst1 [any]
+    - Call [any]
+      - PropertyAccess (.decode) [any]
+        - LocalVar: decoder [any]
+      - LocalVar: src1 [OneArray<OneNumber>]
+  - Foreach x: any
+    Items
+      - LocalVar: dst1 [any]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - LocalVar: x [any]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Literal (string): "|" [OneString]
+  - Variable: src2 [OneArray<OneNumber>]
+    - ArrayLiteral [OneArray<OneNumber>]
+      - Literal (numeric): "97" [OneNumber]
+      - Literal (numeric): "71" [OneNumber]
+      - Literal (numeric): "86" [OneNumber]
+      - Literal (numeric): "115" [OneNumber]
+      - Literal (numeric): "98" [OneNumber]
+      - Literal (numeric): "71" [OneNumber]
+      - Literal (numeric): "56" [OneNumber]
+      - Literal (numeric): "61" [OneNumber]
+  - Variable: decoder2 [any]
+    - Call [any]
+      - PropertyAccess (.new) [any]
+        - ClassReference [Base64]
+  - Variable: dst2 [any]
+    - Call [any]
+      - PropertyAccess (.decode) [any]
+        - LocalVar: decoder2 [any]
+      - LocalVar: src2 [OneArray<OneNumber>]
+  - Foreach x: any
+    Items
+      - LocalVar: dst2 [any]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - LocalVar: x [any]
+

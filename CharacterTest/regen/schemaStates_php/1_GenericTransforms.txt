@@ -1,0 +1,75 @@
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $str
+      - Literal (string): "a1A"
+  - For ("$i")
+    Var
+    - Variable: $i
+      - Literal (numeric): "0"
+    Condition
+      - Binary: <
+        - Identifier: $i
+        - Call
+          - Identifier: strlen
+          - Identifier: $str
+    Incrementor
+      - Unary (postfix): ++
+        - Identifier: $i
+    Body
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $c
+          - Call
+            - PropertyAccess (.get)
+              - Identifier: $str
+            - Identifier: $i
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $is_upper
+          - Binary: &&
+            - Binary: <=
+              - Literal (string): "A"
+              - Identifier: $c
+            - Binary: <=
+              - Identifier: $c
+              - Literal (string): "Z"
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $is_lower
+          - Binary: &&
+            - Binary: <=
+              - Literal (string): "a"
+              - Identifier: $c
+            - Binary: <=
+              - Identifier: $c
+              - Literal (string): "z"
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $is_number
+          - Binary: &&
+            - Binary: <=
+              - Literal (string): "0"
+              - Identifier: $c
+            - Binary: <=
+              - Identifier: $c
+              - Literal (string): "9"
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Parenthesized
+            - Conditional
+              - Identifier: $is_upper
+              - Literal (string): "upper"
+              - Parenthesized
+                - Conditional
+                  - Identifier: $is_lower
+                  - Literal (string): "lower"
+                  - Parenthesized
+                    - Conditional
+                      - Identifier: $is_number
+                      - Literal (string): "number"
+                      - Parenthesized
+                        - Literal (string): "other"
+

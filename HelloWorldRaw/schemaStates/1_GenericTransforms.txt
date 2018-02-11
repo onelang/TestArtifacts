@@ -1,0 +1,6 @@
+main()
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - Literal (string): "Hello world!"

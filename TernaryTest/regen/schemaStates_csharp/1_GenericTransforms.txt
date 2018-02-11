@@ -1,0 +1,16 @@
+TestClass::GetResult(): bool
+  - Return
+    - Literal (boolean): true
+
+TestClass::TestMethod(): void
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - Conditional
+        - Call
+          - PropertyAccess (.GetResult)
+            - Identifier: this
+        - Literal (string): "true"
+        - Literal (string): "false"
+

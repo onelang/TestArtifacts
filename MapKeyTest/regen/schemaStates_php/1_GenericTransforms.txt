@@ -1,0 +1,12 @@
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $map
+      - ArrayLiteral
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $keys
+      - Call
+        - Identifier: array_keys
+        - Identifier: $map
+

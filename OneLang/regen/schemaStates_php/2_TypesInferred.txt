@@ -1,0 +1,340 @@
+TokenType::$end_token: PhpString
+- Variable: $end_token [PhpString]
+  - Literal (string): "EndToken" [PhpString]
+
+TokenType::$whitespace: PhpString
+- Variable: $whitespace [PhpString]
+  - Literal (string): "Whitespace" [PhpString]
+
+TokenType::$identifier: PhpString
+- Variable: $identifier [PhpString]
+  - Literal (string): "Identifier" [PhpString]
+
+TokenType::$operator_x: PhpString
+- Variable: $operator_x [PhpString]
+  - Literal (string): "Operator" [PhpString]
+
+Token::$value: null
+Token::$is_operator: null
+
+Token::__construct($value: ???, $is_operator: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - PropertyAccess (.value) [any]
+        - Identifier: $this [any]
+      - MethodArgument: $value [any]
+  - ExpressionStatement
+    - Binary: = [any]
+      - PropertyAccess (.is_operator) [any]
+        - Identifier: $this [any]
+      - MethodArgument: $is_operator [any]
+
+StringHelper::startsWithAtIndex($str: ???, $substr: ???, $idx: ???): any [static]
+  - Return
+    - Binary: == [OneBoolean]
+      - Call [any]
+        - Identifier: substr [any]
+        - MethodArgument: $str [any]
+        - MethodArgument: $idx [any]
+        - Binary: - [any]
+          - Binary: + [any]
+            - MethodArgument: $idx [any]
+            - Call [any]
+              - Identifier: strlen [any]
+              - MethodArgument: $substr [any]
+          - MethodArgument: $idx [any]
+      - MethodArgument: $substr [any]
+
+Tokenizer::$offset: null
+Tokenizer::$text: null
+Tokenizer::$operators: null
+
+Tokenizer::__construct($text: ???, $operators: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - PropertyAccess (.text) [any]
+        - Identifier: $this [any]
+      - MethodArgument: $text [any]
+  - ExpressionStatement
+    - Binary: = [any]
+      - PropertyAccess (.operators) [any]
+        - Identifier: $this [any]
+      - MethodArgument: $operators [any]
+  - ExpressionStatement
+    - Binary: = [any]
+      - PropertyAccess (.offset) [any]
+        - Identifier: $this [any]
+      - Literal (numeric): "0" [PhpNumber]
+
+Tokenizer::getTokenType(): any
+  - If
+    - Binary: >= [OneBoolean]
+      - PropertyAccess (.offset) [any]
+        - Identifier: $this [any]
+      - Call [any]
+        - Identifier: strlen [any]
+        - PropertyAccess (.text) [any]
+          - Identifier: $this [any]
+    Then
+      - Return
+        - StaticField: $end_token [PhpString]
+          - ClassReference [TokenType]
+  - Variable: $c [any]
+    - Call [any]
+      - PropertyAccess (.get) [any]
+        - PropertyAccess (.text) [any]
+          - Identifier: $this [any]
+      - PropertyAccess (.offset) [any]
+        - Identifier: $this [any]
+  - Return
+    - Conditional [PhpString]
+      - Binary: || [OneBoolean]
+        - Binary: || [OneBoolean]
+          - Binary: || [OneBoolean]
+            - Binary: == [OneBoolean]
+              - LocalVar: $c [any]
+              - Literal (string): " " [PhpString]
+            - Binary: == [OneBoolean]
+              - LocalVar: $c [any]
+              - Literal (string): "\n" [PhpString]
+          - Binary: == [OneBoolean]
+            - LocalVar: $c [any]
+            - Literal (string): "\t" [PhpString]
+        - Binary: == [OneBoolean]
+          - LocalVar: $c [any]
+          - Literal (string): "\r" [PhpString]
+      - StaticField: $whitespace [PhpString]
+        - ClassReference [TokenType]
+      - Parenthesized [PhpString]
+        - Conditional [PhpString]
+          - Binary: || [OneBoolean]
+            - Binary: || [OneBoolean]
+              - Binary: || [OneBoolean]
+                - Parenthesized [OneBoolean]
+                  - Binary: && [OneBoolean]
+                    - Binary: <= [OneBoolean]
+                      - Literal (string): "A" [PhpString]
+                      - LocalVar: $c [any]
+                    - Binary: <= [OneBoolean]
+                      - LocalVar: $c [any]
+                      - Literal (string): "Z" [PhpString]
+                - Parenthesized [OneBoolean]
+                  - Binary: && [OneBoolean]
+                    - Binary: <= [OneBoolean]
+                      - Literal (string): "a" [PhpString]
+                      - LocalVar: $c [any]
+                    - Binary: <= [OneBoolean]
+                      - LocalVar: $c [any]
+                      - Literal (string): "z" [PhpString]
+              - Parenthesized [OneBoolean]
+                - Binary: && [OneBoolean]
+                  - Binary: <= [OneBoolean]
+                    - Literal (string): "0" [PhpString]
+                    - LocalVar: $c [any]
+                  - Binary: <= [OneBoolean]
+                    - LocalVar: $c [any]
+                    - Literal (string): "9" [PhpString]
+            - Binary: == [OneBoolean]
+              - LocalVar: $c [any]
+              - Literal (string): "_" [PhpString]
+          - StaticField: $identifier [PhpString]
+            - ClassReference [TokenType]
+          - Parenthesized [PhpString]
+            - StaticField: $operator_x [PhpString]
+              - ClassReference [TokenType]
+
+Tokenizer::tokenize(): any
+  - Variable: $result [PhpArray<any>]
+    - ArrayLiteral [PhpArray<any>]
+  - Comment: "\n"
+  - While
+      - Binary: < [any]
+        - PropertyAccess (.offset) [any]
+          - Identifier: $this [any]
+        - Call [any]
+          - Identifier: strlen [any]
+          - PropertyAccess (.text) [any]
+            - Identifier: $this [any]
+    Body
+      - Variable: $char_type [any]
+        - Call [any]
+          - PropertyAccess (.getTokenType) [any]
+            - Identifier: $this [any]
+      - Comment: "\n"
+      - If
+        - Binary: == [OneBoolean]
+          - LocalVar: $char_type [any]
+          - StaticField: $whitespace [PhpString]
+            - ClassReference [TokenType]
+        Then
+          - While
+              - Binary: == [OneBoolean]
+                - Call [any]
+                  - PropertyAccess (.getTokenType) [any]
+                    - Identifier: $this [any]
+                - StaticField: $whitespace [PhpString]
+                  - ClassReference [TokenType]
+            Body
+              - ExpressionStatement
+                - Unary (postfix): ++ [any]
+                  - PropertyAccess (.offset) [any]
+                    - Identifier: $this [any]
+        Else
+          - If
+            - Binary: == [OneBoolean]
+              - LocalVar: $char_type [any]
+              - StaticField: $identifier [PhpString]
+                - ClassReference [TokenType]
+            Then
+              - Variable: $start_offset [any]
+                - PropertyAccess (.offset) [any]
+                  - Identifier: $this [any]
+              - While
+                  - Binary: == [OneBoolean]
+                    - Call [any]
+                      - PropertyAccess (.getTokenType) [any]
+                        - Identifier: $this [any]
+                    - StaticField: $identifier [PhpString]
+                      - ClassReference [TokenType]
+                Body
+                  - ExpressionStatement
+                    - Unary (postfix): ++ [any]
+                      - PropertyAccess (.offset) [any]
+                        - Identifier: $this [any]
+              - Variable: $identifier [any]
+                - Call [any]
+                  - Identifier: substr [any]
+                  - PropertyAccess (.text) [any]
+                    - Identifier: $this [any]
+                  - LocalVar: $start_offset [any]
+                  - Binary: - [any]
+                    - PropertyAccess (.offset) [any]
+                      - Identifier: $this [any]
+                    - LocalVar: $start_offset [any]
+              - ExpressionStatement
+                - Call [any]
+                  - PropertyAccess (.Add) [any]
+                    - LocalVar: $result [PhpArray<any>]
+                  - New Token [Token]
+            Else
+              - Variable: $op [PhpString]
+                - Literal (string): "" [PhpString]
+              - Foreach $curr_op: any
+                Items
+                  - PropertyAccess (.operators) [any]
+                    - Identifier: $this [any]
+                Body
+                  - If
+                    - Call [any]
+                      - MethodReference (static) [StringHelper::startsWithAtIndex]
+                      - PropertyAccess (.text) [any]
+                        - Identifier: $this [any]
+                      - LocalVar: $curr_op [any]
+                      - PropertyAccess (.offset) [any]
+                        - Identifier: $this [any]
+                    Then
+                      - ExpressionStatement
+                        - Binary: = [PhpString]
+                          - LocalVar: $op [PhpString]
+                          - LocalVar: $curr_op [any]
+                      - Break
+              - Comment: "\n"
+              - If
+                - Binary: == [OneBoolean]
+                  - LocalVar: $op [PhpString]
+                  - Literal (string): "" [PhpString]
+                Then
+                  - Break
+              - Comment: "\n"
+              - ExpressionStatement
+                - Binary: += [any]
+                  - PropertyAccess (.offset) [any]
+                    - Identifier: $this [any]
+                  - Call [any]
+                    - Identifier: strlen [any]
+                    - LocalVar: $op [PhpString]
+              - ExpressionStatement
+                - Call [any]
+                  - PropertyAccess (.Add) [any]
+                    - LocalVar: $result [PhpArray<any>]
+                  - New Token [Token]
+  - Comment: "\n"
+  - Return
+    - LocalVar: $result [PhpArray<any>]
+
+TestClass::testMethod(): any
+  - Variable: $operators [PhpArray<PhpString>]
+    - ArrayLiteral [PhpArray<PhpString>]
+      - Literal (string): "<<" [PhpString]
+      - Literal (string): ">>" [PhpString]
+      - Literal (string): "++" [PhpString]
+      - Literal (string): "--" [PhpString]
+      - Literal (string): "==" [PhpString]
+      - Literal (string): "!=" [PhpString]
+      - Literal (string): "!" [PhpString]
+      - Literal (string): "<" [PhpString]
+      - Literal (string): ">" [PhpString]
+      - Literal (string): "=" [PhpString]
+      - Literal (string): "(" [PhpString]
+      - Literal (string): ")" [PhpString]
+      - Literal (string): "[" [PhpString]
+      - Literal (string): "]" [PhpString]
+      - Literal (string): "{" [PhpString]
+      - Literal (string): "}" [PhpString]
+      - Literal (string): ";" [PhpString]
+      - Literal (string): "+" [PhpString]
+      - Literal (string): "-" [PhpString]
+      - Literal (string): "*" [PhpString]
+      - Literal (string): "/" [PhpString]
+      - Literal (string): "&&" [PhpString]
+      - Literal (string): "&" [PhpString]
+      - Literal (string): "%" [PhpString]
+      - Literal (string): "||" [PhpString]
+      - Literal (string): "|" [PhpString]
+      - Literal (string): "^" [PhpString]
+      - Literal (string): "," [PhpString]
+      - Literal (string): "." [PhpString]
+  - Variable: $input [PhpString]
+    - Literal (string): "hello * 5" [PhpString]
+  - Variable: $tokenizer [Tokenizer]
+    - New Tokenizer [Tokenizer]
+  - Variable: $result [any]
+    - Call [any]
+      - MethodReference [Tokenizer::tokenize]
+        - LocalVar: $tokenizer [Tokenizer]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Literal (string): "token count:" [PhpString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [any]
+        - Call [any]
+          - Identifier: count [any]
+          - LocalVar: $result [any]
+  - Foreach $item: any
+    Items
+      - LocalVar: $result [any]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Parenthesized [any]
+            - Binary: . [any]
+              - Binary: . [any]
+                - Binary: . [any]
+                  - PropertyAccess (.value) [any]
+                    - LocalVar: $item [any]
+                  - Literal (string): "(" [PhpString]
+                - Parenthesized [PhpString]
+                  - Conditional [PhpString]
+                    - PropertyAccess (.is_operator) [any]
+                      - LocalVar: $item [any]
+                    - Literal (string): "op" [PhpString]
+                    - Parenthesized [PhpString]
+                      - Literal (string): "id" [PhpString]
+              - Literal (string): ")" [PhpString]
+

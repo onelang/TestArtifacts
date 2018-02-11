@@ -1,0 +1,65 @@
+main()
+  - Variable: obj1 [any]
+    - Call [any]
+      - PropertyAccess (.parse) [any]
+        - Identifier: JSON [any]
+      - Literal (string): "{ \\\"a\\\":1, \\\"b\\\":2 }" [OneString]
+  - If
+    - Unary (prefix): ! [any]
+      - Call [any]
+        - PropertyAccess (.is_a?) [any]
+          - LocalVar: obj1 [any]
+        - Identifier: Hash [any]
+    Then
+      - Throw
+        - Literal (string): "expected to be object!" [OneString]
+  - Variable: obj1_props [any]
+    - PropertyAccess (.keys) [any]
+      - LocalVar: obj1 [any]
+  - If
+    - Binary: != [OneBoolean]
+      - PropertyAccess (.length) [any]
+        - LocalVar: obj1_props [any]
+      - Literal (numeric): "2" [OneNumber]
+    Then
+      - Throw
+        - Literal (string): "expected 2 properties" [OneString]
+  - If
+    - Binary: != [OneBoolean]
+      - Call [any]
+        - PropertyAccess (.get) [any]
+          - LocalVar: obj1_props [any]
+        - Literal (numeric): "0" [OneNumber]
+      - Literal (string): "a" [OneString]
+    Then
+      - Throw
+        - Literal (string): "expected first property to be named 'a'" [OneString]
+  - Variable: obj1_prop0_value [any]
+    - Call [any]
+      - PropertyAccess (.get) [any]
+        - LocalVar: obj1 [any]
+      - Call [any]
+        - PropertyAccess (.get) [any]
+          - LocalVar: obj1_props [any]
+        - Literal (numeric): "0" [OneNumber]
+  - If
+    - Binary: || [any]
+      - Unary (prefix): ! [any]
+        - Call [any]
+          - PropertyAccess (.is_a?) [any]
+            - LocalVar: obj1_prop0_value [any]
+          - Identifier: Numeric [any]
+      - Binary: != [OneBoolean]
+        - LocalVar: obj1_prop0_value [any]
+        - Literal (numeric): "1" [OneNumber]
+    Then
+      - Throw
+        - Literal (string): "expected 'a' to be 1 (number)" [OneString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - Call [any]
+          - PropertyAccess (.get) [any]
+            - LocalVar: obj1 [any]
+          - Literal (string): "b" [OneString]

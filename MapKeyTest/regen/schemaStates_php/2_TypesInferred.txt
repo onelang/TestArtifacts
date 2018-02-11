@@ -1,0 +1,8 @@
+TestClass::testMethod(): any
+  - Variable: $map [PhpArray<any>]
+    - ArrayLiteral [PhpArray<any>]
+  - Variable: $keys [any]
+    - Call [any]
+      - Identifier: array_keys [any]
+      - LocalVar: $map [PhpArray<any>]
+

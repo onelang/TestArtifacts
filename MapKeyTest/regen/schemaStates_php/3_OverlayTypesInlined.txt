@@ -1,0 +1,8 @@
+TestClass::testMethod(): any
+  - Variable: $map [OneArray<any>]
+    - ArrayLiteral [OneArray<any>]
+  - Variable: $keys [any]
+    - Call [any]
+      - Identifier: array_keys [any]
+      - LocalVar: $map [OneArray<any>]
+

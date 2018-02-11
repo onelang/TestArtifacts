@@ -1,0 +1,14 @@
+TestClass::GetResult(): bool
+  - Return
+    - Literal (boolean): true [CsBoolean]
+
+TestClass::TestMethod(): void
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - Conditional [CsString]
+        - Call [bool]
+          - MethodReference (this) [TestClass::GetResult]
+        - Literal (string): "true" [CsString]
+        - Literal (string): "false" [CsString]
+

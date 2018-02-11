@@ -1,0 +1,100 @@
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $str
+      - Literal (string): "ABCDEF"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $t_a0_true
+      - Binary: ==
+        - Call
+          - Identifier: substr_compare
+          - Identifier: $str
+          - Literal (string): "A"
+          - Literal (numeric): "0"
+          - Call
+            - Identifier: strlen
+            - Literal (string): "A"
+        - Literal (numeric): "0"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $t_a1_false
+      - Binary: ==
+        - Call
+          - Identifier: substr_compare
+          - Identifier: $str
+          - Literal (string): "A"
+          - Literal (numeric): "1"
+          - Call
+            - Identifier: strlen
+            - Literal (string): "A"
+        - Literal (numeric): "0"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $t_b1_true
+      - Binary: ==
+        - Call
+          - Identifier: substr_compare
+          - Identifier: $str
+          - Literal (string): "B"
+          - Literal (numeric): "1"
+          - Call
+            - Identifier: strlen
+            - Literal (string): "B"
+        - Literal (numeric): "0"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $t_c_d2_true
+      - Binary: ==
+        - Call
+          - Identifier: substr_compare
+          - Identifier: $str
+          - Literal (string): "CD"
+          - Literal (numeric): "2"
+          - Call
+            - Identifier: strlen
+            - Literal (string): "CD"
+        - Literal (numeric): "0"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Binary: .
+                  - Binary: .
+                    - Binary: .
+                      - Binary: .
+                        - Literal (string): ""
+                        - Parenthesized
+                          - Conditional
+                            - Parenthesized
+                              - Identifier: $t_a0_true
+                            - Literal (string): "true"
+                            - Literal (string): "false"
+                      - Literal (string): " "
+                    - Parenthesized
+                      - Conditional
+                        - Parenthesized
+                          - Identifier: $t_a1_false
+                        - Literal (string): "true"
+                        - Literal (string): "false"
+                  - Literal (string): " "
+                - Parenthesized
+                  - Conditional
+                    - Parenthesized
+                      - Identifier: $t_b1_true
+                    - Literal (string): "true"
+                    - Literal (string): "false"
+              - Literal (string): " "
+            - Parenthesized
+              - Conditional
+                - Parenthesized
+                  - Identifier: $t_c_d2_true
+                - Literal (string): "true"
+                - Literal (string): "false"
+          - Literal (string): ""
+

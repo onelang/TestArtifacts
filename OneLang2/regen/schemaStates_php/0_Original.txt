@@ -1,0 +1,500 @@
+TokenKind::Number: null
+- Variable: Number
+  - Literal (numeric): "0"
+
+TokenKind::Identifier: null
+- Variable: Identifier
+  - Literal (numeric): "1"
+
+TokenKind::Operator_: null
+- Variable: Operator_
+  - Literal (numeric): "2"
+
+TokenKind::String_: null
+- Variable: String_
+  - Literal (numeric): "3"
+
+Token::$kind: null
+Token::$value: null
+
+Token::__construct($kind: ???, $value: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.kind)
+        - Identifier: $this
+      - Identifier: $kind
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.value)
+        - Identifier: $this
+      - Identifier: $value
+
+ExprLangLexer::$offset: null
+- Variable: $offset
+  - Literal (numeric): "0"
+
+ExprLangLexer::$tokens: null
+- Variable: $tokens
+  - ArrayLiteral
+
+ExprLangLexer::$expression: null
+ExprLangLexer::$operators: null
+
+ExprLangLexer::__construct($expression: ???, $operators: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.expression)
+        - Identifier: $this
+      - Identifier: $expression
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.operators)
+        - Identifier: $this
+      - Identifier: $operators
+  - If
+    - Unary (prefix): !
+      - Call
+        - PropertyAccess (.tryToReadNumber)
+          - Identifier: $this
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.tryToReadOperator)
+            - Identifier: $this
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.tryToReadLiteral)
+            - Identifier: $this
+  - Comment: "\n"
+  - While
+      - Call
+        - PropertyAccess (.hasMoreToken)
+          - Identifier: $this
+    Body
+      - If
+        - Unary (prefix): !
+          - Call
+            - PropertyAccess (.tryToReadOperator)
+              - Identifier: $this
+        Then
+          - ExpressionStatement
+            - Call
+              - PropertyAccess (.fail)
+                - Identifier: $this
+              - Literal (string): "expected operator here"
+      - Comment: "\n"
+      - If
+        - Unary (prefix): !
+          - Call
+            - PropertyAccess (.tryToReadLiteral)
+              - Identifier: $this
+        Then
+          - ExpressionStatement
+            - Call
+              - PropertyAccess (.fail)
+                - Identifier: $this
+              - Literal (string): "expected literal here"
+
+ExprLangLexer::fail($message: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $end_offset
+      - Binary: +
+        - PropertyAccess (.offset)
+          - Identifier: $this
+        - Literal (numeric): "30"
+  - If
+    - Binary: >
+      - Identifier: $end_offset
+      - Call
+        - Identifier: strlen
+        - PropertyAccess (.expression)
+          - Identifier: $this
+    Then
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $end_offset
+          - Call
+            - Identifier: strlen
+            - PropertyAccess (.expression)
+              - Identifier: $this
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $context
+      - Binary: .
+        - Call
+          - Identifier: substr
+          - PropertyAccess (.expression)
+            - Identifier: $this
+          - PropertyAccess (.offset)
+            - Identifier: $this
+          - Binary: -
+            - Identifier: $end_offset
+            - PropertyAccess (.offset)
+              - Identifier: $this
+        - Literal (string): "..."
+  - Throw
+    - New Exception
+
+ExprLangLexer::hasMoreToken(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.skipWhitespace)
+        - Identifier: $this
+  - Return
+    - Unary (prefix): !
+      - Call
+        - PropertyAccess (.eof)
+          - Identifier: $this
+
+ExprLangLexer::add($kind: ???, $value: ???): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.Add)
+        - PropertyAccess (.tokens)
+          - Identifier: $this
+      - New Token
+  - ExpressionStatement
+    - Binary: +=
+      - PropertyAccess (.offset)
+        - Identifier: $this
+      - Call
+        - Identifier: strlen
+        - Identifier: $value
+
+ExprLangLexer::tryToMatch($pattern: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $matches
+      - Call
+        - PropertyAccess (.matchFromIndex)
+          - Identifier: OneRegex
+        - Identifier: $pattern
+        - PropertyAccess (.expression)
+          - Identifier: $this
+        - PropertyAccess (.offset)
+          - Identifier: $this
+  - Return
+    - Conditional
+      - Binary: ==
+        - Identifier: $matches
+        - Identifier: NULL
+      - Literal (string): ""
+      - Parenthesized
+        - ElementAccess
+          - Identifier: $matches
+          - Literal (numeric): "0"
+
+ExprLangLexer::tryToReadOperator(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.skipWhitespace)
+        - Identifier: $this
+  - Foreach $op: undefined
+    Items
+      - PropertyAccess (.operators)
+        - Identifier: $this
+    Body
+      - If
+        - Binary: ==
+          - Call
+            - Identifier: substr_compare
+            - PropertyAccess (.expression)
+              - Identifier: $this
+            - Identifier: $op
+            - PropertyAccess (.offset)
+              - Identifier: $this
+            - Call
+              - Identifier: strlen
+              - Identifier: $op
+          - Literal (numeric): "0"
+        Then
+          - ExpressionStatement
+            - Call
+              - PropertyAccess (.add)
+                - Identifier: $this
+              - PropertyAccess (.Operator_)
+                - Identifier: TokenKind
+              - Identifier: $op
+          - Return
+            - Literal (boolean): true
+  - Return
+    - Literal (boolean): false
+
+ExprLangLexer::tryToReadNumber(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.skipWhitespace)
+        - Identifier: $this
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $number
+      - Call
+        - PropertyAccess (.tryToMatch)
+          - Identifier: $this
+        - Literal (string): "[+-]?(\\d*\\.\\d+|\\d+\\.\\d+|0x[0-9a-fA-F_]+|0b[01_]+|[0-9_]+)"
+  - If
+    - Binary: ==
+      - Identifier: $number
+      - Literal (string): ""
+    Then
+      - Return
+        - Literal (boolean): false
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.add)
+        - Identifier: $this
+      - PropertyAccess (.Number)
+        - Identifier: TokenKind
+      - Identifier: $number
+  - Comment: "\n"
+  - If
+    - Binary: !=
+      - Call
+        - PropertyAccess (.tryToMatch)
+          - Identifier: $this
+        - Literal (string): "[0-9a-zA-Z]"
+      - Literal (string): ""
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.fail)
+            - Identifier: $this
+          - Literal (string): "invalid character in number"
+  - Comment: "\n"
+  - Return
+    - Literal (boolean): true
+
+ExprLangLexer::tryToReadIdentifier(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.skipWhitespace)
+        - Identifier: $this
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $identifier
+      - Call
+        - PropertyAccess (.tryToMatch)
+          - Identifier: $this
+        - Literal (string): "[a-zA-Z_][a-zA-Z0-9_]*"
+  - If
+    - Binary: ==
+      - Identifier: $identifier
+      - Literal (string): ""
+    Then
+      - Return
+        - Literal (boolean): false
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.add)
+        - Identifier: $this
+      - PropertyAccess (.Identifier)
+        - Identifier: TokenKind
+      - Identifier: $identifier
+  - Return
+    - Literal (boolean): true
+
+ExprLangLexer::tryToReadString(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.skipWhitespace)
+        - Identifier: $this
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $match
+      - Call
+        - PropertyAccess (.tryToMatch)
+          - Identifier: $this
+        - Literal (string): "'(\\\\'|[^'])*'"
+  - If
+    - Binary: ==
+      - Identifier: $match
+      - Literal (string): ""
+    Then
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $match
+          - Call
+            - PropertyAccess (.tryToMatch)
+              - Identifier: $this
+            - Literal (string): "\"(\\\\\\\"|[^\\\"])*\\\""
+  - If
+    - Binary: ==
+      - Identifier: $match
+      - Literal (string): ""
+    Then
+      - Return
+        - Literal (boolean): false
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $str
+      - Call
+        - Identifier: substr
+        - Identifier: $match
+        - Literal (numeric): "1"
+        - Binary: -
+          - Binary: -
+            - Binary: +
+              - Literal (numeric): "1"
+              - Call
+                - Identifier: strlen
+                - Identifier: $match
+            - Literal (numeric): "2"
+          - Literal (numeric): "1"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $str
+      - Conditional
+        - Binary: ==
+          - ElementAccess
+            - Identifier: $match
+            - Literal (numeric): "0"
+          - Literal (string): "'"
+        - Call
+          - Identifier: str_replace
+          - Literal (string): "\\'"
+          - Literal (string): "'"
+          - Identifier: $str
+        - Parenthesized
+          - Call
+            - Identifier: str_replace
+            - Literal (string): "\\\""
+            - Literal (string): "\""
+            - Identifier: $str
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.Add)
+        - PropertyAccess (.tokens)
+          - Identifier: $this
+      - New Token
+  - ExpressionStatement
+    - Binary: +=
+      - PropertyAccess (.offset)
+        - Identifier: $this
+      - Call
+        - Identifier: strlen
+        - Identifier: $match
+  - Return
+    - Literal (boolean): true
+
+ExprLangLexer::eof(): any
+  - Return
+    - Binary: >=
+      - PropertyAccess (.offset)
+        - Identifier: $this
+      - Call
+        - Identifier: strlen
+        - PropertyAccess (.expression)
+          - Identifier: $this
+
+ExprLangLexer::skipWhitespace(): any
+  - While
+      - Unary (prefix): !
+        - Call
+          - PropertyAccess (.eof)
+            - Identifier: $this
+    Body
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $c
+          - ElementAccess
+            - PropertyAccess (.expression)
+              - Identifier: $this
+            - PropertyAccess (.offset)
+              - Identifier: $this
+      - If
+        - Binary: ||
+          - Binary: ||
+            - Binary: ||
+              - Binary: ==
+                - Identifier: $c
+                - Literal (string): " "
+              - Binary: ==
+                - Identifier: $c
+                - Literal (string): "\n"
+            - Binary: ==
+              - Identifier: $c
+              - Literal (string): "\t"
+          - Binary: ==
+            - Identifier: $c
+            - Literal (string): "\r"
+        Then
+          - ExpressionStatement
+            - Unary (postfix): ++
+              - PropertyAccess (.offset)
+                - Identifier: $this
+        Else
+          - Break
+
+ExprLangLexer::tryToReadLiteral(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $success
+      - Binary: ||
+        - Binary: ||
+          - Call
+            - PropertyAccess (.tryToReadIdentifier)
+              - Identifier: $this
+          - Call
+            - PropertyAccess (.tryToReadNumber)
+              - Identifier: $this
+        - Call
+          - PropertyAccess (.tryToReadString)
+            - Identifier: $this
+  - Return
+    - Identifier: $success
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $lexer
+      - New ExprLangLexer
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $result
+      - Literal (string): ""
+  - Foreach $token: undefined
+    Items
+      - PropertyAccess (.tokens)
+        - Identifier: $lexer
+    Body
+      - If
+        - Binary: !=
+          - Identifier: $result
+          - Literal (string): ""
+        Then
+          - ExpressionStatement
+            - Binary: .=
+              - Identifier: $result
+              - Literal (string): ", "
+      - ExpressionStatement
+        - Binary: .=
+          - Identifier: $result
+          - PropertyAccess (.value)
+            - Identifier: $token
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Literal (string): "["
+                - Parenthesized
+                  - Call
+                    - Identifier: count
+                    - PropertyAccess (.tokens)
+                      - Identifier: $lexer
+              - Literal (string): "]: "
+            - Parenthesized
+              - Identifier: $result
+          - Literal (string): ""
+

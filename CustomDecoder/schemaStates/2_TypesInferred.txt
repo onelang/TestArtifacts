@@ -1,0 +1,295 @@
+XorByte::xorValue: TsNumber
+
+XorByte::constructor
+  - ExpressionStatement
+    - Binary: = [TsNumber]
+      - InstanceField (this): xorValue [TsNumber]
+      - MethodArgument: xorValue [TsNumber]
+
+XorByte::decode(src: TsArray<TsNumber>): TsArray<TsNumber>
+  - Variable: dest [TsArray<TsNumber>]
+    - ArrayLiteral [TsArray<TsNumber>]
+  - Comment: "\n"
+  - For ("i")
+    Var
+    - Variable: i [TsNumber]
+      - Literal (numeric): "0" [TsNumber]
+    Condition
+      - Binary: < [TsNumber]
+        - LocalVar: i [TsNumber]
+        - InstanceField: length [TsNumber]
+          - MethodArgument: src [TsArray<TsNumber>]
+    Incrementor
+      - Unary (postfix): ++ [any]
+        - LocalVar: i [TsNumber]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference [TsArray<TsNumber>::push]
+            - LocalVar: dest [TsArray<TsNumber>]
+          - Binary: ^ [void]
+            - Call [void]
+              - MethodReference [TsArray<TsNumber>::get]
+                - MethodArgument: src [TsArray<TsNumber>]
+              - LocalVar: i [TsNumber]
+            - InstanceField (this): xorValue [TsNumber]
+  - Comment: "\n"
+  - Return
+    - LocalVar: dest [TsArray<TsNumber>]
+
+Base64::decode(src: TsArray<TsNumber>): TsArray<TsNumber>
+  - Variable: dest [TsArray<TsNumber>]
+    - ArrayLiteral [TsArray<TsNumber>]
+  - Comment: "\n// 4 base64 chars => 3 bytes\n"
+  - For ("i")
+    Var
+    - Variable: i [TsNumber]
+      - Literal (numeric): "0" [TsNumber]
+    Condition
+      - Binary: < [TsNumber]
+        - LocalVar: i [TsNumber]
+        - InstanceField: length [TsNumber]
+          - MethodArgument: src [TsArray<TsNumber>]
+    Incrementor
+      - Binary: += [TsNumber]
+        - LocalVar: i [TsNumber]
+        - Literal (numeric): "4" [TsNumber]
+    Body
+      - Variable: ch0 [TsNumber]
+        - Call [TsNumber]
+          - MethodReference (this) [Base64::decodeChar]
+          - Call [void]
+            - MethodReference [TsArray<TsNumber>::get]
+              - MethodArgument: src [TsArray<TsNumber>]
+            - LocalVar: i [TsNumber]
+      - Variable: ch1 [TsNumber]
+        - Call [TsNumber]
+          - MethodReference (this) [Base64::decodeChar]
+          - Call [void]
+            - MethodReference [TsArray<TsNumber>::get]
+              - MethodArgument: src [TsArray<TsNumber>]
+            - Binary: + [TsNumber]
+              - LocalVar: i [TsNumber]
+              - Literal (numeric): "1" [TsNumber]
+      - Variable: ch2 [TsNumber]
+        - Call [TsNumber]
+          - MethodReference (this) [Base64::decodeChar]
+          - Call [void]
+            - MethodReference [TsArray<TsNumber>::get]
+              - MethodArgument: src [TsArray<TsNumber>]
+            - Binary: + [TsNumber]
+              - LocalVar: i [TsNumber]
+              - Literal (numeric): "2" [TsNumber]
+      - Variable: ch3 [TsNumber]
+        - Call [TsNumber]
+          - MethodReference (this) [Base64::decodeChar]
+          - Call [void]
+            - MethodReference [TsArray<TsNumber>::get]
+              - MethodArgument: src [TsArray<TsNumber>]
+            - Binary: + [TsNumber]
+              - LocalVar: i [TsNumber]
+              - Literal (numeric): "3" [TsNumber]
+      - Comment: "\n"
+      - Variable: trinity [TsNumber]
+        - Binary: + [TsNumber]
+          - Binary: + [TsNumber]
+            - Binary: + [TsNumber]
+              - Parenthesized [TsNumber]
+                - Binary: << [TsNumber]
+                  - LocalVar: ch0 [TsNumber]
+                  - Literal (numeric): "18" [TsNumber]
+              - Parenthesized [TsNumber]
+                - Binary: << [TsNumber]
+                  - LocalVar: ch1 [TsNumber]
+                  - Literal (numeric): "12" [TsNumber]
+            - Parenthesized [TsNumber]
+              - Binary: << [TsNumber]
+                - LocalVar: ch2 [TsNumber]
+                - Literal (numeric): "6" [TsNumber]
+          - Parenthesized [TsNumber]
+            - LocalVar: ch3 [TsNumber]
+      - Comment: "\n"
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference [TsArray<TsNumber>::push]
+            - LocalVar: dest [TsArray<TsNumber>]
+          - Binary: >> [TsNumber]
+            - LocalVar: trinity [TsNumber]
+            - Literal (numeric): "16" [TsNumber]
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference [TsArray<TsNumber>::push]
+            - LocalVar: dest [TsArray<TsNumber>]
+          - Binary: & [TsNumber]
+            - Parenthesized [TsNumber]
+              - Binary: >> [TsNumber]
+                - LocalVar: trinity [TsNumber]
+                - Literal (numeric): "8" [TsNumber]
+            - Literal (numeric): "0xff" [TsNumber]
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference [TsArray<TsNumber>::push]
+            - LocalVar: dest [TsArray<TsNumber>]
+          - Binary: & [TsNumber]
+            - LocalVar: trinity [TsNumber]
+            - Literal (numeric): "0xff" [TsNumber]
+  - Comment: "\n"
+  - Return
+    - LocalVar: dest [TsArray<TsNumber>]
+
+Base64::decodeChar(ch: TsNumber): TsNumber
+  - Variable: value [TsNumber]
+    - Unary (prefix): - [any]
+      - Literal (numeric): "1" [TsNumber]
+  - If
+    - Binary: && [OneBoolean]
+      - Binary: >= [OneBoolean]
+        - MethodArgument: ch [TsNumber]
+        - Literal (numeric): "65" [TsNumber]
+      - Binary: <= [OneBoolean]
+        - MethodArgument: ch [TsNumber]
+        - Literal (numeric): "90" [TsNumber]
+    Then
+      - Comment: "// `A-Z` => 0..25\n"
+      - ExpressionStatement
+        - Binary: = [TsNumber]
+          - LocalVar: value [TsNumber]
+          - Binary: - [TsNumber]
+            - MethodArgument: ch [TsNumber]
+            - Literal (numeric): "65" [TsNumber]
+    Else
+      - If
+        - Binary: && [OneBoolean]
+          - Binary: >= [OneBoolean]
+            - MethodArgument: ch [TsNumber]
+            - Literal (numeric): "97" [TsNumber]
+          - Binary: <= [OneBoolean]
+            - MethodArgument: ch [TsNumber]
+            - Literal (numeric): "122" [TsNumber]
+        Then
+          - Comment: "// `a-z` => 26..51\n"
+          - ExpressionStatement
+            - Binary: = [TsNumber]
+              - LocalVar: value [TsNumber]
+              - Binary: + [TsNumber]
+                - Binary: - [TsNumber]
+                  - MethodArgument: ch [TsNumber]
+                  - Literal (numeric): "97" [TsNumber]
+                - Literal (numeric): "26" [TsNumber]
+        Else
+          - If
+            - Binary: && [OneBoolean]
+              - Binary: >= [OneBoolean]
+                - MethodArgument: ch [TsNumber]
+                - Literal (numeric): "48" [TsNumber]
+              - Binary: <= [OneBoolean]
+                - MethodArgument: ch [TsNumber]
+                - Literal (numeric): "57" [TsNumber]
+            Then
+              - Comment: "// `0-9` => 52..61\n"
+              - ExpressionStatement
+                - Binary: = [TsNumber]
+                  - LocalVar: value [TsNumber]
+                  - Binary: + [TsNumber]
+                    - Binary: - [TsNumber]
+                      - MethodArgument: ch [TsNumber]
+                      - Literal (numeric): "48" [TsNumber]
+                    - Literal (numeric): "52" [TsNumber]
+            Else
+              - If
+                - Binary: || [OneBoolean]
+                  - Binary: == [OneBoolean]
+                    - MethodArgument: ch [TsNumber]
+                    - Literal (numeric): "43" [TsNumber]
+                  - Binary: == [OneBoolean]
+                    - MethodArgument: ch [TsNumber]
+                    - Literal (numeric): "45" [TsNumber]
+                Then
+                  - Comment: "// `+` or `-` => 62\n"
+                  - ExpressionStatement
+                    - Binary: = [TsNumber]
+                      - LocalVar: value [TsNumber]
+                      - Literal (numeric): "62" [TsNumber]
+                Else
+                  - If
+                    - Binary: || [OneBoolean]
+                      - Binary: == [OneBoolean]
+                        - MethodArgument: ch [TsNumber]
+                        - Literal (numeric): "47" [TsNumber]
+                      - Binary: == [OneBoolean]
+                        - MethodArgument: ch [TsNumber]
+                        - Literal (numeric): "95" [TsNumber]
+                    Then
+                      - Comment: "// `/` or `_` => 63\n"
+                      - ExpressionStatement
+                        - Binary: = [TsNumber]
+                          - LocalVar: value [TsNumber]
+                          - Literal (numeric): "63" [TsNumber]
+                    Else
+                      - If
+                        - Binary: == [OneBoolean]
+                          - MethodArgument: ch [TsNumber]
+                          - Literal (numeric): "61" [TsNumber]
+                        Then
+                          - Comment: "// `=` => padding\n"
+                          - ExpressionStatement
+                            - Binary: = [TsNumber]
+                              - LocalVar: value [TsNumber]
+                              - Literal (numeric): "0" [TsNumber]
+                        Else
+  - Return
+    - LocalVar: value [TsNumber]
+
+TestClass::testMethod(): void
+  - Variable: src1 [TsArray<TsNumber>]
+    - ArrayLiteral [TsArray<TsNumber>]
+      - Literal (numeric): "4" [TsNumber]
+      - Literal (numeric): "5" [TsNumber]
+      - Literal (numeric): "6" [TsNumber]
+  - Variable: decoder [(I)ICustomDecoder]
+    - New XorByte [XorByte]
+  - Variable: dst1 [TsArray<TsNumber>]
+    - Call [TsArray<TsNumber>]
+      - MethodReference [(I)ICustomDecoder::decode]
+        - LocalVar: decoder [(I)ICustomDecoder]
+      - LocalVar: src1 [TsArray<TsNumber>]
+  - Foreach x: TsNumber
+    Items
+      - LocalVar: dst1 [TsArray<TsNumber>]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [console::log]
+          - LocalVar: x [TsNumber]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - Literal (string): "|" [TsString]
+  - Comment: "\n"
+  - Variable: src2 [TsArray<TsNumber>]
+    - ArrayLiteral [TsArray<TsNumber>]
+      - Literal (numeric): "97" [TsNumber]
+      - Literal (numeric): "71" [TsNumber]
+      - Literal (numeric): "86" [TsNumber]
+      - Literal (numeric): "115" [TsNumber]
+      - Literal (numeric): "98" [TsNumber]
+      - Literal (numeric): "71" [TsNumber]
+      - Literal (numeric): "56" [TsNumber]
+      - Literal (numeric): "61" [TsNumber]
+  - Variable: decoder2 [Base64]
+    - New Base64 [Base64]
+  - Variable: dst2 [TsArray<TsNumber>]
+    - Call [TsArray<TsNumber>]
+      - MethodReference [Base64::decode]
+        - LocalVar: decoder2 [Base64]
+      - LocalVar: src2 [TsArray<TsNumber>]
+  - Foreach x: TsNumber
+    Items
+      - LocalVar: dst2 [TsArray<TsNumber>]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [console::log]
+          - LocalVar: x [TsNumber]
+

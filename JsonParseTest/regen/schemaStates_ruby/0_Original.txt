@@ -1,0 +1,69 @@
+main()
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: obj1
+      - Call
+        - PropertyAccess (.parse)
+          - Identifier: JSON
+        - Literal (string): "{ \\\"a\\\":1, \\\"b\\\":2 }"
+  - If
+    - Unary (prefix): !
+      - Call
+        - PropertyAccess (.is_a?)
+          - Identifier: obj1
+        - Identifier: Hash
+    Then
+      - Throw
+        - Literal (string): "expected to be object!"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: obj1_props
+      - PropertyAccess (.keys)
+        - Identifier: obj1
+  - If
+    - Binary: !=
+      - PropertyAccess (.length)
+        - Identifier: obj1_props
+      - Literal (numeric): "2"
+    Then
+      - Throw
+        - Literal (string): "expected 2 properties"
+  - If
+    - Binary: !=
+      - ElementAccess
+        - Identifier: obj1_props
+        - Literal (numeric): "0"
+      - Literal (string): "a"
+    Then
+      - Throw
+        - Literal (string): "expected first property to be named 'a'"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: obj1_prop0_value
+      - ElementAccess
+        - Identifier: obj1
+        - ElementAccess
+          - Identifier: obj1_props
+          - Literal (numeric): "0"
+  - If
+    - Binary: ||
+      - Unary (prefix): !
+        - Call
+          - PropertyAccess (.is_a?)
+            - Identifier: obj1_prop0_value
+          - Identifier: Numeric
+      - Binary: !=
+        - Identifier: obj1_prop0_value
+        - Literal (numeric): "1"
+    Then
+      - Throw
+        - Literal (string): "expected 'a' to be 1 (number)"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - ElementAccess
+          - Identifier: obj1
+          - Literal (string): "b"

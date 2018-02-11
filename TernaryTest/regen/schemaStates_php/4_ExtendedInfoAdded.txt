@@ -1,0 +1,17 @@
+TestClass::getResult(): any
+  - Return
+    - Literal (boolean): true [PhpBoolean]
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Conditional [PhpString]
+          - Call [any]
+            - PropertyAccess (.getResult) [any]
+              - Identifier: $this [any]
+          - Literal (string): "true" [PhpString]
+          - Parenthesized [PhpString]
+            - Literal (string): "false" [PhpString]
+

@@ -1,0 +1,10 @@
+main()
+  - Variable: $file_content [any]
+    - Call [any]
+      - Identifier: file_get_contents [any]
+      - Literal (string): "../../../input/test.txt" [PhpString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [any]
+        - LocalVar: $file_content [any]

@@ -1,0 +1,285 @@
+TestClass::mapTest(): any
+  - Variable: $map_obj [PhpMap<OneString, PhpNumber>]
+    - MapLiteral [OneMap<OneString, PhpNumber>]
+      - Variable: x [PhpNumber]
+        - Literal (numeric): "5" [PhpNumber]
+      - Variable: y [PhpNumber]
+        - Literal (numeric): "3" [PhpNumber]
+  - Comment: "\n//let containsX = "x" in mapObj;\n"
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.set) [any]
+        - LocalVar: $map_obj [PhpMap<OneString, PhpNumber>]
+      - Literal (string): "z" [PhpString]
+      - Literal (numeric): "9" [PhpNumber]
+  - Unset
+    - Call [any]
+      - PropertyAccess (.get) [any]
+        - LocalVar: $map_obj [PhpMap<OneString, PhpNumber>]
+      - Literal (string): "x" [PhpString]
+  - Variable: $keys_var [any]
+    - Call [any]
+      - Identifier: array_keys [any]
+      - LocalVar: $map_obj [PhpMap<OneString, PhpNumber>]
+  - Variable: $values_var [any]
+    - Call [any]
+      - Identifier: array_values [any]
+      - LocalVar: $map_obj [PhpMap<OneString, PhpNumber>]
+  - Return
+    - Call [any]
+      - PropertyAccess (.get) [any]
+        - LocalVar: $map_obj [PhpMap<OneString, PhpNumber>]
+      - Literal (string): "z" [PhpString]
+
+TestClass::explicitTypeTest(): any
+  - Variable: $op [PhpString]
+    - Literal (string): "" [PhpString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [any]
+        - Call [any]
+          - Identifier: strlen [any]
+          - LocalVar: $op [PhpString]
+
+TestClass::ifTest($x: ???): any
+  - Variable: $result [PhpString]
+    - Literal (string): "<unk>" [PhpString]
+  - Comment: "\n"
+  - If
+    - Binary: > [any]
+      - MethodArgument: $x [any]
+      - Literal (numeric): "3" [PhpNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [PhpString]
+          - LocalVar: $result [PhpString]
+          - Literal (string): "hello" [PhpString]
+    Else
+      - If
+        - Binary: < [any]
+          - MethodArgument: $x [any]
+          - Literal (numeric): "1" [PhpNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [PhpString]
+              - LocalVar: $result [PhpString]
+              - Literal (string): "bello" [PhpString]
+        Else
+          - If
+            - Binary: < [any]
+              - MethodArgument: $x [any]
+              - Literal (numeric): "0" [PhpNumber]
+            Then
+              - ExpressionStatement
+                - Binary: = [PhpString]
+                  - LocalVar: $result [PhpString]
+                  - Literal (string): "bello2" [PhpString]
+            Else
+              - ExpressionStatement
+                - Binary: = [PhpString]
+                  - LocalVar: $result [PhpString]
+                  - Literal (string): "???" [PhpString]
+  - Comment: "\n"
+  - If
+    - Binary: > [any]
+      - MethodArgument: $x [any]
+      - Literal (numeric): "3" [PhpNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [PhpString]
+          - LocalVar: $result [PhpString]
+          - Literal (string): "z" [PhpString]
+  - Comment: "\n"
+  - If
+    - Binary: > [any]
+      - MethodArgument: $x [any]
+      - Literal (numeric): "3" [PhpNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [PhpString]
+          - LocalVar: $result [PhpString]
+          - Literal (string): "x" [PhpString]
+    Else
+      - ExpressionStatement
+        - Binary: = [PhpString]
+          - LocalVar: $result [PhpString]
+          - Literal (string): "y" [PhpString]
+  - Comment: "\n"
+  - Return
+    - LocalVar: $result [PhpString]
+
+TestClass::arrayTest(): any
+  - Variable: $mutable_arr [OneArray<PhpNumber>]
+    - ArrayLiteral [OneArray<PhpNumber>]
+      - Literal (numeric): "1" [PhpNumber]
+      - Literal (numeric): "2" [PhpNumber]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.Add) [any]
+        - LocalVar: $mutable_arr [OneArray<PhpNumber>]
+      - Literal (numeric): "3" [PhpNumber]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.Add) [any]
+        - LocalVar: $mutable_arr [OneArray<PhpNumber>]
+      - Literal (numeric): "4" [PhpNumber]
+  - Variable: $constant_arr [OneArray<PhpNumber>]
+    - ArrayLiteral [OneArray<PhpNumber>]
+      - Literal (numeric): "5" [PhpNumber]
+      - Literal (numeric): "6" [PhpNumber]
+  - Comment: "\n// some comment\n//   some comment line 2\n"
+  - Foreach $item: PhpNumber
+    Items
+      - LocalVar: $mutable_arr [OneArray<PhpNumber>]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Parenthesized [PhpNumber]
+            - LocalVar: $item [PhpNumber]
+  - Comment: "\n/* some other comment\n   multiline and stuff\n*/\n"
+  - For ("$i")
+    Var
+    - Variable: $i [PhpNumber]
+      - Literal (numeric): "0" [PhpNumber]
+    Condition
+      - Binary: < [PhpNumber]
+        - LocalVar: $i [PhpNumber]
+        - Call [any]
+          - Identifier: count [any]
+          - LocalVar: $constant_arr [OneArray<PhpNumber>]
+    Incrementor
+      - Unary (postfix): ++ [any]
+        - LocalVar: $i [PhpNumber]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Parenthesized [PhpNumber]
+            - Call [PhpNumber]
+              - MethodReference [OneArray<PhpNumber>::get]
+                - LocalVar: $constant_arr [OneArray<PhpNumber>]
+              - LocalVar: $i [PhpNumber]
+
+TestClass::calc(): any
+  - Return
+    - Binary: * [PhpNumber]
+      - Parenthesized [PhpNumber]
+        - Binary: + [PhpNumber]
+          - Literal (numeric): "1" [PhpNumber]
+          - Literal (numeric): "2" [PhpNumber]
+      - Literal (numeric): "3" [PhpNumber]
+
+TestClass::methodWithArgs($arg1: ???, $arg2: ???, $arg3: ???): any
+  - Variable: $stuff [any]
+    - Binary: + [any]
+      - Binary: + [any]
+        - MethodArgument: $arg1 [any]
+        - MethodArgument: $arg2 [any]
+      - Binary: * [any]
+        - MethodArgument: $arg3 [any]
+        - Call [any]
+          - PropertyAccess (.calc) [any]
+            - Identifier: $this [any]
+  - Return
+    - LocalVar: $stuff [any]
+
+TestClass::stringTest(): any
+  - Variable: $x [PhpString]
+    - Literal (string): "x" [PhpString]
+  - Variable: $y [PhpString]
+    - Literal (string): "y" [PhpString]
+  - Variable: $z [PhpString]
+    - Literal (string): "z" [PhpString]
+  - ExpressionStatement
+    - Binary: .= [PhpString]
+      - LocalVar: $z [PhpString]
+      - Literal (string): "Z" [PhpString]
+  - ExpressionStatement
+    - Binary: .= [PhpString]
+      - LocalVar: $z [PhpString]
+      - LocalVar: $x [PhpString]
+  - Comment: "\n"
+  - Return
+    - Binary: . [PhpString]
+      - Binary: . [PhpString]
+        - Binary: . [PhpString]
+          - LocalVar: $z [PhpString]
+          - Literal (string): "|" [PhpString]
+        - LocalVar: $x [PhpString]
+      - LocalVar: $y [PhpString]
+
+TestClass::reverseString($str: ???): any
+  - Variable: $result [PhpString]
+    - Literal (string): "" [PhpString]
+  - For ("$i")
+    Var
+    - Variable: $i [any]
+      - Binary: - [any]
+        - Call [any]
+          - Identifier: strlen [any]
+          - MethodArgument: $str [any]
+        - Literal (numeric): "1" [PhpNumber]
+    Condition
+      - Binary: >= [OneBoolean]
+        - LocalVar: $i [any]
+        - Literal (numeric): "0" [PhpNumber]
+    Incrementor
+      - Unary (postfix): -- [any]
+        - LocalVar: $i [any]
+    Body
+      - ExpressionStatement
+        - Binary: .= [PhpString]
+          - LocalVar: $result [PhpString]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: $str [any]
+            - LocalVar: $i [any]
+  - Return
+    - LocalVar: $result [PhpString]
+
+TestClass::getBoolResult($value: ???): any
+  - Return
+    - MethodArgument: $value [any]
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.arrayTest) [any]
+        - Identifier: $this [any]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [any]
+        - Call [any]
+          - PropertyAccess (.mapTest) [any]
+            - Identifier: $this [any]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [any]
+        - Call [any]
+          - PropertyAccess (.stringTest) [any]
+            - Identifier: $this [any]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [any]
+        - Call [any]
+          - PropertyAccess (.reverseString) [any]
+            - Identifier: $this [any]
+          - Literal (string): "print value" [PhpString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Conditional [PhpString]
+          - Call [any]
+            - PropertyAccess (.getBoolResult) [any]
+              - Identifier: $this [any]
+            - Literal (boolean): true [PhpBoolean]
+          - Literal (string): "true" [PhpString]
+          - Parenthesized [PhpString]
+            - Literal (string): "false" [PhpString]
+

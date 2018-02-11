@@ -1,0 +1,14 @@
+main()
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $file_content
+      - Call
+        - Identifier: file_get_contents
+        - Literal (string): "../../../input/test.txt"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Identifier: $file_content

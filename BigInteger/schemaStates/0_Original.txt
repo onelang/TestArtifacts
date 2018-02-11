@@ -1,0 +1,96 @@
+MathUtils::calc(n: TsNumber): TsNumber [static]
+  - Variable: result
+    - Literal (numeric): "1"
+  - For ("i")
+    Var
+    - Variable: i
+      - Literal (numeric): "2"
+    Condition
+      - Binary: <=
+        - Identifier: i
+        - Identifier: n
+    Incrementor
+      - Unary (postfix): ++
+        - Identifier: i
+    Body
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: result
+          - Binary: *
+            - Identifier: result
+            - Identifier: i
+      - If
+        - Binary: >
+          - Identifier: result
+          - Literal (numeric): "10"
+        Then
+          - ExpressionStatement
+            - Binary: =
+              - Identifier: result
+              - Binary: >>
+                - Identifier: result
+                - Literal (numeric): "2"
+  - Return
+    - Identifier: result
+
+MathUtils::calcBig(n: TsNumber): OneBigInteger [static]
+  - Variable: result
+    - Call
+      - PropertyAccess (.fromInt)
+        - Identifier: OneBigInteger
+      - Literal (numeric): "1"
+  - For ("i")
+    Var
+    - Variable: i
+      - Literal (numeric): "2"
+    Condition
+      - Binary: <=
+        - Identifier: i
+        - Identifier: n
+    Incrementor
+      - Unary (postfix): ++
+        - Identifier: i
+    Body
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: result
+          - Binary: +
+            - Binary: *
+              - Identifier: result
+              - Identifier: i
+            - Literal (numeric): "123"
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: result
+          - Binary: +
+            - Identifier: result
+            - Identifier: result
+      - If
+        - Binary: >
+          - Identifier: result
+          - Literal (numeric): "10"
+        Then
+          - ExpressionStatement
+            - Binary: =
+              - Identifier: result
+              - Binary: >>
+                - Identifier: result
+                - Literal (numeric): "2"
+  - Return
+    - Identifier: result
+
+main()
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - TemplateString
+        - Call
+          - PropertyAccess (.calc)
+            - Identifier: MathUtils
+          - Literal (numeric): "5"
+        - Call
+          - PropertyAccess (.calcBig)
+            - Identifier: MathUtils
+          - Literal (numeric): "24"

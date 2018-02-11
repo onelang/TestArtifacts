@@ -1,0 +1,18 @@
+TestClass::NotThrows(): int
+  - Return
+    - Literal (numeric): "5" [CsNumber]
+
+TestClass::FThrows(): void
+  - Throw
+    - New Exception [any]
+
+TestClass::TestMethod(): void
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - Call [int]
+        - MethodReference (this) [TestClass::NotThrows]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (this) [TestClass::FThrows]
+

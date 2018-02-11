@@ -1,0 +1,274 @@
+TestClass::MapTest(): int
+  - Variable: mapObj [CsMap<OneString, CsNumber>]
+    - MapLiteral [CsMap<OneString, CsNumber>]
+      - Variable: x [CsNumber]
+        - Literal (numeric): "5" [CsNumber]
+      - Variable: y [CsNumber]
+        - Literal (numeric): "3" [CsNumber]
+  - Comment: "\n//let containsX = "x" in mapObj;\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [CsMap<OneString, CsNumber>::set]
+        - LocalVar: mapObj [CsMap<OneString, CsNumber>]
+      - Literal (string): "z" [CsString]
+      - Literal (numeric): "9" [CsNumber]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [CsMap<OneString, CsNumber>::Remove]
+        - LocalVar: mapObj [CsMap<OneString, CsNumber>]
+      - Literal (string): "x" [CsString]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.ToArray) [any]
+        - InstanceField: Keys [OneArray<K>]
+          - LocalVar: mapObj [CsMap<OneString, CsNumber>]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.ToArray) [any]
+        - InstanceField: Values [OneArray<V>]
+          - LocalVar: mapObj [CsMap<OneString, CsNumber>]
+  - Return
+    - Call [void]
+      - MethodReference [CsMap<OneString, CsNumber>::get]
+        - LocalVar: mapObj [CsMap<OneString, CsNumber>]
+      - Literal (string): "z" [CsString]
+
+TestClass::ExplicitTypeTest(): void
+  - Variable: op [CsString]
+    - Literal (string): "" [CsString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - InstanceField: Length [OneNumber]
+        - LocalVar: op [CsString]
+
+TestClass::IfTest(x: int): CsString
+  - Variable: result [CsString]
+    - Literal (string): "<unk>" [CsString]
+  - Comment: "\n"
+  - If
+    - Binary: > [int]
+      - MethodArgument: x [int]
+      - Literal (numeric): "3" [CsNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [CsString]
+          - LocalVar: result [CsString]
+          - Literal (string): "hello" [CsString]
+    Else
+      - If
+        - Binary: < [int]
+          - MethodArgument: x [int]
+          - Literal (numeric): "1" [CsNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [CsString]
+              - LocalVar: result [CsString]
+              - Literal (string): "bello" [CsString]
+        Else
+          - If
+            - Binary: < [int]
+              - MethodArgument: x [int]
+              - Literal (numeric): "0" [CsNumber]
+            Then
+              - ExpressionStatement
+                - Binary: = [CsString]
+                  - LocalVar: result [CsString]
+                  - Literal (string): "bello2" [CsString]
+            Else
+              - ExpressionStatement
+                - Binary: = [CsString]
+                  - LocalVar: result [CsString]
+                  - Literal (string): "???" [CsString]
+  - Comment: "\n"
+  - If
+    - Binary: > [int]
+      - MethodArgument: x [int]
+      - Literal (numeric): "3" [CsNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [CsString]
+          - LocalVar: result [CsString]
+          - Literal (string): "z" [CsString]
+  - Comment: "\n"
+  - If
+    - Binary: > [int]
+      - MethodArgument: x [int]
+      - Literal (numeric): "3" [CsNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [CsString]
+          - LocalVar: result [CsString]
+          - Literal (string): "x" [CsString]
+    Else
+      - ExpressionStatement
+        - Binary: = [CsString]
+          - LocalVar: result [CsString]
+          - Literal (string): "y" [CsString]
+  - Comment: "\n"
+  - Return
+    - LocalVar: result [CsString]
+
+TestClass::ArrayTest(): void
+  - Comment: "//const c2 = new Class2();\n\n"
+  - Variable: mutableArr [CsArray<CsNumber>]
+    - ArrayLiteral [CsArray<CsNumber>]
+      - Literal (numeric): "1" [CsNumber]
+      - Literal (numeric): "2" [CsNumber]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [CsArray<CsNumber>::Add]
+        - LocalVar: mutableArr [CsArray<CsNumber>]
+      - Literal (numeric): "3" [CsNumber]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [CsArray<CsNumber>::Add]
+        - LocalVar: mutableArr [CsArray<CsNumber>]
+      - Literal (numeric): "4" [CsNumber]
+  - Comment: "// mutableArr.push(c2.property);\n// mutableArr.push(c2.child.property);\n// mutableArr.push(c2.child.child.property);\n\n"
+  - Variable: constantArr [CsArray<CsNumber>]
+    - ArrayLiteral [CsArray<CsNumber>]
+      - Literal (numeric): "5" [CsNumber]
+      - Literal (numeric): "6" [CsNumber]
+  - Comment: "\n// some comment\n//   some comment line 2\n"
+  - Foreach item: CsNumber
+    Items
+      - LocalVar: mutableArr [CsArray<CsNumber>]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [Console::WriteLine]
+          - LocalVar: item [CsNumber]
+  - Comment: "\n/* some other comment\n   multiline and stuff\n*/\n"
+  - For ("i")
+    Var
+    - Variable: i [CsNumber]
+      - Literal (numeric): "0" [CsNumber]
+    Condition
+      - Binary: < [CsNumber]
+        - LocalVar: i [CsNumber]
+        - InstanceField: Count [TsNumber]
+          - LocalVar: constantArr [CsArray<CsNumber>]
+    Incrementor
+      - Unary (postfix): ++ [any]
+        - LocalVar: i [CsNumber]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [Console::WriteLine]
+          - Call [void]
+            - MethodReference [CsArray<CsNumber>::get]
+              - LocalVar: constantArr [CsArray<CsNumber>]
+            - LocalVar: i [CsNumber]
+
+TestClass::Calc(): int
+  - Return
+    - Binary: * [CsNumber]
+      - Parenthesized [CsNumber]
+        - Binary: + [CsNumber]
+          - Literal (numeric): "1" [CsNumber]
+          - Literal (numeric): "2" [CsNumber]
+      - Literal (numeric): "3" [CsNumber]
+
+TestClass::MethodWithArgs(arg1: int, arg2: int, arg3: int): int
+  - Variable: stuff [int]
+    - Binary: + [int]
+      - Binary: + [int]
+        - MethodArgument: arg1 [int]
+        - MethodArgument: arg2 [int]
+      - Binary: * [int]
+        - MethodArgument: arg3 [int]
+        - Call [int]
+          - MethodReference (this) [TestClass::Calc]
+  - Return
+    - LocalVar: stuff [int]
+
+TestClass::StringTest(): CsString
+  - Variable: x [CsString]
+    - Literal (string): "x" [CsString]
+  - Variable: y [CsString]
+    - Literal (string): "y" [CsString]
+  - Comment: "\n"
+  - Variable: z [CsString]
+    - Literal (string): "z" [CsString]
+  - ExpressionStatement
+    - Binary: += [CsString]
+      - LocalVar: z [CsString]
+      - Literal (string): "Z" [CsString]
+  - ExpressionStatement
+    - Binary: += [CsString]
+      - LocalVar: z [CsString]
+      - LocalVar: x [CsString]
+  - Comment: "\n"
+  - Return
+    - Binary: + [CsString]
+      - Binary: + [CsString]
+        - Binary: + [CsString]
+          - LocalVar: z [CsString]
+          - Literal (string): "|" [CsString]
+        - LocalVar: x [CsString]
+      - LocalVar: y [CsString]
+
+TestClass::ReverseString(str: CsString): CsString
+  - Variable: result [CsString]
+    - Literal (string): "" [CsString]
+  - For ("i")
+    Var
+    - Variable: i [OneNumber]
+      - Binary: - [OneNumber]
+        - InstanceField: Length [OneNumber]
+          - MethodArgument: str [CsString]
+        - Literal (numeric): "1" [CsNumber]
+    Condition
+      - Binary: >= [OneBoolean]
+        - LocalVar: i [OneNumber]
+        - Literal (numeric): "0" [CsNumber]
+    Incrementor
+      - Unary (postfix): -- [OneNumber]
+        - LocalVar: i [OneNumber]
+    Body
+      - ExpressionStatement
+        - Binary: += [CsString]
+          - LocalVar: result [CsString]
+          - Call [OneCharacter]
+            - MethodReference [CsString::get]
+              - MethodArgument: str [CsString]
+            - LocalVar: i [OneNumber]
+  - Return
+    - LocalVar: result [CsString]
+
+TestClass::GetBoolResult(value: bool): bool
+  - Return
+    - MethodArgument: value [bool]
+
+TestClass::TestMethod(): void
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (this) [TestClass::ArrayTest]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - Call [int]
+        - MethodReference (this) [TestClass::MapTest]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - Call [CsString]
+        - MethodReference (this) [TestClass::StringTest]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - Call [CsString]
+        - MethodReference (this) [TestClass::ReverseString]
+        - Literal (string): "print value" [CsString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - Conditional [CsString]
+        - Call [bool]
+          - MethodReference (this) [TestClass::GetBoolResult]
+          - Literal (boolean): true [CsBoolean]
+        - Literal (string): "true" [CsString]
+        - Literal (string): "false" [CsString]
+

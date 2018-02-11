@@ -1,0 +1,224 @@
+TargetClass::$instance_field: PhpNumber
+- Variable: $instance_field [PhpNumber]
+  - Literal (numeric): "5" [PhpNumber]
+
+TargetClass::$static_field: PhpString
+- Variable: $static_field [PhpString]
+  - Literal (string): "hello" [PhpString]
+
+TargetClass::staticMethod($arg1: ???): any [static]
+  - Return
+    - Binary: . [PhpString]
+      - Binary: . [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Literal (string): "arg1 = " [PhpString]
+            - Parenthesized [any]
+              - MethodArgument: $arg1 [any]
+          - Literal (string): ", staticField = " [PhpString]
+        - Parenthesized [PhpString]
+          - StaticField: $static_field [PhpString]
+            - ClassReference [TargetClass]
+      - Literal (string): "" [PhpString]
+
+TargetClass::instanceMethod(): any
+  - Return
+    - Binary: . [PhpString]
+      - Binary: . [PhpString]
+        - Literal (string): "instanceField = " [PhpString]
+        - Parenthesized [any]
+          - PropertyAccess (.instance_field) [any]
+            - Identifier: $this [any]
+      - Literal (string): "" [PhpString]
+
+TestClass::testMethod(): any
+  - Variable: $obj [TargetClass]
+    - New TargetClass [TargetClass]
+  - Variable: $cls [OneClass]
+    - Call [OneClass]
+      - MethodReference (static) [OneReflect::getClass]
+      - LocalVar: $obj [TargetClass]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: $cls [OneClass]
+      - Identifier: NULL [any]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Parenthesized [PhpString]
+            - Literal (string): "cls is null!" [PhpString]
+      - Return
+  - Variable: $cls2 [OneClass]
+    - Call [OneClass]
+      - MethodReference (static) [OneReflect::getClassByName]
+      - Literal (string): "TargetClass" [PhpString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: $cls2 [OneClass]
+      - Identifier: NULL [any]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Parenthesized [PhpString]
+            - Literal (string): "cls2 is null!" [PhpString]
+      - Return
+  - Variable: $method1 [OneMethod]
+    - Call [OneMethod]
+      - MethodReference [OneClass::getMethod]
+        - LocalVar: $cls [OneClass]
+      - Literal (string): "instanceMethod" [PhpString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: $method1 [OneMethod]
+      - Identifier: NULL [any]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Parenthesized [PhpString]
+            - Literal (string): "method1 is null!" [PhpString]
+      - Return
+  - Variable: $method1_result [any]
+    - Call [any]
+      - MethodReference [OneMethod::call]
+        - LocalVar: $method1 [OneMethod]
+      - LocalVar: $obj [TargetClass]
+      - ArrayLiteral [OneArray<any>]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Literal (string): "instanceMethod: " [PhpString]
+            - Parenthesized [any]
+              - LocalVar: $method1_result [any]
+          - Literal (string): "" [PhpString]
+  - Variable: $method2 [OneMethod]
+    - Call [OneMethod]
+      - MethodReference [OneClass::getMethod]
+        - LocalVar: $cls [OneClass]
+      - Literal (string): "staticMethod" [PhpString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: $method2 [OneMethod]
+      - Identifier: NULL [any]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Parenthesized [PhpString]
+            - Literal (string): "method2 is null!" [PhpString]
+      - Return
+  - Variable: $method2_result [any]
+    - Call [any]
+      - MethodReference [OneMethod::call]
+        - LocalVar: $method2 [OneMethod]
+      - Identifier: NULL [any]
+      - ArrayLiteral [OneArray<PhpString>]
+        - Literal (string): "arg1value" [PhpString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Literal (string): "staticMethod: " [PhpString]
+            - Parenthesized [any]
+              - LocalVar: $method2_result [any]
+          - Literal (string): "" [PhpString]
+  - Variable: $field1 [OneField]
+    - Call [OneField]
+      - MethodReference [OneClass::getField]
+        - LocalVar: $cls [OneClass]
+      - Literal (string): "instanceField" [PhpString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: $field1 [OneField]
+      - Identifier: NULL [any]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Parenthesized [PhpString]
+            - Literal (string): "field1 is null!" [PhpString]
+      - Return
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [OneField::setValue]
+        - LocalVar: $field1 [OneField]
+      - LocalVar: $obj [TargetClass]
+      - Literal (numeric): "6" [PhpNumber]
+  - Variable: $field1_new_val [any]
+    - Call [any]
+      - MethodReference [OneField::getValue]
+        - LocalVar: $field1 [OneField]
+      - LocalVar: $obj [TargetClass]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Binary: . [PhpString]
+              - Binary: . [PhpString]
+                - Literal (string): "new instance field value: " [PhpString]
+                - Parenthesized [any]
+                  - PropertyAccess (.instance_field) [any]
+                    - LocalVar: $obj [TargetClass]
+              - Literal (string): " == " [PhpString]
+            - Parenthesized [any]
+              - LocalVar: $field1_new_val [any]
+          - Literal (string): "" [PhpString]
+  - Variable: $field2 [OneField]
+    - Call [OneField]
+      - MethodReference [OneClass::getField]
+        - LocalVar: $cls [OneClass]
+      - Literal (string): "staticField" [PhpString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: $field2 [OneField]
+      - Identifier: NULL [any]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Parenthesized [PhpString]
+            - Literal (string): "field2 is null!" [PhpString]
+      - Return
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [OneField::setValue]
+        - LocalVar: $field2 [OneField]
+      - Identifier: NULL [any]
+      - Literal (string): "bello" [PhpString]
+  - Variable: $field2_new_val [any]
+    - Call [any]
+      - MethodReference [OneField::getValue]
+        - LocalVar: $field2 [OneField]
+      - Identifier: NULL [any]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Binary: . [PhpString]
+              - Binary: . [PhpString]
+                - Literal (string): "new static field value: " [PhpString]
+                - Parenthesized [PhpString]
+                  - StaticField: $static_field [PhpString]
+                    - ClassReference [TargetClass]
+              - Literal (string): " == " [PhpString]
+            - Parenthesized [any]
+              - LocalVar: $field2_new_val [any]
+          - Literal (string): "" [PhpString]
+
+main()
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [any]
+      - Identifier: require_once [any]
+      - Literal (string): "one.php" [PhpString]

@@ -1,0 +1,117 @@
+BasePrinter::$num_value: null
+- Variable: $num_value
+  - Literal (numeric): "42"
+
+BasePrinter::getValue(): any
+  - Return
+    - Literal (string): "Base"
+
+BasePrinter::printIt(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Literal (string): "BasePrinter: "
+            - Parenthesized
+              - Call
+                - PropertyAccess (.getValue)
+                  - Identifier: $this
+          - Literal (string): ""
+
+BasePrinter::someBaseFunc(): any
+  - Return
+    - PropertyAccess (.num_value)
+      - Identifier: $this
+
+ChildPrinter::getValue(): any
+  - Return
+    - Literal (string): "Child"
+
+TestClass::getPrinter($name: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $result
+      - Conditional
+        - Binary: ==
+          - Identifier: $name
+          - Literal (string): "child"
+        - New ChildPrinter
+        - Parenthesized
+          - New BasePrinter
+  - Return
+    - Identifier: $result
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $base_printer
+      - Call
+        - PropertyAccess (.getPrinter)
+          - Identifier: $this
+        - Literal (string): "base"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $child_printer
+      - Call
+        - PropertyAccess (.getPrinter)
+          - Identifier: $this
+        - Literal (string): "child"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.printIt)
+        - Identifier: $base_printer
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.printIt)
+        - Identifier: $child_printer
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Literal (string): ""
+                - Parenthesized
+                  - Call
+                    - PropertyAccess (.someBaseFunc)
+                      - Identifier: $base_printer
+              - Literal (string): " == "
+            - Parenthesized
+              - Call
+                - PropertyAccess (.someBaseFunc)
+                  - Identifier: $child_printer
+          - Literal (string): ""
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $base_p2
+      - New BasePrinter
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $child_p2
+      - New ChildPrinter
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Literal (string): ""
+                - Parenthesized
+                  - PropertyAccess (.num_value)
+                    - Identifier: $base_p2
+              - Literal (string): " == "
+            - Parenthesized
+              - PropertyAccess (.num_value)
+                - Identifier: $child_p2
+          - Literal (string): ""
+

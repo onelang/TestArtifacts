@@ -1,0 +1,92 @@
+MathUtils::calc(n: TsNumber): TsNumber [static]
+  - Variable: result [TsNumber]
+    - Literal (numeric): "1" [TsNumber]
+  - For ("i")
+    Var
+    - Variable: i [TsNumber]
+      - Literal (numeric): "2" [TsNumber]
+    Condition
+      - Binary: <= [OneBoolean]
+        - LocalVar: i [TsNumber]
+        - MethodArgument: n [TsNumber]
+    Incrementor
+      - Unary (postfix): ++ [any]
+        - LocalVar: i [TsNumber]
+    Body
+      - ExpressionStatement
+        - Binary: = [TsNumber]
+          - LocalVar: result [TsNumber]
+          - Binary: * [TsNumber]
+            - LocalVar: result [TsNumber]
+            - LocalVar: i [TsNumber]
+      - If
+        - Binary: > [TsNumber]
+          - LocalVar: result [TsNumber]
+          - Literal (numeric): "10" [TsNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [TsNumber]
+              - LocalVar: result [TsNumber]
+              - Binary: >> [TsNumber]
+                - LocalVar: result [TsNumber]
+                - Literal (numeric): "2" [TsNumber]
+  - Return
+    - LocalVar: result [TsNumber]
+
+MathUtils::calcBig(n: TsNumber): OneBigInteger [static]
+  - Variable: result [OneBigInteger]
+    - Call [OneBigInteger]
+      - MethodReference (static) [OneBigInteger::fromInt]
+      - Literal (numeric): "1" [TsNumber]
+  - For ("i")
+    Var
+    - Variable: i [TsNumber]
+      - Literal (numeric): "2" [TsNumber]
+    Condition
+      - Binary: <= [OneBoolean]
+        - LocalVar: i [TsNumber]
+        - MethodArgument: n [TsNumber]
+    Incrementor
+      - Unary (postfix): ++ [any]
+        - LocalVar: i [TsNumber]
+    Body
+      - ExpressionStatement
+        - Binary: = [OneBigInteger]
+          - LocalVar: result [OneBigInteger]
+          - Binary: + [OneBigInteger]
+            - Binary: * [OneBigInteger]
+              - LocalVar: result [OneBigInteger]
+              - LocalVar: i [TsNumber]
+            - Literal (numeric): "123" [TsNumber]
+      - ExpressionStatement
+        - Binary: = [OneBigInteger]
+          - LocalVar: result [OneBigInteger]
+          - Binary: + [OneBigInteger]
+            - LocalVar: result [OneBigInteger]
+            - LocalVar: result [OneBigInteger]
+      - If
+        - Binary: > [OneBigInteger]
+          - LocalVar: result [OneBigInteger]
+          - Literal (numeric): "10" [TsNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [OneBigInteger]
+              - LocalVar: result [OneBigInteger]
+              - Binary: >> [OneBigInteger]
+                - LocalVar: result [OneBigInteger]
+                - Literal (numeric): "2" [TsNumber]
+  - Return
+    - LocalVar: result [OneBigInteger]
+
+main()
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - TemplateString [OneString]
+        - Call [TsNumber]
+          - MethodReference (static) [MathUtils::calc]
+          - Literal (numeric): "5" [TsNumber]
+        - Call [OneBigInteger]
+          - MethodReference (static) [MathUtils::calcBig]
+          - Literal (numeric): "24" [TsNumber]

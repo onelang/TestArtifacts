@@ -1,0 +1,9 @@
+TestClass::TestMethod(): void
+  - Variable: map [CsMap<OneString, any>]
+    - MapLiteral [CsMap<OneString, any>]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.ToArray) [any]
+        - InstanceField: Keys [OneArray<K>]
+          - LocalVar: map [CsMap<OneString, any>]
+

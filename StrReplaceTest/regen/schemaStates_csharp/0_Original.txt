@@ -1,0 +1,17 @@
+TestClass::TestMethod(): void
+  - Variable: str
+    - Literal (string): "A x B x C x D"
+  - Variable: result
+    - Call
+      - PropertyAccess (.Replace)
+        - Identifier: str
+      - Literal (string): "x"
+      - Literal (string): "y"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - Identifier: result
+        - Identifier: str
+

@@ -1,0 +1,32 @@
+MapX::Value: V
+
+MapX::Set(key: K, value: V): void
+  - ExpressionStatement
+    - Binary: = [V]
+      - InstanceField (this): Value [V]
+      - MethodArgument: value [V]
+
+MapX::Get(key: K): V
+  - Return
+    - InstanceField (this): Value [V]
+
+TestClass::TestMethod(): void
+  - Variable: mapX [MapX<CsString, int>]
+    - New MapX<[object Object], [object Object]> [MapX<CsString, int>]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [MapX<CsString, int>::Set]
+        - LocalVar: mapX [MapX<CsString, int>]
+      - Literal (string): "hello" [CsString]
+      - Literal (numeric): "3" [CsNumber]
+  - Variable: numValue [int]
+    - Call [int]
+      - MethodReference [MapX<CsString, int>::Get]
+        - LocalVar: mapX [MapX<CsString, int>]
+      - Literal (string): "hello2" [CsString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - TemplateString [OneString]
+        - LocalVar: numValue [int]
+

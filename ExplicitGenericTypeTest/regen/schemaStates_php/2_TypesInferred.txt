@@ -1,0 +1,22 @@
+TestClass::testMethod(): any
+  - Variable: $result [PhpArray<any>]
+    - ArrayLiteral [PhpArray<any>]
+  - Variable: $map [PhpMap<OneString, PhpNumber>]
+    - MapLiteral [PhpMap<OneString, PhpNumber>]
+      - Variable: x [PhpNumber]
+        - Literal (numeric): "5" [PhpNumber]
+  - Variable: $keys [any]
+    - Call [any]
+      - Identifier: array_keys [any]
+      - LocalVar: $map [PhpMap<OneString, PhpNumber>]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpArray<any>]
+        - LocalVar: $result [PhpArray<any>]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [any]
+        - LocalVar: $keys [any]
+

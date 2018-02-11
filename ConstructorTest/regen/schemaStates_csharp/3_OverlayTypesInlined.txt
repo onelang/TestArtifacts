@@ -1,0 +1,26 @@
+ConstructorTest::Field2: int
+ConstructorTest::Field1: int
+
+ConstructorTest::constructor
+  - ExpressionStatement
+    - Binary: = [int]
+      - InstanceField (this): Field1 [int]
+      - MethodArgument: field1 [int]
+  - ExpressionStatement
+    - Binary: = [int]
+      - InstanceField (this): Field2 [int]
+      - Binary: * [int]
+        - Binary: * [int]
+          - MethodArgument: field1 [int]
+          - InstanceField (this): Field1 [int]
+        - Literal (numeric): "5" [OneNumber]
+
+TestClass::TestMethod(): void
+  - Variable: test [ConstructorTest]
+    - New ConstructorTest [ConstructorTest]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - InstanceField: Field2 [int]
+        - LocalVar: test [ConstructorTest]
+

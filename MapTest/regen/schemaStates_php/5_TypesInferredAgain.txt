@@ -1,0 +1,32 @@
+TestClass::getResult(): any
+  - Variable: $map_obj [PhpMap<OneString, PhpNumber>]
+    - MapLiteral [OneMap<OneString, PhpNumber>]
+      - Variable: x [PhpNumber]
+        - Literal (numeric): "5" [PhpNumber]
+  - Comment: "//let containsX = "x" in mapObj;\n//delete mapObj["x"];\n"
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.set) [any]
+        - LocalVar: $map_obj [PhpMap<OneString, PhpNumber>]
+      - Literal (string): "x" [PhpString]
+      - Literal (numeric): "3" [PhpNumber]
+  - Return
+    - Call [any]
+      - PropertyAccess (.get) [any]
+        - LocalVar: $map_obj [PhpMap<OneString, PhpNumber>]
+      - Literal (string): "x" [PhpString]
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Literal (string): "Result = " [PhpString]
+            - Parenthesized [any]
+              - Call [any]
+                - PropertyAccess (.getResult) [any]
+                  - Identifier: $this [any]
+          - Literal (string): "" [PhpString]
+

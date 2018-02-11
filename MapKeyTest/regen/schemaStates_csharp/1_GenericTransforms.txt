@@ -1,0 +1,9 @@
+TestClass::TestMethod(): void
+  - Variable: map
+    - MapLiteral
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.ToArray)
+        - PropertyAccess (.Keys)
+          - Identifier: map
+

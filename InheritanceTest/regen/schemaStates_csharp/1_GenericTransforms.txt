@@ -1,0 +1,83 @@
+BasePrinter::NumValue: int
+- Variable: NumValue [int]
+  - Literal (numeric): "42"
+
+BasePrinter::GetValue(): CsString
+  - Return
+    - Literal (string): "Base"
+
+BasePrinter::PrintIt(): void
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - Call
+          - PropertyAccess (.GetValue)
+            - Identifier: this
+
+BasePrinter::SomeBaseFunc(): int
+  - Return
+    - PropertyAccess (.NumValue)
+      - Identifier: this
+
+ChildPrinter::GetValue(): CsString
+  - Return
+    - Literal (string): "Child"
+
+TestClass::GetPrinter(name: CsString): IPrinter
+  - Variable: result
+    - Conditional
+      - Binary: ==
+        - Identifier: name
+        - Literal (string): "child"
+      - New ChildPrinter
+      - New BasePrinter
+  - Return
+    - Identifier: result
+
+TestClass::TestMethod(): void
+  - Variable: basePrinter
+    - Call
+      - PropertyAccess (.GetPrinter)
+        - Identifier: this
+      - Literal (string): "base"
+  - Variable: childPrinter
+    - Call
+      - PropertyAccess (.GetPrinter)
+        - Identifier: this
+      - Literal (string): "child"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.PrintIt)
+        - Identifier: basePrinter
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.PrintIt)
+        - Identifier: childPrinter
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - Call
+          - PropertyAccess (.SomeBaseFunc)
+            - Identifier: basePrinter
+        - Call
+          - PropertyAccess (.SomeBaseFunc)
+            - Identifier: childPrinter
+  - Comment: "\n"
+  - Variable: baseP2
+    - New BasePrinter
+  - Variable: childP2
+    - New ChildPrinter
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - PropertyAccess (.NumValue)
+          - Identifier: baseP2
+        - PropertyAccess (.NumValue)
+          - Identifier: childP2
+

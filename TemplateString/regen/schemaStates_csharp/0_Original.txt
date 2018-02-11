@@ -1,0 +1,60 @@
+TestClass::TestMethod(): void
+  - Variable: strVal
+    - Literal (string): "str"
+  - Variable: num
+    - Literal (numeric): "1337"
+  - Variable: b
+    - Literal (boolean): true
+  - Variable: result
+    - TemplateString
+      - Identifier: strVal
+      - Identifier: num
+      - Parenthesized
+        - Conditional
+          - Parenthesized
+            - Identifier: b
+          - Literal (string): "true"
+          - Literal (string): "false"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - Identifier: result
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - Identifier: strVal
+        - Identifier: num
+        - Parenthesized
+          - Conditional
+            - Parenthesized
+              - Identifier: b
+            - Literal (string): "true"
+            - Literal (string): "false"
+  - Comment: "\n"
+  - Variable: result2
+    - Binary: +
+      - Binary: +
+        - Binary: +
+          - Binary: +
+            - Binary: +
+              - Binary: +
+                - Literal (string): "before "
+                - Identifier: strVal
+              - Literal (string): ", num: "
+            - Identifier: num
+          - Literal (string): ", true: "
+        - Parenthesized
+          - Conditional
+            - Identifier: b
+            - Literal (string): "true"
+            - Literal (string): "false"
+      - Literal (string): " after"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - Identifier: result2
+

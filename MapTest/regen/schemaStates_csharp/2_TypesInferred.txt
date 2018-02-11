@@ -1,0 +1,26 @@
+TestClass::GetResult(): int
+  - Variable: mapObj [CsMap<OneString, CsNumber>]
+    - MapLiteral [CsMap<OneString, CsNumber>]
+      - Variable: x [CsNumber]
+        - Literal (numeric): "5" [CsNumber]
+  - Comment: "//let containsX = "x" in mapObj;\n//delete mapObj["x"];\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [CsMap<OneString, CsNumber>::set]
+        - LocalVar: mapObj [CsMap<OneString, CsNumber>]
+      - Literal (string): "x" [CsString]
+      - Literal (numeric): "3" [CsNumber]
+  - Return
+    - Call [void]
+      - MethodReference [CsMap<OneString, CsNumber>::get]
+        - LocalVar: mapObj [CsMap<OneString, CsNumber>]
+      - Literal (string): "x" [CsString]
+
+TestClass::TestMethod(): void
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - TemplateString [OneString]
+        - Call [int]
+          - MethodReference (this) [TestClass::GetResult]
+

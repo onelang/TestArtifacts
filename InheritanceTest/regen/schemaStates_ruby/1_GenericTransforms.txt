@@ -1,0 +1,106 @@
+BasePrinter::num_value: null
+
+BasePrinter::initialize(): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.num_value)
+        - Identifier: this
+      - Literal (numeric): "42"
+
+BasePrinter::get_value(): any
+  - Return
+    - Literal (string): "Base"
+
+BasePrinter::print_it(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - Call
+          - PropertyAccess (.get_value)
+            - Identifier: this
+
+BasePrinter::some_base_func(): any
+  - Return
+    - PropertyAccess (.num_value)
+      - Identifier: this
+
+ChildPrinter::get_value(): any
+  - Return
+    - Literal (string): "Child"
+
+TestClass::get_printer(name: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: result
+      - Conditional
+        - Binary: ==
+          - Identifier: name
+          - Literal (string): "child"
+        - Call
+          - PropertyAccess (.new)
+            - Identifier: ChildPrinter
+        - Call
+          - PropertyAccess (.new)
+            - Identifier: BasePrinter
+  - Return
+    - Identifier: result
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: base_printer
+      - Call
+        - PropertyAccess (.get_printer)
+          - Identifier: this
+        - Literal (string): "base"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: child_printer
+      - Call
+        - PropertyAccess (.get_printer)
+          - Identifier: this
+        - Literal (string): "child"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print_it)
+        - Identifier: base_printer
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print_it)
+        - Identifier: child_printer
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - Call
+          - PropertyAccess (.some_base_func)
+            - Identifier: base_printer
+        - Call
+          - PropertyAccess (.some_base_func)
+            - Identifier: child_printer
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: base_p2
+      - Call
+        - PropertyAccess (.new)
+          - Identifier: BasePrinter
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: child_p2
+      - Call
+        - PropertyAccess (.new)
+          - Identifier: ChildPrinter
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - PropertyAccess (.num_value)
+          - Identifier: base_p2
+        - PropertyAccess (.num_value)
+          - Identifier: child_p2
+

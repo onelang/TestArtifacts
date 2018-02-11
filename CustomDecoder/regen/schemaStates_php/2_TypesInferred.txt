@@ -1,0 +1,304 @@
+XorByte::$xor_value: null
+
+XorByte::__construct($xor_value: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - PropertyAccess (.xor_value) [any]
+        - Identifier: $this [any]
+      - MethodArgument: $xor_value [any]
+
+XorByte::decode($src: ???): any
+  - Variable: $dest [PhpArray<any>]
+    - ArrayLiteral [PhpArray<any>]
+  - Comment: "\n"
+  - For ("$i")
+    Var
+    - Variable: $i [PhpNumber]
+      - Literal (numeric): "0" [PhpNumber]
+    Condition
+      - Binary: < [PhpNumber]
+        - LocalVar: $i [PhpNumber]
+        - Call [any]
+          - Identifier: count [any]
+          - MethodArgument: $src [any]
+    Incrementor
+      - Unary (postfix): ++ [any]
+        - LocalVar: $i [PhpNumber]
+    Body
+      - ExpressionStatement
+        - Call [any]
+          - PropertyAccess (.Add) [any]
+            - LocalVar: $dest [PhpArray<any>]
+          - Binary: ^ [any]
+            - Call [any]
+              - PropertyAccess (.get) [any]
+                - MethodArgument: $src [any]
+              - LocalVar: $i [PhpNumber]
+            - PropertyAccess (.xor_value) [any]
+              - Identifier: $this [any]
+  - Comment: "\n"
+  - Return
+    - LocalVar: $dest [PhpArray<any>]
+
+Base64::decode($src: ???): any
+  - Variable: $dest [PhpArray<any>]
+    - ArrayLiteral [PhpArray<any>]
+  - Comment: "\n// 4 base64 chars => 3 bytes\n"
+  - For ("$i")
+    Var
+    - Variable: $i [PhpNumber]
+      - Literal (numeric): "0" [PhpNumber]
+    Condition
+      - Binary: < [PhpNumber]
+        - LocalVar: $i [PhpNumber]
+        - Call [any]
+          - Identifier: count [any]
+          - MethodArgument: $src [any]
+    Incrementor
+      - Binary: += [PhpNumber]
+        - LocalVar: $i [PhpNumber]
+        - Literal (numeric): "4" [PhpNumber]
+    Body
+      - Variable: $ch0 [any]
+        - Call [any]
+          - PropertyAccess (.decodeChar) [any]
+            - Identifier: $this [any]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: $src [any]
+            - LocalVar: $i [PhpNumber]
+      - Variable: $ch1 [any]
+        - Call [any]
+          - PropertyAccess (.decodeChar) [any]
+            - Identifier: $this [any]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: $src [any]
+            - Binary: + [PhpNumber]
+              - LocalVar: $i [PhpNumber]
+              - Literal (numeric): "1" [PhpNumber]
+      - Variable: $ch2 [any]
+        - Call [any]
+          - PropertyAccess (.decodeChar) [any]
+            - Identifier: $this [any]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: $src [any]
+            - Binary: + [PhpNumber]
+              - LocalVar: $i [PhpNumber]
+              - Literal (numeric): "2" [PhpNumber]
+      - Variable: $ch3 [any]
+        - Call [any]
+          - PropertyAccess (.decodeChar) [any]
+            - Identifier: $this [any]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: $src [any]
+            - Binary: + [PhpNumber]
+              - LocalVar: $i [PhpNumber]
+              - Literal (numeric): "3" [PhpNumber]
+      - Variable: $trinity [any]
+        - Binary: + [any]
+          - Binary: + [any]
+            - Binary: + [any]
+              - Parenthesized [any]
+                - Binary: << [any]
+                  - LocalVar: $ch0 [any]
+                  - Literal (numeric): "18" [PhpNumber]
+              - Parenthesized [any]
+                - Binary: << [any]
+                  - LocalVar: $ch1 [any]
+                  - Literal (numeric): "12" [PhpNumber]
+            - Parenthesized [any]
+              - Binary: << [any]
+                - LocalVar: $ch2 [any]
+                - Literal (numeric): "6" [PhpNumber]
+          - Parenthesized [any]
+            - LocalVar: $ch3 [any]
+      - Comment: "\n"
+      - ExpressionStatement
+        - Call [any]
+          - PropertyAccess (.Add) [any]
+            - LocalVar: $dest [PhpArray<any>]
+          - Binary: >> [any]
+            - LocalVar: $trinity [any]
+            - Literal (numeric): "16" [PhpNumber]
+      - ExpressionStatement
+        - Call [any]
+          - PropertyAccess (.Add) [any]
+            - LocalVar: $dest [PhpArray<any>]
+          - Binary: & [any]
+            - Parenthesized [any]
+              - Binary: >> [any]
+                - LocalVar: $trinity [any]
+                - Literal (numeric): "8" [PhpNumber]
+            - Literal (numeric): "0xff" [PhpNumber]
+      - ExpressionStatement
+        - Call [any]
+          - PropertyAccess (.Add) [any]
+            - LocalVar: $dest [PhpArray<any>]
+          - Binary: & [any]
+            - LocalVar: $trinity [any]
+            - Literal (numeric): "0xff" [PhpNumber]
+  - Comment: "\n"
+  - Return
+    - LocalVar: $dest [PhpArray<any>]
+
+Base64::decodeChar($ch: ???): any
+  - Variable: $value [any]
+    - Unary (prefix): - [any]
+      - Literal (numeric): "1" [PhpNumber]
+  - If
+    - Binary: && [OneBoolean]
+      - Binary: >= [OneBoolean]
+        - MethodArgument: $ch [any]
+        - Literal (numeric): "65" [PhpNumber]
+      - Binary: <= [OneBoolean]
+        - MethodArgument: $ch [any]
+        - Literal (numeric): "90" [PhpNumber]
+    Then
+      - Comment: "// `A-Z` => 0..25\n"
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: $value [any]
+          - Binary: - [any]
+            - MethodArgument: $ch [any]
+            - Literal (numeric): "65" [PhpNumber]
+    Else
+      - If
+        - Binary: && [OneBoolean]
+          - Binary: >= [OneBoolean]
+            - MethodArgument: $ch [any]
+            - Literal (numeric): "97" [PhpNumber]
+          - Binary: <= [OneBoolean]
+            - MethodArgument: $ch [any]
+            - Literal (numeric): "122" [PhpNumber]
+        Then
+          - Comment: "// `a-z` => 26..51\n"
+          - ExpressionStatement
+            - Binary: = [any]
+              - LocalVar: $value [any]
+              - Binary: + [any]
+                - Binary: - [any]
+                  - MethodArgument: $ch [any]
+                  - Literal (numeric): "97" [PhpNumber]
+                - Literal (numeric): "26" [PhpNumber]
+        Else
+          - If
+            - Binary: && [OneBoolean]
+              - Binary: >= [OneBoolean]
+                - MethodArgument: $ch [any]
+                - Literal (numeric): "48" [PhpNumber]
+              - Binary: <= [OneBoolean]
+                - MethodArgument: $ch [any]
+                - Literal (numeric): "57" [PhpNumber]
+            Then
+              - Comment: "// `0-9` => 52..61\n"
+              - ExpressionStatement
+                - Binary: = [any]
+                  - LocalVar: $value [any]
+                  - Binary: + [any]
+                    - Binary: - [any]
+                      - MethodArgument: $ch [any]
+                      - Literal (numeric): "48" [PhpNumber]
+                    - Literal (numeric): "52" [PhpNumber]
+            Else
+              - If
+                - Binary: || [OneBoolean]
+                  - Binary: == [OneBoolean]
+                    - MethodArgument: $ch [any]
+                    - Literal (numeric): "43" [PhpNumber]
+                  - Binary: == [OneBoolean]
+                    - MethodArgument: $ch [any]
+                    - Literal (numeric): "45" [PhpNumber]
+                Then
+                  - Comment: "// `+` or `-` => 62\n"
+                  - ExpressionStatement
+                    - Binary: = [any]
+                      - LocalVar: $value [any]
+                      - Literal (numeric): "62" [PhpNumber]
+                Else
+                  - If
+                    - Binary: || [OneBoolean]
+                      - Binary: == [OneBoolean]
+                        - MethodArgument: $ch [any]
+                        - Literal (numeric): "47" [PhpNumber]
+                      - Binary: == [OneBoolean]
+                        - MethodArgument: $ch [any]
+                        - Literal (numeric): "95" [PhpNumber]
+                    Then
+                      - Comment: "// `/` or `_` => 63\n"
+                      - ExpressionStatement
+                        - Binary: = [any]
+                          - LocalVar: $value [any]
+                          - Literal (numeric): "63" [PhpNumber]
+                    Else
+                      - If
+                        - Binary: == [OneBoolean]
+                          - MethodArgument: $ch [any]
+                          - Literal (numeric): "61" [PhpNumber]
+                        Then
+                          - Comment: "// `=` => padding\n"
+                          - ExpressionStatement
+                            - Binary: = [any]
+                              - LocalVar: $value [any]
+                              - Literal (numeric): "0" [PhpNumber]
+                        Else
+  - Return
+    - LocalVar: $value [any]
+
+TestClass::testMethod(): any
+  - Variable: $src1 [PhpArray<PhpNumber>]
+    - ArrayLiteral [PhpArray<PhpNumber>]
+      - Literal (numeric): "4" [PhpNumber]
+      - Literal (numeric): "5" [PhpNumber]
+      - Literal (numeric): "6" [PhpNumber]
+  - Variable: $decoder [XorByte]
+    - New XorByte [XorByte]
+  - Variable: $dst1 [any]
+    - Call [any]
+      - MethodReference [XorByte::decode]
+        - LocalVar: $decoder [XorByte]
+      - LocalVar: $src1 [PhpArray<PhpNumber>]
+  - Foreach $x: any
+    Items
+      - LocalVar: $dst1 [any]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Parenthesized [any]
+            - LocalVar: $x [any]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Literal (string): "|" [PhpString]
+  - Variable: $src2 [PhpArray<PhpNumber>]
+    - ArrayLiteral [PhpArray<PhpNumber>]
+      - Literal (numeric): "97" [PhpNumber]
+      - Literal (numeric): "71" [PhpNumber]
+      - Literal (numeric): "86" [PhpNumber]
+      - Literal (numeric): "115" [PhpNumber]
+      - Literal (numeric): "98" [PhpNumber]
+      - Literal (numeric): "71" [PhpNumber]
+      - Literal (numeric): "56" [PhpNumber]
+      - Literal (numeric): "61" [PhpNumber]
+  - Variable: $decoder2 [Base64]
+    - New Base64 [Base64]
+  - Variable: $dst2 [any]
+    - Call [any]
+      - MethodReference [Base64::decode]
+        - LocalVar: $decoder2 [Base64]
+      - LocalVar: $src2 [PhpArray<PhpNumber>]
+  - Foreach $x: any
+    Items
+      - LocalVar: $dst2 [any]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Parenthesized [any]
+            - LocalVar: $x [any]
+

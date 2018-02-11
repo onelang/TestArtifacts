@@ -1,0 +1,85 @@
+TestClass::TestMethod(): void
+  - Variable: str
+    - Literal (string): "ABCDEF"
+  - Variable: tA0True
+    - Binary: ==
+      - Call
+        - PropertyAccess (.Compare)
+          - Identifier: String
+        - Identifier: str
+        - Literal (numeric): "0"
+        - Literal (string): "A"
+        - Literal (numeric): "0"
+        - PropertyAccess (.Length)
+          - Parenthesized
+            - Literal (string): "A"
+      - Literal (numeric): "0"
+  - Variable: tA1False
+    - Binary: ==
+      - Call
+        - PropertyAccess (.Compare)
+          - Identifier: String
+        - Identifier: str
+        - Literal (numeric): "1"
+        - Literal (string): "A"
+        - Literal (numeric): "0"
+        - PropertyAccess (.Length)
+          - Parenthesized
+            - Literal (string): "A"
+      - Literal (numeric): "0"
+  - Variable: tB1True
+    - Binary: ==
+      - Call
+        - PropertyAccess (.Compare)
+          - Identifier: String
+        - Identifier: str
+        - Literal (numeric): "1"
+        - Literal (string): "B"
+        - Literal (numeric): "0"
+        - PropertyAccess (.Length)
+          - Parenthesized
+            - Literal (string): "B"
+      - Literal (numeric): "0"
+  - Variable: tCD2True
+    - Binary: ==
+      - Call
+        - PropertyAccess (.Compare)
+          - Identifier: String
+        - Identifier: str
+        - Literal (numeric): "2"
+        - Literal (string): "CD"
+        - Literal (numeric): "0"
+        - PropertyAccess (.Length)
+          - Parenthesized
+            - Literal (string): "CD"
+      - Literal (numeric): "0"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - Parenthesized
+          - Conditional
+            - Parenthesized
+              - Identifier: tA0True
+            - Literal (string): "true"
+            - Literal (string): "false"
+        - Parenthesized
+          - Conditional
+            - Parenthesized
+              - Identifier: tA1False
+            - Literal (string): "true"
+            - Literal (string): "false"
+        - Parenthesized
+          - Conditional
+            - Parenthesized
+              - Identifier: tB1True
+            - Literal (string): "true"
+            - Literal (string): "false"
+        - Parenthesized
+          - Conditional
+            - Parenthesized
+              - Identifier: tCD2True
+            - Literal (string): "true"
+            - Literal (string): "false"
+

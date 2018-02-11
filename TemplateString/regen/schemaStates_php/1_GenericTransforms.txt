@@ -1,0 +1,96 @@
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $str_val
+      - Literal (string): "str"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $num
+      - Literal (numeric): "1337"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $b
+      - Literal (boolean): true
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $result
+      - Binary: .
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Binary: .
+                  - Literal (string): "before "
+                  - Parenthesized
+                    - Identifier: $str_val
+                - Literal (string): ", num: "
+              - Parenthesized
+                - Identifier: $num
+            - Literal (string): ", true: "
+          - Parenthesized
+            - Conditional
+              - Parenthesized
+                - Identifier: $b
+              - Literal (string): "true"
+              - Literal (string): "false"
+        - Literal (string): " after"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Identifier: $result
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Binary: .
+                  - Binary: .
+                    - Literal (string): "before "
+                    - Parenthesized
+                      - Identifier: $str_val
+                  - Literal (string): ", num: "
+                - Parenthesized
+                  - Identifier: $num
+              - Literal (string): ", true: "
+            - Parenthesized
+              - Conditional
+                - Parenthesized
+                  - Identifier: $b
+                - Literal (string): "true"
+                - Literal (string): "false"
+          - Literal (string): " after"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $result2
+      - Binary: .
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Binary: .
+                  - Literal (string): "before "
+                  - Identifier: $str_val
+                - Literal (string): ", num: "
+              - Identifier: $num
+            - Literal (string): ", true: "
+          - Parenthesized
+            - Conditional
+              - Parenthesized
+                - Identifier: $b
+              - Literal (string): "true"
+              - Literal (string): "false"
+        - Literal (string): " after"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Identifier: $result2
+

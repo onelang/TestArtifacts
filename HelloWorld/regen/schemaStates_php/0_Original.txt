@@ -1,0 +1,42 @@
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $value
+      - Binary: -
+        - Binary: +
+          - Literal (numeric): "1"
+          - Binary: *
+            - Literal (numeric): "2"
+            - Literal (numeric): "3"
+        - Literal (numeric): "4"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $map_
+      - MapLiteral
+        - Variable: a
+          - Literal (numeric): "5"
+        - Variable: b
+          - Literal (numeric): "6"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $text
+      - Binary: .
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Literal (string): "Hello world! value = "
+              - Parenthesized
+                - Identifier: $value
+            - Literal (string): ", map[a] = "
+          - Parenthesized
+            - ElementAccess
+              - Identifier: $map_
+              - Literal (string): "a"
+        - Literal (string): ""
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Identifier: $text
+

@@ -1,0 +1,16 @@
+TestClass::TestMethod(): void
+  - Variable: str [CsString]
+    - Literal (string): "A x B x C x D" [CsString]
+  - Variable: result [OneString]
+    - Call [OneString]
+      - MethodReference [CsString::Replace]
+        - LocalVar: str [CsString]
+      - Literal (string): "x" [CsString]
+      - Literal (string): "y" [CsString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - TemplateString [OneString]
+        - LocalVar: result [OneString]
+        - LocalVar: str [CsString]
+

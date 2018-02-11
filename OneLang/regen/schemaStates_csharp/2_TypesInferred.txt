@@ -1,0 +1,308 @@
+TokenType::EndToken: CsString
+- Variable: EndToken [CsString]
+  - Literal (string): "EndToken" [CsString]
+
+TokenType::Whitespace: CsString
+- Variable: Whitespace [CsString]
+  - Literal (string): "Whitespace" [CsString]
+
+TokenType::Identifier: CsString
+- Variable: Identifier [CsString]
+  - Literal (string): "Identifier" [CsString]
+
+TokenType::OperatorX: CsString
+- Variable: OperatorX [CsString]
+  - Literal (string): "Operator" [CsString]
+
+Token::Value: CsString
+Token::IsOperator: bool
+
+Token::constructor
+  - ExpressionStatement
+    - Binary: = [CsString]
+      - InstanceField (this): Value [CsString]
+      - MethodArgument: value [CsString]
+  - ExpressionStatement
+    - Binary: = [bool]
+      - InstanceField (this): IsOperator [bool]
+      - MethodArgument: isOperator [bool]
+
+StringHelper::StartsWithAtIndex(str: CsString, substr: CsString, idx: int): bool [static]
+  - Return
+    - Binary: == [OneBoolean]
+      - Call [OneString]
+        - MethodReference [CsString::Substring]
+          - MethodArgument: str [CsString]
+        - MethodArgument: idx [int]
+        - Binary: - [int]
+          - Binary: + [int]
+            - MethodArgument: idx [int]
+            - InstanceField: Length [OneNumber]
+              - MethodArgument: substr [CsString]
+          - MethodArgument: idx [int]
+      - MethodArgument: substr [CsString]
+
+Tokenizer::Offset: int
+Tokenizer::Text: CsString
+Tokenizer::Operators: List<CsString>
+
+Tokenizer::constructor
+  - ExpressionStatement
+    - Binary: = [CsString]
+      - InstanceField (this): Text [CsString]
+      - MethodArgument: text [CsString]
+  - ExpressionStatement
+    - Binary: = [List<CsString>]
+      - InstanceField (this): Operators [List<CsString>]
+      - MethodArgument: operators [List<CsString>]
+  - ExpressionStatement
+    - Binary: = [int]
+      - InstanceField (this): Offset [int]
+      - Literal (numeric): "0" [CsNumber]
+
+Tokenizer::GetTokenType(): CsString
+  - If
+    - Binary: >= [OneBoolean]
+      - InstanceField (this): Offset [int]
+      - InstanceField: Length [OneNumber]
+        - InstanceField (this): Text [CsString]
+    Then
+      - Return
+        - StaticField: EndToken [CsString]
+          - ClassReference [TokenType]
+  - Comment: "\n"
+  - Variable: c [OneCharacter]
+    - Call [OneCharacter]
+      - MethodReference [CsString::get]
+        - InstanceField (this): Text [CsString]
+      - InstanceField (this): Offset [int]
+  - Return
+    - Conditional [CsString]
+      - Binary: || [OneBoolean]
+        - Binary: || [OneBoolean]
+          - Binary: || [OneBoolean]
+            - Binary: == [OneBoolean]
+              - LocalVar: c [OneCharacter]
+              - Literal (string): " " [CsString]
+            - Binary: == [OneBoolean]
+              - LocalVar: c [OneCharacter]
+              - Literal (string): "\n" [CsString]
+          - Binary: == [OneBoolean]
+            - LocalVar: c [OneCharacter]
+            - Literal (string): "\t" [CsString]
+        - Binary: == [OneBoolean]
+          - LocalVar: c [OneCharacter]
+          - Literal (string): "\r" [CsString]
+      - StaticField: Whitespace [CsString]
+        - ClassReference [TokenType]
+      - Conditional [CsString]
+        - Binary: || [OneBoolean]
+          - Binary: || [OneBoolean]
+            - Binary: || [OneBoolean]
+              - Parenthesized [OneBoolean]
+                - Binary: && [OneBoolean]
+                  - Binary: <= [OneBoolean]
+                    - Literal (string): "A" [CsString]
+                    - LocalVar: c [OneCharacter]
+                  - Binary: <= [OneBoolean]
+                    - LocalVar: c [OneCharacter]
+                    - Literal (string): "Z" [CsString]
+              - Parenthesized [OneBoolean]
+                - Binary: && [OneBoolean]
+                  - Binary: <= [OneBoolean]
+                    - Literal (string): "a" [CsString]
+                    - LocalVar: c [OneCharacter]
+                  - Binary: <= [OneBoolean]
+                    - LocalVar: c [OneCharacter]
+                    - Literal (string): "z" [CsString]
+            - Parenthesized [OneBoolean]
+              - Binary: && [OneBoolean]
+                - Binary: <= [OneBoolean]
+                  - Literal (string): "0" [CsString]
+                  - LocalVar: c [OneCharacter]
+                - Binary: <= [OneBoolean]
+                  - LocalVar: c [OneCharacter]
+                  - Literal (string): "9" [CsString]
+          - Binary: == [OneBoolean]
+            - LocalVar: c [OneCharacter]
+            - Literal (string): "_" [CsString]
+        - StaticField: Identifier [CsString]
+          - ClassReference [TokenType]
+        - StaticField: OperatorX [CsString]
+          - ClassReference [TokenType]
+
+Tokenizer::Tokenize(): List<Token>
+  - Variable: result [CsArray<any>]
+    - ArrayLiteral [CsArray<any>]
+  - Comment: "\n"
+  - While
+      - Binary: < [int]
+        - InstanceField (this): Offset [int]
+        - InstanceField: Length [OneNumber]
+          - InstanceField (this): Text [CsString]
+    Body
+      - Variable: charType [CsString]
+        - Call [CsString]
+          - MethodReference (this) [Tokenizer::GetTokenType]
+      - Comment: "\n"
+      - If
+        - Binary: == [OneBoolean]
+          - LocalVar: charType [CsString]
+          - StaticField: Whitespace [CsString]
+            - ClassReference [TokenType]
+        Then
+          - While
+              - Binary: == [OneBoolean]
+                - Call [CsString]
+                  - MethodReference (this) [Tokenizer::GetTokenType]
+                - StaticField: Whitespace [CsString]
+                  - ClassReference [TokenType]
+            Body
+              - ExpressionStatement
+                - Unary (postfix): ++ [any]
+                  - InstanceField (this): Offset [int]
+        Else
+          - If
+            - Binary: == [OneBoolean]
+              - LocalVar: charType [CsString]
+              - StaticField: Identifier [CsString]
+                - ClassReference [TokenType]
+            Then
+              - Variable: startOffset [int]
+                - InstanceField (this): Offset [int]
+              - While
+                  - Binary: == [OneBoolean]
+                    - Call [CsString]
+                      - MethodReference (this) [Tokenizer::GetTokenType]
+                    - StaticField: Identifier [CsString]
+                      - ClassReference [TokenType]
+                Body
+                  - ExpressionStatement
+                    - Unary (postfix): ++ [any]
+                      - InstanceField (this): Offset [int]
+              - Variable: identifier [OneString]
+                - Call [OneString]
+                  - MethodReference [CsString::Substring]
+                    - InstanceField (this): Text [CsString]
+                  - LocalVar: startOffset [int]
+                  - Binary: - [int]
+                    - InstanceField (this): Offset [int]
+                    - LocalVar: startOffset [int]
+              - ExpressionStatement
+                - Call [void]
+                  - MethodReference [CsArray<any>::Add]
+                    - LocalVar: result [CsArray<any>]
+                  - New Token [Token]
+            Else
+              - Variable: op [CsString]
+                - Literal (string): "" [CsString]
+              - Foreach currOp: any
+                Items
+                  - InstanceField (this): Operators [List<CsString>]
+                Body
+                  - If
+                    - Call [bool]
+                      - MethodReference (static) [StringHelper::StartsWithAtIndex]
+                      - InstanceField (this): Text [CsString]
+                      - LocalVar: currOp [any]
+                      - InstanceField (this): Offset [int]
+                    Then
+                      - ExpressionStatement
+                        - Binary: = [CsString]
+                          - LocalVar: op [CsString]
+                          - LocalVar: currOp [any]
+                      - Break
+              - Comment: "\n"
+              - If
+                - Binary: == [OneBoolean]
+                  - LocalVar: op [CsString]
+                  - Literal (string): "" [CsString]
+                Then
+                  - Break
+              - Comment: "\n"
+              - ExpressionStatement
+                - Binary: += [int]
+                  - InstanceField (this): Offset [int]
+                  - InstanceField: Length [OneNumber]
+                    - LocalVar: op [CsString]
+              - ExpressionStatement
+                - Call [void]
+                  - MethodReference [CsArray<any>::Add]
+                    - LocalVar: result [CsArray<any>]
+                  - New Token [Token]
+  - Comment: "\n"
+  - Return
+    - LocalVar: result [CsArray<any>]
+
+TestClass::TestMethod(): void
+  - Variable: operators [CsArray<CsString>]
+    - ArrayLiteral [CsArray<CsString>]
+      - Literal (string): "<<" [CsString]
+      - Literal (string): ">>" [CsString]
+      - Literal (string): "++" [CsString]
+      - Literal (string): "--" [CsString]
+      - Literal (string): "==" [CsString]
+      - Literal (string): "!=" [CsString]
+      - Literal (string): "!" [CsString]
+      - Literal (string): "<" [CsString]
+      - Literal (string): ">" [CsString]
+      - Literal (string): "=" [CsString]
+      - Literal (string): "(" [CsString]
+      - Literal (string): ")" [CsString]
+      - Literal (string): "[" [CsString]
+      - Literal (string): "]" [CsString]
+      - Literal (string): "{" [CsString]
+      - Literal (string): "}" [CsString]
+      - Literal (string): ";" [CsString]
+      - Literal (string): "+" [CsString]
+      - Literal (string): "-" [CsString]
+      - Literal (string): "*" [CsString]
+      - Literal (string): "/" [CsString]
+      - Literal (string): "&&" [CsString]
+      - Literal (string): "&" [CsString]
+      - Literal (string): "%" [CsString]
+      - Literal (string): "||" [CsString]
+      - Literal (string): "|" [CsString]
+      - Literal (string): "^" [CsString]
+      - Literal (string): "," [CsString]
+      - Literal (string): "." [CsString]
+  - Comment: "\n"
+  - Variable: input [CsString]
+    - Literal (string): "hello * 5" [CsString]
+  - Variable: tokenizer [Tokenizer]
+    - New Tokenizer [Tokenizer]
+  - Variable: result [List<Token>]
+    - Call [List<Token>]
+      - MethodReference [Tokenizer::Tokenize]
+        - LocalVar: tokenizer [Tokenizer]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - Literal (string): "token count:" [CsString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - InstanceField: Count [OneNumber]
+        - LocalVar: result [List<Token>]
+  - Foreach item: any
+    Items
+      - LocalVar: result [List<Token>]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [Console::WriteLine]
+          - Binary: + [any]
+            - Binary: + [any]
+              - Binary: + [any]
+                - PropertyAccess (.Value) [any]
+                  - LocalVar: item [any]
+                - Literal (string): "(" [CsString]
+              - Parenthesized [CsString]
+                - Conditional [CsString]
+                  - PropertyAccess (.IsOperator) [any]
+                    - LocalVar: item [any]
+                  - Literal (string): "op" [CsString]
+                  - Literal (string): "id" [CsString]
+            - Literal (string): ")" [CsString]
+

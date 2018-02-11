@@ -1,0 +1,6 @@
+main()
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Literal (string): "Hello world!"

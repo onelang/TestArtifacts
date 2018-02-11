@@ -1,0 +1,21 @@
+TestClass::TestMethod(): void
+  - Variable: result [CsArray<any>]
+    - ArrayLiteral [CsArray<any>]
+  - Variable: map [CsMap<OneString, CsNumber>]
+    - MapLiteral [CsMap<OneString, CsNumber>]
+      - Variable: x [CsNumber]
+        - Literal (numeric): "5" [CsNumber]
+  - Variable: keys [any]
+    - Call [any]
+      - PropertyAccess (.ToArray) [any]
+        - InstanceField: Keys [OneArray<K>]
+          - LocalVar: map [CsMap<OneString, CsNumber>]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - LocalVar: result [CsArray<any>]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - LocalVar: keys [any]
+

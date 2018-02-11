@@ -1,0 +1,99 @@
+MathUtils::calc(n: ???): any [static]
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: result
+      - Literal (numeric): "1"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: i
+      - Literal (numeric): "2"
+  - While
+      - Binary: <=
+        - Identifier: i
+        - Identifier: n
+    Body
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: result
+          - Binary: *
+            - Identifier: result
+            - Identifier: i
+      - If
+        - Binary: >
+          - Identifier: result
+          - Literal (numeric): "10"
+        Then
+          - ExpressionStatement
+            - Binary: =
+              - Identifier: result
+              - Binary: >>
+                - Identifier: result
+                - Literal (numeric): "2"
+      - ExpressionStatement
+        - Binary: +=
+          - Identifier: i
+          - Literal (numeric): "1"
+  - Return
+    - Identifier: result
+
+MathUtils::calc_big(n: ???): any [static]
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: result
+      - Literal (numeric): "1"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: i
+      - Literal (numeric): "2"
+  - While
+      - Binary: <=
+        - Identifier: i
+        - Identifier: n
+    Body
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: result
+          - Binary: +
+            - Binary: *
+              - Identifier: result
+              - Identifier: i
+            - Literal (numeric): "123"
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: result
+          - Binary: +
+            - Identifier: result
+            - Identifier: result
+      - If
+        - Binary: >
+          - Identifier: result
+          - Literal (numeric): "10"
+        Then
+          - ExpressionStatement
+            - Binary: =
+              - Identifier: result
+              - Binary: >>
+                - Identifier: result
+                - Literal (numeric): "2"
+      - ExpressionStatement
+        - Binary: +=
+          - Identifier: i
+          - Literal (numeric): "1"
+  - Return
+    - Identifier: result
+
+main()
+  - Comment: "\n\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - Call
+          - PropertyAccess (.calc)
+            - Identifier: MathUtils
+          - Literal (numeric): "5"
+        - Call
+          - PropertyAccess (.calc_big)
+            - Identifier: MathUtils
+          - Literal (numeric): "24"

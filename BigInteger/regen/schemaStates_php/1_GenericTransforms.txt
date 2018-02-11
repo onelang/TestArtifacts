@@ -1,0 +1,109 @@
+MathUtils::calc($n: ???): any [static]
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $result
+      - Literal (numeric): "1"
+  - For ("$i")
+    Var
+    - Variable: $i
+      - Literal (numeric): "2"
+    Condition
+      - Binary: <=
+        - Identifier: $i
+        - Identifier: $n
+    Incrementor
+      - Unary (postfix): ++
+        - Identifier: $i
+    Body
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $result
+          - Binary: *
+            - Identifier: $result
+            - Identifier: $i
+      - If
+        - Binary: >
+          - Identifier: $result
+          - Literal (numeric): "10"
+        Then
+          - ExpressionStatement
+            - Binary: =
+              - Identifier: $result
+              - Binary: >>
+                - Identifier: $result
+                - Literal (numeric): "2"
+  - Return
+    - Identifier: $result
+
+MathUtils::calcBig($n: ???): any [static]
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $result
+      - Call
+        - PropertyAccess (.fromInt)
+          - Identifier: OneBigInteger
+        - Literal (numeric): "1"
+  - For ("$i")
+    Var
+    - Variable: $i
+      - Literal (numeric): "2"
+    Condition
+      - Binary: <=
+        - Identifier: $i
+        - Identifier: $n
+    Incrementor
+      - Unary (postfix): ++
+        - Identifier: $i
+    Body
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $result
+          - Binary: +
+            - Binary: *
+              - Identifier: $result
+              - Identifier: $i
+            - Literal (numeric): "123"
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $result
+          - Binary: +
+            - Identifier: $result
+            - Identifier: $result
+      - If
+        - Binary: >
+          - Identifier: $result
+          - Literal (numeric): "10"
+        Then
+          - ExpressionStatement
+            - Binary: =
+              - Identifier: $result
+              - Binary: >>
+                - Identifier: $result
+                - Literal (numeric): "2"
+  - Return
+    - Identifier: $result
+
+main()
+  - Comment: "\n\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Literal (string): "5 -> "
+                - Parenthesized
+                  - Call
+                    - PropertyAccess (.calc)
+                      - Identifier: MathUtils
+                    - Literal (numeric): "5"
+              - Literal (string): ", 24 -> "
+            - Parenthesized
+              - Call
+                - PropertyAccess (.calcBig)
+                  - Identifier: MathUtils
+                - Literal (numeric): "24"
+          - Literal (string): ""

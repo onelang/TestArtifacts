@@ -1,0 +1,34 @@
+TestClass::getResult(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $map_obj
+      - MapLiteral
+        - Variable: x
+          - Literal (numeric): "5"
+  - Comment: "//let containsX = "x" in mapObj;\n//delete mapObj["x"];\n"
+  - ExpressionStatement
+    - Binary: =
+      - ElementAccess
+        - Identifier: $map_obj
+        - Literal (string): "x"
+      - Literal (numeric): "3"
+  - Return
+    - ElementAccess
+      - Identifier: $map_obj
+      - Literal (string): "x"
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Literal (string): "Result = "
+            - Parenthesized
+              - Call
+                - PropertyAccess (.getResult)
+                  - Identifier: $this
+          - Literal (string): ""
+

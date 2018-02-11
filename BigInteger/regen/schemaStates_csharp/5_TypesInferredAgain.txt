@@ -1,0 +1,78 @@
+MathUtils::Calc(n: int): int [static]
+  - Variable: result [OneNumber]
+    - Literal (numeric): "1" [OneNumber]
+  - For ("i")
+    Var
+    - Variable: i [OneNumber]
+      - Literal (numeric): "2" [OneNumber]
+    Condition
+      - Binary: <= [OneBoolean]
+        - LocalVar: i [OneNumber]
+        - MethodArgument: n [int]
+    Incrementor
+      - Unary (postfix): ++ [OneNumber]
+        - LocalVar: i [OneNumber]
+    Body
+      - ExpressionStatement
+        - Binary: = [OneNumber]
+          - LocalVar: result [OneNumber]
+          - Binary: * [OneNumber]
+            - LocalVar: result [OneNumber]
+            - LocalVar: i [OneNumber]
+      - If
+        - Binary: > [OneNumber]
+          - LocalVar: result [OneNumber]
+          - Literal (numeric): "10" [OneNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [OneNumber]
+              - LocalVar: result [OneNumber]
+              - Binary: >> [OneNumber]
+                - LocalVar: result [OneNumber]
+                - Literal (numeric): "2" [OneNumber]
+  - Return
+    - LocalVar: result [OneNumber]
+
+MathUtils::CalcBig(n: int): OneBigInteger [static]
+  - Variable: result [OneBigInteger]
+    - New BigInteger [OneBigInteger]
+  - For ("i")
+    Var
+    - Variable: i [OneNumber]
+      - Literal (numeric): "2" [OneNumber]
+    Condition
+      - Binary: <= [OneBoolean]
+        - LocalVar: i [OneNumber]
+        - MethodArgument: n [int]
+    Incrementor
+      - Unary (postfix): ++ [OneNumber]
+        - LocalVar: i [OneNumber]
+    Body
+      - ExpressionStatement
+        - Binary: = [OneBigInteger]
+          - LocalVar: result [OneBigInteger]
+          - Binary: + [OneBigInteger]
+            - Binary: * [OneBigInteger]
+              - LocalVar: result [OneBigInteger]
+              - LocalVar: i [OneNumber]
+            - Literal (numeric): "123" [OneNumber]
+      - ExpressionStatement
+        - Binary: = [OneBigInteger]
+          - LocalVar: result [OneBigInteger]
+          - Binary: + [OneBigInteger]
+            - LocalVar: result [OneBigInteger]
+            - LocalVar: result [OneBigInteger]
+      - If
+        - Binary: > [OneBigInteger]
+          - LocalVar: result [OneBigInteger]
+          - Literal (numeric): "10" [OneNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [OneBigInteger]
+              - LocalVar: result [OneBigInteger]
+              - Binary: >> [OneBigInteger]
+                - LocalVar: result [OneBigInteger]
+                - Literal (numeric): "2" [OneNumber]
+  - Return
+    - LocalVar: result [OneBigInteger]
+

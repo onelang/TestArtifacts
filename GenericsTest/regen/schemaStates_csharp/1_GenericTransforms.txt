@@ -1,0 +1,35 @@
+MapX::Value: V
+
+MapX::Set(key: K, value: V): void
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.Value)
+        - Identifier: this
+      - Identifier: value
+
+MapX::Get(key: K): V
+  - Return
+    - PropertyAccess (.Value)
+      - Identifier: this
+
+TestClass::TestMethod(): void
+  - Variable: mapX
+    - New MapX<[object Object], [object Object]>
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.Set)
+        - Identifier: mapX
+      - Literal (string): "hello"
+      - Literal (numeric): "3"
+  - Variable: numValue
+    - Call
+      - PropertyAccess (.Get)
+        - Identifier: mapX
+      - Literal (string): "hello2"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - Identifier: numValue
+

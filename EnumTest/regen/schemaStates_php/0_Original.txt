@@ -1,0 +1,78 @@
+TestEnum::Item1: null
+- Variable: Item1
+  - Literal (numeric): "0"
+
+TestEnum::Item2: null
+- Variable: Item2
+  - Literal (numeric): "1"
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $enum_v
+      - PropertyAccess (.Item1)
+        - Identifier: TestEnum
+  - If
+    - Binary: ==
+      - Binary: *
+        - Literal (numeric): "3"
+        - Literal (numeric): "2"
+      - Literal (numeric): "6"
+    Then
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $enum_v
+          - PropertyAccess (.Item2)
+            - Identifier: TestEnum
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $check1
+      - Conditional
+        - Binary: ==
+          - Identifier: $enum_v
+          - PropertyAccess (.Item2)
+            - Identifier: TestEnum
+        - Literal (string): "SUCCESS"
+        - Parenthesized
+          - Literal (string): "FAIL"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $check2
+      - Conditional
+        - Binary: ==
+          - Identifier: $enum_v
+          - PropertyAccess (.Item1)
+            - Identifier: TestEnum
+        - Literal (string): "FAIL"
+        - Parenthesized
+          - Literal (string): "SUCCESS"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Binary: .
+                  - Binary: .
+                    - Binary: .
+                      - Binary: .
+                        - Literal (string): "Item1: "
+                        - Parenthesized
+                          - PropertyAccess (.Item1)
+                            - Identifier: TestEnum
+                      - Literal (string): ", Item2: "
+                    - Parenthesized
+                      - Identifier: $enum_v
+                  - Literal (string): ", checks: "
+                - Parenthesized
+                  - Identifier: $check1
+              - Literal (string): " "
+            - Parenthesized
+              - Identifier: $check2
+          - Literal (string): ""
+

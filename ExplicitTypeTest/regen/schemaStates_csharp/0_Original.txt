@@ -1,0 +1,10 @@
+TestClass::TestMethod(): void
+  - Variable: op
+    - Literal (null): "null"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - PropertyAccess (.Length)
+        - Identifier: op
+

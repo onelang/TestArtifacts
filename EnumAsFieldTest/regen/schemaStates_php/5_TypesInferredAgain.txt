@@ -1,0 +1,30 @@
+SomeKind::EnumVal0: PhpNumber
+- Variable: EnumVal0 [PhpNumber]
+  - Literal (numeric): "0" [PhpNumber]
+
+SomeKind::EnumVal1: PhpNumber
+- Variable: EnumVal1 [PhpNumber]
+  - Literal (numeric): "1" [PhpNumber]
+
+SomeKind::EnumVal2: PhpNumber
+- Variable: EnumVal2 [PhpNumber]
+  - Literal (numeric): "2" [PhpNumber]
+
+TestClass::$enum_field: PhpNumber
+- Variable: $enum_field [PhpNumber]
+  - InstanceField: EnumVal2 [PhpNumber]
+    - ClassReference [SomeKind]
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Literal (string): "Value: " [PhpString]
+            - Parenthesized [any]
+              - PropertyAccess (.enum_field) [any]
+                - Identifier: $this [any]
+          - Literal (string): "" [PhpString]
+

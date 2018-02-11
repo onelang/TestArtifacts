@@ -1,0 +1,295 @@
+XorByte::XorValue: int
+
+XorByte::constructor
+  - ExpressionStatement
+    - Binary: = [int]
+      - InstanceField (this): XorValue [int]
+      - MethodArgument: xorValue [int]
+
+XorByte::Decode(src: List<int>): List<int>
+  - Variable: dest [CsArray<any>]
+    - ArrayLiteral [CsArray<any>]
+  - Comment: "\n"
+  - For ("i")
+    Var
+    - Variable: i [CsNumber]
+      - Literal (numeric): "0" [CsNumber]
+    Condition
+      - Binary: < [CsNumber]
+        - LocalVar: i [CsNumber]
+        - InstanceField: Count [OneNumber]
+          - MethodArgument: src [List<int>]
+    Incrementor
+      - Unary (postfix): ++ [any]
+        - LocalVar: i [CsNumber]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference [CsArray<any>::Add]
+            - LocalVar: dest [CsArray<any>]
+          - Binary: ^ [int]
+            - Call [int]
+              - MethodReference [List<int>::get]
+                - MethodArgument: src [List<int>]
+              - LocalVar: i [CsNumber]
+            - InstanceField (this): XorValue [int]
+  - Comment: "\n"
+  - Return
+    - LocalVar: dest [CsArray<any>]
+
+Base64::Decode(src: List<int>): List<int>
+  - Variable: dest [CsArray<any>]
+    - ArrayLiteral [CsArray<any>]
+  - Comment: "\n// 4 base64 chars => 3 bytes\n"
+  - For ("i")
+    Var
+    - Variable: i [CsNumber]
+      - Literal (numeric): "0" [CsNumber]
+    Condition
+      - Binary: < [CsNumber]
+        - LocalVar: i [CsNumber]
+        - InstanceField: Count [OneNumber]
+          - MethodArgument: src [List<int>]
+    Incrementor
+      - Binary: += [CsNumber]
+        - LocalVar: i [CsNumber]
+        - Literal (numeric): "4" [CsNumber]
+    Body
+      - Variable: ch0 [int]
+        - Call [int]
+          - MethodReference (this) [Base64::DecodeChar]
+          - Call [int]
+            - MethodReference [List<int>::get]
+              - MethodArgument: src [List<int>]
+            - LocalVar: i [CsNumber]
+      - Variable: ch1 [int]
+        - Call [int]
+          - MethodReference (this) [Base64::DecodeChar]
+          - Call [int]
+            - MethodReference [List<int>::get]
+              - MethodArgument: src [List<int>]
+            - Binary: + [CsNumber]
+              - LocalVar: i [CsNumber]
+              - Literal (numeric): "1" [CsNumber]
+      - Variable: ch2 [int]
+        - Call [int]
+          - MethodReference (this) [Base64::DecodeChar]
+          - Call [int]
+            - MethodReference [List<int>::get]
+              - MethodArgument: src [List<int>]
+            - Binary: + [CsNumber]
+              - LocalVar: i [CsNumber]
+              - Literal (numeric): "2" [CsNumber]
+      - Variable: ch3 [int]
+        - Call [int]
+          - MethodReference (this) [Base64::DecodeChar]
+          - Call [int]
+            - MethodReference [List<int>::get]
+              - MethodArgument: src [List<int>]
+            - Binary: + [CsNumber]
+              - LocalVar: i [CsNumber]
+              - Literal (numeric): "3" [CsNumber]
+      - Comment: "\n"
+      - Variable: trinity [int]
+        - Binary: + [int]
+          - Binary: + [int]
+            - Binary: + [int]
+              - Parenthesized [int]
+                - Binary: << [int]
+                  - LocalVar: ch0 [int]
+                  - Literal (numeric): "18" [CsNumber]
+              - Parenthesized [int]
+                - Binary: << [int]
+                  - LocalVar: ch1 [int]
+                  - Literal (numeric): "12" [CsNumber]
+            - Parenthesized [int]
+              - Binary: << [int]
+                - LocalVar: ch2 [int]
+                - Literal (numeric): "6" [CsNumber]
+          - Parenthesized [int]
+            - LocalVar: ch3 [int]
+      - Comment: "\n"
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference [CsArray<any>::Add]
+            - LocalVar: dest [CsArray<any>]
+          - Binary: >> [int]
+            - LocalVar: trinity [int]
+            - Literal (numeric): "16" [CsNumber]
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference [CsArray<any>::Add]
+            - LocalVar: dest [CsArray<any>]
+          - Binary: & [int]
+            - Parenthesized [int]
+              - Binary: >> [int]
+                - LocalVar: trinity [int]
+                - Literal (numeric): "8" [CsNumber]
+            - Literal (numeric): "0xff" [CsNumber]
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference [CsArray<any>::Add]
+            - LocalVar: dest [CsArray<any>]
+          - Binary: & [int]
+            - LocalVar: trinity [int]
+            - Literal (numeric): "0xff" [CsNumber]
+  - Comment: "\n"
+  - Return
+    - LocalVar: dest [CsArray<any>]
+
+Base64::DecodeChar(ch: int): int
+  - Variable: value [any]
+    - Unary (prefix): - [any]
+      - Literal (numeric): "1" [CsNumber]
+  - If
+    - Binary: && [OneBoolean]
+      - Binary: >= [OneBoolean]
+        - MethodArgument: ch [int]
+        - Literal (numeric): "65" [CsNumber]
+      - Binary: <= [OneBoolean]
+        - MethodArgument: ch [int]
+        - Literal (numeric): "90" [CsNumber]
+    Then
+      - Comment: "// `A-Z` => 0..25\n"
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: value [any]
+          - Binary: - [int]
+            - MethodArgument: ch [int]
+            - Literal (numeric): "65" [CsNumber]
+    Else
+      - If
+        - Binary: && [OneBoolean]
+          - Binary: >= [OneBoolean]
+            - MethodArgument: ch [int]
+            - Literal (numeric): "97" [CsNumber]
+          - Binary: <= [OneBoolean]
+            - MethodArgument: ch [int]
+            - Literal (numeric): "122" [CsNumber]
+        Then
+          - Comment: "// `a-z` => 26..51\n"
+          - ExpressionStatement
+            - Binary: = [any]
+              - LocalVar: value [any]
+              - Binary: + [int]
+                - Binary: - [int]
+                  - MethodArgument: ch [int]
+                  - Literal (numeric): "97" [CsNumber]
+                - Literal (numeric): "26" [CsNumber]
+        Else
+          - If
+            - Binary: && [OneBoolean]
+              - Binary: >= [OneBoolean]
+                - MethodArgument: ch [int]
+                - Literal (numeric): "48" [CsNumber]
+              - Binary: <= [OneBoolean]
+                - MethodArgument: ch [int]
+                - Literal (numeric): "57" [CsNumber]
+            Then
+              - Comment: "// `0-9` => 52..61\n"
+              - ExpressionStatement
+                - Binary: = [any]
+                  - LocalVar: value [any]
+                  - Binary: + [int]
+                    - Binary: - [int]
+                      - MethodArgument: ch [int]
+                      - Literal (numeric): "48" [CsNumber]
+                    - Literal (numeric): "52" [CsNumber]
+            Else
+              - If
+                - Binary: || [OneBoolean]
+                  - Binary: == [OneBoolean]
+                    - MethodArgument: ch [int]
+                    - Literal (numeric): "43" [CsNumber]
+                  - Binary: == [OneBoolean]
+                    - MethodArgument: ch [int]
+                    - Literal (numeric): "45" [CsNumber]
+                Then
+                  - Comment: "// `+` or `-` => 62\n"
+                  - ExpressionStatement
+                    - Binary: = [any]
+                      - LocalVar: value [any]
+                      - Literal (numeric): "62" [CsNumber]
+                Else
+                  - If
+                    - Binary: || [OneBoolean]
+                      - Binary: == [OneBoolean]
+                        - MethodArgument: ch [int]
+                        - Literal (numeric): "47" [CsNumber]
+                      - Binary: == [OneBoolean]
+                        - MethodArgument: ch [int]
+                        - Literal (numeric): "95" [CsNumber]
+                    Then
+                      - Comment: "// `/` or `_` => 63\n"
+                      - ExpressionStatement
+                        - Binary: = [any]
+                          - LocalVar: value [any]
+                          - Literal (numeric): "63" [CsNumber]
+                    Else
+                      - If
+                        - Binary: == [OneBoolean]
+                          - MethodArgument: ch [int]
+                          - Literal (numeric): "61" [CsNumber]
+                        Then
+                          - Comment: "// `=` => padding\n"
+                          - ExpressionStatement
+                            - Binary: = [any]
+                              - LocalVar: value [any]
+                              - Literal (numeric): "0" [CsNumber]
+                        Else
+  - Return
+    - LocalVar: value [any]
+
+TestClass::TestMethod(): void
+  - Variable: src1 [CsArray<CsNumber>]
+    - ArrayLiteral [CsArray<CsNumber>]
+      - Literal (numeric): "4" [CsNumber]
+      - Literal (numeric): "5" [CsNumber]
+      - Literal (numeric): "6" [CsNumber]
+  - Variable: decoder [XorByte]
+    - New XorByte [XorByte]
+  - Variable: dst1 [List<int>]
+    - Call [List<int>]
+      - MethodReference [XorByte::Decode]
+        - LocalVar: decoder [XorByte]
+      - LocalVar: src1 [CsArray<CsNumber>]
+  - Foreach x: any
+    Items
+      - LocalVar: dst1 [List<int>]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [Console::WriteLine]
+          - LocalVar: x [any]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - Literal (string): "|" [CsString]
+  - Comment: "\n"
+  - Variable: src2 [CsArray<CsNumber>]
+    - ArrayLiteral [CsArray<CsNumber>]
+      - Literal (numeric): "97" [CsNumber]
+      - Literal (numeric): "71" [CsNumber]
+      - Literal (numeric): "86" [CsNumber]
+      - Literal (numeric): "115" [CsNumber]
+      - Literal (numeric): "98" [CsNumber]
+      - Literal (numeric): "71" [CsNumber]
+      - Literal (numeric): "56" [CsNumber]
+      - Literal (numeric): "61" [CsNumber]
+  - Variable: decoder2 [Base64]
+    - New Base64 [Base64]
+  - Variable: dst2 [List<int>]
+    - Call [List<int>]
+      - MethodReference [Base64::Decode]
+        - LocalVar: decoder2 [Base64]
+      - LocalVar: src2 [CsArray<CsNumber>]
+  - Foreach x: any
+    Items
+      - LocalVar: dst2 [List<int>]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [Console::WriteLine]
+          - LocalVar: x [any]
+

@@ -1,0 +1,286 @@
+XorByte::xor_value: null
+
+XorByte::initialize(xor_value: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): xor_value [any]
+      - MethodArgument: xor_value [any]
+
+XorByte::decode(src: ???): any
+  - Variable: dest [RubyArray<any>]
+    - ArrayLiteral [RubyArray<any>]
+  - Variable: i [RubyNumber]
+    - Literal (numeric): "0" [RubyNumber]
+  - While
+      - Binary: < [RubyNumber]
+        - LocalVar: i [RubyNumber]
+        - PropertyAccess (.length) [any]
+          - MethodArgument: src [any]
+    Body
+      - ExpressionStatement
+        - Binary: << [RubyArray<any>]
+          - LocalVar: dest [RubyArray<any>]
+          - Parenthesized [any]
+            - Binary: ^ [any]
+              - Call [any]
+                - PropertyAccess (.get) [any]
+                  - MethodArgument: src [any]
+                - LocalVar: i [RubyNumber]
+              - InstanceField (this): xor_value [any]
+      - ExpressionStatement
+        - Binary: += [RubyNumber]
+          - LocalVar: i [RubyNumber]
+          - Literal (numeric): "1" [RubyNumber]
+  - Comment: "\n"
+  - Return
+    - LocalVar: dest [RubyArray<any>]
+
+Base64::decode(src: ???): any
+  - Variable: dest [RubyArray<any>]
+    - ArrayLiteral [RubyArray<any>]
+  - Variable: i [RubyNumber]
+    - Literal (numeric): "0" [RubyNumber]
+  - While
+      - Binary: < [RubyNumber]
+        - LocalVar: i [RubyNumber]
+        - PropertyAccess (.length) [any]
+          - MethodArgument: src [any]
+    Body
+      - Variable: ch0 [any]
+        - Call [any]
+          - MethodReference (this) [Base64::decode_char]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: src [any]
+            - LocalVar: i [RubyNumber]
+      - Variable: ch1 [any]
+        - Call [any]
+          - MethodReference (this) [Base64::decode_char]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: src [any]
+            - Binary: + [RubyNumber]
+              - LocalVar: i [RubyNumber]
+              - Literal (numeric): "1" [RubyNumber]
+      - Variable: ch2 [any]
+        - Call [any]
+          - MethodReference (this) [Base64::decode_char]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: src [any]
+            - Binary: + [RubyNumber]
+              - LocalVar: i [RubyNumber]
+              - Literal (numeric): "2" [RubyNumber]
+      - Variable: ch3 [any]
+        - Call [any]
+          - MethodReference (this) [Base64::decode_char]
+          - Call [any]
+            - PropertyAccess (.get) [any]
+              - MethodArgument: src [any]
+            - Binary: + [RubyNumber]
+              - LocalVar: i [RubyNumber]
+              - Literal (numeric): "3" [RubyNumber]
+      - Variable: trinity [any]
+        - Binary: + [any]
+          - Binary: + [any]
+            - Binary: + [any]
+              - Parenthesized [any]
+                - Binary: << [any]
+                  - LocalVar: ch0 [any]
+                  - Literal (numeric): "18" [RubyNumber]
+              - Parenthesized [any]
+                - Binary: << [any]
+                  - LocalVar: ch1 [any]
+                  - Literal (numeric): "12" [RubyNumber]
+            - Parenthesized [any]
+              - Binary: << [any]
+                - LocalVar: ch2 [any]
+                - Literal (numeric): "6" [RubyNumber]
+          - Parenthesized [any]
+            - LocalVar: ch3 [any]
+      - ExpressionStatement
+        - Binary: << [RubyArray<any>]
+          - LocalVar: dest [RubyArray<any>]
+          - Parenthesized [any]
+            - Binary: >> [any]
+              - LocalVar: trinity [any]
+              - Literal (numeric): "16" [RubyNumber]
+      - ExpressionStatement
+        - Binary: << [RubyArray<any>]
+          - LocalVar: dest [RubyArray<any>]
+          - Parenthesized [any]
+            - Binary: & [any]
+              - Parenthesized [any]
+                - Binary: >> [any]
+                  - LocalVar: trinity [any]
+                  - Literal (numeric): "8" [RubyNumber]
+              - Literal (numeric): "0xff" [RubyNumber]
+      - ExpressionStatement
+        - Binary: << [RubyArray<any>]
+          - LocalVar: dest [RubyArray<any>]
+          - Parenthesized [any]
+            - Binary: & [any]
+              - LocalVar: trinity [any]
+              - Literal (numeric): "0xff" [RubyNumber]
+      - ExpressionStatement
+        - Binary: += [RubyNumber]
+          - LocalVar: i [RubyNumber]
+          - Literal (numeric): "4" [RubyNumber]
+  - Comment: "\n"
+  - Return
+    - LocalVar: dest [RubyArray<any>]
+
+Base64::decode_char(ch: ???): any
+  - Variable: value [any]
+    - Unary (prefix): - [any]
+      - Literal (numeric): "1" [RubyNumber]
+  - If
+    - Binary: && [OneBoolean]
+      - Binary: >= [OneBoolean]
+        - MethodArgument: ch [any]
+        - Literal (numeric): "65" [RubyNumber]
+      - Binary: <= [OneBoolean]
+        - MethodArgument: ch [any]
+        - Literal (numeric): "90" [RubyNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [any]
+          - LocalVar: value [any]
+          - Binary: - [any]
+            - MethodArgument: ch [any]
+            - Literal (numeric): "65" [RubyNumber]
+    Else
+      - If
+        - Binary: && [OneBoolean]
+          - Binary: >= [OneBoolean]
+            - MethodArgument: ch [any]
+            - Literal (numeric): "97" [RubyNumber]
+          - Binary: <= [OneBoolean]
+            - MethodArgument: ch [any]
+            - Literal (numeric): "122" [RubyNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [any]
+              - LocalVar: value [any]
+              - Binary: + [any]
+                - Binary: - [any]
+                  - MethodArgument: ch [any]
+                  - Literal (numeric): "97" [RubyNumber]
+                - Literal (numeric): "26" [RubyNumber]
+        Else
+          - If
+            - Binary: && [OneBoolean]
+              - Binary: >= [OneBoolean]
+                - MethodArgument: ch [any]
+                - Literal (numeric): "48" [RubyNumber]
+              - Binary: <= [OneBoolean]
+                - MethodArgument: ch [any]
+                - Literal (numeric): "57" [RubyNumber]
+            Then
+              - ExpressionStatement
+                - Binary: = [any]
+                  - LocalVar: value [any]
+                  - Binary: + [any]
+                    - Binary: - [any]
+                      - MethodArgument: ch [any]
+                      - Literal (numeric): "48" [RubyNumber]
+                    - Literal (numeric): "52" [RubyNumber]
+            Else
+              - If
+                - Binary: || [OneBoolean]
+                  - Binary: == [OneBoolean]
+                    - MethodArgument: ch [any]
+                    - Literal (numeric): "43" [RubyNumber]
+                  - Binary: == [OneBoolean]
+                    - MethodArgument: ch [any]
+                    - Literal (numeric): "45" [RubyNumber]
+                Then
+                  - ExpressionStatement
+                    - Binary: = [any]
+                      - LocalVar: value [any]
+                      - Literal (numeric): "62" [RubyNumber]
+                Else
+                  - If
+                    - Binary: || [OneBoolean]
+                      - Binary: == [OneBoolean]
+                        - MethodArgument: ch [any]
+                        - Literal (numeric): "47" [RubyNumber]
+                      - Binary: == [OneBoolean]
+                        - MethodArgument: ch [any]
+                        - Literal (numeric): "95" [RubyNumber]
+                    Then
+                      - ExpressionStatement
+                        - Binary: = [any]
+                          - LocalVar: value [any]
+                          - Literal (numeric): "63" [RubyNumber]
+                    Else
+                      - If
+                        - Binary: == [OneBoolean]
+                          - MethodArgument: ch [any]
+                          - Literal (numeric): "61" [RubyNumber]
+                        Then
+                          - ExpressionStatement
+                            - Binary: = [any]
+                              - LocalVar: value [any]
+                              - Literal (numeric): "0" [RubyNumber]
+                        Else
+  - Return
+    - LocalVar: value [any]
+
+TestClass::test_method(): any
+  - Variable: src1 [RubyArray<RubyNumber>]
+    - ArrayLiteral [RubyArray<RubyNumber>]
+      - Literal (numeric): "4" [RubyNumber]
+      - Literal (numeric): "5" [RubyNumber]
+      - Literal (numeric): "6" [RubyNumber]
+  - Variable: decoder [any]
+    - Call [any]
+      - PropertyAccess (.new) [any]
+        - ClassReference [XorByte]
+      - Literal (numeric): "0xff" [RubyNumber]
+  - Variable: dst1 [any]
+    - Call [any]
+      - PropertyAccess (.decode) [any]
+        - LocalVar: decoder [any]
+      - LocalVar: src1 [RubyArray<RubyNumber>]
+  - Foreach x: any
+    Items
+      - LocalVar: dst1 [any]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - LocalVar: x [any]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Literal (string): "|" [RubyString]
+  - Variable: src2 [RubyArray<RubyNumber>]
+    - ArrayLiteral [RubyArray<RubyNumber>]
+      - Literal (numeric): "97" [RubyNumber]
+      - Literal (numeric): "71" [RubyNumber]
+      - Literal (numeric): "86" [RubyNumber]
+      - Literal (numeric): "115" [RubyNumber]
+      - Literal (numeric): "98" [RubyNumber]
+      - Literal (numeric): "71" [RubyNumber]
+      - Literal (numeric): "56" [RubyNumber]
+      - Literal (numeric): "61" [RubyNumber]
+  - Variable: decoder2 [any]
+    - Call [any]
+      - PropertyAccess (.new) [any]
+        - ClassReference [Base64]
+  - Variable: dst2 [any]
+    - Call [any]
+      - PropertyAccess (.decode) [any]
+        - LocalVar: decoder2 [any]
+      - LocalVar: src2 [RubyArray<RubyNumber>]
+  - Foreach x: any
+    Items
+      - LocalVar: dst2 [any]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - LocalVar: x [any]
+

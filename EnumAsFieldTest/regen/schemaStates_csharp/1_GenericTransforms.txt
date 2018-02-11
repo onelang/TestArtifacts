@@ -1,0 +1,16 @@
+enum SomeKind: EnumVal0, EnumVal1, EnumVal2
+
+TestClass::EnumField: SomeKind (enum)
+- Variable: EnumField [SomeKind (enum)]
+  - PropertyAccess (.EnumVal2)
+    - Identifier: SomeKind
+
+TestClass::TestMethod(): void
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - PropertyAccess (.EnumField)
+          - Identifier: this
+

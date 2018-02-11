@@ -1,0 +1,25 @@
+TokenType::$end_token: PhpString
+- Variable: $end_token [PhpString]
+  - Literal (string): "EndToken" [PhpString]
+
+TokenType::$whitespace: PhpString
+- Variable: $whitespace [PhpString]
+  - Literal (string): "Whitespace" [PhpString]
+
+TokenType::$identifier: PhpString
+- Variable: $identifier [PhpString]
+  - Literal (string): "Identifier" [PhpString]
+
+TokenType::$operator_x: PhpString
+- Variable: $operator_x [PhpString]
+  - Literal (string): "Operator" [PhpString]
+
+TokenType::$no_initializer: null
+
+TestClass::testMethod(): any
+  - Variable: $casing_test [PhpString]
+    - StaticField: $end_token [PhpString]
+      - ClassReference [TokenType]
+  - Return
+    - LocalVar: $casing_test [PhpString]
+

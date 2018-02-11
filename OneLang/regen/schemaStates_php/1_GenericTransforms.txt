@@ -1,0 +1,366 @@
+TokenType::$end_token: null
+- Variable: $end_token
+  - Literal (string): "EndToken"
+
+TokenType::$whitespace: null
+- Variable: $whitespace
+  - Literal (string): "Whitespace"
+
+TokenType::$identifier: null
+- Variable: $identifier
+  - Literal (string): "Identifier"
+
+TokenType::$operator_x: null
+- Variable: $operator_x
+  - Literal (string): "Operator"
+
+Token::$value: null
+Token::$is_operator: null
+
+Token::__construct($value: ???, $is_operator: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.value)
+        - Identifier: $this
+      - Identifier: $value
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.is_operator)
+        - Identifier: $this
+      - Identifier: $is_operator
+
+StringHelper::startsWithAtIndex($str: ???, $substr: ???, $idx: ???): any [static]
+  - Return
+    - Binary: ==
+      - Call
+        - Identifier: substr
+        - Identifier: $str
+        - Identifier: $idx
+        - Binary: -
+          - Binary: +
+            - Identifier: $idx
+            - Call
+              - Identifier: strlen
+              - Identifier: $substr
+          - Identifier: $idx
+      - Identifier: $substr
+
+Tokenizer::$offset: null
+Tokenizer::$text: null
+Tokenizer::$operators: null
+
+Tokenizer::__construct($text: ???, $operators: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.text)
+        - Identifier: $this
+      - Identifier: $text
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.operators)
+        - Identifier: $this
+      - Identifier: $operators
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.offset)
+        - Identifier: $this
+      - Literal (numeric): "0"
+
+Tokenizer::getTokenType(): any
+  - If
+    - Binary: >=
+      - PropertyAccess (.offset)
+        - Identifier: $this
+      - Call
+        - Identifier: strlen
+        - PropertyAccess (.text)
+          - Identifier: $this
+    Then
+      - Return
+        - PropertyAccess (.$end_token)
+          - Identifier: TokenType
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $c
+      - Call
+        - PropertyAccess (.get)
+          - PropertyAccess (.text)
+            - Identifier: $this
+        - PropertyAccess (.offset)
+          - Identifier: $this
+  - Return
+    - Conditional
+      - Binary: ||
+        - Binary: ||
+          - Binary: ||
+            - Binary: ==
+              - Identifier: $c
+              - Literal (string): " "
+            - Binary: ==
+              - Identifier: $c
+              - Literal (string): "\n"
+          - Binary: ==
+            - Identifier: $c
+            - Literal (string): "\t"
+        - Binary: ==
+          - Identifier: $c
+          - Literal (string): "\r"
+      - PropertyAccess (.$whitespace)
+        - Identifier: TokenType
+      - Parenthesized
+        - Conditional
+          - Binary: ||
+            - Binary: ||
+              - Binary: ||
+                - Parenthesized
+                  - Binary: &&
+                    - Binary: <=
+                      - Literal (string): "A"
+                      - Identifier: $c
+                    - Binary: <=
+                      - Identifier: $c
+                      - Literal (string): "Z"
+                - Parenthesized
+                  - Binary: &&
+                    - Binary: <=
+                      - Literal (string): "a"
+                      - Identifier: $c
+                    - Binary: <=
+                      - Identifier: $c
+                      - Literal (string): "z"
+              - Parenthesized
+                - Binary: &&
+                  - Binary: <=
+                    - Literal (string): "0"
+                    - Identifier: $c
+                  - Binary: <=
+                    - Identifier: $c
+                    - Literal (string): "9"
+            - Binary: ==
+              - Identifier: $c
+              - Literal (string): "_"
+          - PropertyAccess (.$identifier)
+            - Identifier: TokenType
+          - Parenthesized
+            - PropertyAccess (.$operator_x)
+              - Identifier: TokenType
+
+Tokenizer::tokenize(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $result
+      - ArrayLiteral
+  - Comment: "\n"
+  - While
+      - Binary: <
+        - PropertyAccess (.offset)
+          - Identifier: $this
+        - Call
+          - Identifier: strlen
+          - PropertyAccess (.text)
+            - Identifier: $this
+    Body
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $char_type
+          - Call
+            - PropertyAccess (.getTokenType)
+              - Identifier: $this
+      - Comment: "\n"
+      - If
+        - Binary: ==
+          - Identifier: $char_type
+          - PropertyAccess (.$whitespace)
+            - Identifier: TokenType
+        Then
+          - While
+              - Binary: ==
+                - Call
+                  - PropertyAccess (.getTokenType)
+                    - Identifier: $this
+                - PropertyAccess (.$whitespace)
+                  - Identifier: TokenType
+            Body
+              - ExpressionStatement
+                - Unary (postfix): ++
+                  - PropertyAccess (.offset)
+                    - Identifier: $this
+        Else
+          - If
+            - Binary: ==
+              - Identifier: $char_type
+              - PropertyAccess (.$identifier)
+                - Identifier: TokenType
+            Then
+              - ExpressionStatement
+                - Binary: =
+                  - Identifier: $start_offset
+                  - PropertyAccess (.offset)
+                    - Identifier: $this
+              - While
+                  - Binary: ==
+                    - Call
+                      - PropertyAccess (.getTokenType)
+                        - Identifier: $this
+                    - PropertyAccess (.$identifier)
+                      - Identifier: TokenType
+                Body
+                  - ExpressionStatement
+                    - Unary (postfix): ++
+                      - PropertyAccess (.offset)
+                        - Identifier: $this
+              - ExpressionStatement
+                - Binary: =
+                  - Identifier: $identifier
+                  - Call
+                    - Identifier: substr
+                    - PropertyAccess (.text)
+                      - Identifier: $this
+                    - Identifier: $start_offset
+                    - Binary: -
+                      - PropertyAccess (.offset)
+                        - Identifier: $this
+                      - Identifier: $start_offset
+              - ExpressionStatement
+                - Call
+                  - PropertyAccess (.Add)
+                    - Identifier: $result
+                  - New Token
+            Else
+              - ExpressionStatement
+                - Binary: =
+                  - Identifier: $op
+                  - Literal (string): ""
+              - Foreach $curr_op: undefined
+                Items
+                  - PropertyAccess (.operators)
+                    - Identifier: $this
+                Body
+                  - If
+                    - Call
+                      - PropertyAccess (.startsWithAtIndex)
+                        - Identifier: StringHelper
+                      - PropertyAccess (.text)
+                        - Identifier: $this
+                      - Identifier: $curr_op
+                      - PropertyAccess (.offset)
+                        - Identifier: $this
+                    Then
+                      - ExpressionStatement
+                        - Binary: =
+                          - Identifier: $op
+                          - Identifier: $curr_op
+                      - Break
+              - Comment: "\n"
+              - If
+                - Binary: ==
+                  - Identifier: $op
+                  - Literal (string): ""
+                Then
+                  - Break
+              - Comment: "\n"
+              - ExpressionStatement
+                - Binary: +=
+                  - PropertyAccess (.offset)
+                    - Identifier: $this
+                  - Call
+                    - Identifier: strlen
+                    - Identifier: $op
+              - ExpressionStatement
+                - Call
+                  - PropertyAccess (.Add)
+                    - Identifier: $result
+                  - New Token
+  - Comment: "\n"
+  - Return
+    - Identifier: $result
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $operators
+      - ArrayLiteral
+        - Literal (string): "<<"
+        - Literal (string): ">>"
+        - Literal (string): "++"
+        - Literal (string): "--"
+        - Literal (string): "=="
+        - Literal (string): "!="
+        - Literal (string): "!"
+        - Literal (string): "<"
+        - Literal (string): ">"
+        - Literal (string): "="
+        - Literal (string): "("
+        - Literal (string): ")"
+        - Literal (string): "["
+        - Literal (string): "]"
+        - Literal (string): "{"
+        - Literal (string): "}"
+        - Literal (string): ";"
+        - Literal (string): "+"
+        - Literal (string): "-"
+        - Literal (string): "*"
+        - Literal (string): "/"
+        - Literal (string): "&&"
+        - Literal (string): "&"
+        - Literal (string): "%"
+        - Literal (string): "||"
+        - Literal (string): "|"
+        - Literal (string): "^"
+        - Literal (string): ","
+        - Literal (string): "."
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $input
+      - Literal (string): "hello * 5"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $tokenizer
+      - New Tokenizer
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $result
+      - Call
+        - PropertyAccess (.tokenize)
+          - Identifier: $tokenizer
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Literal (string): "token count:"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Call
+          - Identifier: count
+          - Identifier: $result
+  - Foreach $item: undefined
+    Items
+      - Identifier: $result
+    Body
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Parenthesized
+            - Binary: .
+              - Binary: .
+                - Binary: .
+                  - PropertyAccess (.value)
+                    - Identifier: $item
+                  - Literal (string): "("
+                - Parenthesized
+                  - Conditional
+                    - PropertyAccess (.is_operator)
+                      - Identifier: $item
+                    - Literal (string): "op"
+                    - Parenthesized
+                      - Literal (string): "id"
+              - Literal (string): ")"
+

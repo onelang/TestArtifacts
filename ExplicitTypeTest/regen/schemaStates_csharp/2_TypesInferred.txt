@@ -1,0 +1,9 @@
+TestClass::TestMethod(): void
+  - Variable: op [null]
+    - Literal (null): "null" [null]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - PropertyAccess (.Length) [any]
+        - LocalVar: op [null]
+

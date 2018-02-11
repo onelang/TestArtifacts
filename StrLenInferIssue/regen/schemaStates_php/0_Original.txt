@@ -1,0 +1,6 @@
+StrLenInferIssue::test($str: ???): any
+  - Return
+    - Call
+      - Identifier: strlen
+      - Identifier: $str
+

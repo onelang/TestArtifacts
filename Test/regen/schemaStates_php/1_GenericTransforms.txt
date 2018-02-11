@@ -1,0 +1,320 @@
+TestClass::mapTest(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $map_obj
+      - MapLiteral
+        - Variable: x
+          - Literal (numeric): "5"
+        - Variable: y
+          - Literal (numeric): "3"
+  - Comment: "\n//let containsX = "x" in mapObj;\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.set)
+        - Identifier: $map_obj
+      - Literal (string): "z"
+      - Literal (numeric): "9"
+  - Unset
+    - Call
+      - PropertyAccess (.get)
+        - Identifier: $map_obj
+      - Literal (string): "x"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $keys_var
+      - Call
+        - Identifier: array_keys
+        - Identifier: $map_obj
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $values_var
+      - Call
+        - Identifier: array_values
+        - Identifier: $map_obj
+  - Return
+    - Call
+      - PropertyAccess (.get)
+        - Identifier: $map_obj
+      - Literal (string): "z"
+
+TestClass::explicitTypeTest(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $op
+      - Literal (string): ""
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Call
+          - Identifier: strlen
+          - Identifier: $op
+
+TestClass::ifTest($x: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $result
+      - Literal (string): "<unk>"
+  - Comment: "\n"
+  - If
+    - Binary: >
+      - Identifier: $x
+      - Literal (numeric): "3"
+    Then
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $result
+          - Literal (string): "hello"
+    Else
+      - If
+        - Binary: <
+          - Identifier: $x
+          - Literal (numeric): "1"
+        Then
+          - ExpressionStatement
+            - Binary: =
+              - Identifier: $result
+              - Literal (string): "bello"
+        Else
+          - If
+            - Binary: <
+              - Identifier: $x
+              - Literal (numeric): "0"
+            Then
+              - ExpressionStatement
+                - Binary: =
+                  - Identifier: $result
+                  - Literal (string): "bello2"
+            Else
+              - ExpressionStatement
+                - Binary: =
+                  - Identifier: $result
+                  - Literal (string): "???"
+  - Comment: "\n"
+  - If
+    - Binary: >
+      - Identifier: $x
+      - Literal (numeric): "3"
+    Then
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $result
+          - Literal (string): "z"
+  - Comment: "\n"
+  - If
+    - Binary: >
+      - Identifier: $x
+      - Literal (numeric): "3"
+    Then
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $result
+          - Literal (string): "x"
+    Else
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $result
+          - Literal (string): "y"
+  - Comment: "\n"
+  - Return
+    - Identifier: $result
+
+TestClass::arrayTest(): any
+  - Comment: "//const c2 = new Class2();\n\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $mutable_arr
+      - ArrayLiteral
+        - Literal (numeric): "1"
+        - Literal (numeric): "2"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.Add)
+        - Identifier: $mutable_arr
+      - Literal (numeric): "3"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.Add)
+        - Identifier: $mutable_arr
+      - Literal (numeric): "4"
+  - Comment: "// mutableArr.push(c2.property);\n// mutableArr.push(c2.child.property);\n// mutableArr.push(c2.child.child.property);\n\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $constant_arr
+      - ArrayLiteral
+        - Literal (numeric): "5"
+        - Literal (numeric): "6"
+  - Comment: "\n// some comment\n//   some comment line 2\n"
+  - Foreach $item: undefined
+    Items
+      - Identifier: $mutable_arr
+    Body
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Parenthesized
+            - Identifier: $item
+  - Comment: "\n/* some other comment\n   multiline and stuff\n*/\n"
+  - For ("$i")
+    Var
+    - Variable: $i
+      - Literal (numeric): "0"
+    Condition
+      - Binary: <
+        - Identifier: $i
+        - Call
+          - Identifier: count
+          - Identifier: $constant_arr
+    Incrementor
+      - Unary (postfix): ++
+        - Identifier: $i
+    Body
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Parenthesized
+            - Call
+              - PropertyAccess (.get)
+                - Identifier: $constant_arr
+              - Identifier: $i
+
+TestClass::calc(): any
+  - Return
+    - Binary: *
+      - Parenthesized
+        - Binary: +
+          - Literal (numeric): "1"
+          - Literal (numeric): "2"
+      - Literal (numeric): "3"
+
+TestClass::methodWithArgs($arg1: ???, $arg2: ???, $arg3: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $stuff
+      - Binary: +
+        - Binary: +
+          - Identifier: $arg1
+          - Identifier: $arg2
+        - Binary: *
+          - Identifier: $arg3
+          - Call
+            - PropertyAccess (.calc)
+              - Identifier: $this
+  - Return
+    - Identifier: $stuff
+
+TestClass::stringTest(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $x
+      - Literal (string): "x"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $y
+      - Literal (string): "y"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $z
+      - Literal (string): "z"
+  - ExpressionStatement
+    - Binary: .=
+      - Identifier: $z
+      - Literal (string): "Z"
+  - ExpressionStatement
+    - Binary: .=
+      - Identifier: $z
+      - Identifier: $x
+  - Comment: "\n"
+  - Return
+    - Binary: .
+      - Binary: .
+        - Binary: .
+          - Identifier: $z
+          - Literal (string): "|"
+        - Identifier: $x
+      - Identifier: $y
+
+TestClass::reverseString($str: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $result
+      - Literal (string): ""
+  - For ("$i")
+    Var
+    - Variable: $i
+      - Binary: -
+        - Call
+          - Identifier: strlen
+          - Identifier: $str
+        - Literal (numeric): "1"
+    Condition
+      - Binary: >=
+        - Identifier: $i
+        - Literal (numeric): "0"
+    Incrementor
+      - Unary (postfix): --
+        - Identifier: $i
+    Body
+      - ExpressionStatement
+        - Binary: .=
+          - Identifier: $result
+          - Call
+            - PropertyAccess (.get)
+              - Identifier: $str
+            - Identifier: $i
+  - Return
+    - Identifier: $result
+
+TestClass::getBoolResult($value: ???): any
+  - Return
+    - Identifier: $value
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.arrayTest)
+        - Identifier: $this
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Call
+          - PropertyAccess (.mapTest)
+            - Identifier: $this
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Call
+          - PropertyAccess (.stringTest)
+            - Identifier: $this
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Call
+          - PropertyAccess (.reverseString)
+            - Identifier: $this
+          - Literal (string): "print value"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Conditional
+          - Call
+            - PropertyAccess (.getBoolResult)
+              - Identifier: $this
+            - Literal (boolean): true
+          - Literal (string): "true"
+          - Parenthesized
+            - Literal (string): "false"
+

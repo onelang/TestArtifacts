@@ -1,0 +1,8 @@
+main()
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Literal (string): "Hello world!"

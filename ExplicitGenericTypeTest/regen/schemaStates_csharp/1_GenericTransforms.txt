@@ -1,0 +1,23 @@
+TestClass::TestMethod(): void
+  - Variable: result
+    - ArrayLiteral
+  - Variable: map
+    - MapLiteral
+      - Variable: x
+        - Literal (numeric): "5"
+  - Variable: keys
+    - Call
+      - PropertyAccess (.ToArray)
+        - PropertyAccess (.Keys)
+          - Identifier: map
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - Identifier: result
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - Identifier: keys
+

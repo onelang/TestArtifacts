@@ -1,0 +1,332 @@
+XorByte::$xor_value: null
+
+XorByte::__construct($xor_value: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.xor_value)
+        - Identifier: $this
+      - Identifier: $xor_value
+
+XorByte::decode($src: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $dest
+      - ArrayLiteral
+  - Comment: "\n"
+  - For ("$i")
+    Var
+    - Variable: $i
+      - Literal (numeric): "0"
+    Condition
+      - Binary: <
+        - Identifier: $i
+        - Call
+          - Identifier: count
+          - Identifier: $src
+    Incrementor
+      - Unary (postfix): ++
+        - Identifier: $i
+    Body
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.Add)
+            - Identifier: $dest
+          - Binary: ^
+            - ElementAccess
+              - Identifier: $src
+              - Identifier: $i
+            - PropertyAccess (.xor_value)
+              - Identifier: $this
+  - Comment: "\n"
+  - Return
+    - Identifier: $dest
+
+Base64::decode($src: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $dest
+      - ArrayLiteral
+  - Comment: "\n// 4 base64 chars => 3 bytes\n"
+  - For ("$i")
+    Var
+    - Variable: $i
+      - Literal (numeric): "0"
+    Condition
+      - Binary: <
+        - Identifier: $i
+        - Call
+          - Identifier: count
+          - Identifier: $src
+    Incrementor
+      - Binary: +=
+        - Identifier: $i
+        - Literal (numeric): "4"
+    Body
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $ch0
+          - Call
+            - PropertyAccess (.decodeChar)
+              - Identifier: $this
+            - ElementAccess
+              - Identifier: $src
+              - Identifier: $i
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $ch1
+          - Call
+            - PropertyAccess (.decodeChar)
+              - Identifier: $this
+            - ElementAccess
+              - Identifier: $src
+              - Binary: +
+                - Identifier: $i
+                - Literal (numeric): "1"
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $ch2
+          - Call
+            - PropertyAccess (.decodeChar)
+              - Identifier: $this
+            - ElementAccess
+              - Identifier: $src
+              - Binary: +
+                - Identifier: $i
+                - Literal (numeric): "2"
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $ch3
+          - Call
+            - PropertyAccess (.decodeChar)
+              - Identifier: $this
+            - ElementAccess
+              - Identifier: $src
+              - Binary: +
+                - Identifier: $i
+                - Literal (numeric): "3"
+      - Comment: "\n"
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $trinity
+          - Binary: +
+            - Binary: +
+              - Binary: +
+                - Parenthesized
+                  - Binary: <<
+                    - Identifier: $ch0
+                    - Literal (numeric): "18"
+                - Parenthesized
+                  - Binary: <<
+                    - Identifier: $ch1
+                    - Literal (numeric): "12"
+              - Parenthesized
+                - Binary: <<
+                  - Identifier: $ch2
+                  - Literal (numeric): "6"
+            - Parenthesized
+              - Identifier: $ch3
+      - Comment: "\n"
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.Add)
+            - Identifier: $dest
+          - Binary: >>
+            - Identifier: $trinity
+            - Literal (numeric): "16"
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.Add)
+            - Identifier: $dest
+          - Binary: &
+            - Parenthesized
+              - Binary: >>
+                - Identifier: $trinity
+                - Literal (numeric): "8"
+            - Literal (numeric): "0xff"
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.Add)
+            - Identifier: $dest
+          - Binary: &
+            - Identifier: $trinity
+            - Literal (numeric): "0xff"
+  - Comment: "\n"
+  - Return
+    - Identifier: $dest
+
+Base64::decodeChar($ch: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $value
+      - Unary (prefix): -
+        - Literal (numeric): "1"
+  - If
+    - Binary: &&
+      - Binary: >=
+        - Identifier: $ch
+        - Literal (numeric): "65"
+      - Binary: <=
+        - Identifier: $ch
+        - Literal (numeric): "90"
+    Then
+      - Comment: "// `A-Z` => 0..25\n"
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: $value
+          - Binary: -
+            - Identifier: $ch
+            - Literal (numeric): "65"
+    Else
+      - If
+        - Binary: &&
+          - Binary: >=
+            - Identifier: $ch
+            - Literal (numeric): "97"
+          - Binary: <=
+            - Identifier: $ch
+            - Literal (numeric): "122"
+        Then
+          - Comment: "// `a-z` => 26..51\n"
+          - ExpressionStatement
+            - Binary: =
+              - Identifier: $value
+              - Binary: +
+                - Binary: -
+                  - Identifier: $ch
+                  - Literal (numeric): "97"
+                - Literal (numeric): "26"
+        Else
+          - If
+            - Binary: &&
+              - Binary: >=
+                - Identifier: $ch
+                - Literal (numeric): "48"
+              - Binary: <=
+                - Identifier: $ch
+                - Literal (numeric): "57"
+            Then
+              - Comment: "// `0-9` => 52..61\n"
+              - ExpressionStatement
+                - Binary: =
+                  - Identifier: $value
+                  - Binary: +
+                    - Binary: -
+                      - Identifier: $ch
+                      - Literal (numeric): "48"
+                    - Literal (numeric): "52"
+            Else
+              - If
+                - Binary: ||
+                  - Binary: ==
+                    - Identifier: $ch
+                    - Literal (numeric): "43"
+                  - Binary: ==
+                    - Identifier: $ch
+                    - Literal (numeric): "45"
+                Then
+                  - Comment: "// `+` or `-` => 62\n"
+                  - ExpressionStatement
+                    - Binary: =
+                      - Identifier: $value
+                      - Literal (numeric): "62"
+                Else
+                  - If
+                    - Binary: ||
+                      - Binary: ==
+                        - Identifier: $ch
+                        - Literal (numeric): "47"
+                      - Binary: ==
+                        - Identifier: $ch
+                        - Literal (numeric): "95"
+                    Then
+                      - Comment: "// `/` or `_` => 63\n"
+                      - ExpressionStatement
+                        - Binary: =
+                          - Identifier: $value
+                          - Literal (numeric): "63"
+                    Else
+                      - If
+                        - Binary: ==
+                          - Identifier: $ch
+                          - Literal (numeric): "61"
+                        Then
+                          - Comment: "// `=` => padding\n"
+                          - ExpressionStatement
+                            - Binary: =
+                              - Identifier: $value
+                              - Literal (numeric): "0"
+                        Else
+  - Return
+    - Identifier: $value
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $src1
+      - ArrayLiteral
+        - Literal (numeric): "4"
+        - Literal (numeric): "5"
+        - Literal (numeric): "6"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $decoder
+      - New XorByte
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $dst1
+      - Call
+        - PropertyAccess (.decode)
+          - Identifier: $decoder
+        - Identifier: $src1
+  - Foreach $x: undefined
+    Items
+      - Identifier: $dst1
+    Body
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Parenthesized
+            - Identifier: $x
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Literal (string): "|"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $src2
+      - ArrayLiteral
+        - Literal (numeric): "97"
+        - Literal (numeric): "71"
+        - Literal (numeric): "86"
+        - Literal (numeric): "115"
+        - Literal (numeric): "98"
+        - Literal (numeric): "71"
+        - Literal (numeric): "56"
+        - Literal (numeric): "61"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $decoder2
+      - New Base64
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $dst2
+      - Call
+        - PropertyAccess (.decode)
+          - Identifier: $decoder2
+        - Identifier: $src2
+  - Foreach $x: undefined
+    Items
+      - Identifier: $dst2
+    Body
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.print)
+            - Identifier: OneConsole
+          - Parenthesized
+            - Identifier: $x
+

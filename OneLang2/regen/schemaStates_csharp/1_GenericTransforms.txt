@@ -1,0 +1,451 @@
+enum TokenKind: Number, Identifier, Operator_, String_
+
+Token::Kind: TokenKind (enum)
+Token::Value: CsString
+
+Token::constructor
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.Kind)
+        - Identifier: this
+      - Identifier: kind
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.Value)
+        - Identifier: this
+      - Identifier: value
+
+ExprLangLexer::Offset: int
+- Variable: Offset [int]
+  - Literal (numeric): "0"
+
+ExprLangLexer::Tokens: List<Token>
+- Variable: Tokens [List<Token>]
+  - ArrayLiteral
+
+ExprLangLexer::Expression: CsString
+ExprLangLexer::Operators: List<CsString>
+
+ExprLangLexer::constructor
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.Expression)
+        - Identifier: this
+      - Identifier: expression
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.Operators)
+        - Identifier: this
+      - Identifier: operators
+  - If
+    - Unary (prefix): !
+      - Call
+        - PropertyAccess (.TryToReadNumber)
+          - Identifier: this
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.TryToReadOperator)
+            - Identifier: this
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.TryToReadLiteral)
+            - Identifier: this
+  - Comment: "\n"
+  - While
+      - Call
+        - PropertyAccess (.HasMoreToken)
+          - Identifier: this
+    Body
+      - If
+        - Unary (prefix): !
+          - Call
+            - PropertyAccess (.TryToReadOperator)
+              - Identifier: this
+        Then
+          - ExpressionStatement
+            - Call
+              - PropertyAccess (.Fail)
+                - Identifier: this
+              - Literal (string): "expected operator here"
+      - Comment: "\n"
+      - If
+        - Unary (prefix): !
+          - Call
+            - PropertyAccess (.TryToReadLiteral)
+              - Identifier: this
+        Then
+          - ExpressionStatement
+            - Call
+              - PropertyAccess (.Fail)
+                - Identifier: this
+              - Literal (string): "expected literal here"
+
+ExprLangLexer::Fail(message: CsString): void
+  - Variable: endOffset
+    - Binary: +
+      - PropertyAccess (.Offset)
+        - Identifier: this
+      - Literal (numeric): "30"
+  - If
+    - Binary: >
+      - Identifier: endOffset
+      - PropertyAccess (.Length)
+        - PropertyAccess (.Expression)
+          - Identifier: this
+    Then
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: endOffset
+          - PropertyAccess (.Length)
+            - PropertyAccess (.Expression)
+              - Identifier: this
+  - Variable: context
+    - Binary: +
+      - Call
+        - PropertyAccess (.Substring)
+          - PropertyAccess (.Expression)
+            - Identifier: this
+        - PropertyAccess (.Offset)
+          - Identifier: this
+        - Binary: -
+          - Identifier: endOffset
+          - PropertyAccess (.Offset)
+            - Identifier: this
+      - Literal (string): "..."
+  - Throw
+    - New Exception
+
+ExprLangLexer::HasMoreToken(): bool
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.SkipWhitespace)
+        - Identifier: this
+  - Return
+    - Unary (prefix): !
+      - Call
+        - PropertyAccess (.Eof)
+          - Identifier: this
+
+ExprLangLexer::Add(kind: TokenKind (enum), value: CsString): void
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.Add)
+        - PropertyAccess (.Tokens)
+          - Identifier: this
+      - New Token
+  - ExpressionStatement
+    - Binary: +=
+      - PropertyAccess (.Offset)
+        - Identifier: this
+      - PropertyAccess (.Length)
+        - Identifier: value
+
+ExprLangLexer::TryToMatch(pattern: CsString): CsString
+  - Variable: matches
+    - Call
+      - PropertyAccess (.MatchFromIndex)
+        - Identifier: OneRegex
+      - Identifier: pattern
+      - PropertyAccess (.Expression)
+        - Identifier: this
+      - PropertyAccess (.Offset)
+        - Identifier: this
+  - Return
+    - Conditional
+      - Binary: ==
+        - Identifier: matches
+        - Literal (null): "null"
+      - Literal (string): ""
+      - Call
+        - PropertyAccess (.get)
+          - Identifier: matches
+        - Literal (numeric): "0"
+
+ExprLangLexer::TryToReadOperator(): bool
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.SkipWhitespace)
+        - Identifier: this
+  - Foreach op: undefined
+    Items
+      - PropertyAccess (.Operators)
+        - Identifier: this
+    Body
+      - If
+        - Binary: ==
+          - Call
+            - PropertyAccess (.Compare)
+              - Identifier: String
+            - PropertyAccess (.Expression)
+              - Identifier: this
+            - PropertyAccess (.Offset)
+              - Identifier: this
+            - Identifier: op
+            - Literal (numeric): "0"
+            - PropertyAccess (.Length)
+              - Parenthesized
+                - Identifier: op
+          - Literal (numeric): "0"
+        Then
+          - ExpressionStatement
+            - Call
+              - PropertyAccess (.Add)
+                - Identifier: this
+              - PropertyAccess (.Operator_)
+                - Identifier: TokenKind
+              - Identifier: op
+          - Return
+            - Literal (boolean): true
+  - Return
+    - Literal (boolean): false
+
+ExprLangLexer::TryToReadNumber(): bool
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.SkipWhitespace)
+        - Identifier: this
+  - Comment: "\n"
+  - Variable: number
+    - Call
+      - PropertyAccess (.TryToMatch)
+        - Identifier: this
+      - Literal (string): "[+-]?(\\d*\\.\\d+|\\d+\\.\\d+|0x[0-9a-fA-F_]+|0b[01_]+|[0-9_]+)"
+  - If
+    - Binary: ==
+      - Identifier: number
+      - Literal (string): ""
+    Then
+      - Return
+        - Literal (boolean): false
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.Add)
+        - Identifier: this
+      - PropertyAccess (.Number)
+        - Identifier: TokenKind
+      - Identifier: number
+  - Comment: "\n"
+  - If
+    - Binary: !=
+      - Call
+        - PropertyAccess (.TryToMatch)
+          - Identifier: this
+        - Literal (string): "[0-9a-zA-Z]"
+      - Literal (string): ""
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.Fail)
+            - Identifier: this
+          - Literal (string): "invalid character in number"
+  - Comment: "\n"
+  - Return
+    - Literal (boolean): true
+
+ExprLangLexer::TryToReadIdentifier(): bool
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.SkipWhitespace)
+        - Identifier: this
+  - Variable: identifier
+    - Call
+      - PropertyAccess (.TryToMatch)
+        - Identifier: this
+      - Literal (string): "[a-zA-Z_][a-zA-Z0-9_]*"
+  - If
+    - Binary: ==
+      - Identifier: identifier
+      - Literal (string): ""
+    Then
+      - Return
+        - Literal (boolean): false
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.Add)
+        - Identifier: this
+      - PropertyAccess (.Identifier)
+        - Identifier: TokenKind
+      - Identifier: identifier
+  - Return
+    - Literal (boolean): true
+
+ExprLangLexer::TryToReadString(): bool
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.SkipWhitespace)
+        - Identifier: this
+  - Comment: "\n"
+  - Variable: match
+    - Call
+      - PropertyAccess (.TryToMatch)
+        - Identifier: this
+      - Literal (string): "'(\\\\'|[^'])*'"
+  - If
+    - Binary: ==
+      - Identifier: match
+      - Literal (string): ""
+    Then
+      - ExpressionStatement
+        - Binary: =
+          - Identifier: match
+          - Call
+            - PropertyAccess (.TryToMatch)
+              - Identifier: this
+            - Literal (string): "\"(\\\\\\\"|[^\\\"])*\\\""
+  - If
+    - Binary: ==
+      - Identifier: match
+      - Literal (string): ""
+    Then
+      - Return
+        - Literal (boolean): false
+  - Comment: "\n"
+  - Variable: str
+    - Call
+      - PropertyAccess (.Substring)
+        - Identifier: match
+      - Literal (numeric): "1"
+      - Binary: -
+        - Binary: -
+          - Binary: +
+            - Literal (numeric): "1"
+            - PropertyAccess (.Length)
+              - Identifier: match
+          - Literal (numeric): "2"
+        - Literal (numeric): "1"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: str
+      - Conditional
+        - Binary: ==
+          - Call
+            - PropertyAccess (.get)
+              - Identifier: match
+            - Literal (numeric): "0"
+          - Literal (string): "\\'"
+        - Call
+          - PropertyAccess (.Replace)
+            - Identifier: str
+          - Literal (string): "\\'"
+          - Literal (string): "'"
+        - Call
+          - PropertyAccess (.Replace)
+            - Identifier: str
+          - Literal (string): "\\\""
+          - Literal (string): "\""
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.Add)
+        - PropertyAccess (.Tokens)
+          - Identifier: this
+      - New Token
+  - ExpressionStatement
+    - Binary: +=
+      - PropertyAccess (.Offset)
+        - Identifier: this
+      - PropertyAccess (.Length)
+        - Identifier: match
+  - Return
+    - Literal (boolean): true
+
+ExprLangLexer::Eof(): bool
+  - Return
+    - Binary: >=
+      - PropertyAccess (.Offset)
+        - Identifier: this
+      - PropertyAccess (.Length)
+        - PropertyAccess (.Expression)
+          - Identifier: this
+
+ExprLangLexer::SkipWhitespace(): void
+  - While
+      - Unary (prefix): !
+        - Call
+          - PropertyAccess (.Eof)
+            - Identifier: this
+    Body
+      - Variable: c
+        - Call
+          - PropertyAccess (.get)
+            - PropertyAccess (.Expression)
+              - Identifier: this
+          - PropertyAccess (.Offset)
+            - Identifier: this
+      - If
+        - Binary: ||
+          - Binary: ||
+            - Binary: ||
+              - Binary: ==
+                - Identifier: c
+                - Literal (string): " "
+              - Binary: ==
+                - Identifier: c
+                - Literal (string): "\n"
+            - Binary: ==
+              - Identifier: c
+              - Literal (string): "\t"
+          - Binary: ==
+            - Identifier: c
+            - Literal (string): "\r"
+        Then
+          - ExpressionStatement
+            - Unary (postfix): ++
+              - PropertyAccess (.Offset)
+                - Identifier: this
+        Else
+          - Break
+
+ExprLangLexer::TryToReadLiteral(): bool
+  - Variable: success
+    - Binary: ||
+      - Binary: ||
+        - Call
+          - PropertyAccess (.TryToReadIdentifier)
+            - Identifier: this
+        - Call
+          - PropertyAccess (.TryToReadNumber)
+            - Identifier: this
+      - Call
+        - PropertyAccess (.TryToReadString)
+          - Identifier: this
+  - Return
+    - Identifier: success
+
+TestClass::TestMethod(): void
+  - Variable: lexer
+    - New ExprLangLexer
+  - Variable: result
+    - Literal (string): ""
+  - Foreach token: undefined
+    Items
+      - PropertyAccess (.Tokens)
+        - Identifier: lexer
+    Body
+      - If
+        - Binary: !=
+          - Identifier: result
+          - Literal (string): ""
+        Then
+          - ExpressionStatement
+            - Binary: +=
+              - Identifier: result
+              - Literal (string): ", "
+      - ExpressionStatement
+        - Binary: +=
+          - Identifier: result
+          - PropertyAccess (.Value)
+            - Identifier: token
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - PropertyAccess (.Count)
+          - PropertyAccess (.Tokens)
+            - Identifier: lexer
+        - Identifier: result
+

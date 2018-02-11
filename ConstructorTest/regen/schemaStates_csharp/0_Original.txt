@@ -1,0 +1,30 @@
+ConstructorTest::Field2: int
+ConstructorTest::Field1: int
+
+ConstructorTest::constructor
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.Field1)
+        - Identifier: this
+      - Identifier: field1
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.Field2)
+        - Identifier: this
+      - Binary: *
+        - Binary: *
+          - Identifier: field1
+          - PropertyAccess (.Field1)
+            - Identifier: this
+        - Literal (numeric): "5"
+
+TestClass::TestMethod(): void
+  - Variable: test
+    - New ConstructorTest
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - PropertyAccess (.Field2)
+        - Identifier: test
+

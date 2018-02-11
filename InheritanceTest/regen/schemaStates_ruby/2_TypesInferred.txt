@@ -1,0 +1,87 @@
+BasePrinter::num_value: null
+
+BasePrinter::initialize(): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - InstanceField (this): num_value [any]
+      - Literal (numeric): "42" [RubyNumber]
+
+BasePrinter::get_value(): any
+  - Return
+    - Literal (string): "Base" [RubyString]
+
+BasePrinter::print_it(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - Call [any]
+          - MethodReference (this) [BasePrinter::get_value]
+
+BasePrinter::some_base_func(): any
+  - Return
+    - InstanceField (this): num_value [any]
+
+ChildPrinter::get_value(): any
+  - Return
+    - Literal (string): "Child" [RubyString]
+
+TestClass::get_printer(name: ???): any
+  - Variable: result [any]
+    - Conditional [any]
+      - Binary: == [OneBoolean]
+        - MethodArgument: name [any]
+        - Literal (string): "child" [RubyString]
+      - Call [any]
+        - PropertyAccess (.new) [any]
+          - ClassReference [ChildPrinter]
+      - Call [any]
+        - PropertyAccess (.new) [any]
+          - ClassReference [BasePrinter]
+  - Return
+    - LocalVar: result [any]
+
+TestClass::test_method(): any
+  - Variable: base_printer [any]
+    - Call [any]
+      - MethodReference (this) [TestClass::get_printer]
+      - Literal (string): "base" [RubyString]
+  - Variable: child_printer [any]
+    - Call [any]
+      - MethodReference (this) [TestClass::get_printer]
+      - Literal (string): "child" [RubyString]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.print_it) [any]
+        - LocalVar: base_printer [any]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.print_it) [any]
+        - LocalVar: child_printer [any]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - Call [any]
+          - PropertyAccess (.some_base_func) [any]
+            - LocalVar: base_printer [any]
+        - Call [any]
+          - PropertyAccess (.some_base_func) [any]
+            - LocalVar: child_printer [any]
+  - Variable: base_p2 [any]
+    - Call [any]
+      - PropertyAccess (.new) [any]
+        - ClassReference [BasePrinter]
+  - Variable: child_p2 [any]
+    - Call [any]
+      - PropertyAccess (.new) [any]
+        - ClassReference [ChildPrinter]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - PropertyAccess (.num_value) [any]
+          - LocalVar: base_p2 [any]
+        - PropertyAccess (.num_value) [any]
+          - LocalVar: child_p2 [any]
+

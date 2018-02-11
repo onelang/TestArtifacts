@@ -1,0 +1,87 @@
+main()
+  - Variable: obj1
+    - Call
+      - PropertyAccess (.parse)
+        - Identifier: OneJson
+      - Literal (string): "{ \"a\":1, \"b\":2 }"
+  - If
+    - Unary (prefix): !
+      - Call
+        - PropertyAccess (.isObject)
+          - Identifier: obj1
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.raise)
+            - Identifier: OneError
+          - Literal (string): "expected to be object!"
+  - Variable: obj1Props
+    - Call
+      - PropertyAccess (.getProperties)
+        - Call
+          - PropertyAccess (.asObject)
+            - Identifier: obj1
+  - If
+    - Binary: !=
+      - PropertyAccess (.length)
+        - Identifier: obj1Props
+      - Literal (numeric): "2"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.raise)
+            - Identifier: OneError
+          - Literal (string): "expected 2 properties"
+  - If
+    - Binary: !=
+      - Call
+        - PropertyAccess (.getName)
+          - Call
+            - PropertyAccess (.get)
+              - Identifier: obj1Props
+            - Literal (numeric): "0"
+      - Literal (string): "a"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.raise)
+            - Identifier: OneError
+          - Literal (string): "expected first property to be named 'a'"
+  - Variable: obj1Prop0Value
+    - Call
+      - PropertyAccess (.getValue)
+        - Call
+          - PropertyAccess (.get)
+            - Identifier: obj1Props
+          - Literal (numeric): "0"
+      - Identifier: obj1
+  - If
+    - Binary: ||
+      - Unary (prefix): !
+        - Call
+          - PropertyAccess (.isNumber)
+            - Identifier: obj1Prop0Value
+      - Binary: !=
+        - Call
+          - PropertyAccess (.asNumber)
+            - Identifier: obj1Prop0Value
+        - Literal (numeric): "1"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.raise)
+            - Identifier: OneError
+          - Literal (string): "expected 'a' to be 1 (number)"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - TemplateString
+        - Call
+          - PropertyAccess (.asNumber)
+            - Call
+              - PropertyAccess (.get)
+                - Call
+                  - PropertyAccess (.asObject)
+                    - Identifier: obj1
+              - Literal (string): "b"

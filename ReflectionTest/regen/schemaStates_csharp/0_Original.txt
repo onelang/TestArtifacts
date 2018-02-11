@@ -1,0 +1,204 @@
+TargetClass::InstanceField: int
+- Variable: InstanceField [int]
+  - Literal (numeric): "5"
+
+TargetClass::StaticField: CsString
+- Variable: StaticField [CsString]
+  - Literal (string): "hello"
+
+TargetClass::constructor
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.Publish)
+        - Identifier: OneReflect
+      - Call
+        - Identifier: typeof
+        - Identifier: TargetClass
+
+TargetClass::StaticMethod(arg1: CsString): CsString [static]
+  - Return
+    - TemplateString
+      - Identifier: arg1
+      - PropertyAccess (.StaticField)
+        - Identifier: TargetClass
+
+TargetClass::InstanceMethod(): CsString
+  - Return
+    - TemplateString
+      - PropertyAccess (.InstanceField)
+        - Identifier: this
+
+TestClass::TestMethod(): void
+  - Variable: obj
+    - New TargetClass
+  - Comment: "//console.log(`instanceMethod (direct): ${obj.instanceMethod()}`);\n//console.log(`staticMethod (direct): ${TargetClass.staticMethod("arg1value")}`);\n//console.log(`instanceField (direct): ${obj.instanceField}`);\n//console.log(`staticField (direct): ${TargetClass.staticField}`);\n"
+  - Variable: cls
+    - Call
+      - PropertyAccess (.GetClass)
+        - Identifier: OneReflect
+      - Identifier: obj
+  - If
+    - Binary: ==
+      - Identifier: cls
+      - Literal (null): "null"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.WriteLine)
+            - Identifier: Console
+          - Literal (string): "cls is null!"
+      - Return
+  - Variable: cls2
+    - Call
+      - PropertyAccess (.GetClassByName)
+        - Identifier: OneReflect
+      - Literal (string): "TargetClass"
+  - If
+    - Binary: ==
+      - Identifier: cls2
+      - Literal (null): "null"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.WriteLine)
+            - Identifier: Console
+          - Literal (string): "cls2 is null!"
+      - Return
+  - Comment: "\n"
+  - Variable: method1
+    - Call
+      - PropertyAccess (.GetMethod)
+        - Identifier: cls
+      - Literal (string): "instanceMethod"
+  - If
+    - Binary: ==
+      - Identifier: method1
+      - Literal (null): "null"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.WriteLine)
+            - Identifier: Console
+          - Literal (string): "method1 is null!"
+      - Return
+  - Variable: method1Result
+    - Call
+      - PropertyAccess (.Call)
+        - Identifier: method1
+      - Identifier: obj
+      - Call
+        - PropertyAccess (.ToArray)
+          - Parenthesized
+            - ArrayLiteral
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - Identifier: method1Result
+  - Comment: "\n"
+  - Variable: method2
+    - Call
+      - PropertyAccess (.GetMethod)
+        - Identifier: cls
+      - Literal (string): "staticMethod"
+  - If
+    - Binary: ==
+      - Identifier: method2
+      - Literal (null): "null"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.WriteLine)
+            - Identifier: Console
+          - Literal (string): "method2 is null!"
+      - Return
+  - Variable: method2Result
+    - Call
+      - PropertyAccess (.Call)
+        - Identifier: method2
+      - Literal (null): "null"
+      - Call
+        - PropertyAccess (.ToArray)
+          - Parenthesized
+            - ArrayLiteral
+              - Literal (string): "arg1value"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - Identifier: method2Result
+  - Comment: "\n"
+  - Variable: field1
+    - Call
+      - PropertyAccess (.GetField)
+        - Identifier: cls
+      - Literal (string): "instanceField"
+  - If
+    - Binary: ==
+      - Identifier: field1
+      - Literal (null): "null"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.WriteLine)
+            - Identifier: Console
+          - Literal (string): "field1 is null!"
+      - Return
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.SetValue)
+        - Identifier: field1
+      - Identifier: obj
+      - Literal (numeric): "6"
+  - Variable: field1NewVal
+    - Call
+      - PropertyAccess (.GetValue)
+        - Identifier: field1
+      - Identifier: obj
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - PropertyAccess (.InstanceField)
+          - Identifier: obj
+        - Identifier: field1NewVal
+  - Comment: "\n"
+  - Variable: field2
+    - Call
+      - PropertyAccess (.GetField)
+        - Identifier: cls
+      - Literal (string): "staticField"
+  - If
+    - Binary: ==
+      - Identifier: field2
+      - Literal (null): "null"
+    Then
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.WriteLine)
+            - Identifier: Console
+          - Literal (string): "field2 is null!"
+      - Return
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.SetValue)
+        - Identifier: field2
+      - Literal (null): "null"
+      - Literal (string): "bello"
+  - Variable: field2NewVal
+    - Call
+      - PropertyAccess (.GetValue)
+        - Identifier: field2
+      - Literal (null): "null"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - PropertyAccess (.StaticField)
+          - Identifier: TargetClass
+        - Identifier: field2NewVal
+

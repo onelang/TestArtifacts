@@ -1,0 +1,64 @@
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $a
+      - Literal (boolean): true
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $b
+      - Literal (boolean): false
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $c
+      - Binary: &&
+        - Identifier: $a
+        - Identifier: $b
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $d
+      - Binary: ||
+        - Identifier: $a
+        - Identifier: $b
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Binary: .
+                  - Binary: .
+                    - Binary: .
+                      - Binary: .
+                        - Literal (string): "a: "
+                        - Parenthesized
+                          - Conditional
+                            - Parenthesized
+                              - Identifier: $a
+                            - Literal (string): "true"
+                            - Literal (string): "false"
+                      - Literal (string): ", b: "
+                    - Parenthesized
+                      - Conditional
+                        - Parenthesized
+                          - Identifier: $b
+                        - Literal (string): "true"
+                        - Literal (string): "false"
+                  - Literal (string): ", c: "
+                - Parenthesized
+                  - Conditional
+                    - Parenthesized
+                      - Identifier: $c
+                    - Literal (string): "true"
+                    - Literal (string): "false"
+              - Literal (string): ", d: "
+            - Parenthesized
+              - Conditional
+                - Parenthesized
+                  - Identifier: $d
+                - Literal (string): "true"
+                - Literal (string): "false"
+          - Literal (string): ""
+

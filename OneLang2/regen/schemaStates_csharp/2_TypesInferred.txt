@@ -1,0 +1,396 @@
+enum TokenKind: Number, Identifier, Operator_, String_
+
+Token::Kind: TokenKind (enum)
+Token::Value: CsString
+
+Token::constructor
+  - ExpressionStatement
+    - Binary: = [TokenKind (enum)]
+      - InstanceField (this): Kind [TokenKind (enum)]
+      - MethodArgument: kind [TokenKind (enum)]
+  - ExpressionStatement
+    - Binary: = [CsString]
+      - InstanceField (this): Value [CsString]
+      - MethodArgument: value [CsString]
+
+ExprLangLexer::Offset: int
+- Variable: Offset [int]
+  - Literal (numeric): "0" [CsNumber]
+
+ExprLangLexer::Tokens: List<Token>
+- Variable: Tokens [List<Token>]
+  - ArrayLiteral [CsArray<any>]
+
+ExprLangLexer::Expression: CsString
+ExprLangLexer::Operators: List<CsString>
+
+ExprLangLexer::constructor
+  - ExpressionStatement
+    - Binary: = [CsString]
+      - InstanceField (this): Expression [CsString]
+      - MethodArgument: expression [CsString]
+  - ExpressionStatement
+    - Binary: = [List<CsString>]
+      - InstanceField (this): Operators [List<CsString>]
+      - MethodArgument: operators [List<CsString>]
+  - If
+    - Unary (prefix): ! [any]
+      - Call [bool]
+        - MethodReference (this) [ExprLangLexer::TryToReadNumber]
+    Then
+      - ExpressionStatement
+        - Call [bool]
+          - MethodReference (this) [ExprLangLexer::TryToReadOperator]
+      - ExpressionStatement
+        - Call [bool]
+          - MethodReference (this) [ExprLangLexer::TryToReadLiteral]
+  - Comment: "\n"
+  - While
+      - Call [bool]
+        - MethodReference (this) [ExprLangLexer::HasMoreToken]
+    Body
+      - If
+        - Unary (prefix): ! [any]
+          - Call [bool]
+            - MethodReference (this) [ExprLangLexer::TryToReadOperator]
+        Then
+          - ExpressionStatement
+            - Call [void]
+              - MethodReference (this) [ExprLangLexer::Fail]
+              - Literal (string): "expected operator here" [CsString]
+      - Comment: "\n"
+      - If
+        - Unary (prefix): ! [any]
+          - Call [bool]
+            - MethodReference (this) [ExprLangLexer::TryToReadLiteral]
+        Then
+          - ExpressionStatement
+            - Call [void]
+              - MethodReference (this) [ExprLangLexer::Fail]
+              - Literal (string): "expected literal here" [CsString]
+
+ExprLangLexer::Fail(message: CsString): void
+  - Variable: endOffset [int]
+    - Binary: + [int]
+      - InstanceField (this): Offset [int]
+      - Literal (numeric): "30" [CsNumber]
+  - If
+    - Binary: > [int]
+      - LocalVar: endOffset [int]
+      - InstanceField: Length [OneNumber]
+        - InstanceField (this): Expression [CsString]
+    Then
+      - ExpressionStatement
+        - Binary: = [int]
+          - LocalVar: endOffset [int]
+          - InstanceField: Length [OneNumber]
+            - InstanceField (this): Expression [CsString]
+  - Variable: context [OneString]
+    - Binary: + [OneString]
+      - Call [OneString]
+        - MethodReference [CsString::Substring]
+          - InstanceField (this): Expression [CsString]
+        - InstanceField (this): Offset [int]
+        - Binary: - [int]
+          - LocalVar: endOffset [int]
+          - InstanceField (this): Offset [int]
+      - Literal (string): "..." [CsString]
+  - Throw
+    - New Exception [any]
+
+ExprLangLexer::HasMoreToken(): bool
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (this) [ExprLangLexer::SkipWhitespace]
+  - Return
+    - Unary (prefix): ! [any]
+      - Call [bool]
+        - MethodReference (this) [ExprLangLexer::Eof]
+
+ExprLangLexer::Add(kind: TokenKind (enum), value: CsString): void
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [List<Token>::Add]
+        - InstanceField (this): Tokens [List<Token>]
+      - New Token [Token]
+  - ExpressionStatement
+    - Binary: += [int]
+      - InstanceField (this): Offset [int]
+      - InstanceField: Length [OneNumber]
+        - MethodArgument: value [CsString]
+
+ExprLangLexer::TryToMatch(pattern: CsString): CsString
+  - Variable: matches [any]
+    - Call [any]
+      - PropertyAccess (.MatchFromIndex) [any]
+        - ClassReference [OneRegex]
+      - MethodArgument: pattern [CsString]
+      - InstanceField (this): Expression [CsString]
+      - InstanceField (this): Offset [int]
+  - Return
+    - Conditional [any]
+      - Binary: == [OneBoolean]
+        - LocalVar: matches [any]
+        - Literal (null): "null" [null]
+      - Literal (string): "" [CsString]
+      - Call [any]
+        - PropertyAccess (.get) [any]
+          - LocalVar: matches [any]
+        - Literal (numeric): "0" [CsNumber]
+
+ExprLangLexer::TryToReadOperator(): bool
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (this) [ExprLangLexer::SkipWhitespace]
+  - Foreach op: any
+    Items
+      - InstanceField (this): Operators [List<CsString>]
+    Body
+      - If
+        - Binary: == [OneBoolean]
+          - Call [any]
+            - PropertyAccess (.Compare) [any]
+              - ClassReference [String]
+            - InstanceField (this): Expression [CsString]
+            - InstanceField (this): Offset [int]
+            - LocalVar: op [any]
+            - Literal (numeric): "0" [CsNumber]
+            - PropertyAccess (.Length) [any]
+              - Parenthesized [any]
+                - LocalVar: op [any]
+          - Literal (numeric): "0" [CsNumber]
+        Then
+          - ExpressionStatement
+            - Call [void]
+              - MethodReference (this) [ExprLangLexer::Add]
+              - EnumMemberReference [TokenKind (enum)]
+              - LocalVar: op [any]
+          - Return
+            - Literal (boolean): true [CsBoolean]
+  - Return
+    - Literal (boolean): false [CsBoolean]
+
+ExprLangLexer::TryToReadNumber(): bool
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (this) [ExprLangLexer::SkipWhitespace]
+  - Comment: "\n"
+  - Variable: number [CsString]
+    - Call [CsString]
+      - MethodReference (this) [ExprLangLexer::TryToMatch]
+      - Literal (string): "[+-]?(\\d*\\.\\d+|\\d+\\.\\d+|0x[0-9a-fA-F_]+|0b[01_]+|[0-9_]+)" [CsString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: number [CsString]
+      - Literal (string): "" [CsString]
+    Then
+      - Return
+        - Literal (boolean): false [CsBoolean]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (this) [ExprLangLexer::Add]
+      - EnumMemberReference [TokenKind (enum)]
+      - LocalVar: number [CsString]
+  - Comment: "\n"
+  - If
+    - Binary: != [OneBoolean]
+      - Call [CsString]
+        - MethodReference (this) [ExprLangLexer::TryToMatch]
+        - Literal (string): "[0-9a-zA-Z]" [CsString]
+      - Literal (string): "" [CsString]
+    Then
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (this) [ExprLangLexer::Fail]
+          - Literal (string): "invalid character in number" [CsString]
+  - Comment: "\n"
+  - Return
+    - Literal (boolean): true [CsBoolean]
+
+ExprLangLexer::TryToReadIdentifier(): bool
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (this) [ExprLangLexer::SkipWhitespace]
+  - Variable: identifier [CsString]
+    - Call [CsString]
+      - MethodReference (this) [ExprLangLexer::TryToMatch]
+      - Literal (string): "[a-zA-Z_][a-zA-Z0-9_]*" [CsString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: identifier [CsString]
+      - Literal (string): "" [CsString]
+    Then
+      - Return
+        - Literal (boolean): false [CsBoolean]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (this) [ExprLangLexer::Add]
+      - EnumMemberReference [TokenKind (enum)]
+      - LocalVar: identifier [CsString]
+  - Return
+    - Literal (boolean): true [CsBoolean]
+
+ExprLangLexer::TryToReadString(): bool
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (this) [ExprLangLexer::SkipWhitespace]
+  - Comment: "\n"
+  - Variable: match [CsString]
+    - Call [CsString]
+      - MethodReference (this) [ExprLangLexer::TryToMatch]
+      - Literal (string): "'(\\\\'|[^'])*'" [CsString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: match [CsString]
+      - Literal (string): "" [CsString]
+    Then
+      - ExpressionStatement
+        - Binary: = [CsString]
+          - LocalVar: match [CsString]
+          - Call [CsString]
+            - MethodReference (this) [ExprLangLexer::TryToMatch]
+            - Literal (string): "\"(\\\\\\\"|[^\\\"])*\\\"" [CsString]
+  - If
+    - Binary: == [OneBoolean]
+      - LocalVar: match [CsString]
+      - Literal (string): "" [CsString]
+    Then
+      - Return
+        - Literal (boolean): false [CsBoolean]
+  - Comment: "\n"
+  - Variable: str [OneString]
+    - Call [OneString]
+      - MethodReference [CsString::Substring]
+        - LocalVar: match [CsString]
+      - Literal (numeric): "1" [CsNumber]
+      - Binary: - [CsNumber]
+        - Binary: - [CsNumber]
+          - Binary: + [CsNumber]
+            - Literal (numeric): "1" [CsNumber]
+            - InstanceField: Length [OneNumber]
+              - LocalVar: match [CsString]
+          - Literal (numeric): "2" [CsNumber]
+        - Literal (numeric): "1" [CsNumber]
+  - ExpressionStatement
+    - Binary: = [OneString]
+      - LocalVar: str [OneString]
+      - Conditional [any]
+        - Binary: == [OneBoolean]
+          - Call [OneCharacter]
+            - MethodReference [CsString::get]
+              - LocalVar: match [CsString]
+            - Literal (numeric): "0" [CsNumber]
+          - Literal (string): "\\'" [CsString]
+        - Call [any]
+          - PropertyAccess (.Replace) [any]
+            - LocalVar: str [OneString]
+          - Literal (string): "\\'" [CsString]
+          - Literal (string): "'" [CsString]
+        - Call [any]
+          - PropertyAccess (.Replace) [any]
+            - LocalVar: str [OneString]
+          - Literal (string): "\\\"" [CsString]
+          - Literal (string): "\"" [CsString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [List<Token>::Add]
+        - InstanceField (this): Tokens [List<Token>]
+      - New Token [Token]
+  - ExpressionStatement
+    - Binary: += [int]
+      - InstanceField (this): Offset [int]
+      - InstanceField: Length [OneNumber]
+        - LocalVar: match [CsString]
+  - Return
+    - Literal (boolean): true [CsBoolean]
+
+ExprLangLexer::Eof(): bool
+  - Return
+    - Binary: >= [OneBoolean]
+      - InstanceField (this): Offset [int]
+      - InstanceField: Length [OneNumber]
+        - InstanceField (this): Expression [CsString]
+
+ExprLangLexer::SkipWhitespace(): void
+  - While
+      - Unary (prefix): ! [any]
+        - Call [bool]
+          - MethodReference (this) [ExprLangLexer::Eof]
+    Body
+      - Variable: c [OneCharacter]
+        - Call [OneCharacter]
+          - MethodReference [CsString::get]
+            - InstanceField (this): Expression [CsString]
+          - InstanceField (this): Offset [int]
+      - If
+        - Binary: || [OneBoolean]
+          - Binary: || [OneBoolean]
+            - Binary: || [OneBoolean]
+              - Binary: == [OneBoolean]
+                - LocalVar: c [OneCharacter]
+                - Literal (string): " " [CsString]
+              - Binary: == [OneBoolean]
+                - LocalVar: c [OneCharacter]
+                - Literal (string): "\n" [CsString]
+            - Binary: == [OneBoolean]
+              - LocalVar: c [OneCharacter]
+              - Literal (string): "\t" [CsString]
+          - Binary: == [OneBoolean]
+            - LocalVar: c [OneCharacter]
+            - Literal (string): "\r" [CsString]
+        Then
+          - ExpressionStatement
+            - Unary (postfix): ++ [any]
+              - InstanceField (this): Offset [int]
+        Else
+          - Break
+
+ExprLangLexer::TryToReadLiteral(): bool
+  - Variable: success [bool]
+    - Binary: || [bool]
+      - Binary: || [bool]
+        - Call [bool]
+          - MethodReference (this) [ExprLangLexer::TryToReadIdentifier]
+        - Call [bool]
+          - MethodReference (this) [ExprLangLexer::TryToReadNumber]
+      - Call [bool]
+        - MethodReference (this) [ExprLangLexer::TryToReadString]
+  - Return
+    - LocalVar: success [bool]
+
+TestClass::TestMethod(): void
+  - Variable: lexer [ExprLangLexer]
+    - New ExprLangLexer [ExprLangLexer]
+  - Variable: result [CsString]
+    - Literal (string): "" [CsString]
+  - Foreach token: any
+    Items
+      - InstanceField: Tokens [List<Token>]
+        - LocalVar: lexer [ExprLangLexer]
+    Body
+      - If
+        - Binary: != [OneBoolean]
+          - LocalVar: result [CsString]
+          - Literal (string): "" [CsString]
+        Then
+          - ExpressionStatement
+            - Binary: += [CsString]
+              - LocalVar: result [CsString]
+              - Literal (string): ", " [CsString]
+      - ExpressionStatement
+        - Binary: += [CsString]
+          - LocalVar: result [CsString]
+          - PropertyAccess (.Value) [any]
+            - LocalVar: token [any]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - TemplateString [OneString]
+        - InstanceField: Count [OneNumber]
+          - InstanceField: Tokens [List<Token>]
+            - LocalVar: lexer [ExprLangLexer]
+        - LocalVar: result [CsString]
+

@@ -1,0 +1,39 @@
+MapX::$value: null
+
+MapX::set($key: ???, $value: ???): any
+  - ExpressionStatement
+    - Binary: = [any]
+      - PropertyAccess (.value) [any]
+        - Identifier: $this [any]
+      - MethodArgument: $value [any]
+
+MapX::get($key: ???): any
+  - Return
+    - PropertyAccess (.value) [any]
+      - Identifier: $this [any]
+
+TestClass::testMethod(): any
+  - Variable: $map_x [MapX]
+    - New MapX [MapX]
+  - ExpressionStatement
+    - Call [any]
+      - MethodReference [MapX::set]
+        - LocalVar: $map_x [MapX]
+      - Literal (string): "hello" [PhpString]
+      - Literal (numeric): "3" [PhpNumber]
+  - Variable: $num_value [any]
+    - Call [any]
+      - MethodReference [MapX::get]
+        - LocalVar: $map_x [MapX]
+      - Literal (string): "hello2" [PhpString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Literal (string): "" [PhpString]
+            - Parenthesized [any]
+              - LocalVar: $num_value [any]
+          - Literal (string): "" [PhpString]
+

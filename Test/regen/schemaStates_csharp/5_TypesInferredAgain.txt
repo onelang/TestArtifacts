@@ -1,0 +1,276 @@
+TestClass::MapTest(): int
+  - Variable: mapObj [OneMap<OneString, OneNumber>]
+    - MapLiteral [OneMap<OneString, OneNumber>]
+      - Variable: x [OneNumber]
+        - Literal (numeric): "5" [OneNumber]
+      - Variable: y [OneNumber]
+        - Literal (numeric): "3" [OneNumber]
+  - Comment: "\n//let containsX = "x" in mapObj;\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [OneMap<K, V>::set]
+        - LocalVar: mapObj [OneMap<OneString, OneNumber>]
+      - Literal (string): "z" [OneString]
+      - Literal (numeric): "9" [OneNumber]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [OneMap<K, V>::remove]
+        - LocalVar: mapObj [OneMap<OneString, OneNumber>]
+      - Literal (string): "x" [OneString]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.ToArray) [any]
+        - Call [OneArray<OneString>]
+          - MethodReference [OneMap<K, V>::keys]
+            - LocalVar: mapObj [OneMap<OneString, OneNumber>]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.ToArray) [any]
+        - Call [OneArray<OneNumber>]
+          - MethodReference [OneMap<K, V>::values]
+            - LocalVar: mapObj [OneMap<OneString, OneNumber>]
+  - Return
+    - Call [OneNumber]
+      - MethodReference [OneMap<K, V>::get]
+        - LocalVar: mapObj [OneMap<OneString, OneNumber>]
+      - Literal (string): "z" [OneString]
+
+TestClass::ExplicitTypeTest(): void
+  - Variable: op [OneString]
+    - Literal (string): "" [OneString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - InstanceField: length [OneNumber]
+        - LocalVar: op [OneString]
+
+TestClass::IfTest(x: int): OneString
+  - Variable: result [OneString]
+    - Literal (string): "<unk>" [OneString]
+  - Comment: "\n"
+  - If
+    - Binary: > [int]
+      - MethodArgument: x [int]
+      - Literal (numeric): "3" [OneNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [OneString]
+          - LocalVar: result [OneString]
+          - Literal (string): "hello" [OneString]
+    Else
+      - If
+        - Binary: < [int]
+          - MethodArgument: x [int]
+          - Literal (numeric): "1" [OneNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [OneString]
+              - LocalVar: result [OneString]
+              - Literal (string): "bello" [OneString]
+        Else
+          - If
+            - Binary: < [int]
+              - MethodArgument: x [int]
+              - Literal (numeric): "0" [OneNumber]
+            Then
+              - ExpressionStatement
+                - Binary: = [OneString]
+                  - LocalVar: result [OneString]
+                  - Literal (string): "bello2" [OneString]
+            Else
+              - ExpressionStatement
+                - Binary: = [OneString]
+                  - LocalVar: result [OneString]
+                  - Literal (string): "???" [OneString]
+  - Comment: "\n"
+  - If
+    - Binary: > [int]
+      - MethodArgument: x [int]
+      - Literal (numeric): "3" [OneNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [OneString]
+          - LocalVar: result [OneString]
+          - Literal (string): "z" [OneString]
+  - Comment: "\n"
+  - If
+    - Binary: > [int]
+      - MethodArgument: x [int]
+      - Literal (numeric): "3" [OneNumber]
+    Then
+      - ExpressionStatement
+        - Binary: = [OneString]
+          - LocalVar: result [OneString]
+          - Literal (string): "x" [OneString]
+    Else
+      - ExpressionStatement
+        - Binary: = [OneString]
+          - LocalVar: result [OneString]
+          - Literal (string): "y" [OneString]
+  - Comment: "\n"
+  - Return
+    - LocalVar: result [OneString]
+
+TestClass::ArrayTest(): void
+  - Comment: "//const c2 = new Class2();\n\n"
+  - Variable: mutableArr [OneArray<OneNumber>]
+    - ArrayLiteral [OneArray<OneNumber>]
+      - Literal (numeric): "1" [OneNumber]
+      - Literal (numeric): "2" [OneNumber]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [OneArray<T>::add]
+        - LocalVar: mutableArr [OneArray<OneNumber>]
+      - Literal (numeric): "3" [OneNumber]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [OneArray<T>::add]
+        - LocalVar: mutableArr [OneArray<OneNumber>]
+      - Literal (numeric): "4" [OneNumber]
+  - Comment: "// mutableArr.push(c2.property);\n// mutableArr.push(c2.child.property);\n// mutableArr.push(c2.child.child.property);\n\n"
+  - Variable: constantArr [OneArray<OneNumber>]
+    - ArrayLiteral [OneArray<OneNumber>]
+      - Literal (numeric): "5" [OneNumber]
+      - Literal (numeric): "6" [OneNumber]
+  - Comment: "\n// some comment\n//   some comment line 2\n"
+  - Foreach item: OneNumber
+    Items
+      - LocalVar: mutableArr [OneArray<OneNumber>]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - LocalVar: item [OneNumber]
+  - Comment: "\n/* some other comment\n   multiline and stuff\n*/\n"
+  - For ("i")
+    Var
+    - Variable: i [OneNumber]
+      - Literal (numeric): "0" [OneNumber]
+    Condition
+      - Binary: < [OneNumber]
+        - LocalVar: i [OneNumber]
+        - InstanceField: length [TsNumber]
+          - LocalVar: constantArr [OneArray<OneNumber>]
+    Incrementor
+      - Unary (postfix): ++ [OneNumber]
+        - LocalVar: i [OneNumber]
+    Body
+      - ExpressionStatement
+        - Call [void]
+          - MethodReference (static) [OneConsole::print]
+          - Call [OneNumber]
+            - MethodReference [OneArray<T>::get]
+              - LocalVar: constantArr [OneArray<OneNumber>]
+            - LocalVar: i [OneNumber]
+
+TestClass::Calc(): int
+  - Return
+    - Binary: * [OneNumber]
+      - Parenthesized [OneNumber]
+        - Binary: + [OneNumber]
+          - Literal (numeric): "1" [OneNumber]
+          - Literal (numeric): "2" [OneNumber]
+      - Literal (numeric): "3" [OneNumber]
+
+TestClass::MethodWithArgs(arg1: int, arg2: int, arg3: int): int
+  - Variable: stuff [int]
+    - Binary: + [int]
+      - Binary: + [int]
+        - MethodArgument: arg1 [int]
+        - MethodArgument: arg2 [int]
+      - Binary: * [int]
+        - MethodArgument: arg3 [int]
+        - Call [int]
+          - MethodReference (this) [TestClass::Calc]
+  - Return
+    - LocalVar: stuff [int]
+
+TestClass::StringTest(): OneString
+  - Variable: x [OneString]
+    - Literal (string): "x" [OneString]
+  - Variable: y [OneString]
+    - Literal (string): "y" [OneString]
+  - Comment: "\n"
+  - Variable: z [OneString]
+    - Literal (string): "z" [OneString]
+  - ExpressionStatement
+    - Binary: += [OneString]
+      - LocalVar: z [OneString]
+      - Literal (string): "Z" [OneString]
+  - ExpressionStatement
+    - Binary: += [OneString]
+      - LocalVar: z [OneString]
+      - LocalVar: x [OneString]
+  - Comment: "\n"
+  - Return
+    - Binary: + [OneString]
+      - Binary: + [OneString]
+        - Binary: + [OneString]
+          - LocalVar: z [OneString]
+          - Literal (string): "|" [OneString]
+        - LocalVar: x [OneString]
+      - LocalVar: y [OneString]
+
+TestClass::ReverseString(str: OneString): OneString
+  - Variable: result [OneString]
+    - Literal (string): "" [OneString]
+  - For ("i")
+    Var
+    - Variable: i [OneNumber]
+      - Binary: - [OneNumber]
+        - InstanceField: length [OneNumber]
+          - MethodArgument: str [OneString]
+        - Literal (numeric): "1" [OneNumber]
+    Condition
+      - Binary: >= [OneBoolean]
+        - LocalVar: i [OneNumber]
+        - Literal (numeric): "0" [OneNumber]
+    Incrementor
+      - Unary (postfix): -- [OneNumber]
+        - LocalVar: i [OneNumber]
+    Body
+      - ExpressionStatement
+        - Binary: += [OneString]
+          - LocalVar: result [OneString]
+          - Call [OneCharacter]
+            - MethodReference [OneString::get]
+              - MethodArgument: str [OneString]
+            - LocalVar: i [OneNumber]
+  - Return
+    - LocalVar: result [OneString]
+
+TestClass::GetBoolResult(value: bool): bool
+  - Return
+    - MethodArgument: value [bool]
+
+TestClass::TestMethod(): void
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (this) [TestClass::ArrayTest]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Call [int]
+        - MethodReference (this) [TestClass::MapTest]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Call [OneString]
+        - MethodReference (this) [TestClass::StringTest]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Call [OneString]
+        - MethodReference (this) [TestClass::ReverseString]
+        - Literal (string): "print value" [OneString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Conditional [OneString]
+        - Call [bool]
+          - MethodReference (this) [TestClass::GetBoolResult]
+          - Literal (boolean): true [CsBoolean]
+        - Literal (string): "true" [OneString]
+        - Literal (string): "false" [OneString]
+

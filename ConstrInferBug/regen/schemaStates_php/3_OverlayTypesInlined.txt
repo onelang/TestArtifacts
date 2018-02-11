@@ -1,0 +1,4 @@
+TestClass::methodTest($method_param: ???): any
+
+TestClass::testMethod(): any
+

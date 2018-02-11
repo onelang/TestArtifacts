@@ -1,0 +1,335 @@
+TokenType::EndToken: CsString
+- Variable: EndToken [CsString]
+  - Literal (string): "EndToken"
+
+TokenType::Whitespace: CsString
+- Variable: Whitespace [CsString]
+  - Literal (string): "Whitespace"
+
+TokenType::Identifier: CsString
+- Variable: Identifier [CsString]
+  - Literal (string): "Identifier"
+
+TokenType::OperatorX: CsString
+- Variable: OperatorX [CsString]
+  - Literal (string): "Operator"
+
+Token::Value: CsString
+Token::IsOperator: bool
+
+Token::constructor
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.Value)
+        - Identifier: this
+      - Identifier: value
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.IsOperator)
+        - Identifier: this
+      - Identifier: isOperator
+
+StringHelper::StartsWithAtIndex(str: CsString, substr: CsString, idx: int): bool [static]
+  - Return
+    - Binary: ==
+      - Call
+        - PropertyAccess (.Substring)
+          - Identifier: str
+        - Identifier: idx
+        - Binary: -
+          - Binary: +
+            - Identifier: idx
+            - PropertyAccess (.Length)
+              - Identifier: substr
+          - Identifier: idx
+      - Identifier: substr
+
+Tokenizer::Offset: int
+Tokenizer::Text: CsString
+Tokenizer::Operators: List<CsString>
+
+Tokenizer::constructor
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.Text)
+        - Identifier: this
+      - Identifier: text
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.Operators)
+        - Identifier: this
+      - Identifier: operators
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.Offset)
+        - Identifier: this
+      - Literal (numeric): "0"
+
+Tokenizer::GetTokenType(): CsString
+  - If
+    - Binary: >=
+      - PropertyAccess (.Offset)
+        - Identifier: this
+      - PropertyAccess (.Length)
+        - PropertyAccess (.Text)
+          - Identifier: this
+    Then
+      - Return
+        - PropertyAccess (.EndToken)
+          - Identifier: TokenType
+  - Comment: "\n"
+  - Variable: c
+    - Call
+      - PropertyAccess (.get)
+        - PropertyAccess (.Text)
+          - Identifier: this
+      - PropertyAccess (.Offset)
+        - Identifier: this
+  - Return
+    - Conditional
+      - Binary: ||
+        - Binary: ||
+          - Binary: ||
+            - Binary: ==
+              - Identifier: c
+              - Literal (string): " "
+            - Binary: ==
+              - Identifier: c
+              - Literal (string): "\n"
+          - Binary: ==
+            - Identifier: c
+            - Literal (string): "\t"
+        - Binary: ==
+          - Identifier: c
+          - Literal (string): "\r"
+      - PropertyAccess (.Whitespace)
+        - Identifier: TokenType
+      - Conditional
+        - Binary: ||
+          - Binary: ||
+            - Binary: ||
+              - Parenthesized
+                - Binary: &&
+                  - Binary: <=
+                    - Literal (string): "A"
+                    - Identifier: c
+                  - Binary: <=
+                    - Identifier: c
+                    - Literal (string): "Z"
+              - Parenthesized
+                - Binary: &&
+                  - Binary: <=
+                    - Literal (string): "a"
+                    - Identifier: c
+                  - Binary: <=
+                    - Identifier: c
+                    - Literal (string): "z"
+            - Parenthesized
+              - Binary: &&
+                - Binary: <=
+                  - Literal (string): "0"
+                  - Identifier: c
+                - Binary: <=
+                  - Identifier: c
+                  - Literal (string): "9"
+          - Binary: ==
+            - Identifier: c
+            - Literal (string): "_"
+        - PropertyAccess (.Identifier)
+          - Identifier: TokenType
+        - PropertyAccess (.OperatorX)
+          - Identifier: TokenType
+
+Tokenizer::Tokenize(): List<Token>
+  - Variable: result
+    - ArrayLiteral
+  - Comment: "\n"
+  - While
+      - Binary: <
+        - PropertyAccess (.Offset)
+          - Identifier: this
+        - PropertyAccess (.Length)
+          - PropertyAccess (.Text)
+            - Identifier: this
+    Body
+      - Variable: charType
+        - Call
+          - PropertyAccess (.GetTokenType)
+            - Identifier: this
+      - Comment: "\n"
+      - If
+        - Binary: ==
+          - Identifier: charType
+          - PropertyAccess (.Whitespace)
+            - Identifier: TokenType
+        Then
+          - While
+              - Binary: ==
+                - Call
+                  - PropertyAccess (.GetTokenType)
+                    - Identifier: this
+                - PropertyAccess (.Whitespace)
+                  - Identifier: TokenType
+            Body
+              - ExpressionStatement
+                - Unary (postfix): ++
+                  - PropertyAccess (.Offset)
+                    - Identifier: this
+        Else
+          - If
+            - Binary: ==
+              - Identifier: charType
+              - PropertyAccess (.Identifier)
+                - Identifier: TokenType
+            Then
+              - Variable: startOffset
+                - PropertyAccess (.Offset)
+                  - Identifier: this
+              - While
+                  - Binary: ==
+                    - Call
+                      - PropertyAccess (.GetTokenType)
+                        - Identifier: this
+                    - PropertyAccess (.Identifier)
+                      - Identifier: TokenType
+                Body
+                  - ExpressionStatement
+                    - Unary (postfix): ++
+                      - PropertyAccess (.Offset)
+                        - Identifier: this
+              - Variable: identifier
+                - Call
+                  - PropertyAccess (.Substring)
+                    - PropertyAccess (.Text)
+                      - Identifier: this
+                  - Identifier: startOffset
+                  - Binary: -
+                    - PropertyAccess (.Offset)
+                      - Identifier: this
+                    - Identifier: startOffset
+              - ExpressionStatement
+                - Call
+                  - PropertyAccess (.Add)
+                    - Identifier: result
+                  - New Token
+            Else
+              - Variable: op
+                - Literal (string): ""
+              - Foreach currOp: undefined
+                Items
+                  - PropertyAccess (.Operators)
+                    - Identifier: this
+                Body
+                  - If
+                    - Call
+                      - PropertyAccess (.StartsWithAtIndex)
+                        - Identifier: StringHelper
+                      - PropertyAccess (.Text)
+                        - Identifier: this
+                      - Identifier: currOp
+                      - PropertyAccess (.Offset)
+                        - Identifier: this
+                    Then
+                      - ExpressionStatement
+                        - Binary: =
+                          - Identifier: op
+                          - Identifier: currOp
+                      - Break
+              - Comment: "\n"
+              - If
+                - Binary: ==
+                  - Identifier: op
+                  - Literal (string): ""
+                Then
+                  - Break
+              - Comment: "\n"
+              - ExpressionStatement
+                - Binary: +=
+                  - PropertyAccess (.Offset)
+                    - Identifier: this
+                  - PropertyAccess (.Length)
+                    - Identifier: op
+              - ExpressionStatement
+                - Call
+                  - PropertyAccess (.Add)
+                    - Identifier: result
+                  - New Token
+  - Comment: "\n"
+  - Return
+    - Identifier: result
+
+TestClass::TestMethod(): void
+  - Variable: operators
+    - ArrayLiteral
+      - Literal (string): "<<"
+      - Literal (string): ">>"
+      - Literal (string): "++"
+      - Literal (string): "--"
+      - Literal (string): "=="
+      - Literal (string): "!="
+      - Literal (string): "!"
+      - Literal (string): "<"
+      - Literal (string): ">"
+      - Literal (string): "="
+      - Literal (string): "("
+      - Literal (string): ")"
+      - Literal (string): "["
+      - Literal (string): "]"
+      - Literal (string): "{"
+      - Literal (string): "}"
+      - Literal (string): ";"
+      - Literal (string): "+"
+      - Literal (string): "-"
+      - Literal (string): "*"
+      - Literal (string): "/"
+      - Literal (string): "&&"
+      - Literal (string): "&"
+      - Literal (string): "%"
+      - Literal (string): "||"
+      - Literal (string): "|"
+      - Literal (string): "^"
+      - Literal (string): ","
+      - Literal (string): "."
+  - Comment: "\n"
+  - Variable: input
+    - Literal (string): "hello * 5"
+  - Variable: tokenizer
+    - New Tokenizer
+  - Variable: result
+    - Call
+      - PropertyAccess (.Tokenize)
+        - Identifier: tokenizer
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - Literal (string): "token count:"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - PropertyAccess (.Count)
+        - Identifier: result
+  - Foreach item: undefined
+    Items
+      - Identifier: result
+    Body
+      - ExpressionStatement
+        - Call
+          - PropertyAccess (.WriteLine)
+            - Identifier: Console
+          - Binary: +
+            - Binary: +
+              - Binary: +
+                - PropertyAccess (.Value)
+                  - Identifier: item
+                - Literal (string): "("
+              - Parenthesized
+                - Conditional
+                  - PropertyAccess (.IsOperator)
+                    - Identifier: item
+                  - Literal (string): "op"
+                  - Literal (string): "id"
+            - Literal (string): ")"
+

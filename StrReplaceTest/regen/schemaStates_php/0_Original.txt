@@ -1,0 +1,30 @@
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $str
+      - Literal (string): "A x B x C x D"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $result
+      - Call
+        - Identifier: str_replace
+        - Literal (string): "x"
+        - Literal (string): "y"
+        - Identifier: $str
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Literal (string): "R: "
+                - Parenthesized
+                  - Identifier: $result
+              - Literal (string): ", O: "
+            - Parenthesized
+              - Identifier: $str
+          - Literal (string): ""
+

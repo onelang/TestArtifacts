@@ -1,0 +1,88 @@
+MathUtils::calc(n: ???): any [static]
+  - Variable: result [OneNumber]
+    - Literal (numeric): "1" [OneNumber]
+  - Variable: i [OneNumber]
+    - Literal (numeric): "2" [OneNumber]
+  - While
+      - Binary: <= [OneBoolean]
+        - LocalVar: i [OneNumber]
+        - MethodArgument: n [any]
+    Body
+      - ExpressionStatement
+        - Binary: = [OneNumber]
+          - LocalVar: result [OneNumber]
+          - Binary: * [OneNumber]
+            - LocalVar: result [OneNumber]
+            - LocalVar: i [OneNumber]
+      - If
+        - Binary: > [OneNumber]
+          - LocalVar: result [OneNumber]
+          - Literal (numeric): "10" [OneNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [OneNumber]
+              - LocalVar: result [OneNumber]
+              - Binary: >> [OneNumber]
+                - LocalVar: result [OneNumber]
+                - Literal (numeric): "2" [OneNumber]
+      - ExpressionStatement
+        - Binary: += [OneNumber]
+          - LocalVar: i [OneNumber]
+          - Literal (numeric): "1" [OneNumber]
+  - Return
+    - LocalVar: result [OneNumber]
+
+MathUtils::calc_big(n: ???): any [static]
+  - Variable: result [OneNumber]
+    - Literal (numeric): "1" [OneNumber]
+  - Variable: i [OneNumber]
+    - Literal (numeric): "2" [OneNumber]
+  - While
+      - Binary: <= [OneBoolean]
+        - LocalVar: i [OneNumber]
+        - MethodArgument: n [any]
+    Body
+      - ExpressionStatement
+        - Binary: = [OneNumber]
+          - LocalVar: result [OneNumber]
+          - Binary: + [OneNumber]
+            - Binary: * [OneNumber]
+              - LocalVar: result [OneNumber]
+              - LocalVar: i [OneNumber]
+            - Literal (numeric): "123" [OneNumber]
+      - ExpressionStatement
+        - Binary: = [OneNumber]
+          - LocalVar: result [OneNumber]
+          - Binary: + [OneNumber]
+            - LocalVar: result [OneNumber]
+            - LocalVar: result [OneNumber]
+      - If
+        - Binary: > [OneNumber]
+          - LocalVar: result [OneNumber]
+          - Literal (numeric): "10" [OneNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [OneNumber]
+              - LocalVar: result [OneNumber]
+              - Binary: >> [OneNumber]
+                - LocalVar: result [OneNumber]
+                - Literal (numeric): "2" [OneNumber]
+      - ExpressionStatement
+        - Binary: += [OneNumber]
+          - LocalVar: i [OneNumber]
+          - Literal (numeric): "1" [OneNumber]
+  - Return
+    - LocalVar: result [OneNumber]
+
+main()
+  - Comment: "\n\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - Call [any]
+          - MethodReference (static) [MathUtils::calc]
+          - Literal (numeric): "5" [OneNumber]
+        - Call [any]
+          - MethodReference (static) [MathUtils::calc_big]
+          - Literal (numeric): "24" [OneNumber]

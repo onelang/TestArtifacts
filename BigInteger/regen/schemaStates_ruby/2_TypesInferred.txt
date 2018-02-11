@@ -1,0 +1,88 @@
+MathUtils::calc(n: ???): any [static]
+  - Variable: result [RubyNumber]
+    - Literal (numeric): "1" [RubyNumber]
+  - Variable: i [RubyNumber]
+    - Literal (numeric): "2" [RubyNumber]
+  - While
+      - Binary: <= [OneBoolean]
+        - LocalVar: i [RubyNumber]
+        - MethodArgument: n [any]
+    Body
+      - ExpressionStatement
+        - Binary: = [RubyNumber]
+          - LocalVar: result [RubyNumber]
+          - Binary: * [RubyNumber]
+            - LocalVar: result [RubyNumber]
+            - LocalVar: i [RubyNumber]
+      - If
+        - Binary: > [RubyNumber]
+          - LocalVar: result [RubyNumber]
+          - Literal (numeric): "10" [RubyNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [RubyNumber]
+              - LocalVar: result [RubyNumber]
+              - Binary: >> [RubyNumber]
+                - LocalVar: result [RubyNumber]
+                - Literal (numeric): "2" [RubyNumber]
+      - ExpressionStatement
+        - Binary: += [RubyNumber]
+          - LocalVar: i [RubyNumber]
+          - Literal (numeric): "1" [RubyNumber]
+  - Return
+    - LocalVar: result [RubyNumber]
+
+MathUtils::calc_big(n: ???): any [static]
+  - Variable: result [RubyNumber]
+    - Literal (numeric): "1" [RubyNumber]
+  - Variable: i [RubyNumber]
+    - Literal (numeric): "2" [RubyNumber]
+  - While
+      - Binary: <= [OneBoolean]
+        - LocalVar: i [RubyNumber]
+        - MethodArgument: n [any]
+    Body
+      - ExpressionStatement
+        - Binary: = [RubyNumber]
+          - LocalVar: result [RubyNumber]
+          - Binary: + [RubyNumber]
+            - Binary: * [RubyNumber]
+              - LocalVar: result [RubyNumber]
+              - LocalVar: i [RubyNumber]
+            - Literal (numeric): "123" [RubyNumber]
+      - ExpressionStatement
+        - Binary: = [RubyNumber]
+          - LocalVar: result [RubyNumber]
+          - Binary: + [RubyNumber]
+            - LocalVar: result [RubyNumber]
+            - LocalVar: result [RubyNumber]
+      - If
+        - Binary: > [RubyNumber]
+          - LocalVar: result [RubyNumber]
+          - Literal (numeric): "10" [RubyNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [RubyNumber]
+              - LocalVar: result [RubyNumber]
+              - Binary: >> [RubyNumber]
+                - LocalVar: result [RubyNumber]
+                - Literal (numeric): "2" [RubyNumber]
+      - ExpressionStatement
+        - Binary: += [RubyNumber]
+          - LocalVar: i [RubyNumber]
+          - Literal (numeric): "1" [RubyNumber]
+  - Return
+    - LocalVar: result [RubyNumber]
+
+main()
+  - Comment: "\n\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - Call [any]
+          - MethodReference (static) [MathUtils::calc]
+          - Literal (numeric): "5" [RubyNumber]
+        - Call [any]
+          - MethodReference (static) [MathUtils::calc_big]
+          - Literal (numeric): "24" [RubyNumber]

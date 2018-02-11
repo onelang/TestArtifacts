@@ -1,0 +1,21 @@
+TestClass::NotThrows(): int
+  - Return
+    - Literal (numeric): "5"
+
+TestClass::FThrows(): void
+  - Throw
+    - New Exception
+
+TestClass::TestMethod(): void
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - Call
+        - PropertyAccess (.NotThrows)
+          - Identifier: this
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.FThrows)
+        - Identifier: this
+

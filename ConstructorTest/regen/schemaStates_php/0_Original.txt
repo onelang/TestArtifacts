@@ -1,0 +1,33 @@
+ConstructorTest::$field2: null
+ConstructorTest::$field1: null
+
+ConstructorTest::__construct($field1: ???): any
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.field1)
+        - Identifier: $this
+      - Identifier: $field1
+  - ExpressionStatement
+    - Binary: =
+      - PropertyAccess (.field2)
+        - Identifier: $this
+      - Binary: *
+        - Binary: *
+          - Identifier: $field1
+          - PropertyAccess (.field1)
+            - Identifier: $this
+        - Literal (numeric): "5"
+
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $test
+      - New ConstructorTest
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - PropertyAccess (.field2)
+          - Identifier: $test
+

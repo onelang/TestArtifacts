@@ -1,0 +1,101 @@
+MathUtils::calc($n: ???): any [static]
+  - Variable: $result [PhpNumber]
+    - Literal (numeric): "1" [PhpNumber]
+  - For ("$i")
+    Var
+    - Variable: $i [PhpNumber]
+      - Literal (numeric): "2" [PhpNumber]
+    Condition
+      - Binary: <= [OneBoolean]
+        - LocalVar: $i [PhpNumber]
+        - MethodArgument: $n [any]
+    Incrementor
+      - Unary (postfix): ++ [any]
+        - LocalVar: $i [PhpNumber]
+    Body
+      - ExpressionStatement
+        - Binary: = [PhpNumber]
+          - LocalVar: $result [PhpNumber]
+          - Binary: * [PhpNumber]
+            - LocalVar: $result [PhpNumber]
+            - LocalVar: $i [PhpNumber]
+      - If
+        - Binary: > [PhpNumber]
+          - LocalVar: $result [PhpNumber]
+          - Literal (numeric): "10" [PhpNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [PhpNumber]
+              - LocalVar: $result [PhpNumber]
+              - Binary: >> [PhpNumber]
+                - LocalVar: $result [PhpNumber]
+                - Literal (numeric): "2" [PhpNumber]
+  - Return
+    - LocalVar: $result [PhpNumber]
+
+MathUtils::calcBig($n: ???): any [static]
+  - Variable: $result [OneBigInteger]
+    - Call [OneBigInteger]
+      - MethodReference (static) [OneBigInteger::fromInt]
+      - Literal (numeric): "1" [PhpNumber]
+  - For ("$i")
+    Var
+    - Variable: $i [PhpNumber]
+      - Literal (numeric): "2" [PhpNumber]
+    Condition
+      - Binary: <= [OneBoolean]
+        - LocalVar: $i [PhpNumber]
+        - MethodArgument: $n [any]
+    Incrementor
+      - Unary (postfix): ++ [any]
+        - LocalVar: $i [PhpNumber]
+    Body
+      - ExpressionStatement
+        - Binary: = [OneBigInteger]
+          - LocalVar: $result [OneBigInteger]
+          - Binary: + [OneBigInteger]
+            - Binary: * [OneBigInteger]
+              - LocalVar: $result [OneBigInteger]
+              - LocalVar: $i [PhpNumber]
+            - Literal (numeric): "123" [PhpNumber]
+      - ExpressionStatement
+        - Binary: = [OneBigInteger]
+          - LocalVar: $result [OneBigInteger]
+          - Binary: + [OneBigInteger]
+            - LocalVar: $result [OneBigInteger]
+            - LocalVar: $result [OneBigInteger]
+      - If
+        - Binary: > [OneBigInteger]
+          - LocalVar: $result [OneBigInteger]
+          - Literal (numeric): "10" [PhpNumber]
+        Then
+          - ExpressionStatement
+            - Binary: = [OneBigInteger]
+              - LocalVar: $result [OneBigInteger]
+              - Binary: >> [OneBigInteger]
+                - LocalVar: $result [OneBigInteger]
+                - Literal (numeric): "2" [PhpNumber]
+  - Return
+    - LocalVar: $result [OneBigInteger]
+
+main()
+  - Comment: "\n\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [PhpString]
+        - Binary: . [PhpString]
+          - Binary: . [PhpString]
+            - Binary: . [PhpString]
+              - Binary: . [PhpString]
+                - Literal (string): "5 -> " [PhpString]
+                - Parenthesized [any]
+                  - Call [any]
+                    - MethodReference (static) [MathUtils::calc]
+                    - Literal (numeric): "5" [PhpNumber]
+              - Literal (string): ", 24 -> " [PhpString]
+            - Parenthesized [any]
+              - Call [any]
+                - MethodReference (static) [MathUtils::calcBig]
+                - Literal (numeric): "24" [PhpNumber]
+          - Literal (string): "" [PhpString]

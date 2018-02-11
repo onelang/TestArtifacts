@@ -1,0 +1,39 @@
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $constant_arr
+      - ArrayLiteral
+        - Literal (numeric): "5"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $mutable_arr
+      - ArrayLiteral
+        - Literal (numeric): "1"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.Add)
+        - Identifier: $mutable_arr
+      - Literal (numeric): "2"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Binary: .
+          - Binary: .
+            - Binary: .
+              - Binary: .
+                - Literal (string): "len1: "
+                - Parenthesized
+                  - Call
+                    - Identifier: count
+                    - Identifier: $constant_arr
+              - Literal (string): ", len2: "
+            - Parenthesized
+              - Call
+                - Identifier: count
+                - Identifier: $mutable_arr
+          - Literal (string): ""
+

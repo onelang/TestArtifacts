@@ -1,0 +1,14 @@
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $op
+      - Identifier: NULL
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Call
+          - Identifier: strlen
+          - Identifier: $op
+

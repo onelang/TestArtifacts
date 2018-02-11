@@ -1,0 +1,30 @@
+TestClass::testMethod(): any
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $result
+      - ArrayLiteral
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $map
+      - MapLiteral
+        - Variable: x
+          - Literal (numeric): "5"
+  - ExpressionStatement
+    - Binary: =
+      - Identifier: $keys
+      - Call
+        - Identifier: array_keys
+        - Identifier: $map
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Identifier: $result
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - Parenthesized
+        - Identifier: $keys
+

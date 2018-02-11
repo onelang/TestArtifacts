@@ -1,0 +1,10 @@
+TestClass::TestMethod(): void
+  - Variable: map [OneMap<OneString, any>]
+    - MapLiteral [OneMap<OneString, any>]
+  - ExpressionStatement
+    - Call [any]
+      - PropertyAccess (.ToArray) [any]
+        - Call [OneArray<K>]
+          - MethodReference [OneMap<K, V>::keys]
+            - LocalVar: map [OneMap<OneString, any>]
+

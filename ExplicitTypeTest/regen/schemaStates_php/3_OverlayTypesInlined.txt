@@ -1,0 +1,11 @@
+TestClass::testMethod(): any
+  - Variable: $op [any]
+    - Identifier: NULL [any]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Parenthesized [any]
+        - Call [any]
+          - Identifier: strlen [any]
+          - LocalVar: $op [any]
+

@@ -1,0 +1,23 @@
+TestClass::TestMethod(): void
+  - Variable: constantArr [CsArray<CsNumber>]
+    - ArrayLiteral [CsArray<CsNumber>]
+      - Literal (numeric): "5" [CsNumber]
+  - Comment: "\n"
+  - Variable: mutableArr [CsArray<CsNumber>]
+    - ArrayLiteral [CsArray<CsNumber>]
+      - Literal (numeric): "1" [CsNumber]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [CsArray<CsNumber>::Add]
+        - LocalVar: mutableArr [CsArray<CsNumber>]
+      - Literal (numeric): "2" [CsNumber]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [Console::WriteLine]
+      - TemplateString [OneString]
+        - InstanceField: Count [TsNumber]
+          - LocalVar: constantArr [CsArray<CsNumber>]
+        - InstanceField: Count [TsNumber]
+          - LocalVar: mutableArr [CsArray<CsNumber>]
+

@@ -1,0 +1,43 @@
+TestClass::TestMethod(): void
+  - Variable: a
+    - Literal (boolean): true
+  - Variable: b
+    - Literal (boolean): false
+  - Variable: c
+    - Binary: &&
+      - Identifier: a
+      - Identifier: b
+  - Variable: d
+    - Binary: ||
+      - Identifier: a
+      - Identifier: b
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.WriteLine)
+        - Identifier: Console
+      - TemplateString
+        - Parenthesized
+          - Conditional
+            - Parenthesized
+              - Identifier: a
+            - Literal (string): "true"
+            - Literal (string): "false"
+        - Parenthesized
+          - Conditional
+            - Parenthesized
+              - Identifier: b
+            - Literal (string): "true"
+            - Literal (string): "false"
+        - Parenthesized
+          - Conditional
+            - Parenthesized
+              - Identifier: c
+            - Literal (string): "true"
+            - Literal (string): "false"
+        - Parenthesized
+          - Conditional
+            - Parenthesized
+              - Identifier: d
+            - Literal (string): "true"
+            - Literal (string): "false"
+
