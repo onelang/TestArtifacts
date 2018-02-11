@@ -37,6 +37,5 @@ func MathUtils_CalcBig(n int) *big.Int {
 }
 
 func main() {
-    
     fmt.Println(fmt.Sprintf("5 -> %v, 24 -> %v", MathUtils_Calc(5), MathUtils_CalcBig(24)))
 }

@@ -27,5 +27,4 @@ class MathUtils {
   }
 }
 
-
 print("5 -> \(MathUtils.calc(n: 5)), 24 -> \(MathUtils.calcBig(n: 24)!)")

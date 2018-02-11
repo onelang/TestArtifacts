@@ -79,7 +79,6 @@ MathUtils::calcBig(n: TsNumber): OneBigInteger [static]
     - LocalVar: result [OneBigInteger]
 
 main()
-  - Comment: "\n"
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [console::log]

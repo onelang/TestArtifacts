@@ -25,5 +25,4 @@ class MathUtils {
   }
 }
 
-
 console.log(`5 -> ${MathUtils.calc(5)}, 24 -> ${MathUtils.calcBig(24)}`);

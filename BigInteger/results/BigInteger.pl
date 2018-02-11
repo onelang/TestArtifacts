@@ -38,5 +38,4 @@ sub calc_big {
     return $result;
 }
 
-
 print(("5 -> @{[MathUtils::calc(5)]}, 24 -> @{[MathUtils::calc_big(24)]}") . "\n");

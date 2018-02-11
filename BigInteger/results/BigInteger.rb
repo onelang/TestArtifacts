@@ -27,5 +27,4 @@ class MathUtils
   end
 end
 
-
 puts "5 -> #{MathUtils.calc(5)}, 24 -> #{MathUtils.calc_big(24)}"

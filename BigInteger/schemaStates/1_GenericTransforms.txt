@@ -80,7 +80,6 @@ MathUtils::calcBig(n: TsNumber): OneBigInteger [static]
     - Identifier: result
 
 main()
-  - Comment: "\n"
   - ExpressionStatement
     - Call
       - PropertyAccess (.log)

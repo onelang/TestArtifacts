@@ -22,5 +22,4 @@ class MathUtils:
             i += 1
         return result
 
-
 print "5 -> %s, 24 -> %s" % (MathUtils.calc(5), MathUtils.calc_big(24))
