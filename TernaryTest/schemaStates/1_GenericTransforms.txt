@@ -2,7 +2,7 @@ TestClass::getResult(): TsBoolean
   - Return
     - Literal (boolean): true
 
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - ExpressionStatement
     - Call
       - PropertyAccess (.log)

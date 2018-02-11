@@ -55,7 +55,7 @@ ExprLangLexer::constructor
             - MethodReference (this) [ExprLangLexer::tryToReadOperator]
         Then
           - ExpressionStatement
-            - Call [void]
+            - Call [any]
               - MethodReference (this) [ExprLangLexer::fail]
               - Literal (string): "expected operator here" [OneString]
       - Comment: "\n"
@@ -65,7 +65,7 @@ ExprLangLexer::constructor
             - MethodReference (this) [ExprLangLexer::tryToReadLiteral]
         Then
           - ExpressionStatement
-            - Call [void]
+            - Call [any]
               - MethodReference (this) [ExprLangLexer::fail]
               - Literal (string): "expected literal here" [OneString]
 
@@ -103,7 +103,7 @@ ExprLangLexer::fail(message: OneString): void
 
 ExprLangLexer::hasMoreToken(): OneBoolean
   - ExpressionStatement
-    - Call [void]
+    - Call [any]
       - MethodReference (this) [ExprLangLexer::skipWhitespace]
   - Return
     - Unary (prefix): ! [any]
@@ -142,7 +142,7 @@ ExprLangLexer::tryToMatch(pattern: OneString): OneString
 
 ExprLangLexer::tryToReadOperator(): OneBoolean
   - ExpressionStatement
-    - Call [void]
+    - Call [any]
       - MethodReference (this) [ExprLangLexer::skipWhitespace]
   - Foreach op: OneString
     Items
@@ -167,7 +167,7 @@ ExprLangLexer::tryToReadOperator(): OneBoolean
 
 ExprLangLexer::tryToReadNumber(): OneBoolean
   - ExpressionStatement
-    - Call [void]
+    - Call [any]
       - MethodReference (this) [ExprLangLexer::skipWhitespace]
   - Comment: "\n"
   - Variable: number [OneString]
@@ -205,7 +205,7 @@ ExprLangLexer::tryToReadNumber(): OneBoolean
 
 ExprLangLexer::tryToReadIdentifier(): OneBoolean
   - ExpressionStatement
-    - Call [void]
+    - Call [any]
       - MethodReference (this) [ExprLangLexer::skipWhitespace]
   - Variable: identifier [OneString]
     - Call [OneString]
@@ -229,7 +229,7 @@ ExprLangLexer::tryToReadIdentifier(): OneBoolean
 
 ExprLangLexer::tryToReadString(): OneBoolean
   - ExpressionStatement
-    - Call [void]
+    - Call [any]
       - MethodReference (this) [ExprLangLexer::skipWhitespace]
   - Comment: "\n"
   - Variable: match [OneString]

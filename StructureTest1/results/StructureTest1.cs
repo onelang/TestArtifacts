@@ -24,7 +24,7 @@ public class Container
     {
     }
     
-    public void Method1(string str)
+    public string Method1(string str)
     {
         return str;
     }

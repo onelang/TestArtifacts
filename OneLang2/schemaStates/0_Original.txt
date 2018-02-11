@@ -81,7 +81,7 @@ ExprLangLexer::constructor
                 - Identifier: this
               - Literal (string): "expected literal here"
 
-ExprLangLexer::fail(message: TsString): void
+ExprLangLexer::fail(message: TsString): any
   - Variable: endOffset
     - Binary: +
       - PropertyAccess (.offset)
@@ -131,7 +131,7 @@ ExprLangLexer::hasMoreToken(): TsBoolean
         - PropertyAccess (.eof)
           - Identifier: this
 
-ExprLangLexer::add(kind: TokenKind (enum), value: TsString): void
+ExprLangLexer::add(kind: TokenKind (enum), value: TsString): any
   - ExpressionStatement
     - Call
       - PropertyAccess (.push)
@@ -351,7 +351,7 @@ ExprLangLexer::eof(): TsBoolean
         - PropertyAccess (.expression)
           - Identifier: this
 
-ExprLangLexer::skipWhitespace(): void
+ExprLangLexer::skipWhitespace(): any
   - While
       - Unary (prefix): !
         - Call
@@ -404,7 +404,7 @@ ExprLangLexer::tryToReadLiteral(): TsBoolean
   - Return
     - Identifier: success
 
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - Variable: lexer
     - New ExprLangLexer
   - Variable: result

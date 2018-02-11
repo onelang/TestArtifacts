@@ -34,7 +34,7 @@ TestClass::mapTest(): TsNumber
         - Identifier: mapObj
       - Literal (string): "z"
 
-TestClass::explicitTypeTest(): void
+TestClass::explicitTypeTest(): any
   - Variable: op [TsString]
     - Literal (string): ""
   - ExpressionStatement
@@ -111,7 +111,7 @@ TestClass::ifTest(x: TsNumber): TsString
   - Return
     - Identifier: result
 
-TestClass::arrayTest(): void
+TestClass::arrayTest(): any
   - Comment: "//const c2 = new Class2();\n\n"
   - Variable: mutableArr
     - ArrayLiteral
@@ -246,7 +246,7 @@ TestClass::getBoolResult(value: TsBoolean): TsBoolean
   - Return
     - Identifier: value
 
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - ExpressionStatement
     - Call
       - PropertyAccess (.arrayTest)

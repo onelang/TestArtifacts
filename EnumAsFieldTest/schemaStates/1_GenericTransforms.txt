@@ -5,7 +5,7 @@ TestClass::enumField: SomeKind (enum)
   - PropertyAccess (.EnumVal2)
     - Identifier: SomeKind
 
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - ExpressionStatement
     - Call
       - PropertyAccess (.log)

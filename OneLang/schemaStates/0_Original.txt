@@ -251,7 +251,7 @@ Tokenizer::tokenize(): TsArray<Token>
   - Return
     - Identifier: result
 
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - Variable: operators
     - ArrayLiteral
       - Literal (string): "<<"

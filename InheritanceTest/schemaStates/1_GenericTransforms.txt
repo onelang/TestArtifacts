@@ -1,3 +1,7 @@
+IPrinterBase::someBaseFunc(): TsNumber
+
+IPrinter::printIt(): void
+
 BasePrinter::numValue: null
 - Variable: numValue
   - Literal (numeric): "42"
@@ -36,7 +40,7 @@ TestClass::getPrinter(name: TsString): IPrinter
   - Return
     - Identifier: result
 
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - Variable: basePrinter
     - Call
       - PropertyAccess (.getPrinter)

@@ -1,3 +1,5 @@
+ICustomDecoder::decode(src: OneArray<OneNumber>): OneArray<OneNumber>
+
 XorByte::xorValue: OneNumber
 
 XorByte::constructor

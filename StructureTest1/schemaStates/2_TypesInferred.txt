@@ -25,7 +25,7 @@ Container::stringList: List<TsString>
 
 Container::method0(): void
 
-Container::method1(str: TsString): void
+Container::method1(str: TsString): TsString
   - Return
     - MethodArgument: str [TsString]
 

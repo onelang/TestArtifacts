@@ -1,4 +1,4 @@
-Calculator::calc(): void
+Calculator::calc(): any
   - Return
     - Literal (numeric): "4"
 

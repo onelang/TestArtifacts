@@ -55,7 +55,7 @@ ExprLangLexer::constructor
             - MethodReference (this) [ExprLangLexer::tryToReadOperator]
         Then
           - ExpressionStatement
-            - Call [void]
+            - Call [any]
               - MethodReference (this) [ExprLangLexer::fail]
               - Literal (string): "expected operator here" [TsString]
       - Comment: "\n"
@@ -65,7 +65,7 @@ ExprLangLexer::constructor
             - MethodReference (this) [ExprLangLexer::tryToReadLiteral]
         Then
           - ExpressionStatement
-            - Call [void]
+            - Call [any]
               - MethodReference (this) [ExprLangLexer::fail]
               - Literal (string): "expected literal here" [TsString]
 
@@ -103,7 +103,7 @@ ExprLangLexer::fail(message: TsString): void
 
 ExprLangLexer::hasMoreToken(): TsBoolean
   - ExpressionStatement
-    - Call [void]
+    - Call [any]
       - MethodReference (this) [ExprLangLexer::skipWhitespace]
   - Return
     - Unary (prefix): ! [any]
@@ -142,7 +142,7 @@ ExprLangLexer::tryToMatch(pattern: TsString): TsString
 
 ExprLangLexer::tryToReadOperator(): TsBoolean
   - ExpressionStatement
-    - Call [void]
+    - Call [any]
       - MethodReference (this) [ExprLangLexer::skipWhitespace]
   - Foreach op: TsString
     Items
@@ -167,7 +167,7 @@ ExprLangLexer::tryToReadOperator(): TsBoolean
 
 ExprLangLexer::tryToReadNumber(): TsBoolean
   - ExpressionStatement
-    - Call [void]
+    - Call [any]
       - MethodReference (this) [ExprLangLexer::skipWhitespace]
   - Comment: "\n"
   - Variable: number [TsString]
@@ -205,7 +205,7 @@ ExprLangLexer::tryToReadNumber(): TsBoolean
 
 ExprLangLexer::tryToReadIdentifier(): TsBoolean
   - ExpressionStatement
-    - Call [void]
+    - Call [any]
       - MethodReference (this) [ExprLangLexer::skipWhitespace]
   - Variable: identifier [TsString]
     - Call [TsString]
@@ -229,7 +229,7 @@ ExprLangLexer::tryToReadIdentifier(): TsBoolean
 
 ExprLangLexer::tryToReadString(): TsBoolean
   - ExpressionStatement
-    - Call [void]
+    - Call [any]
       - MethodReference (this) [ExprLangLexer::skipWhitespace]
   - Comment: "\n"
   - Variable: match [TsString]

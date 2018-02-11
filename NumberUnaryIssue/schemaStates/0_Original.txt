@@ -1,4 +1,4 @@
-NumberUnaryIssue::test(num: TsNumber): void
+NumberUnaryIssue::test(num: TsNumber): any
   - ExpressionStatement
     - Unary (postfix): --
       - Identifier: num

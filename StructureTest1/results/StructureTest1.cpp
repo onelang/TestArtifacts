@@ -28,7 +28,7 @@ class Container {
     void method0() {
     }
     
-    void method1(string str) {
+    string method1(string str) {
         return str;
     }
 

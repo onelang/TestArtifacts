@@ -20,7 +20,7 @@ class Container {
     {
     }
     
-    public void method1(String str) throws Exception
+    public String method1(String str) throws Exception
     {
         return str;
     }

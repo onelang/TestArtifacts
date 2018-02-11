@@ -155,7 +155,7 @@ TestClass::arrayTest(): void
       - ExpressionStatement
         - Call [void]
           - MethodReference (static) [console::log]
-          - Call [void]
+          - Call [TsNumber]
             - MethodReference [TsArray<TsNumber>::get]
               - LocalVar: constantArr [TsArray<TsNumber>]
             - LocalVar: i [TsNumber]

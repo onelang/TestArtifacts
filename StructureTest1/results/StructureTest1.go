@@ -39,6 +39,6 @@ func NewContainer() *Container {
 func (this *Container) Method0() {
 }
 
-func (this *Container) Method1(str string) {
+func (this *Container) Method1(str string) string {
     return str
 }

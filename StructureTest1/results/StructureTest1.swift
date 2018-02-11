@@ -19,7 +19,7 @@ class Container {
   func method0() -> Void {
   }
 
-  func method1(str: String) -> Void {
+  func method1(str: String) -> String {
       return str
   }
 }

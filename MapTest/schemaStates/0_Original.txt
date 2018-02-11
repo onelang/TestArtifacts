@@ -15,7 +15,7 @@ TestClass::getResult(): TsNumber
       - Identifier: mapObj
       - Literal (string): "x"
 
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - ExpressionStatement
     - Call
       - PropertyAccess (.log)

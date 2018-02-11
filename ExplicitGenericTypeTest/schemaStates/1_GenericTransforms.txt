@@ -1,4 +1,4 @@
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - Variable: result [TsArray<TsString>]
     - ArrayLiteral
   - Variable: map

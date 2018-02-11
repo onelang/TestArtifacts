@@ -24,9 +24,9 @@ Item::constructor
 Container::itemList: List<Item>
 Container::stringList: List<TsString>
 
-Container::method0(): void
+Container::method0(): any
 
-Container::method1(str: TsString): void
+Container::method1(str: TsString): any
   - Return
     - Identifier: str
 

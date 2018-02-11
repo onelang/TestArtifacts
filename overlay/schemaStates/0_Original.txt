@@ -6,7 +6,7 @@ TsMapOperators::op_in(left: K, right: TsMap<K, V>): TsBoolean
           - Identifier: right
       - Identifier: left
 
-console::log(data: any): void [static]
+console::log(data: any): any [static]
   - ExpressionStatement
     - Call
       - PropertyAccess (.print)
@@ -33,7 +33,7 @@ TsArray::length: TsNumber
       - PropertyAccess (._one)
         - Identifier: this
 
-TsArray::push(item: T): void
+TsArray::push(item: T): any
   - ExpressionStatement
     - Call
       - PropertyAccess (.add)
@@ -41,7 +41,7 @@ TsArray::push(item: T): void
           - Identifier: this
       - Identifier: item
 
-TsArray::get(index: TsNumber): void
+TsArray::get(index: TsNumber): any
   - Return
     - Call
       - PropertyAccess (.get)
@@ -49,7 +49,7 @@ TsArray::get(index: TsNumber): void
           - Identifier: this
       - Identifier: index
 
-TsArray::set(index: TsNumber, value: T): void
+TsArray::set(index: TsNumber, value: T): any
   - Return
     - Call
       - PropertyAccess (.set)
@@ -60,7 +60,7 @@ TsArray::set(index: TsNumber, value: T): void
 
 TsMap::_one: OneMap<K, V>
 
-TsMap::get(key: K): void
+TsMap::get(key: K): any
   - ExpressionStatement
     - Call
       - PropertyAccess (.get)
@@ -68,7 +68,7 @@ TsMap::get(key: K): void
           - Identifier: this
       - Identifier: key
 
-TsMap::set(key: K, value: V): void
+TsMap::set(key: K, value: V): any
   - ExpressionStatement
     - Call
       - PropertyAccess (.set)
@@ -77,7 +77,7 @@ TsMap::set(key: K, value: V): void
       - Identifier: key
       - Identifier: value
 
-TsMap::delete(key: K): void
+TsMap::delete(key: K): any
   - ExpressionStatement
     - Call
       - PropertyAccess (.remove)

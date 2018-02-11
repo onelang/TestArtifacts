@@ -1,3 +1,5 @@
+ICustomDecoder::decode(src: TsArray<TsNumber>): TsArray<TsNumber>
+
 XorByte::xorValue: TsNumber
 
 XorByte::constructor
@@ -246,7 +248,7 @@ Base64::decodeChar(ch: TsNumber): TsNumber
   - Return
     - Identifier: value
 
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - Variable: src1
     - ArrayLiteral
       - Literal (numeric): "4"

@@ -1,6 +1,6 @@
 enum TestEnum: Item1, Item2
 
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - Variable: enumV
     - PropertyAccess (.Item1)
       - Identifier: TestEnum

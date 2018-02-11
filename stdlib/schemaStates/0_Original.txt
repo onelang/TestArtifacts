@@ -76,10 +76,10 @@ OneClass::getField(name: TsString): OneField
 OneClass::getMethod(name: TsString): OneMethod
   <no body>
 
-OneClass::getFields(): TsArray<OneField>
+OneClass::getFields(): OneArray<OneField>
   <no body>
 
-OneClass::getMethods(): TsArray<OneMethod>
+OneClass::getMethods(): OneArray<OneMethod>
   <no body>
 
 OneField::name: TsString

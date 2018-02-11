@@ -1,3 +1,7 @@
+IPrinterBase::someBaseFunc(): TsNumber
+
+IPrinter::printIt(): void
+
 BasePrinter::numValue: TsNumber
 - Variable: numValue [TsNumber]
   - Literal (numeric): "42" [TsNumber]

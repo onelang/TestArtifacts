@@ -1,4 +1,4 @@
-TestClass::methodTest(methodParam: TsArray<TsString>): void
+TestClass::methodTest(methodParam: TsArray<TsString>): any
 
-TestClass::testMethod(): void
+TestClass::testMethod(): any
 

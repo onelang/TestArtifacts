@@ -1,3 +1,5 @@
+ICustomDecoder::decode(src: TsArray<TsNumber>): TsArray<TsNumber>
+
 XorByte::xorValue: TsNumber
 
 XorByte::constructor

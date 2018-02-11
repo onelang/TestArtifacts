@@ -1,6 +1,6 @@
 MapX::value: V
 
-MapX::set(key: K, value: V): void
+MapX::set(key: K, value: V): any
   - ExpressionStatement
     - Binary: =
       - PropertyAccess (.value)
@@ -12,7 +12,7 @@ MapX::get(key: K): V
     - PropertyAccess (.value)
       - Identifier: this
 
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - Variable: mapX
     - New MapX<[object Object], [object Object]>
   - ExpressionStatement

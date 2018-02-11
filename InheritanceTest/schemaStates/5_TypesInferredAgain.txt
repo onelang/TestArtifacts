@@ -1,3 +1,7 @@
+IPrinterBase::someBaseFunc(): OneNumber
+
+IPrinter::printIt(): void
+
 BasePrinter::numValue: OneNumber
 - Variable: numValue [OneNumber]
   - Literal (numeric): "42" [OneNumber]

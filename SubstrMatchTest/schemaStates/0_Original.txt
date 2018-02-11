@@ -1,4 +1,4 @@
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - Variable: str
     - Literal (string): "ABCDEF"
   - Variable: tA0_true

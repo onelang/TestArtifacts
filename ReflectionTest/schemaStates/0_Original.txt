@@ -19,7 +19,7 @@ TargetClass::instanceMethod(): TsString
       - PropertyAccess (.instanceField)
         - Identifier: this
 
-TestClass::testMethod(): void
+TestClass::testMethod(): any
   - Variable: obj
     - New TargetClass
   - Comment: "//console.log(`instanceMethod (direct): ${obj.instanceMethod()}`);\n//console.log(`staticMethod (direct): ${TargetClass.staticMethod("arg1value")}`);\n//console.log(`instanceField (direct): ${obj.instanceField}`);\n//console.log(`staticField (direct): ${TargetClass.staticField}`);\n"
