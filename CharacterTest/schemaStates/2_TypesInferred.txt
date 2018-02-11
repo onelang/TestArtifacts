@@ -6,7 +6,7 @@ TestClass::testMethod(): void
     - Variable: i [TsNumber]
       - Literal (numeric): "0" [TsNumber]
     Condition
-      - Binary: < [any]
+      - Binary: < [TsNumber]
         - LocalVar: i [TsNumber]
         - InstanceField: length [OneNumber]
           - LocalVar: str [TsString]

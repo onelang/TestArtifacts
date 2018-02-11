@@ -1,6 +1,6 @@
 TestClass::get_result(): any
   - Return
-    - Literal (boolean): true [RubyBoolean]
+    - Literal (boolean): true [OneBoolean]
 
 TestClass::test_method(): any
   - ExpressionStatement

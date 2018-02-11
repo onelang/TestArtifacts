@@ -22,8 +22,8 @@ sub map_test {
     ${$map_obj}{"z"} = 9;
     delete ${$map_obj}{"x"};
     
-    my $keys_var = keys $map_obj;
-    my $values_var = values $map_obj;
+    my $keys_var = keys %{$map_obj};
+    my $values_var = values %{$map_obj};
     return ${$map_obj}{"z"};
 }
 

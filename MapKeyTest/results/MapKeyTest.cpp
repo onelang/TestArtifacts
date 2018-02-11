@@ -1,14 +1,11 @@
 #include <one.hpp>
-#include <memory>
-#include <fstream>
-#include <vector>
 #include <map>
 
 class TestClass {
   public:
     void testMethod() {
-        auto map = map<string, any> {
-        };
+        auto map = make_shared_map<string, any>({
+        });
         auto keys = OneMapHelper::keys(map);
     }
 

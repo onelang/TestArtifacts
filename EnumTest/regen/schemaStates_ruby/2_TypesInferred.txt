@@ -5,13 +5,13 @@ TestClass::test_method(): any
     - EnumMemberReference [TestEnum (enum)]
   - If
     - Binary: == [OneBoolean]
-      - Binary: * [any]
+      - Binary: * [RubyNumber]
         - Literal (numeric): "3" [RubyNumber]
         - Literal (numeric): "2" [RubyNumber]
       - Literal (numeric): "6" [RubyNumber]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [TestEnum (enum)]
           - LocalVar: enum_v [TestEnum (enum)]
           - EnumMemberReference [TestEnum (enum)]
   - Variable: check1 [RubyString]

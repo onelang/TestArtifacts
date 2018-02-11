@@ -65,8 +65,6 @@ class TestClass:
         for x in dst2:
             print x
 
-pass
-
 try:
     TestClass().test_method()
 except Exception as err:

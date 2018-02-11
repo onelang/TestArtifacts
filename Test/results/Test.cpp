@@ -1,25 +1,23 @@
 #include <one.hpp>
-#include <memory>
-#include <fstream>
-#include <vector>
 #include <map>
 #include <iostream>
+#include <vector>
 
 class TestClass {
   public:
     int mapTest() {
-        auto map_obj = map<string, int> {
+        auto map_obj = make_shared_map<string, int>({
           { "x", 5 },
           { "y", 3 }
-        };
+        });
         
         //let containsX = "x" in mapObj;
-        map_obj[string("z")] = 9;
+        map_obj->operator[](string("z")) = 9;
         map_obj->erase(string("x"));
         
         auto keys_var = OneMapHelper::keys(map_obj);
         auto values_var = OneMapHelper::values(map_obj);
-        return map_obj[string("z")];
+        return map_obj->operator[](string("z"));
     }
     
     void explicitTypeTest() {

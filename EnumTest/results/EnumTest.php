@@ -3,7 +3,7 @@
 class TestEnum { 
     const Item1 = 0;
     const Item2 = 1;
-};
+}
 
 class TestClass {
     function testMethod() {

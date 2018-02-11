@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type ConstructorTest struct {
     Field2 int
     Field1 int
@@ -24,9 +25,6 @@ func NewTestClass() *TestClass {
 func (this *TestClass) TestMethod() {
     test := NewConstructorTest(3)
     fmt.Println(test.Field2)
-}
-
-func init() {
 }
 
 func main() {

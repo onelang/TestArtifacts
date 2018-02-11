@@ -11,7 +11,7 @@ public class TestClass
 
 public class Program
 {
-    static public void Main()
+    static public void Main(string[] args)
     {
         try 
         {

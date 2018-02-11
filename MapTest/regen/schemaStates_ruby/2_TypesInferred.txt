@@ -1,4 +1,4 @@
-MapTestClass::map_test(): any
+TestClass::get_result(): any
   - Variable: map_obj [RubyMap<OneString, RubyNumber>]
     - MapLiteral [RubyMap<OneString, RubyNumber>]
       - Variable: x [RubyNumber]
@@ -15,4 +15,12 @@ MapTestClass::map_test(): any
       - MethodReference [RubyMap<OneString, RubyNumber>::get]
         - LocalVar: map_obj [RubyMap<OneString, RubyNumber>]
       - Literal (string): "x" [RubyString]
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - Call [any]
+          - MethodReference (this) [TestClass::get_result]
 

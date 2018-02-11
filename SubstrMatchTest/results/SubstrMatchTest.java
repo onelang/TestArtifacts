@@ -6,7 +6,7 @@ class TestClass {
         boolean tA1False = str.startsWith("A", 1);
         boolean tB1True = str.startsWith("B", 1);
         boolean tCD2True = str.startsWith("CD", 2);
-        System.out.println(tA0True + " " + tA1False + " " + tB1True + " " + tCD2True);
+        System.out.println((tA0True) + " " + (tA1False) + " " + (tB1True) + " " + (tCD2True));
     }
 }
 

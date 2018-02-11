@@ -3,6 +3,7 @@ package main
 import "fmt"
 import "strconv"
 
+
 type TestClass struct {
 }
 
@@ -21,9 +22,6 @@ func (this *TestClass) TestMethod() {
     
     result2 := "before " + strVal + ", num: " + strconv.Itoa(num) + ", true: " + strconv.FormatBool(b) + " after"
     fmt.Println(result2)
-}
-
-func init() {
 }
 
 func main() {

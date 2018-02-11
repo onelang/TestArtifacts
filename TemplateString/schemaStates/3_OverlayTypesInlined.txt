@@ -22,13 +22,13 @@ TestClass::testMethod(): void
         - LocalVar: num [OneNumber]
         - LocalVar: b [OneBoolean]
   - Comment: "\n"
-  - Variable: result2 [any]
-    - Binary: + [any]
-      - Binary: + [any]
-        - Binary: + [any]
-          - Binary: + [any]
-            - Binary: + [any]
-              - Binary: + [any]
+  - Variable: result2 [OneString]
+    - Binary: + [OneString]
+      - Binary: + [OneString]
+        - Binary: + [OneString]
+          - Binary: + [OneString]
+            - Binary: + [OneString]
+              - Binary: + [OneString]
                 - Literal (string): "before " [OneString]
                 - LocalVar: strVal [OneString]
               - Literal (string): ", num: " [OneString]
@@ -39,5 +39,5 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [OneConsole::print]
-      - LocalVar: result2 [any]
+      - LocalVar: result2 [OneString]
 

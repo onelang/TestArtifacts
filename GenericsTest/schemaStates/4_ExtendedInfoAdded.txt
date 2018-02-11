@@ -2,7 +2,7 @@ MapX::value: V
 
 MapX::set(key: K, value: V): void
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [V]
       - InstanceField (this): value [V]
       - MethodArgument: value [V]
 

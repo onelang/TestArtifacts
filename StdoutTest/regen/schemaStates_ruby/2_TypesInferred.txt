@@ -12,7 +12,7 @@ TestClass::reverse_string(str: ???): any
         - Literal (numeric): "0" [RubyNumber]
     Body
       - ExpressionStatement
-        - Binary: += [any]
+        - Binary: += [RubyString]
           - LocalVar: result [RubyString]
           - Call [any]
             - PropertyAccess (.get) [any]

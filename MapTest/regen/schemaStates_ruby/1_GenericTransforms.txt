@@ -1,4 +1,4 @@
-MapTestClass::map_test(): any
+TestClass::get_result(): any
   - ExpressionStatement
     - Binary: =
       - Identifier: map_obj
@@ -17,4 +17,14 @@ MapTestClass::map_test(): any
       - PropertyAccess (.get)
         - Identifier: map_obj
       - Literal (string): "x"
+
+TestClass::test_method(): any
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.print)
+        - Identifier: OneConsole
+      - TemplateString
+        - Call
+          - PropertyAccess (.get_result)
+            - Identifier: this
 

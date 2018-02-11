@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TestEnum int
 const (
     TestEnum_ITEM1 = 0
@@ -37,9 +38,6 @@ func (this *TestClass) TestMethod() {
     check2 := tmp1
     
     fmt.Println(fmt.Sprintf("Item1: %v, Item2: %v, checks: %v %v", TestEnum_ITEM1, enumV, check1, check2))
-}
-
-func init() {
 }
 
 func main() {

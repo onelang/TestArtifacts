@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TestClass struct {
 }
 
@@ -16,9 +17,6 @@ func (this *TestClass) TestMethod() {
     for  key, _ := range map {
       keys = append(keys, key)
     }
-}
-
-func init() {
 }
 
 func main() {

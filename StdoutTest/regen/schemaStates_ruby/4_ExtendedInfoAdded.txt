@@ -12,7 +12,7 @@ TestClass::reverse_string(str: ???): any
         - Literal (numeric): "0" [OneNumber]
     Body
       - ExpressionStatement
-        - Binary: += [any]
+        - Binary: += [OneString]
           - LocalVar: result [OneString]
           - Call [any]
             - PropertyAccess (.get) [any]

@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TestClass struct {
 }
 
@@ -21,9 +22,6 @@ func (this *TestClass) TestMethod() string {
     arr := strings.Split("ab  cd ef", " ")
     
     return z + "|" + x + y + "|" + a + "|" + arr[2]
-}
-
-func init() {
 }
 
 func main() {

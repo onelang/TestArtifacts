@@ -6,7 +6,7 @@ Item::offset: TsNumber
 
 Item::strTest: TsString
 - Variable: strTest [TsString]
-  - Binary: + [any]
+  - Binary: + [TsString]
     - Literal (string): "test" [TsString]
     - Literal (string): "test2" [TsString]
 
@@ -16,7 +16,7 @@ Item::strConstr: TsString
 
 Item::constructor
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TsString]
       - InstanceField (this): strConstr [TsString]
       - MethodArgument: strConstr [TsString]
 

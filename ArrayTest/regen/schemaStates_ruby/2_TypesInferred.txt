@@ -6,9 +6,10 @@ TestClass::test_method(): any
     - ArrayLiteral [RubyArray<RubyNumber>]
       - Literal (numeric): "1" [RubyNumber]
   - ExpressionStatement
-    - Binary: << [any]
+    - Binary: << [RubyArray<RubyNumber>]
       - LocalVar: mutable_arr [RubyArray<RubyNumber>]
-      - Literal (numeric): "2" [RubyNumber]
+      - Parenthesized [RubyNumber]
+        - Literal (numeric): "2" [RubyNumber]
   - Comment: "\n"
   - ExpressionStatement
     - Call [void]

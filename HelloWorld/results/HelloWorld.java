@@ -7,7 +7,7 @@ class TestClass {
         HashMap<String, Integer> map_ = new HashMap<String, Integer>();
         map_.put("a", 5);
         map_.put("b", 6);
-        String text = "Hello world! value = " + value + ", map[a] = " + map_.get("a");
+        String text = "Hello world! value = " + (value) + ", map[a] = " + (map_.get("a"));
         System.out.println(text);
     }
 }

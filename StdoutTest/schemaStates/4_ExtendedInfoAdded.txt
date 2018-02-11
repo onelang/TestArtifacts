@@ -3,26 +3,26 @@ TestClass::reverseString(str: OneString): OneString
     - Literal (string): "" [OneString]
   - For ("i")
     Var
-    - Variable: i [any]
-      - Binary: - [any]
+    - Variable: i [OneNumber]
+      - Binary: - [OneNumber]
         - InstanceField: length [OneNumber]
           - MethodArgument: str [OneString]
         - Literal (numeric): "1" [OneNumber]
     Condition
       - Binary: >= [OneBoolean]
-        - LocalVar: i [any]
+        - LocalVar: i [OneNumber]
         - Literal (numeric): "0" [OneNumber]
     Incrementor
-      - Unary (postfix): -- [any]
-        - LocalVar: i [any]
+      - Unary (postfix): -- [OneNumber]
+        - LocalVar: i [OneNumber]
     Body
       - ExpressionStatement
-        - Binary: += [any]
+        - Binary: += [OneString]
           - LocalVar: result [OneString]
           - Call [OneCharacter]
             - MethodReference [OneString::get]
               - MethodArgument: str [OneString]
-            - LocalVar: i [any]
+            - LocalVar: i [OneNumber]
   - Return
     - LocalVar: result [OneString]
 

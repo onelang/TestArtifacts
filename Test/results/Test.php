@@ -110,7 +110,7 @@ class TestClass {
         print(($this->mapTest()) . "\n");
         print(($this->stringTest()) . "\n");
         print(($this->reverseString("print value")) . "\n");
-        print(($this->getBoolResult(TRUE) ? "true" : ("false")) . "\n");
+        print(($this->getBoolResult(true) ? "true" : ("false")) . "\n");
     }
 }
 

@@ -9,7 +9,7 @@ class TestClass:
         self.enum_field = SomeKind.ENUM_VAL2
 
     def test_method(self):
-        print "Value: %s" % (self.enum_field, )
+        print "Value: %s" % (self.enum_field)
 
 try:
     TestClass().test_method()

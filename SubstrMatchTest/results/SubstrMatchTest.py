@@ -5,7 +5,7 @@ class TestClass:
         t_a1_false = str.startswith("A", 1)
         t_b1_true = str.startswith("B", 1)
         t_c_d2_true = str.startswith("CD", 2)
-        print "%s %s %s %s" % ("true" if t_a0_true else "false", "true" if t_a1_false else "false", "true" if t_b1_true else "false", "true" if t_c_d2_true else "false", )
+        print "%s %s %s %s" % ("true" if t_a0_true else "false", "true" if t_a1_false else "false", "true" if t_b1_true else "false", "true" if t_c_d2_true else "false")
 
 try:
     TestClass().test_method()

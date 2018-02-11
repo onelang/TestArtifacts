@@ -115,11 +115,12 @@ ExprLangLexer::add(kind: ???, value: ???): any
   - ExpressionStatement
     - Binary: << [any]
       - InstanceField (this): tokens [any]
-      - Call [any]
-        - PropertyAccess (.new) [any]
-          - ClassReference [Token]
-        - MethodArgument: kind [any]
-        - MethodArgument: value [any]
+      - Parenthesized [any]
+        - Call [any]
+          - PropertyAccess (.new) [any]
+            - ClassReference [Token]
+          - MethodArgument: kind [any]
+          - MethodArgument: value [any]
   - ExpressionStatement
     - Binary: += [any]
       - InstanceField (this): offset [any]
@@ -131,7 +132,7 @@ ExprLangLexer::try_to_match(pattern: ???): any
     - Call [any]
       - PropertyAccess (.match_from_index) [any]
         - PropertyAccess (.Regex) [any]
-          - Identifier: One [any]
+          - ClassReference [One]
       - MethodArgument: pattern [any]
       - InstanceField (this): expression [any]
       - InstanceField (this): offset [any]
@@ -173,9 +174,9 @@ ExprLangLexer::try_to_read_operator(): any
               - EnumMemberReference [TokenKind (enum)]
               - LocalVar: op [any]
           - Return
-            - Literal (boolean): true [RubyBoolean]
+            - Literal (boolean): true [OneBoolean]
   - Return
-    - Literal (boolean): false [RubyBoolean]
+    - Literal (boolean): false [OneBoolean]
 
 ExprLangLexer::try_to_read_number(): any
   - ExpressionStatement
@@ -191,7 +192,7 @@ ExprLangLexer::try_to_read_number(): any
       - Literal (string): "" [OneString]
     Then
       - Return
-        - Literal (boolean): false [RubyBoolean]
+        - Literal (boolean): false [OneBoolean]
   - Comment: "\n"
   - ExpressionStatement
     - Call [any]
@@ -212,7 +213,7 @@ ExprLangLexer::try_to_read_number(): any
           - Literal (string): "invalid character in number" [OneString]
   - Comment: "\n"
   - Return
-    - Literal (boolean): true [RubyBoolean]
+    - Literal (boolean): true [OneBoolean]
 
 ExprLangLexer::try_to_read_identifier(): any
   - ExpressionStatement
@@ -228,7 +229,7 @@ ExprLangLexer::try_to_read_identifier(): any
       - Literal (string): "" [OneString]
     Then
       - Return
-        - Literal (boolean): false [RubyBoolean]
+        - Literal (boolean): false [OneBoolean]
   - Comment: "\n"
   - ExpressionStatement
     - Call [any]
@@ -236,7 +237,7 @@ ExprLangLexer::try_to_read_identifier(): any
       - EnumMemberReference [TokenKind (enum)]
       - LocalVar: identifier [any]
   - Return
-    - Literal (boolean): true [RubyBoolean]
+    - Literal (boolean): true [OneBoolean]
 
 ExprLangLexer::try_to_read_string(): any
   - ExpressionStatement
@@ -263,13 +264,13 @@ ExprLangLexer::try_to_read_string(): any
       - Literal (string): "" [OneString]
     Then
       - Return
-        - Literal (boolean): false [RubyBoolean]
+        - Literal (boolean): false [OneBoolean]
   - Variable: str [any]
     - Call [any]
       - PropertyAccess (.get) [any]
         - LocalVar: match [any]
-      - Binary: - [any]
-        - Binary: + [any]
+      - Binary: - [OneNumber]
+        - Binary: + [OneNumber]
           - Binary: ... [OneNumber]
             - Literal (numeric): "1" [OneNumber]
             - Literal (numeric): "1" [OneNumber]
@@ -299,18 +300,19 @@ ExprLangLexer::try_to_read_string(): any
   - ExpressionStatement
     - Binary: << [any]
       - InstanceField (this): tokens [any]
-      - Call [any]
-        - PropertyAccess (.new) [any]
-          - ClassReference [Token]
-        - EnumMemberReference [TokenKind (enum)]
-        - LocalVar: str [any]
+      - Parenthesized [any]
+        - Call [any]
+          - PropertyAccess (.new) [any]
+            - ClassReference [Token]
+          - EnumMemberReference [TokenKind (enum)]
+          - LocalVar: str [any]
   - ExpressionStatement
     - Binary: += [any]
       - InstanceField (this): offset [any]
       - PropertyAccess (.length) [any]
         - LocalVar: match [any]
   - Return
-    - Literal (boolean): true [RubyBoolean]
+    - Literal (boolean): true [OneBoolean]
 
 ExprLangLexer::eof(): any
   - Return

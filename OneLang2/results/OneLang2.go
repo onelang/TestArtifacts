@@ -4,6 +4,7 @@ import "fmt"
 import "one"
 import "strings"
 
+
 type TokenKind int
 const (
     TokenKind_NUMBER = 0
@@ -186,9 +187,6 @@ func (this *TestClass) TestMethod() {
     }
     
     fmt.Println(fmt.Sprintf("[%v]: %v", len(lexer.Tokens), result))
-}
-
-func init() {
 }
 
 func main() {

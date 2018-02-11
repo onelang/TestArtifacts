@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-package MapTestClass;
+package TestClass;
 
 sub new
 {
@@ -11,7 +11,7 @@ sub new
     return $self;
 }
 
-sub map_test {
+sub get_result {
     my ( $self ) = @_;
     my $map_obj = {
       x => 5,
@@ -20,4 +20,19 @@ sub map_test {
     #delete mapObj["x"];
     ${$map_obj}{"x"} = 3;
     return ${$map_obj}{"x"};
+}
+
+sub test_method {
+    my ( $self ) = @_;
+    print(("Result = @{[$self->get_result()]}") . "\n");
+}
+
+package Program;
+
+eval {
+    my $c = new TestClass();
+    $c->test_method();
+};
+if ($@) {
+    print "Exception: " . $@
 }

@@ -12,7 +12,7 @@ Item::initialize(str_constr: ???): any
   - ExpressionStatement
     - Binary: = [any]
       - InstanceField (this): str_test [any]
-      - Binary: + [any]
+      - Binary: + [RubyString]
         - Literal (string): "test" [RubyString]
         - Literal (string): "test2" [RubyString]
   - ExpressionStatement

@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type IPrinterBase interface {
     SomeBaseFunc() int 
 }
@@ -74,9 +75,6 @@ func (this *TestClass) TestMethod() {
     baseP2 := NewBasePrinter()
     childP2 := NewChildPrinter()
     fmt.Println(fmt.Sprintf("%v == %v", baseP2.NumValue, childP2.NumValue))
-}
-
-func init() {
 }
 
 func main() {

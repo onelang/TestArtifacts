@@ -13,7 +13,8 @@ TestClass::test_method(): any
   - ExpressionStatement
     - Binary: <<
       - Identifier: mutable_arr
-      - Literal (numeric): "2"
+      - Parenthesized
+        - Literal (numeric): "2"
   - Comment: "\n"
   - ExpressionStatement
     - Call

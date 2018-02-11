@@ -30,7 +30,7 @@ TestClass::test_method(): any
     - Call [any]
       - PropertyAccess (.get_class) [any]
         - PropertyAccess (.Reflect) [any]
-          - Identifier: One [any]
+          - ClassReference [One]
       - LocalVar: obj [any]
   - If
     - Binary: == [OneBoolean]
@@ -46,7 +46,7 @@ TestClass::test_method(): any
     - Call [any]
       - PropertyAccess (.get_class_by_name) [any]
         - PropertyAccess (.Reflect) [any]
-          - Identifier: One [any]
+          - ClassReference [One]
       - Literal (string): "TargetClass" [OneString]
   - If
     - Binary: == [OneBoolean]

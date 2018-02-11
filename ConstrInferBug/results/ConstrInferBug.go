@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TestClass struct {
 }
 
@@ -13,9 +14,6 @@ func (this *TestClass) MethodTest(methodParam []string) {
 }
 
 func (this *TestClass) TestMethod() {
-}
-
-func init() {
 }
 
 func main() {

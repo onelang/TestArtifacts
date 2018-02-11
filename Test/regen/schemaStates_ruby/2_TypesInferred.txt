@@ -48,7 +48,7 @@ TestClass::if_test(x: ???): any
       - Literal (numeric): "3" [RubyNumber]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [RubyString]
           - LocalVar: result [RubyString]
           - Literal (string): "hello" [RubyString]
     Else
@@ -58,7 +58,7 @@ TestClass::if_test(x: ???): any
           - Literal (numeric): "1" [RubyNumber]
         Then
           - ExpressionStatement
-            - Binary: = [any]
+            - Binary: = [RubyString]
               - LocalVar: result [RubyString]
               - Literal (string): "bello" [RubyString]
         Else
@@ -68,12 +68,12 @@ TestClass::if_test(x: ???): any
               - Literal (numeric): "0" [RubyNumber]
             Then
               - ExpressionStatement
-                - Binary: = [any]
+                - Binary: = [RubyString]
                   - LocalVar: result [RubyString]
                   - Literal (string): "bello2" [RubyString]
             Else
               - ExpressionStatement
-                - Binary: = [any]
+                - Binary: = [RubyString]
                   - LocalVar: result [RubyString]
                   - Literal (string): "???" [RubyString]
   - Comment: "\n"
@@ -83,7 +83,7 @@ TestClass::if_test(x: ???): any
       - Literal (numeric): "3" [RubyNumber]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [RubyString]
           - LocalVar: result [RubyString]
           - Literal (string): "z" [RubyString]
   - Comment: "\n"
@@ -93,12 +93,12 @@ TestClass::if_test(x: ???): any
       - Literal (numeric): "3" [RubyNumber]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [RubyString]
           - LocalVar: result [RubyString]
           - Literal (string): "x" [RubyString]
     Else
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [RubyString]
           - LocalVar: result [RubyString]
           - Literal (string): "y" [RubyString]
   - Comment: "\n"
@@ -111,13 +111,15 @@ TestClass::array_test(): any
       - Literal (numeric): "1" [RubyNumber]
       - Literal (numeric): "2" [RubyNumber]
   - ExpressionStatement
-    - Binary: << [any]
+    - Binary: << [RubyArray<RubyNumber>]
       - LocalVar: mutable_arr [RubyArray<RubyNumber>]
-      - Literal (numeric): "3" [RubyNumber]
+      - Parenthesized [RubyNumber]
+        - Literal (numeric): "3" [RubyNumber]
   - ExpressionStatement
-    - Binary: << [any]
+    - Binary: << [RubyArray<RubyNumber>]
       - LocalVar: mutable_arr [RubyArray<RubyNumber>]
-      - Literal (numeric): "4" [RubyNumber]
+      - Parenthesized [RubyNumber]
+        - Literal (numeric): "4" [RubyNumber]
   - Variable: constant_arr [RubyArray<RubyNumber>]
     - ArrayLiteral [RubyArray<RubyNumber>]
       - Literal (numeric): "5" [RubyNumber]
@@ -134,7 +136,7 @@ TestClass::array_test(): any
   - Variable: i [RubyNumber]
     - Literal (numeric): "0" [RubyNumber]
   - While
-      - Binary: < [any]
+      - Binary: < [RubyNumber]
         - LocalVar: i [RubyNumber]
         - InstanceField: length [TsNumber]
           - LocalVar: constant_arr [RubyArray<RubyNumber>]
@@ -147,15 +149,15 @@ TestClass::array_test(): any
               - LocalVar: constant_arr [RubyArray<RubyNumber>]
             - LocalVar: i [RubyNumber]
       - ExpressionStatement
-        - Binary: += [any]
+        - Binary: += [RubyNumber]
           - LocalVar: i [RubyNumber]
           - Literal (numeric): "1" [RubyNumber]
 
 TestClass::calc(): any
   - Return
-    - Binary: * [any]
-      - Parenthesized [any]
-        - Binary: + [any]
+    - Binary: * [RubyNumber]
+      - Parenthesized [RubyNumber]
+        - Binary: + [RubyNumber]
           - Literal (numeric): "1" [RubyNumber]
           - Literal (numeric): "2" [RubyNumber]
       - Literal (numeric): "3" [RubyNumber]
@@ -181,18 +183,18 @@ TestClass::string_test(): any
   - Variable: z [RubyString]
     - Literal (string): "z" [RubyString]
   - ExpressionStatement
-    - Binary: += [any]
+    - Binary: += [RubyString]
       - LocalVar: z [RubyString]
       - Literal (string): "Z" [RubyString]
   - ExpressionStatement
-    - Binary: += [any]
+    - Binary: += [RubyString]
       - LocalVar: z [RubyString]
       - LocalVar: x [RubyString]
   - Comment: "\n"
   - Return
-    - Binary: + [any]
-      - Binary: + [any]
-        - Binary: + [any]
+    - Binary: + [RubyString]
+      - Binary: + [RubyString]
+        - Binary: + [RubyString]
           - LocalVar: z [RubyString]
           - Literal (string): "|" [RubyString]
         - LocalVar: x [RubyString]
@@ -212,7 +214,7 @@ TestClass::reverse_string(str: ???): any
         - Literal (numeric): "0" [RubyNumber]
     Body
       - ExpressionStatement
-        - Binary: += [any]
+        - Binary: += [RubyString]
           - LocalVar: result [RubyString]
           - Call [any]
             - PropertyAccess (.get) [any]

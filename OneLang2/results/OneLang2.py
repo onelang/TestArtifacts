@@ -33,7 +33,7 @@ class ExprLangLexer:
         if end_offset > len(self.expression):
             end_offset = len(self.expression)
         context = self.expression[self.offset:end_offset] + "..."
-        raise Exception("TokenizerException: %s at '%s' (offset: %s)" % (message, context, self.offset, ))
+        raise Exception("TokenizerException: %s at '%s' (offset: %s)" % (message, context, self.offset))
     
     def has_more_token(self):
         self.skip_whitespace()
@@ -117,7 +117,7 @@ class TestClass:
                 result += ", "
             result += token.value
         
-        print "[%s]: %s" % (len(lexer.tokens), result, )
+        print "[%s]: %s" % (len(lexer.tokens), result)
 
 try:
     TestClass().test_method()

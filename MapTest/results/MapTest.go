@@ -1,15 +1,16 @@
 package main
 
 import "fmt"
-type MapTestClass struct {
+
+type TestClass struct {
 }
 
-func NewMapTestClass() *MapTestClass {
-    this := new(MapTestClass)
+func NewTestClass() *TestClass {
+    this := new(TestClass)
     return this
 }
 
-func (this *MapTestClass) MapTest() {
+func (this *TestClass) GetResult() int {
     mapObj := map[string]int{
       "x": 5,
     }
@@ -19,5 +20,17 @@ func (this *MapTestClass) MapTest() {
     return mapObj["x"]
 }
 
-func init() {
+func (this *TestClass) TestMethod() {
+    fmt.Println(fmt.Sprintf("Result = %v", this.GetResult()))
+}
+
+func main() {
+    defer func() {
+      if r := recover(); r != nil {
+          fmt.Print("Exception: ", r)
+      }
+    }()
+
+    c := NewTestClass()
+    c.TestMethod();
 }

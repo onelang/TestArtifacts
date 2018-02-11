@@ -4,7 +4,7 @@ TestClass::test_method(): any
   - Variable: i [RubyNumber]
     - Literal (numeric): "0" [RubyNumber]
   - While
-      - Binary: < [any]
+      - Binary: < [RubyNumber]
         - LocalVar: i [RubyNumber]
         - InstanceField: length [OneNumber]
           - LocalVar: str [RubyString]
@@ -52,7 +52,7 @@ TestClass::test_method(): any
                 - Literal (string): "number" [RubyString]
                 - Literal (string): "other" [RubyString]
       - ExpressionStatement
-        - Binary: += [any]
+        - Binary: += [RubyNumber]
           - LocalVar: i [RubyNumber]
           - Literal (numeric): "1" [RubyNumber]
 

@@ -7,11 +7,11 @@ TestClass::testMethod(): TsString
   - Variable: z [TsString]
     - Literal (string): "z" [TsString]
   - ExpressionStatement
-    - Binary: += [any]
+    - Binary: += [TsString]
       - LocalVar: z [TsString]
       - Literal (string): "Z" [TsString]
   - ExpressionStatement
-    - Binary: += [any]
+    - Binary: += [TsString]
       - LocalVar: z [TsString]
       - LocalVar: x [TsString]
   - Comment: "\n"
@@ -28,13 +28,13 @@ TestClass::testMethod(): TsString
       - Literal (string): " " [TsString]
   - Comment: "\n"
   - Return
-    - Binary: + [any]
-      - Binary: + [any]
-        - Binary: + [any]
-          - Binary: + [any]
-            - Binary: + [any]
-              - Binary: + [any]
-                - Binary: + [any]
+    - Binary: + [TsString]
+      - Binary: + [TsString]
+        - Binary: + [TsString]
+          - Binary: + [TsString]
+            - Binary: + [TsString]
+              - Binary: + [TsString]
+                - Binary: + [TsString]
                   - LocalVar: z [TsString]
                   - Literal (string): "|" [TsString]
                 - LocalVar: x [TsString]

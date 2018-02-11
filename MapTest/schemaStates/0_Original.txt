@@ -1,4 +1,4 @@
-MapTestClass::mapTest(): void
+TestClass::getResult(): TsNumber
   - Variable: mapObj
     - MapLiteral
       - Variable: x
@@ -14,4 +14,14 @@ MapTestClass::mapTest(): void
     - ElementAccess
       - Identifier: mapObj
       - Literal (string): "x"
+
+TestClass::testMethod(): void
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - TemplateString
+        - Call
+          - PropertyAccess (.getResult)
+            - Identifier: this
 

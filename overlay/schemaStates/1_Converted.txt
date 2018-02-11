@@ -93,7 +93,7 @@ TsString::substr(start: TsNumber, length: TsNumber): OneString
     - Call [OneString]
       - MethodReference (this) [OneString::substring]
       - MethodArgument: start [TsNumber]
-      - Binary: + [any]
+      - Binary: + [TsNumber]
         - MethodArgument: start [TsNumber]
         - MethodArgument: length [TsNumber]
 

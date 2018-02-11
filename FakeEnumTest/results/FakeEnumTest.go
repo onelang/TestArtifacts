@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TokenType struct {
 }
 
@@ -26,9 +27,6 @@ func NewTestClass() *TestClass {
 func (this *TestClass) TestMethod() string {
     casingTest := TokenTypeEndToken
     return casingTest
-}
-
-func init() {
 }
 
 func main() {

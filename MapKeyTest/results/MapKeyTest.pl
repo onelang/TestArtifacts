@@ -15,7 +15,7 @@ sub test_method {
     my ( $self ) = @_;
     my $map = {
     };
-    my $keys = keys $map;
+    my $keys = keys %{$map};
 }
 
 package Program;

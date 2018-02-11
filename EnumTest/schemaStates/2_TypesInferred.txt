@@ -5,13 +5,13 @@ TestClass::testMethod(): void
     - EnumMemberReference [TestEnum (enum)]
   - If
     - Binary: == [OneBoolean]
-      - Binary: * [any]
+      - Binary: * [TsNumber]
         - Literal (numeric): "3" [TsNumber]
         - Literal (numeric): "2" [TsNumber]
       - Literal (numeric): "6" [TsNumber]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [TestEnum (enum)]
           - LocalVar: enumV [TestEnum (enum)]
           - EnumMemberReference [TestEnum (enum)]
   - Comment: "\n"

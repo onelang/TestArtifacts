@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TestClass struct {
 }
 
@@ -20,9 +21,6 @@ func (this *TestClass) ReverseString(str string) string {
 func (this *TestClass) TestMethod() string {
     fmt.Println(this.ReverseString("print value"))
     return "return value"
-}
-
-func init() {
 }
 
 func main() {

@@ -3,14 +3,14 @@ ConstructorTest::field1: TsNumber
 
 ConstructorTest::constructor
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TsNumber]
       - InstanceField (this): field1 [TsNumber]
       - MethodArgument: field1 [TsNumber]
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TsNumber]
       - InstanceField (this): field2 [TsNumber]
-      - Binary: * [any]
-        - Binary: * [any]
+      - Binary: * [TsNumber]
+        - Binary: * [TsNumber]
           - MethodArgument: field1 [TsNumber]
           - InstanceField (this): field1 [TsNumber]
         - Literal (numeric): "5" [TsNumber]

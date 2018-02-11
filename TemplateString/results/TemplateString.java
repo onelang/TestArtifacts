@@ -4,9 +4,9 @@ class TestClass {
         String strVal = "str";
         Integer num = 1337;
         boolean b = true;
-        String result = "before " + strVal + ", num: " + num + ", true: " + b + " after";
+        String result = "before " + (strVal) + ", num: " + (num) + ", true: " + (b) + " after";
         System.out.println(result);
-        System.out.println("before " + strVal + ", num: " + num + ", true: " + b + " after");
+        System.out.println("before " + (strVal) + ", num: " + (num) + ", true: " + (b) + " after");
         
         String result2 = "before " + strVal + ", num: " + num + ", true: " + b + " after";
         System.out.println(result2);

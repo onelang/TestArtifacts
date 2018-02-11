@@ -6,9 +6,10 @@ TestClass::test_method(): any
     - ArrayLiteral [OneArray<OneNumber>]
       - Literal (numeric): "1" [OneNumber]
   - ExpressionStatement
-    - Binary: << [any]
+    - Binary: << [OneArray<OneNumber>]
       - LocalVar: mutable_arr [OneArray<OneNumber>]
-      - Literal (numeric): "2" [OneNumber]
+      - Parenthesized [OneNumber]
+        - Literal (numeric): "2" [OneNumber]
   - Comment: "\n"
   - ExpressionStatement
     - Call [void]

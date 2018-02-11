@@ -46,62 +46,62 @@ TestClass::ifTest(x: TsNumber): TsString
     - Literal (string): "<unk>" [TsString]
   - Comment: "\n"
   - If
-    - Binary: > [any]
+    - Binary: > [TsNumber]
       - MethodArgument: x [TsNumber]
       - Literal (numeric): "3" [TsNumber]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [TsString]
           - LocalVar: result [TsString]
           - Literal (string): "hello" [TsString]
     Else
       - If
-        - Binary: < [any]
+        - Binary: < [TsNumber]
           - MethodArgument: x [TsNumber]
           - Literal (numeric): "1" [TsNumber]
         Then
           - ExpressionStatement
-            - Binary: = [any]
+            - Binary: = [TsString]
               - LocalVar: result [TsString]
               - Literal (string): "bello" [TsString]
         Else
           - If
-            - Binary: < [any]
+            - Binary: < [TsNumber]
               - MethodArgument: x [TsNumber]
               - Literal (numeric): "0" [TsNumber]
             Then
               - ExpressionStatement
-                - Binary: = [any]
+                - Binary: = [TsString]
                   - LocalVar: result [TsString]
                   - Literal (string): "bello2" [TsString]
             Else
               - ExpressionStatement
-                - Binary: = [any]
+                - Binary: = [TsString]
                   - LocalVar: result [TsString]
                   - Literal (string): "???" [TsString]
   - Comment: "\n"
   - If
-    - Binary: > [any]
+    - Binary: > [TsNumber]
       - MethodArgument: x [TsNumber]
       - Literal (numeric): "3" [TsNumber]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [TsString]
           - LocalVar: result [TsString]
           - Literal (string): "z" [TsString]
   - Comment: "\n"
   - If
-    - Binary: > [any]
+    - Binary: > [TsNumber]
       - MethodArgument: x [TsNumber]
       - Literal (numeric): "3" [TsNumber]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [TsString]
           - LocalVar: result [TsString]
           - Literal (string): "x" [TsString]
     Else
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [TsString]
           - LocalVar: result [TsString]
           - Literal (string): "y" [TsString]
   - Comment: "\n"
@@ -144,7 +144,7 @@ TestClass::arrayTest(): void
     - Variable: i [TsNumber]
       - Literal (numeric): "0" [TsNumber]
     Condition
-      - Binary: < [any]
+      - Binary: < [TsNumber]
         - LocalVar: i [TsNumber]
         - InstanceField: length [TsNumber]
           - LocalVar: constantArr [TsArray<TsNumber>]
@@ -162,25 +162,25 @@ TestClass::arrayTest(): void
 
 TestClass::calc(): TsNumber
   - Return
-    - Binary: * [any]
-      - Parenthesized [any]
-        - Binary: + [any]
+    - Binary: * [TsNumber]
+      - Parenthesized [TsNumber]
+        - Binary: + [TsNumber]
           - Literal (numeric): "1" [TsNumber]
           - Literal (numeric): "2" [TsNumber]
       - Literal (numeric): "3" [TsNumber]
 
 TestClass::methodWithArgs(arg1: TsNumber, arg2: TsNumber, arg3: TsNumber): TsNumber
-  - Variable: stuff [any]
-    - Binary: + [any]
-      - Binary: + [any]
+  - Variable: stuff [TsNumber]
+    - Binary: + [TsNumber]
+      - Binary: + [TsNumber]
         - MethodArgument: arg1 [TsNumber]
         - MethodArgument: arg2 [TsNumber]
-      - Binary: * [any]
+      - Binary: * [TsNumber]
         - MethodArgument: arg3 [TsNumber]
         - Call [TsNumber]
           - MethodReference (this) [TestClass::calc]
   - Return
-    - LocalVar: stuff [any]
+    - LocalVar: stuff [TsNumber]
 
 TestClass::stringTest(): TsString
   - Variable: x [TsString]
@@ -191,18 +191,18 @@ TestClass::stringTest(): TsString
   - Variable: z [TsString]
     - Literal (string): "z" [TsString]
   - ExpressionStatement
-    - Binary: += [any]
+    - Binary: += [TsString]
       - LocalVar: z [TsString]
       - Literal (string): "Z" [TsString]
   - ExpressionStatement
-    - Binary: += [any]
+    - Binary: += [TsString]
       - LocalVar: z [TsString]
       - LocalVar: x [TsString]
   - Comment: "\n"
   - Return
-    - Binary: + [any]
-      - Binary: + [any]
-        - Binary: + [any]
+    - Binary: + [TsString]
+      - Binary: + [TsString]
+        - Binary: + [TsString]
           - LocalVar: z [TsString]
           - Literal (string): "|" [TsString]
         - LocalVar: x [TsString]
@@ -213,26 +213,26 @@ TestClass::reverseString(str: TsString): TsString
     - Literal (string): "" [TsString]
   - For ("i")
     Var
-    - Variable: i [any]
-      - Binary: - [any]
+    - Variable: i [OneNumber]
+      - Binary: - [OneNumber]
         - InstanceField: length [OneNumber]
           - MethodArgument: str [TsString]
         - Literal (numeric): "1" [TsNumber]
     Condition
       - Binary: >= [OneBoolean]
-        - LocalVar: i [any]
+        - LocalVar: i [OneNumber]
         - Literal (numeric): "0" [TsNumber]
     Incrementor
-      - Unary (postfix): -- [any]
-        - LocalVar: i [any]
+      - Unary (postfix): -- [OneNumber]
+        - LocalVar: i [OneNumber]
     Body
       - ExpressionStatement
-        - Binary: += [any]
+        - Binary: += [TsString]
           - LocalVar: result [TsString]
           - Call [OneCharacter]
             - MethodReference [TsString::get]
               - MethodArgument: str [TsString]
-            - LocalVar: i [any]
+            - LocalVar: i [OneNumber]
   - Return
     - LocalVar: result [TsString]
 

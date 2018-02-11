@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TestClass struct {
 }
 
@@ -12,9 +13,6 @@ func NewTestClass() *TestClass {
 func (this *TestClass) TestMethod() {
     op := nil
     fmt.Println(len(op))
-}
-
-func init() {
 }
 
 func main() {

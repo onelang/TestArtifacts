@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TestClass struct {
 }
 
@@ -16,9 +17,6 @@ func (this *TestClass) TestMethod() {
     mutableArr = append(mutableArr, 2)
     
     fmt.Println(fmt.Sprintf("len1: %v, len2: %v", len(constantArr), len(mutableArr)))
-}
-
-func init() {
 }
 
 func main() {

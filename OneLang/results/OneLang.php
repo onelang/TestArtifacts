@@ -59,7 +59,7 @@ class Tokenizer {
                     $this->offset++;
                 }
                 $identifier = substr($this->text, $start_offset, $this->offset - $start_offset);
-                $result[] = new Token($identifier, FALSE);
+                $result[] = new Token($identifier, false);
             } else {
                 $op = "";
                 foreach ($this->operators as $curr_op) {
@@ -74,7 +74,7 @@ class Tokenizer {
                 }
                 
                 $this->offset += strlen($op);
-                $result[] = new Token($op, TRUE);
+                $result[] = new Token($op, true);
             }
         }
         

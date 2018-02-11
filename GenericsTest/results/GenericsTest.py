@@ -10,7 +10,7 @@ class TestClass:
         map_x = MapX()
         map_x.set("hello", 3)
         num_value = map_x.get("hello2")
-        print "%s" % (num_value, )
+        print "%s" % (num_value)
 
 try:
     TestClass().test_method()

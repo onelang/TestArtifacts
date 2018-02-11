@@ -2,7 +2,7 @@
 
 class TestClass {
     function getResult() {
-        return TRUE;
+        return true;
     }
     
     function testMethod() {

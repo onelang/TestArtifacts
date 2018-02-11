@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type MapX struct {
     Value interface{}
 }
@@ -31,9 +32,6 @@ func (this *TestClass) TestMethod() {
     mapX.Set("hello", 3)
     numValue := mapX.Get("hello2")
     fmt.Println(fmt.Sprintf("%v", numValue))
-}
-
-func init() {
 }
 
 func main() {

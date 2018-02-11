@@ -1,8 +1,5 @@
 #include <one.hpp>
-#include <memory>
-#include <fstream>
 #include <vector>
-#include <map>
 #include <iostream>
 
 class TestClass {

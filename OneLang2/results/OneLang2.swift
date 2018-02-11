@@ -16,11 +16,11 @@ class Token {
 
 class ExprLangLexer {
   var offset: Int = 0
-  var tokens: [Token]? = [Token]()
+  var tokens: [Token?]? = [Token]()
   var expression: String
   var operators: [String]?
 
-  init(expression: String, operators: [String]) {
+  init(expression: String, operators: [String]?) {
       self.expression = expression
       self.operators = operators
       if !(try self.tryToReadNumber()) {
@@ -65,7 +65,7 @@ class ExprLangLexer {
 
   func tryToReadOperator() -> Bool {
       self.skipWhitespace()
-      for op in self.operators {
+      for op in self.operators! {
           if String(self.expression[self.expression.index(self.expression.startIndex, offsetBy: self.offset) ..< self.expression.endIndex]).hasPrefix(op) {
               self.add(kind: TokenKind.operator_, value: op)
               return true
@@ -145,7 +145,7 @@ class TestClass {
   func testMethod() -> Void {
       let lexer: ExprLangLexer? = ExprLangLexer(expression: "1+2", operators: ["+"])
       var result = ""
-      for token in lexer!.tokens {
+      for token in lexer!.tokens! {
           if result != "" {
               result += ", "
           }

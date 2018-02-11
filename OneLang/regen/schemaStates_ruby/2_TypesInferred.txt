@@ -187,13 +187,14 @@ Tokenizer::tokenize(): any
                     - LocalVar: start_offset [any]
                     - InstanceField (this): offset [any]
               - ExpressionStatement
-                - Binary: << [any]
+                - Binary: << [RubyArray<any>]
                   - LocalVar: result [RubyArray<any>]
-                  - Call [any]
-                    - PropertyAccess (.new) [any]
-                      - ClassReference [Token]
-                    - LocalVar: identifier [any]
-                    - Literal (boolean): false [RubyBoolean]
+                  - Parenthesized [any]
+                    - Call [any]
+                      - PropertyAccess (.new) [any]
+                        - ClassReference [Token]
+                      - LocalVar: identifier [any]
+                      - Literal (boolean): false [RubyBoolean]
             Else
               - Variable: op [RubyString]
                 - Literal (string): "" [RubyString]
@@ -209,7 +210,7 @@ Tokenizer::tokenize(): any
                       - InstanceField (this): offset [any]
                     Then
                       - ExpressionStatement
-                        - Binary: = [any]
+                        - Binary: = [RubyString]
                           - LocalVar: op [RubyString]
                           - LocalVar: curr_op [any]
                       - Break
@@ -225,13 +226,14 @@ Tokenizer::tokenize(): any
                   - InstanceField: length [OneNumber]
                     - LocalVar: op [RubyString]
               - ExpressionStatement
-                - Binary: << [any]
+                - Binary: << [RubyArray<any>]
                   - LocalVar: result [RubyArray<any>]
-                  - Call [any]
-                    - PropertyAccess (.new) [any]
-                      - ClassReference [Token]
-                    - LocalVar: op [RubyString]
-                    - Literal (boolean): true [RubyBoolean]
+                  - Parenthesized [any]
+                    - Call [any]
+                      - PropertyAccess (.new) [any]
+                        - ClassReference [Token]
+                      - LocalVar: op [RubyString]
+                      - Literal (boolean): true [RubyBoolean]
   - Comment: "\n"
   - Return
     - LocalVar: result [RubyArray<any>]

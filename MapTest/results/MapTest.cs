@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
-public class MapTestClass
+public class TestClass
 {
-    public void MapTest()
+    public int GetResult()
     {
         var mapObj = new Dictionary<string, int>
         {
@@ -13,5 +14,25 @@ public class MapTestClass
         //delete mapObj["x"];
         mapObj["x"] = 3;
         return mapObj["x"];
+    }
+    
+    public void TestMethod()
+    {
+        Console.WriteLine($"Result = {this.GetResult()}");
+    }
+}
+
+public class Program
+{
+    static public void Main(string[] args)
+    {
+        try 
+        {
+            new TestClass().TestMethod();
+        }
+        catch (System.Exception e)
+        {
+            System.Console.WriteLine($"Exception: {e.Message}");
+        }
     }
 }

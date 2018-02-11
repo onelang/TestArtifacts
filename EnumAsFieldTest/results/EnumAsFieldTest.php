@@ -4,7 +4,7 @@ class SomeKind {
     const EnumVal0 = 0;
     const EnumVal1 = 1;
     const EnumVal2 = 2;
-};
+}
 
 class TestClass {
     public $enum_field = SomeKind::EnumVal2;

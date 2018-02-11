@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TestClass struct {
 }
 
@@ -17,9 +18,6 @@ func (this *TestClass) TestMethod() {
     }
     text := fmt.Sprintf("Hello world! value = %v, map[a] = %v", value, map_["a"])
     fmt.Println(text)
-}
-
-func init() {
 }
 
 func main() {

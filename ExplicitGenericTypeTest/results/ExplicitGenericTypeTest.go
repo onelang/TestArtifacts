@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TestClass struct {
 }
 
@@ -20,9 +21,6 @@ func (this *TestClass) TestMethod() {
     }
     fmt.Println(result)
     fmt.Println(keys)
-}
-
-func init() {
 }
 
 func main() {

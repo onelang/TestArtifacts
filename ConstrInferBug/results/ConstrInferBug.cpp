@@ -1,9 +1,4 @@
 #include <one.hpp>
-#include <memory>
-#include <fstream>
-#include <vector>
-#include <map>
-
 class TestClass {
   public:
     void methodTest(vec<string> method_param) {

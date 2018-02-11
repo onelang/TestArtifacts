@@ -216,11 +216,12 @@ Tokenizer::tokenize(): any
               - ExpressionStatement
                 - Binary: <<
                   - Identifier: result
-                  - Call
-                    - PropertyAccess (.new)
-                      - Identifier: Token
-                    - Identifier: identifier
-                    - Literal (boolean): false
+                  - Parenthesized
+                    - Call
+                      - PropertyAccess (.new)
+                        - Identifier: Token
+                      - Identifier: identifier
+                      - Literal (boolean): false
             Else
               - ExpressionStatement
                 - Binary: =
@@ -261,11 +262,12 @@ Tokenizer::tokenize(): any
               - ExpressionStatement
                 - Binary: <<
                   - Identifier: result
-                  - Call
-                    - PropertyAccess (.new)
-                      - Identifier: Token
-                    - Identifier: op
-                    - Literal (boolean): true
+                  - Parenthesized
+                    - Call
+                      - PropertyAccess (.new)
+                        - Identifier: Token
+                      - Identifier: op
+                      - Literal (boolean): true
   - Comment: "\n"
   - Return
     - Identifier: result

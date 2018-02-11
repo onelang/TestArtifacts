@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TokenType struct {
 }
 
@@ -137,9 +138,6 @@ func (this *TestClass) TestMethod() {
         }
         fmt.Println(item.Value + "(" + (tmp2) + ")")
     }
-}
-
-func init() {
 }
 
 func main() {

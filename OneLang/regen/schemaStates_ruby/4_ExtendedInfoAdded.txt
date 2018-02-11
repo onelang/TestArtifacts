@@ -187,13 +187,14 @@ Tokenizer::tokenize(): any
                     - LocalVar: start_offset [any]
                     - InstanceField (this): offset [any]
               - ExpressionStatement
-                - Binary: << [any]
+                - Binary: << [OneArray<any>]
                   - LocalVar: result [OneArray<any>]
-                  - Call [any]
-                    - PropertyAccess (.new) [any]
-                      - ClassReference [Token]
-                    - LocalVar: identifier [any]
-                    - Literal (boolean): false [RubyBoolean]
+                  - Parenthesized [any]
+                    - Call [any]
+                      - PropertyAccess (.new) [any]
+                        - ClassReference [Token]
+                      - LocalVar: identifier [any]
+                      - Literal (boolean): false [OneBoolean]
             Else
               - Variable: op [OneString]
                 - Literal (string): "" [OneString]
@@ -209,7 +210,7 @@ Tokenizer::tokenize(): any
                       - InstanceField (this): offset [any]
                     Then
                       - ExpressionStatement
-                        - Binary: = [any]
+                        - Binary: = [OneString]
                           - LocalVar: op [OneString]
                           - LocalVar: curr_op [any]
                       - Break
@@ -225,13 +226,14 @@ Tokenizer::tokenize(): any
                   - InstanceField: length [OneNumber]
                     - LocalVar: op [OneString]
               - ExpressionStatement
-                - Binary: << [any]
+                - Binary: << [OneArray<any>]
                   - LocalVar: result [OneArray<any>]
-                  - Call [any]
-                    - PropertyAccess (.new) [any]
-                      - ClassReference [Token]
-                    - LocalVar: op [OneString]
-                    - Literal (boolean): true [RubyBoolean]
+                  - Parenthesized [any]
+                    - Call [any]
+                      - PropertyAccess (.new) [any]
+                        - ClassReference [Token]
+                      - LocalVar: op [OneString]
+                      - Literal (boolean): true [OneBoolean]
   - Comment: "\n"
   - Return
     - LocalVar: result [OneArray<any>]

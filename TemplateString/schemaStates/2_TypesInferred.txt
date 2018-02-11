@@ -22,13 +22,13 @@ TestClass::testMethod(): void
         - LocalVar: num [TsNumber]
         - LocalVar: b [TsBoolean]
   - Comment: "\n"
-  - Variable: result2 [any]
-    - Binary: + [any]
-      - Binary: + [any]
-        - Binary: + [any]
-          - Binary: + [any]
-            - Binary: + [any]
-              - Binary: + [any]
+  - Variable: result2 [TsString]
+    - Binary: + [TsString]
+      - Binary: + [TsString]
+        - Binary: + [TsString]
+          - Binary: + [TsString]
+            - Binary: + [TsString]
+              - Binary: + [TsString]
                 - Literal (string): "before " [TsString]
                 - LocalVar: strVal [TsString]
               - Literal (string): ", num: " [TsString]
@@ -39,5 +39,5 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [console::log]
-      - LocalVar: result2 [any]
+      - LocalVar: result2 [TsString]
 

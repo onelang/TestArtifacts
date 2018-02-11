@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TestClass struct {
 }
 
@@ -16,9 +17,6 @@ func (this *TestClass) TestMethod() {
     tB1True := str[1:1 + len("B")] == "B"
     tCD2True := str[2:2 + len("CD")] == "CD"
     fmt.Println(fmt.Sprintf("%v %v %v %v", tA0True, tA1False, tB1True, tCD2True))
-}
-
-func init() {
 }
 
 func main() {

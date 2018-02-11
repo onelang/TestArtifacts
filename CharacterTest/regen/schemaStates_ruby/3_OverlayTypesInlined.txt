@@ -4,7 +4,7 @@ TestClass::test_method(): any
   - Variable: i [OneNumber]
     - Literal (numeric): "0" [OneNumber]
   - While
-      - Binary: < [any]
+      - Binary: < [OneNumber]
         - LocalVar: i [OneNumber]
         - InstanceField: length [OneNumber]
           - LocalVar: str [OneString]
@@ -52,7 +52,7 @@ TestClass::test_method(): any
                 - Literal (string): "number" [OneString]
                 - Literal (string): "other" [OneString]
       - ExpressionStatement
-        - Binary: += [any]
+        - Binary: += [OneNumber]
           - LocalVar: i [OneNumber]
           - Literal (numeric): "1" [OneNumber]
 

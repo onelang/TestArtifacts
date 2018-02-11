@@ -1,4 +1,4 @@
-MapTestClass::mapTest(): void
+TestClass::getResult(): OneNumber
   - Variable: mapObj [OneMap<OneString, OneNumber>]
     - MapLiteral [OneMap<OneString, OneNumber>]
       - Variable: x [OneNumber]
@@ -15,4 +15,12 @@ MapTestClass::mapTest(): void
       - MethodReference [OneMap<K, V>::get]
         - LocalVar: mapObj [OneMap<OneString, OneNumber>]
       - Literal (string): "x" [OneString]
+
+TestClass::testMethod(): void
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - Call [OneNumber]
+          - MethodReference (this) [TestClass::getResult]
 

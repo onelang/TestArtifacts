@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type SomeKind int
 const (
     SomeKind_ENUM_VAL0 = 0
@@ -20,9 +21,6 @@ func NewTestClass() *TestClass {
 
 func (this *TestClass) TestMethod() {
     fmt.Println(fmt.Sprintf("Value: %v", this.EnumField))
-}
-
-func init() {
 }
 
 func main() {

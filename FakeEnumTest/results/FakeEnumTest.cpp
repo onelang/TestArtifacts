@@ -1,9 +1,4 @@
 #include <one.hpp>
-#include <memory>
-#include <fstream>
-#include <vector>
-#include <map>
-
 class TokenType {
   public:
     static string end_token;

@@ -1,6 +1,6 @@
-class MapTestClass {
-  func mapTest() -> Void {
-      let mapObj: [String: Int]? = [
+class TestClass {
+  func getResult() -> Int {
+      var mapObj: [String: Int]? = [
         "x": 5
       ]
       //let containsX = "x" in mapObj;
@@ -8,4 +8,10 @@ class MapTestClass {
       mapObj!["x"] = 3
       return mapObj!["x"]!
   }
+
+  func testMethod() -> Void {
+      print("Result = \(self.getResult())")
+  }
 }
+
+TestClass().testMethod()

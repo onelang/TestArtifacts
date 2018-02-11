@@ -1,5 +1,7 @@
 <?php
 
+require_once("one.php");
+
 class TargetClass {
     public $instance_field = 5;
     public static $static_field = "hello";

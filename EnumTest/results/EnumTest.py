@@ -12,7 +12,7 @@ class TestClass:
         check1 = "SUCCESS" if enum_v == TestEnum.ITEM2 else "FAIL"
         check2 = "FAIL" if enum_v == TestEnum.ITEM1 else "SUCCESS"
         
-        print "Item1: %s, Item2: %s, checks: %s %s" % (TestEnum.ITEM1, enum_v, check1, check2, )
+        print "Item1: %s, Item2: %s, checks: %s %s" % (TestEnum.ITEM1, enum_v, check1, check2)
 
 try:
     TestClass().test_method()

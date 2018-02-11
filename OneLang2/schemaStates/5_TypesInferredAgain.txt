@@ -5,7 +5,7 @@ Token::value: OneString
 
 Token::constructor
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TokenKind (enum)]
       - InstanceField (this): kind [TokenKind (enum)]
       - MethodArgument: kind [TokenKind (enum)]
   - ExpressionStatement
@@ -30,7 +30,7 @@ ExprLangLexer::constructor
       - InstanceField (this): expression [OneString]
       - MethodArgument: expression [OneString]
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [OneArray<OneString>]
       - InstanceField (this): operators [OneArray<OneString>]
       - MethodArgument: operators [OneArray<OneString>]
   - If

@@ -128,11 +128,13 @@ TestClass::array_test(): any
   - ExpressionStatement
     - Binary: <<
       - Identifier: mutable_arr
-      - Literal (numeric): "3"
+      - Parenthesized
+        - Literal (numeric): "3"
   - ExpressionStatement
     - Binary: <<
       - Identifier: mutable_arr
-      - Literal (numeric): "4"
+      - Parenthesized
+        - Literal (numeric): "4"
   - Comment: "# mutableArr.push(c2.property);\n# mutableArr.push(c2.child.property);\n# mutableArr.push(c2.child.child.property);\n\n"
   - ExpressionStatement
     - Binary: =

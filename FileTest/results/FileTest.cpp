@@ -1,26 +1,9 @@
 #include <one.hpp>
-#include <memory>
-#include <fstream>
-#include <vector>
-#include <map>
-
-class TestClass {
-  public:
-    string testMethod() {
-        auto file_content = OneFile::readText(string("../../input/test.txt"));
-        return file_content;
-    }
-
-  private:
-};
+#include <iostream>
 
 int main()
 {
-    try {
-        TestClass c;
-        c.testMethod();
-    } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
-    }
+    auto file_content = OneFile::readText(string("../../../input/test.txt"));
+    cout << (file_content) << endl;
     return 0;
 }

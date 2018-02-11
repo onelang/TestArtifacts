@@ -59,7 +59,7 @@ class ExprLangLexer
   end
 
   def add(kind, value)
-      self.tokens << Token.new(kind, value)
+      self.tokens << (Token.new(kind, value))
       self.offset += value.length
   end
 
@@ -120,7 +120,7 @@ class ExprLangLexer
       
       str = match[1...1 + match.length - 2]
       str = match[0] == "'" ? str.gsub(/#{Regexp.escape("\\'")}/, "'") : str.gsub(/#{Regexp.escape("\\\"")}/, "\"")
-      self.tokens << Token.new(TokenKind::STRING_, str)
+      self.tokens << (Token.new(TokenKind::STRING_, str))
       self.offset += match.length
       return true
   end

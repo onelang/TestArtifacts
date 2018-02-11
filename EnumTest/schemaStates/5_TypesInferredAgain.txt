@@ -11,7 +11,7 @@ TestClass::testMethod(): void
       - Literal (numeric): "6" [OneNumber]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [TestEnum (enum)]
           - LocalVar: enumV [TestEnum (enum)]
           - EnumMemberReference [TestEnum (enum)]
   - Comment: "\n"

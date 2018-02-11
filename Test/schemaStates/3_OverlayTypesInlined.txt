@@ -46,62 +46,62 @@ TestClass::ifTest(x: OneNumber): OneString
     - Literal (string): "<unk>" [OneString]
   - Comment: "\n"
   - If
-    - Binary: > [any]
+    - Binary: > [OneNumber]
       - MethodArgument: x [OneNumber]
       - Literal (numeric): "3" [OneNumber]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [OneString]
           - LocalVar: result [OneString]
           - Literal (string): "hello" [OneString]
     Else
       - If
-        - Binary: < [any]
+        - Binary: < [OneNumber]
           - MethodArgument: x [OneNumber]
           - Literal (numeric): "1" [OneNumber]
         Then
           - ExpressionStatement
-            - Binary: = [any]
+            - Binary: = [OneString]
               - LocalVar: result [OneString]
               - Literal (string): "bello" [OneString]
         Else
           - If
-            - Binary: < [any]
+            - Binary: < [OneNumber]
               - MethodArgument: x [OneNumber]
               - Literal (numeric): "0" [OneNumber]
             Then
               - ExpressionStatement
-                - Binary: = [any]
+                - Binary: = [OneString]
                   - LocalVar: result [OneString]
                   - Literal (string): "bello2" [OneString]
             Else
               - ExpressionStatement
-                - Binary: = [any]
+                - Binary: = [OneString]
                   - LocalVar: result [OneString]
                   - Literal (string): "???" [OneString]
   - Comment: "\n"
   - If
-    - Binary: > [any]
+    - Binary: > [OneNumber]
       - MethodArgument: x [OneNumber]
       - Literal (numeric): "3" [OneNumber]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [OneString]
           - LocalVar: result [OneString]
           - Literal (string): "z" [OneString]
   - Comment: "\n"
   - If
-    - Binary: > [any]
+    - Binary: > [OneNumber]
       - MethodArgument: x [OneNumber]
       - Literal (numeric): "3" [OneNumber]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [OneString]
           - LocalVar: result [OneString]
           - Literal (string): "x" [OneString]
     Else
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [OneString]
           - LocalVar: result [OneString]
           - Literal (string): "y" [OneString]
   - Comment: "\n"
@@ -144,7 +144,7 @@ TestClass::arrayTest(): void
     - Variable: i [OneNumber]
       - Literal (numeric): "0" [OneNumber]
     Condition
-      - Binary: < [any]
+      - Binary: < [OneNumber]
         - LocalVar: i [OneNumber]
         - InstanceField: length [OneNumber]
           - LocalVar: constantArr [OneArray<OneNumber>]
@@ -162,25 +162,25 @@ TestClass::arrayTest(): void
 
 TestClass::calc(): OneNumber
   - Return
-    - Binary: * [any]
-      - Parenthesized [any]
-        - Binary: + [any]
+    - Binary: * [OneNumber]
+      - Parenthesized [OneNumber]
+        - Binary: + [OneNumber]
           - Literal (numeric): "1" [OneNumber]
           - Literal (numeric): "2" [OneNumber]
       - Literal (numeric): "3" [OneNumber]
 
 TestClass::methodWithArgs(arg1: OneNumber, arg2: OneNumber, arg3: OneNumber): OneNumber
-  - Variable: stuff [any]
-    - Binary: + [any]
-      - Binary: + [any]
+  - Variable: stuff [OneNumber]
+    - Binary: + [OneNumber]
+      - Binary: + [OneNumber]
         - MethodArgument: arg1 [OneNumber]
         - MethodArgument: arg2 [OneNumber]
-      - Binary: * [any]
+      - Binary: * [OneNumber]
         - MethodArgument: arg3 [OneNumber]
         - Call [OneNumber]
           - MethodReference (this) [TestClass::calc]
   - Return
-    - LocalVar: stuff [any]
+    - LocalVar: stuff [OneNumber]
 
 TestClass::stringTest(): OneString
   - Variable: x [OneString]
@@ -191,18 +191,18 @@ TestClass::stringTest(): OneString
   - Variable: z [OneString]
     - Literal (string): "z" [OneString]
   - ExpressionStatement
-    - Binary: += [any]
+    - Binary: += [OneString]
       - LocalVar: z [OneString]
       - Literal (string): "Z" [OneString]
   - ExpressionStatement
-    - Binary: += [any]
+    - Binary: += [OneString]
       - LocalVar: z [OneString]
       - LocalVar: x [OneString]
   - Comment: "\n"
   - Return
-    - Binary: + [any]
-      - Binary: + [any]
-        - Binary: + [any]
+    - Binary: + [OneString]
+      - Binary: + [OneString]
+        - Binary: + [OneString]
           - LocalVar: z [OneString]
           - Literal (string): "|" [OneString]
         - LocalVar: x [OneString]
@@ -213,26 +213,26 @@ TestClass::reverseString(str: OneString): OneString
     - Literal (string): "" [OneString]
   - For ("i")
     Var
-    - Variable: i [any]
-      - Binary: - [any]
+    - Variable: i [OneNumber]
+      - Binary: - [OneNumber]
         - InstanceField: length [OneNumber]
           - MethodArgument: str [OneString]
         - Literal (numeric): "1" [OneNumber]
     Condition
       - Binary: >= [OneBoolean]
-        - LocalVar: i [any]
+        - LocalVar: i [OneNumber]
         - Literal (numeric): "0" [OneNumber]
     Incrementor
-      - Unary (postfix): -- [any]
-        - LocalVar: i [any]
+      - Unary (postfix): -- [OneNumber]
+        - LocalVar: i [OneNumber]
     Body
       - ExpressionStatement
-        - Binary: += [any]
+        - Binary: += [OneString]
           - LocalVar: result [OneString]
           - Call [OneCharacter]
             - MethodReference [OneString::get]
               - MethodArgument: str [OneString]
-            - LocalVar: i [any]
+            - LocalVar: i [OneNumber]
   - Return
     - LocalVar: result [OneString]
 

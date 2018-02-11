@@ -6,7 +6,7 @@ Item::offset: OneNumber
 
 Item::strTest: OneString
 - Variable: strTest [OneString]
-  - Binary: + [any]
+  - Binary: + [OneString]
     - Literal (string): "test" [OneString]
     - Literal (string): "test2" [OneString]
 
@@ -16,7 +16,7 @@ Item::strConstr: OneString
 
 Item::constructor
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [OneString]
       - InstanceField (this): strConstr [OneString]
       - MethodArgument: strConstr [OneString]
 

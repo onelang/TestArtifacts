@@ -18,7 +18,7 @@ class TestClass {
         MapX<String, Integer> mapX = new MapX();
         mapX.set("hello", 3);
         Integer numValue = mapX.get("hello2");
-        System.out.println(numValue);
+        System.out.println((numValue));
     }
 }
 

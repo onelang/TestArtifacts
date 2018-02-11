@@ -1,8 +1,9 @@
-TestClass::testMethod(): TsString
+main()
   - Variable: fileContent [OneString]
     - Call [OneString]
       - MethodReference (static) [OneFile::readText]
-      - Literal (string): "../../input/test.txt" [TsString]
-  - Return
-    - LocalVar: fileContent [OneString]
-
+      - Literal (string): "../../../input/test.txt" [TsString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - LocalVar: fileContent [OneString]

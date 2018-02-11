@@ -141,11 +141,12 @@ ExprLangLexer::add(kind: ???, value: ???): any
     - Binary: <<
       - PropertyAccess (.tokens)
         - Identifier: this
-      - Call
-        - PropertyAccess (.new)
-          - Identifier: Token
-        - Identifier: kind
-        - Identifier: value
+      - Parenthesized
+        - Call
+          - PropertyAccess (.new)
+            - Identifier: Token
+          - Identifier: kind
+          - Identifier: value
   - ExpressionStatement
     - Binary: +=
       - PropertyAccess (.offset)
@@ -358,12 +359,13 @@ ExprLangLexer::try_to_read_string(): any
     - Binary: <<
       - PropertyAccess (.tokens)
         - Identifier: this
-      - Call
-        - PropertyAccess (.new)
-          - Identifier: Token
-        - PropertyAccess (.STRING_)
-          - Identifier: TokenKind
-        - Identifier: str
+      - Parenthesized
+        - Call
+          - PropertyAccess (.new)
+            - Identifier: Token
+          - PropertyAccess (.STRING_)
+            - Identifier: TokenKind
+          - Identifier: str
   - ExpressionStatement
     - Binary: +=
       - PropertyAccess (.offset)

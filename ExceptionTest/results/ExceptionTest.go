@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TestClass struct {
 }
 
@@ -20,9 +21,6 @@ func (this *TestClass) FThrows() {
 func (this *TestClass) TestMethod() {
     fmt.Println(this.NotThrows())
     this.FThrows()
-}
-
-func init() {
 }
 
 func main() {

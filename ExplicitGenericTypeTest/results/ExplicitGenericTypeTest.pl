@@ -17,7 +17,7 @@ sub test_method {
     my $map = {
       x => 5,
     };
-    my $keys = keys $map;
+    my $keys = keys %{$map};
     print(($result) . "\n");
     print(($keys) . "\n");
 }

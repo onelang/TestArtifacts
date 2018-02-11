@@ -5,7 +5,7 @@ class TestClass:
           "a": 5,
           "b": 6,
         }
-        text = "Hello world! value = %s, map[a] = %s" % (value, map_["a"], )
+        text = "Hello world! value = %s, map[a] = %s" % (value, map_["a"])
         print text
 
 try:

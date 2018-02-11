@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type List struct {
     Items []interface{}
 }
@@ -40,7 +41,4 @@ func (this *Container) Method0() {
 
 func (this *Container) Method1(str string) {
     return str
-}
-
-func init() {
 }

@@ -3,6 +3,7 @@ package main
 import "fmt"
 import "one"
 
+
 type TargetClass struct {
     InstanceField int
 }

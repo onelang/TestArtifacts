@@ -59,7 +59,7 @@ class TestClass {
       
       // some comment
       //   some comment line 2
-      for item in mutableArr {
+      for item in mutableArr! {
           print(item)
       }
       

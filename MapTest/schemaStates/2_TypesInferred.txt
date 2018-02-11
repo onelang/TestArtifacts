@@ -1,4 +1,4 @@
-MapTestClass::mapTest(): void
+TestClass::getResult(): TsNumber
   - Variable: mapObj [TsMap<OneString, TsNumber>]
     - MapLiteral [TsMap<OneString, TsNumber>]
       - Variable: x [TsNumber]
@@ -15,4 +15,12 @@ MapTestClass::mapTest(): void
       - MethodReference [TsMap<OneString, TsNumber>::get]
         - LocalVar: mapObj [TsMap<OneString, TsNumber>]
       - Literal (string): "x" [TsString]
+
+TestClass::testMethod(): void
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - TemplateString [OneString]
+        - Call [TsNumber]
+          - MethodReference (this) [TestClass::getResult]
 

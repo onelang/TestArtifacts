@@ -5,11 +5,11 @@ Token::value: TsString
 
 Token::constructor
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TokenKind (enum)]
       - InstanceField (this): kind [TokenKind (enum)]
       - MethodArgument: kind [TokenKind (enum)]
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TsString]
       - InstanceField (this): value [TsString]
       - MethodArgument: value [TsString]
 
@@ -26,11 +26,11 @@ ExprLangLexer::operators: TsArray<TsString>
 
 ExprLangLexer::constructor
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TsString]
       - InstanceField (this): expression [TsString]
       - MethodArgument: expression [TsString]
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TsArray<TsString>]
       - InstanceField (this): operators [TsArray<TsString>]
       - MethodArgument: operators [TsArray<TsString>]
   - If
@@ -242,7 +242,7 @@ ExprLangLexer::tryToReadString(): TsBoolean
       - Literal (string): "" [TsString]
     Then
       - ExpressionStatement
-        - Binary: = [any]
+        - Binary: = [TsString]
           - LocalVar: match [TsString]
           - Call [TsString]
             - MethodReference (this) [ExprLangLexer::tryToMatch]
@@ -260,7 +260,7 @@ ExprLangLexer::tryToReadString(): TsBoolean
       - MethodReference [TsString::substr]
         - LocalVar: match [TsString]
       - Literal (numeric): "1" [TsNumber]
-      - Binary: - [any]
+      - Binary: - [OneNumber]
         - InstanceField: length [OneNumber]
           - LocalVar: match [TsString]
         - Literal (numeric): "2" [TsNumber]
@@ -339,9 +339,9 @@ ExprLangLexer::skipWhitespace(): void
           - Break
 
 ExprLangLexer::tryToReadLiteral(): TsBoolean
-  - Variable: success [any]
-    - Binary: || [any]
-      - Binary: || [any]
+  - Variable: success [TsBoolean]
+    - Binary: || [TsBoolean]
+      - Binary: || [TsBoolean]
         - Call [TsBoolean]
           - MethodReference (this) [ExprLangLexer::tryToReadIdentifier]
         - Call [TsBoolean]
@@ -349,7 +349,7 @@ ExprLangLexer::tryToReadLiteral(): TsBoolean
       - Call [TsBoolean]
         - MethodReference (this) [ExprLangLexer::tryToReadString]
   - Return
-    - LocalVar: success [any]
+    - LocalVar: success [TsBoolean]
 
 TestClass::testMethod(): void
   - Variable: lexer [ExprLangLexer]
@@ -367,11 +367,11 @@ TestClass::testMethod(): void
           - Literal (string): "" [TsString]
         Then
           - ExpressionStatement
-            - Binary: += [any]
+            - Binary: += [TsString]
               - LocalVar: result [TsString]
               - Literal (string): ", " [TsString]
       - ExpressionStatement
-        - Binary: += [any]
+        - Binary: += [TsString]
           - LocalVar: result [TsString]
           - InstanceField: value [TsString]
             - LocalVar: token [Token]

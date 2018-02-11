@@ -1,8 +1,4 @@
 #include <one.hpp>
-#include <memory>
-#include <fstream>
-#include <vector>
-#include <map>
 #include <iostream>
 
 enum class SomeKind { EnumVal0, EnumVal1, EnumVal2 };

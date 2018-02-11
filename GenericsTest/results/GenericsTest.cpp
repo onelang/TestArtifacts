@@ -1,8 +1,4 @@
 #include <one.hpp>
-#include <memory>
-#include <fstream>
-#include <vector>
-#include <map>
 #include <iostream>
 
 template<typename K, typename V>

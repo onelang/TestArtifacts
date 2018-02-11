@@ -50,7 +50,7 @@ Tokenizer::constructor
       - InstanceField (this): text [OneString]
       - MethodArgument: text [OneString]
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [OneArray<OneString>]
       - InstanceField (this): operators [OneArray<OneString>]
       - MethodArgument: operators [OneArray<OneString>]
   - ExpressionStatement

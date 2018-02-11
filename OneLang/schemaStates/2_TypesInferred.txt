@@ -19,11 +19,11 @@ Token::isOperator: TsBoolean
 
 Token::constructor
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TsString]
       - InstanceField (this): value [TsString]
       - MethodArgument: value [TsString]
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TsBoolean]
       - InstanceField (this): isOperator [TsBoolean]
       - MethodArgument: isOperator [TsBoolean]
 
@@ -44,15 +44,15 @@ Tokenizer::operators: TsArray<TsString>
 
 Tokenizer::constructor
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TsString]
       - InstanceField (this): text [TsString]
       - MethodArgument: text [TsString]
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TsArray<TsString>]
       - InstanceField (this): operators [TsArray<TsString>]
       - MethodArgument: operators [TsArray<TsString>]
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [TsNumber]
       - InstanceField (this): offset [TsNumber]
       - Literal (numeric): "0" [TsNumber]
 
@@ -132,7 +132,7 @@ Tokenizer::tokenize(): TsArray<Token>
     - ArrayLiteral [TsArray<Token>]
   - Comment: "\n"
   - While
-      - Binary: < [any]
+      - Binary: < [TsNumber]
         - InstanceField (this): offset [TsNumber]
         - InstanceField: length [OneNumber]
           - InstanceField (this): text [TsString]
@@ -202,7 +202,7 @@ Tokenizer::tokenize(): TsArray<Token>
                       - InstanceField (this): offset [TsNumber]
                     Then
                       - ExpressionStatement
-                        - Binary: = [any]
+                        - Binary: = [TsString]
                           - LocalVar: op [TsString]
                           - LocalVar: currOp [TsString]
                       - Break
@@ -215,7 +215,7 @@ Tokenizer::tokenize(): TsArray<Token>
                   - Break
               - Comment: "\n"
               - ExpressionStatement
-                - Binary: += [any]
+                - Binary: += [TsNumber]
                   - InstanceField (this): offset [TsNumber]
                   - InstanceField: length [OneNumber]
                     - LocalVar: op [TsString]
@@ -286,9 +286,9 @@ TestClass::testMethod(): void
       - ExpressionStatement
         - Call [void]
           - MethodReference (static) [console::log]
-          - Binary: + [any]
-            - Binary: + [any]
-              - Binary: + [any]
+          - Binary: + [TsString]
+            - Binary: + [TsString]
+              - Binary: + [TsString]
                 - InstanceField: value [TsString]
                   - LocalVar: item [Token]
                 - Literal (string): "(" [TsString]

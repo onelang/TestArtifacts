@@ -3,14 +3,14 @@ ConstructorTest::field1: OneNumber
 
 ConstructorTest::constructor
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [OneNumber]
       - InstanceField (this): field1 [OneNumber]
       - MethodArgument: field1 [OneNumber]
   - ExpressionStatement
-    - Binary: = [any]
+    - Binary: = [OneNumber]
       - InstanceField (this): field2 [OneNumber]
-      - Binary: * [any]
-        - Binary: * [any]
+      - Binary: * [OneNumber]
+        - Binary: * [OneNumber]
           - MethodArgument: field1 [OneNumber]
           - InstanceField (this): field1 [OneNumber]
         - Literal (numeric): "5" [OneNumber]

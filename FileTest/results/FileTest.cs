@@ -1,25 +1,11 @@
 using System.IO;
-
-public class TestClass
-{
-    public string TestMethod()
-    {
-        var fileContent = File.ReadAllText("../../input/test.txt");
-        return fileContent;
-    }
-}
+using System;
 
 public class Program
 {
-    static public void Main()
+    static public void Main(string[] args)
     {
-        try 
-        {
-            new TestClass().TestMethod();
-        }
-        catch (System.Exception e)
-        {
-            System.Console.WriteLine($"Exception: {e.Message}");
-        }
+        var fileContent = File.ReadAllText("../../../input/test.txt");
+        Console.WriteLine(fileContent);
     }
-}
+}    

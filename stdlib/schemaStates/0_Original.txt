@@ -65,6 +65,9 @@ OneReflect::getClass(obj: any): OneClass [static]
 OneReflect::getClassByName(name: any): OneClass [static]
   <no body>
 
+OneReflect::publish(): OneClass [static]
+  <no body>
+
 OneClass::name: TsString
 
 OneClass::getField(name: TsString): OneField
@@ -92,5 +95,65 @@ OneMethod::name: TsString
 OneMethod::isStatic: TsBoolean
 
 OneMethod::call(obj: any, args: TsArray<any>): any
+  <no body>
+
+OneBigInteger::fromInt(value: TsNumber): OneBigInteger [static]
+  <no body>
+
+OneJProperty::getName(): OneString
+  <no body>
+
+OneJProperty::getValue(obj: OneJValue): OneJValue
+  <no body>
+
+OneJObject::getProperties(): TsArray<OneJProperty>
+  <no body>
+
+OneJObject::count(): OneNumber
+  <no body>
+
+OneJObject::names(): TsArray<OneString>
+  <no body>
+
+OneJObject::get(name: TsString): OneJValue
+  <no body>
+
+OneJValue::isObject(): OneBoolean
+  <no body>
+
+OneJValue::isArray(): OneBoolean
+  <no body>
+
+OneJValue::isString(): OneBoolean
+  <no body>
+
+OneJValue::isNumber(): OneBoolean
+  <no body>
+
+OneJValue::isBool(): OneBoolean
+  <no body>
+
+OneJValue::isNull(): OneBoolean
+  <no body>
+
+OneJValue::asString(): OneString
+  <no body>
+
+OneJValue::asNumber(): OneNumber
+  <no body>
+
+OneJValue::asBool(): OneBoolean
+  <no body>
+
+OneJValue::asObject(): OneJObject
+  <no body>
+
+OneJValue::getArrayItems(): TsArray<OneJValue>
+  <no body>
+
+OneJson::parse(str: TsString): OneJValue [static]
+  <no body>
+
+One::langName(): OneString [static]
   <no body>
 

@@ -5,7 +5,7 @@ class TokenKind {
     const Identifier = 1;
     const Operator_ = 2;
     const String_ = 3;
-};
+}
 
 class Token {
     public $kind;
@@ -71,10 +71,10 @@ class ExprLangLexer {
         foreach ($this->operators as $op) {
             if (substr_compare($this->expression, $op, $this->offset, strlen($op)) === 0) {
                 $this->add(TokenKind::Operator_, $op);
-                return TRUE;
+                return true;
             }
         }
-        return FALSE;
+        return false;
     }
     
     function tryToReadNumber() {
@@ -82,7 +82,7 @@ class ExprLangLexer {
         
         $number = $this->tryToMatch("[+-]?(\\d*\\.\\d+|\\d+\\.\\d+|0x[0-9a-fA-F_]+|0b[01_]+|[0-9_]+)");
         if ($number == "") {
-            return FALSE;
+            return false;
         }
         
         $this->add(TokenKind::Number, $number);
@@ -91,18 +91,18 @@ class ExprLangLexer {
             $this->fail("invalid character in number");
         }
         
-        return TRUE;
+        return true;
     }
     
     function tryToReadIdentifier() {
         $this->skipWhitespace();
         $identifier = $this->tryToMatch("[a-zA-Z_][a-zA-Z0-9_]*");
         if ($identifier == "") {
-            return FALSE;
+            return false;
         }
         
         $this->add(TokenKind::Identifier, $identifier);
-        return TRUE;
+        return true;
     }
     
     function tryToReadString() {
@@ -113,14 +113,14 @@ class ExprLangLexer {
             $match = $this->tryToMatch("\"(\\\\\"|[^\"])*\"");
         }
         if ($match == "") {
-            return FALSE;
+            return false;
         }
         
         $str = substr($match, 1, 1 + strlen($match) - 2 - 1);
         $str = $match[0] == "'" ? str_replace("\\'", "'", $str) : (str_replace("\\\"", "\"", $str));
         $this->tokens[] = new Token(TokenKind::String_, $str);
         $this->offset += strlen($match);
-        return TRUE;
+        return true;
     }
     
     function eof() {

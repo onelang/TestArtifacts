@@ -1,8 +1,9 @@
-TestClass::testMethod(): OneString
+main()
   - Variable: fileContent [OneString]
     - Call [OneString]
       - MethodReference (static) [OneFile::readText]
-      - Literal (string): "../../input/test.txt" [OneString]
-  - Return
-    - LocalVar: fileContent [OneString]
-
+      - Literal (string): "../../../input/test.txt" [OneString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - LocalVar: fileContent [OneString]

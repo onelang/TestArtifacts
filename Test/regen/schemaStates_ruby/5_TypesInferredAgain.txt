@@ -111,13 +111,15 @@ TestClass::array_test(): any
       - Literal (numeric): "1" [OneNumber]
       - Literal (numeric): "2" [OneNumber]
   - ExpressionStatement
-    - Binary: << [any]
+    - Binary: << [OneArray<OneNumber>]
       - LocalVar: mutable_arr [OneArray<OneNumber>]
-      - Literal (numeric): "3" [OneNumber]
+      - Parenthesized [OneNumber]
+        - Literal (numeric): "3" [OneNumber]
   - ExpressionStatement
-    - Binary: << [any]
+    - Binary: << [OneArray<OneNumber>]
       - LocalVar: mutable_arr [OneArray<OneNumber>]
-      - Literal (numeric): "4" [OneNumber]
+      - Parenthesized [OneNumber]
+        - Literal (numeric): "4" [OneNumber]
   - Variable: constant_arr [OneArray<OneNumber>]
     - ArrayLiteral [OneArray<OneNumber>]
       - Literal (numeric): "5" [OneNumber]
@@ -134,7 +136,7 @@ TestClass::array_test(): any
   - Variable: i [OneNumber]
     - Literal (numeric): "0" [OneNumber]
   - While
-      - Binary: < [any]
+      - Binary: < [OneNumber]
         - LocalVar: i [OneNumber]
         - InstanceField: length [TsNumber]
           - LocalVar: constant_arr [OneArray<OneNumber>]
@@ -255,7 +257,7 @@ TestClass::test_method(): any
       - Conditional [OneString]
         - Call [any]
           - MethodReference (this) [TestClass::get_bool_result]
-          - Literal (boolean): true [RubyBoolean]
+          - Literal (boolean): true [OneBoolean]
         - Literal (string): "true" [OneString]
         - Literal (string): "false" [OneString]
 

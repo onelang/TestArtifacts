@@ -5,7 +5,7 @@ class TestClass {
 
     public void testMethod() throws Exception
     {
-        System.out.println("Value: " + this.enumField);
+        System.out.println("Value: " + (this.enumField));
     }
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import "fmt"
+
 type TestClass struct {
 }
 
@@ -15,9 +16,6 @@ func (this *TestClass) TestMethod() {
     c := a && b
     d := a || b
     fmt.Println(fmt.Sprintf("a: %v, b: %v, c: %v, d: %v", a, b, c, d))
-}
-
-func init() {
 }
 
 func main() {
