@@ -1,0 +1,9 @@
+Calculator::calc(): void
+  - Return
+    - Literal (numeric): "4" [OneNumber]
+
+main()
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Literal (string): "Hello world!" [OneString]

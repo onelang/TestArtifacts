@@ -1,0 +1,9 @@
+Calculator::calc(): void
+  - Return
+    - Literal (numeric): "4" [TsNumber]
+
+main()
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - Literal (string): "Hello world!" [TsString]
