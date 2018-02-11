@@ -6,4 +6,28 @@ main()
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [console::log]
-      - Literal (string): "Hello world!" [TsString]
+      - Literal (string): "Hello!" [TsString]
+  - Comment: "\n"
+  - Variable: calc [Calculator]
+    - New Calculator [Calculator]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - TemplateString [OneString]
+        - Call [TsNumber]
+          - MethodReference [Calculator::calc]
+            - LocalVar: calc [Calculator]
+  - Comment: "\n"
+  - Variable: arr [TsArray<TsNumber>]
+    - ArrayLiteral [TsArray<TsNumber>]
+      - Literal (numeric): "1" [TsNumber]
+      - Literal (numeric): "2" [TsNumber]
+      - Literal (numeric): "3" [TsNumber]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - TemplateString [OneString]
+        - Call [TsNumber]
+          - MethodReference [TsArray<TsNumber>::get]
+            - LocalVar: arr [TsArray<TsNumber>]
+          - Literal (numeric): "1" [TsNumber]

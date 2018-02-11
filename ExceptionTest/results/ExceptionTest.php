@@ -10,7 +10,7 @@ class TestClass {
     }
     
     function testMethod() {
-        print(($this->notThrows()) . "\n");
+        print($this->notThrows() . "\n");
         $this->fThrows();
     }
 }

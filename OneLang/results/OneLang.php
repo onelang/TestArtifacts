@@ -40,7 +40,7 @@ class Tokenizer {
         }
         
         $c = $this->text[$this->offset];
-        return $c == " " || $c == "\n" || $c == "\t" || $c == "\r" ? TokenType::$whitespace : (("A" <= $c && $c <= "Z") || ("a" <= $c && $c <= "z") || ("0" <= $c && $c <= "9") || $c == "_" ? TokenType::$identifier : (TokenType::$operator_x));
+        return $c == " " || $c == "\n" || $c == "\t" || $c == "\r" ? TokenType::$whitespace : (("A" <= $c && $c <= "Z") || ("a" <= $c && $c <= "z") || ("0" <= $c && $c <= "9") || $c == "_" ? TokenType::$identifier : TokenType::$operator_x);
     }
     
     function tokenize() {
@@ -90,10 +90,10 @@ class TestClass {
         $tokenizer = new Tokenizer($input, $operators);
         $result = $tokenizer->tokenize();
         
-        print(("token count:") . "\n");
-        print((count($result)) . "\n");
+        print("token count:" . "\n");
+        print(count($result) . "\n");
         foreach ($result as $item) {
-            print(($item->value . "(" . ($item->is_operator ? "op" : ("id")) . ")") . "\n");
+            print($item->value . "(" . ($item->is_operator ? "op" : "id") . ")" . "\n");
         }
     }
 }

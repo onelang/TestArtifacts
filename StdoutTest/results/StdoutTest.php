@@ -10,7 +10,7 @@ class TestClass {
     }
     
     function testMethod() {
-        print(($this->reverseString("print value")) . "\n");
+        print($this->reverseString("print value") . "\n");
         return "return value";
     }
 }

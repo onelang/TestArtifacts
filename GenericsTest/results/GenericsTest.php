@@ -17,7 +17,7 @@ class TestClass {
         $map_x = new MapX();
         $map_x->set("hello", 3);
         $num_value = $map_x->get("hello2");
-        print(("" . ($num_value) . "") . "\n");
+        print($num_value . "\n");
     }
 }
 

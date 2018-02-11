@@ -12,7 +12,7 @@ class TestClass {
     }
     
     function testMethod() {
-        print(("Result = " . ($this->getResult()) . "") . "\n");
+        print("Result = " . $this->getResult() . "\n");
     }
 }
 

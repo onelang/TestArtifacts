@@ -7,11 +7,11 @@ class TargetClass {
     public static $static_field = "hello";
 
     static function staticMethod($arg1) {
-        return "arg1 = " . ($arg1) . ", staticField = " . (TargetClass::$static_field) . "";
+        return "arg1 = " . $arg1 . ", staticField = " . TargetClass::$static_field;
     }
     
     function instanceMethod() {
-        return "instanceField = " . ($this->instance_field) . "";
+        return "instanceField = " . $this->instance_field;
     }
 }
 
@@ -35,48 +35,48 @@ class TestClass {
         //console.log(`staticField (direct): ${TargetClass.staticField}`);
         $cls = OneReflect::getClass($obj);
         if ($cls == NULL) {
-            print(("cls is null!") . "\n");
+            print("cls is null!" . "\n");
             return;
         }
         $cls2 = OneReflect::getClassByName("TargetClass");
         if ($cls2 == NULL) {
-            print(("cls2 is null!") . "\n");
+            print("cls2 is null!" . "\n");
             return;
         }
         
         $method1 = $cls->getMethod("instanceMethod");
         if ($method1 == NULL) {
-            print(("method1 is null!") . "\n");
+            print("method1 is null!" . "\n");
             return;
         }
         $method1_result = $method1->call($obj, array());
-        print(("instanceMethod: " . ($method1_result) . "") . "\n");
+        print("instanceMethod: " . $method1_result . "\n");
         
         $method2 = $cls->getMethod("staticMethod");
         if ($method2 == NULL) {
-            print(("method2 is null!") . "\n");
+            print("method2 is null!" . "\n");
             return;
         }
         $method2_result = $method2->call(NULL, array("arg1value"));
-        print(("staticMethod: " . ($method2_result) . "") . "\n");
+        print("staticMethod: " . $method2_result . "\n");
         
         $field1 = $cls->getField("instanceField");
         if ($field1 == NULL) {
-            print(("field1 is null!") . "\n");
+            print("field1 is null!" . "\n");
             return;
         }
         $field1->setValue($obj, 6);
         $field1_new_val = $field1->getValue($obj);
-        print(("new instance field value: " . ($obj->instance_field) . " == " . ($field1_new_val) . "") . "\n");
+        print("new instance field value: " . $obj->instance_field . " == " . $field1_new_val . "\n");
         
         $field2 = $cls->getField("staticField");
         if ($field2 == NULL) {
-            print(("field2 is null!") . "\n");
+            print("field2 is null!" . "\n");
             return;
         }
         $field2->setValue(NULL, "bello");
         $field2_new_val = $field2->getValue(NULL);
-        print(("new static field value: " . (TargetClass::$static_field) . " == " . ($field2_new_val) . "") . "\n");
+        print("new static field value: " . TargetClass::$static_field . " == " . $field2_new_val . "\n");
     }
 }
 

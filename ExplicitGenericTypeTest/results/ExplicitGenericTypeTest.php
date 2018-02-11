@@ -7,8 +7,8 @@ class TestClass {
           "x" => 5,
         );
         $keys = array_keys($map);
-        print(($result) . "\n");
-        print(($keys) . "\n");
+        print($result . "\n");
+        print($keys . "\n");
     }
 }
 

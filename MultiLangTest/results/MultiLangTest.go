@@ -15,5 +15,11 @@ func (this *Calculator) Calc() int {
 }
 
 func main() {
-    fmt.Println("Hello world!")
+    fmt.Println("Hello!")
+    
+    calc := NewCalculator()
+    fmt.Println(fmt.Sprintf("n = %v", calc.Calc()))
+    
+    arr := []int{1, 2, 3}
+    fmt.Println(fmt.Sprintf("arr[1] = %v", arr[1]))
 }

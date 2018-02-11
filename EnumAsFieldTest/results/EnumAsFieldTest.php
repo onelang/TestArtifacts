@@ -10,7 +10,7 @@ class TestClass {
     public $enum_field = SomeKind::EnumVal2;
 
     function testMethod() {
-        print(("Value: " . ($this->enum_field) . "") . "\n");
+        print("Value: " . $this->enum_field . "\n");
     }
 }
 

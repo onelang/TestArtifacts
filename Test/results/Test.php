@@ -18,7 +18,7 @@ class TestClass {
     
     function explicitTypeTest() {
         $op = "";
-        print((strlen($op)) . "\n");
+        print(strlen($op) . "\n");
     }
     
     function ifTest($x) {
@@ -62,14 +62,14 @@ class TestClass {
         // some comment
         //   some comment line 2
         foreach ($mutable_arr as $item) {
-            print(($item) . "\n");
+            print($item . "\n");
         }
         
         /* some other comment
            multiline and stuff
         */
         for ($i = 0; $i < count($constant_arr); $i++) {
-            print(($constant_arr[$i]) . "\n");
+            print($constant_arr[$i] . "\n");
         }
     }
     
@@ -107,10 +107,10 @@ class TestClass {
     
     function testMethod() {
         $this->arrayTest();
-        print(($this->mapTest()) . "\n");
-        print(($this->stringTest()) . "\n");
-        print(($this->reverseString("print value")) . "\n");
-        print(($this->getBoolResult(true) ? "true" : ("false")) . "\n");
+        print($this->mapTest() . "\n");
+        print($this->stringTest() . "\n");
+        print($this->reverseString("print value") . "\n");
+        print($this->getBoolResult(true) ? "true" : "false" . "\n");
     }
 }
 

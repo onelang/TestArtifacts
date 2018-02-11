@@ -7,4 +7,30 @@ main()
     - Call
       - PropertyAccess (.log)
         - Identifier: console
-      - Literal (string): "Hello world!"
+      - Literal (string): "Hello!"
+  - Comment: "\n"
+  - Variable: calc
+    - New Calculator
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - TemplateString
+        - Call
+          - PropertyAccess (.calc)
+            - Identifier: calc
+  - Comment: "\n"
+  - Variable: arr
+    - ArrayLiteral
+      - Literal (numeric): "1"
+      - Literal (numeric): "2"
+      - Literal (numeric): "3"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - TemplateString
+        - Call
+          - PropertyAccess (.get)
+            - Identifier: arr
+          - Literal (numeric): "1"

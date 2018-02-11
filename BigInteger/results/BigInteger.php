@@ -25,4 +25,4 @@ class MathUtils {
     }
 }
 
-print(("5 -> " . (MathUtils::calc(5)) . ", 24 -> " . (MathUtils::calcBig(24)) . "") . "\n");
+print("5 -> " . MathUtils::calc(5) . ", 24 -> " . MathUtils::calcBig(24) . "\n");

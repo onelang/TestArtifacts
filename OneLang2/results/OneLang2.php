@@ -48,7 +48,7 @@ class ExprLangLexer {
             $end_offset = strlen($this->expression);
         }
         $context = substr($this->expression, $this->offset, $end_offset - $this->offset) . "...";
-        throw new Exception("TokenizerException: " . ($message) . " at '" . ($context) . "' (offset: " . ($this->offset) . ")");
+        throw new Exception("TokenizerException: " . $message . " at '" . $context . "' (offset: " . $this->offset . ")");
     }
     
     function hasMoreToken() {
@@ -63,7 +63,7 @@ class ExprLangLexer {
     
     function tryToMatch($pattern) {
         $matches = OneRegex::matchFromIndex($pattern, $this->expression, $this->offset);
-        return $matches == NULL ? "" : ($matches[0]);
+        return $matches == NULL ? "" : $matches[0];
     }
     
     function tryToReadOperator() {
@@ -117,7 +117,7 @@ class ExprLangLexer {
         }
         
         $str = substr($match, 1, 1 + strlen($match) - 2 - 1);
-        $str = $match[0] == "'" ? str_replace("\\'", "'", $str) : (str_replace("\\\"", "\"", $str));
+        $str = $match[0] == "'" ? str_replace("\\'", "'", $str) : str_replace("\\\"", "\"", $str);
         $this->tokens[] = new Token(TokenKind::String_, $str);
         $this->offset += strlen($match);
         return true;
@@ -155,7 +155,7 @@ class TestClass {
             $result .= $token->value;
         }
         
-        print(("[" . (count($lexer->tokens)) . "]: " . ($result) . "") . "\n");
+        print("[" . count($lexer->tokens) . "]: " . $result . "\n");
     }
 }
 

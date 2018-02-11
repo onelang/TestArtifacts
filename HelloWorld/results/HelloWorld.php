@@ -7,8 +7,8 @@ class TestClass {
           "a" => 5,
           "b" => 6,
         );
-        $text = "Hello world! value = " . ($value) . ", map[a] = " . ($map_["a"]) . "";
-        print(($text) . "\n");
+        $text = "Hello world! value = " . $value . ", map[a] = " . $map_["a"];
+        print($text . "\n");
     }
 }
 

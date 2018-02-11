@@ -12,10 +12,10 @@ class TestClass {
             $enum_v = TestEnum::Item2;
         }
         
-        $check1 = $enum_v == TestEnum::Item2 ? "SUCCESS" : ("FAIL");
-        $check2 = $enum_v == TestEnum::Item1 ? "FAIL" : ("SUCCESS");
+        $check1 = $enum_v == TestEnum::Item2 ? "SUCCESS" : "FAIL";
+        $check2 = $enum_v == TestEnum::Item1 ? "FAIL" : "SUCCESS";
         
-        print(("Item1: " . (TestEnum::Item1) . ", Item2: " . ($enum_v) . ", checks: " . ($check1) . " " . ($check2) . "") . "\n");
+        print("Item1: " . TestEnum::Item1 . ", Item2: " . $enum_v . ", checks: " . $check1 . " " . $check2 . "\n");
     }
 }
 

@@ -71,16 +71,16 @@ class TestClass {
         $decoder = new XorByte(0xff);
         $dst1 = $decoder->decode($src1);
         foreach ($dst1 as $x) {
-            print(($x) . "\n");
+            print($x . "\n");
         }
         
-        print(("|") . "\n");
+        print("|" . "\n");
         
         $src2 = array(97, 71, 86, 115, 98, 71, 56, 61);
         $decoder2 = new Base64();
         $dst2 = $decoder2->decode($src2);
         foreach ($dst2 as $x) {
-            print(($x) . "\n");
+            print($x . "\n");
         }
     }
 }

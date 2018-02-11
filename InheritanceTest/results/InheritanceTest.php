@@ -8,7 +8,7 @@ class BasePrinter {
     }
     
     function printIt() {
-        print(("BasePrinter: " . ($this->getValue()) . "") . "\n");
+        print("BasePrinter: " . $this->getValue() . "\n");
     }
     
     function someBaseFunc() {
@@ -24,7 +24,7 @@ class ChildPrinter extends BasePrinter {
 
 class TestClass {
     function getPrinter($name) {
-        $result = $name == "child" ? new ChildPrinter() : (new BasePrinter());
+        $result = $name == "child" ? new ChildPrinter() : new BasePrinter();
         return $result;
     }
     
@@ -33,11 +33,11 @@ class TestClass {
         $child_printer = $this->getPrinter("child");
         $base_printer->printIt();
         $child_printer->printIt();
-        print(("" . ($base_printer->someBaseFunc()) . " == " . ($child_printer->someBaseFunc()) . "") . "\n");
+        print($base_printer->someBaseFunc() . " == " . $child_printer->someBaseFunc() . "\n");
         
         $base_p2 = new BasePrinter();
         $child_p2 = new ChildPrinter();
-        print(("" . ($base_p2->num_value) . " == " . ($child_p2->num_value) . "") . "\n");
+        print($base_p2->num_value . " == " . $child_p2->num_value . "\n");
     }
 }
 

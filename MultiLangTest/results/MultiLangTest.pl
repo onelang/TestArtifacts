@@ -16,4 +16,10 @@ sub calc {
     return 4;
 }
 
-print(("Hello world!") . "\n");
+print(("Hello!") . "\n");
+
+my $calc = new Calculator();
+print(("n = @{[$calc->calc()]}") . "\n");
+
+my $arr = [1, 2, 3];
+print(("arr[1] = @{[${$arr}[1]]}") . "\n");

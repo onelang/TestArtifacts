@@ -15,4 +15,4 @@ $obj1_prop0_value = $obj1->{$obj1_props[0]};
 if (!is_numeric($obj1_prop0_value) || $obj1_prop0_value != 1) {
     throw new Exception("expected 'a' to be 1 (number)");
 }
-print(("b = " . ($obj1->{"b"}) . "") . "\n");
+print("b = " . $obj1->{"b"} . "\n");

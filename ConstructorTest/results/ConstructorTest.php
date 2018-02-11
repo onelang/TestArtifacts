@@ -13,7 +13,7 @@ class ConstructorTest {
 class TestClass {
     function testMethod() {
         $test = new ConstructorTest(3);
-        print(($test->field2) . "\n");
+        print($test->field2 . "\n");
     }
 }
 
