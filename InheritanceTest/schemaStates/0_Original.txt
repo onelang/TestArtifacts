@@ -10,7 +10,7 @@ BasePrinter::getValue(): TsString
   - Return
     - Literal (string): "Base"
 
-BasePrinter::printIt(): void
+BasePrinter::printIt(): any
   - ExpressionStatement
     - Call
       - PropertyAccess (.log)
