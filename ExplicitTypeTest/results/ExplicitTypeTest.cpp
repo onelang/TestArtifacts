@@ -5,7 +5,7 @@ class TestClass {
   public:
     void testMethod() {
         auto op = nullptr;
-        cout << (op.size()) << endl;
+        cout << op.size() << endl;
     }
 
   private:

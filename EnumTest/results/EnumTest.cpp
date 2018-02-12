@@ -15,7 +15,7 @@ class TestClass {
         auto check1 = enum_v == TestEnum::Item2 ? string("SUCCESS") : string("FAIL");
         auto check2 = enum_v == TestEnum::Item1 ? string("FAIL") : string("SUCCESS");
         
-        cout << (string() + "Item1: " + TestEnumToStr[(int)(TestEnum::Item1)] + ", Item2: " + TestEnumToStr[(int)(enum_v)] + ", checks: " + check1 + " " + check2) << endl;
+        cout << string("Item1: ") + TestEnumToStr[(int)(TestEnum::Item1)] + ", Item2: " + TestEnumToStr[(int)(enum_v)] + ", checks: " + check1 + " " + check2 << endl;
     }
 
   private:

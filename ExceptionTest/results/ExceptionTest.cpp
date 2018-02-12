@@ -13,7 +13,7 @@ class TestClass {
     }
     
     void testMethod() {
-        cout << (this->notThrows()) << endl;
+        cout << this->notThrows() << endl;
         this->fThrows();
     }
 

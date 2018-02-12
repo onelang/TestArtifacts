@@ -22,7 +22,7 @@ class TestClass {
     
     void explicitTypeTest() {
         auto op = string("");
-        cout << (op.size()) << endl;
+        cout << op.size() << endl;
     }
     
     string ifTest(int x) {
@@ -67,14 +67,14 @@ class TestClass {
         //   some comment line 2
         for (auto it = mutable_arr->begin(); it != mutable_arr->end(); ++it) {
             auto item = *it;
-            cout << (item) << endl;
+            cout << item << endl;
         }
         
         /* some other comment
            multiline and stuff
         */
         for (int i = 0; i < constant_arr->size(); i++) {
-            cout << (constant_arr->at(i)) << endl;
+            cout << constant_arr->at(i) << endl;
         }
     }
     
@@ -112,9 +112,9 @@ class TestClass {
     
     void testMethod() {
         this->arrayTest();
-        cout << (this->mapTest()) << endl;
-        cout << (this->stringTest()) << endl;
-        cout << (this->reverseString(string("print value"))) << endl;
+        cout << this->mapTest() << endl;
+        cout << this->stringTest() << endl;
+        cout << this->reverseString(string("print value")) << endl;
         cout << (this->getBoolResult(true) ? string("true") : string("false")) << endl;
     }
 

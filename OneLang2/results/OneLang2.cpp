@@ -51,7 +51,7 @@ class ExprLangLexer {
             end_offset = this->expression.size();
         }
         auto context = this->expression.substr(this->offset, end_offset - this->offset) + string("...");
-        throw std::runtime_error(string() + "TokenizerException: " + message + " at '" + context + "' (offset: " + to_string(this->offset) + ")");
+        throw std::runtime_error(string("TokenizerException: ") + message + " at '" + context + "' (offset: " + to_string(this->offset) + ")");
     }
     
     bool hasMoreToken() {
@@ -163,7 +163,7 @@ class TestClass {
             result += token->value;
         }
         
-        cout << (string() + "[" + to_string(lexer->tokens->size()) + "]: " + result) << endl;
+        cout << string("[") + to_string(lexer->tokens->size()) + "]: " + result << endl;
     }
 
   private:

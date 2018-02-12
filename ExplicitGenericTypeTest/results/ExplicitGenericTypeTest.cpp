@@ -10,8 +10,8 @@ class TestClass {
           { "x", 5 }
         });
         auto keys = OneMapHelper::keys(map);
-        cout << (result) << endl;
-        cout << (keys) << endl;
+        cout << result << endl;
+        cout << keys << endl;
     }
 
   private:

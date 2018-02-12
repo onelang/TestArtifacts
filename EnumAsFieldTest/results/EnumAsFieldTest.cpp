@@ -9,7 +9,7 @@ class TestClass {
     SomeKind enum_field = SomeKind::EnumVal2;
 
     void testMethod() {
-        cout << (string() + "Value: " + SomeKindToStr[(int)(this->enum_field)]) << endl;
+        cout << string("Value: ") + SomeKindToStr[(int)(this->enum_field)] << endl;
     }
 
   private:

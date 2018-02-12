@@ -20,6 +20,6 @@ int main()
     if (!obj1_prop0_value->isNumber() || obj1_prop0_value->asNumber() != 1) {
         throw std::runtime_error(string("expected 'a' to be 1 (number)"));
     }
-    cout << (string() + "b = " + to_string(obj1->asObject()->get(string("b"))->asNumber())) << endl;
+    cout << string("b = ") + to_string(obj1->asObject()->get(string("b"))->asNumber()) << endl;
     return 0;
 }

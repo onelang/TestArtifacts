@@ -12,7 +12,7 @@ class TestClass {
     }
     
     string testMethod() {
-        cout << (this->reverseString(string("print value"))) << endl;
+        cout << this->reverseString(string("print value")) << endl;
         return string("return value");
     }
 

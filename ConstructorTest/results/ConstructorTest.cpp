@@ -18,7 +18,7 @@ class TestClass {
   public:
     void testMethod() {
         auto test = make_shared<ConstructorTest>(3);
-        cout << (test->field2) << endl;
+        cout << test->field2 << endl;
     }
 
   private:

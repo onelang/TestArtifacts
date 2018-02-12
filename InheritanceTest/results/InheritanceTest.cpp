@@ -20,7 +20,7 @@ class BasePrinter : public IPrinter {
     }
     
     void printIt() {
-        cout << (string() + "BasePrinter: " + this->getValue()) << endl;
+        cout << string("BasePrinter: ") + this->getValue() << endl;
     }
     
     int someBaseFunc() {
@@ -51,11 +51,11 @@ class TestClass {
         auto child_printer = this->getPrinter(string("child"));
         base_printer->printIt();
         child_printer->printIt();
-        cout << (string() + to_string(base_printer->someBaseFunc()) + " == " + to_string(child_printer->someBaseFunc())) << endl;
+        cout << string(to_string(base_printer->someBaseFunc())) + " == " + to_string(child_printer->someBaseFunc()) << endl;
         
         auto base_p2 = make_shared<BasePrinter>();
         auto child_p2 = make_shared<ChildPrinter>();
-        cout << (string() + to_string(base_p2->num_value) + " == " + to_string(child_p2->num_value)) << endl;
+        cout << string(to_string(base_p2->num_value)) + " == " + to_string(child_p2->num_value) << endl;
     }
 
   private:

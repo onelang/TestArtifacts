@@ -10,7 +10,7 @@ class TestClass {
         auto mutable_arr = make_shared<vector<int>>(initializer_list<int>{ 1 });
         mutable_arr->push_back(2);
         
-        cout << (string() + "len1: " + to_string(constant_arr->size()) + ", len2: " + to_string(mutable_arr->size())) << endl;
+        cout << string("len1: ") + to_string(constant_arr->size()) + ", len2: " + to_string(mutable_arr->size()) << endl;
     }
 
   private:

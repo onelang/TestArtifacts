@@ -111,8 +111,8 @@ class TestClass {
         auto tokenizer = make_shared<Tokenizer>(input, operators);
         auto result = tokenizer->tokenize();
         
-        cout << (string("token count:")) << endl;
-        cout << (result->size()) << endl;
+        cout << string("token count:") << endl;
+        cout << result->size() << endl;
         for (auto it = result->begin(); it != result->end(); ++it) {
             auto item = *it;
             cout << (item->value + string("(") + (item->is_operator ? string("op") : string("id")) + string(")")) << endl;

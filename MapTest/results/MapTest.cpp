@@ -15,7 +15,7 @@ class TestClass {
     }
     
     void testMethod() {
-        cout << (string() + "Result = " + to_string(this->getResult())) << endl;
+        cout << string("Result = ") + to_string(this->getResult()) << endl;
     }
 
   private:

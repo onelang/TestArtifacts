@@ -6,7 +6,7 @@ class TestClass {
     void testMethod() {
         auto str = string("A x B x C x D");
         auto result = OneStringHelper::replace(str, string("x"), string("y"));
-        cout << (string() + "R: " + result + ", O: " + str) << endl;
+        cout << string("R: ") + result + ", O: " + str << endl;
     }
 
   private:

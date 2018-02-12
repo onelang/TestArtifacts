@@ -10,8 +10,8 @@ class TestClass {
           { "a", 5 },
           { "b", 6 }
         });
-        auto text = string() + "Hello world! value = " + to_string(value) + ", map[a] = " + to_string(map_->operator[](string("a")));
-        cout << (text) << endl;
+        auto text = string("Hello world! value = ") + to_string(value) + ", map[a] = " + to_string(map_->operator[](string("a")));
+        cout << text << endl;
     }
 
   private:

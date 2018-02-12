@@ -23,7 +23,7 @@ class TestClass {
         auto map_x = make_shared<MapX<string, int>>();
         map_x->set(string("hello"), 3);
         int num_value = map_x->get(string("hello2"));
-        cout << (string() + to_string(num_value)) << endl;
+        cout << string(to_string(num_value)) << endl;
     }
 
   private:

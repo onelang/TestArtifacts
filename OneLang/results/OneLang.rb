@@ -60,7 +60,7 @@ class Tokenizer
                   self.offset += 1
               end
               identifier = self.text[start_offset...self.offset]
-              result << (Token.new(identifier, false))
+              result << Token.new(identifier, false)
           else
               op = ""
               for curr_op in self.operators
@@ -73,7 +73,7 @@ class Tokenizer
                   break
               end
               self.offset += op.length
-              result << (Token.new(op, true))
+              result << Token.new(op, true)
           end
       end
       

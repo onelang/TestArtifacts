@@ -7,11 +7,11 @@ class TargetClass : public ReflectedClass {
     static string static_field;
 
     static string staticMethod(string arg1) {
-        return string() + "arg1 = " + arg1 + ", staticField = " + TargetClass::static_field;
+        return string("arg1 = ") + arg1 + ", staticField = " + TargetClass::static_field;
     }
     
     string instanceMethod() {
-        return string() + "instanceField = " + to_string(this->instance_field);
+        return string("instanceField = ") + to_string(this->instance_field);
     }
 
   private:
@@ -54,48 +54,48 @@ class TestClass {
         //console.log(`staticField (direct): ${TargetClass.staticField}`);
         auto cls = OneReflect::getClass(obj);
         if (cls == nullptr) {
-            cout << (string("cls is null!")) << endl;
+            cout << string("cls is null!") << endl;
             return;
         }
         auto cls2 = OneReflect::getClassByName(string("TargetClass"));
         if (cls2 == nullptr) {
-            cout << (string("cls2 is null!")) << endl;
+            cout << string("cls2 is null!") << endl;
             return;
         }
         
         auto method1 = cls->getMethod(string("instanceMethod"));
         if (method1 == nullptr) {
-            cout << (string("method1 is null!")) << endl;
+            cout << string("method1 is null!") << endl;
             return;
         }
         auto method1_result = method1->call(obj, make_shared<vector<any>>(initializer_list<any>{  }));
-        cout << (string() + "instanceMethod: " + method1_result) << endl;
+        cout << string("instanceMethod: ") + method1_result << endl;
         
         auto method2 = cls->getMethod(string("staticMethod"));
         if (method2 == nullptr) {
-            cout << (string("method2 is null!")) << endl;
+            cout << string("method2 is null!") << endl;
             return;
         }
         auto method2_result = method2->call(nullptr, make_shared<vector<any>>(initializer_list<any>{ string("arg1value") }));
-        cout << (string() + "staticMethod: " + method2_result) << endl;
+        cout << string("staticMethod: ") + method2_result << endl;
         
         auto field1 = cls->getField(string("instanceField"));
         if (field1 == nullptr) {
-            cout << (string("field1 is null!")) << endl;
+            cout << string("field1 is null!") << endl;
             return;
         }
         field1->setValue(obj, 6);
         auto field1_new_val = field1->getValue(obj);
-        cout << (string() + "new instance field value: " + to_string(obj->instance_field) + " == " + field1_new_val) << endl;
+        cout << string("new instance field value: ") + to_string(obj->instance_field) + " == " + field1_new_val << endl;
         
         auto field2 = cls->getField(string("staticField"));
         if (field2 == nullptr) {
-            cout << (string("field2 is null!")) << endl;
+            cout << string("field2 is null!") << endl;
             return;
         }
         field2->setValue(nullptr, string("bello"));
         auto field2_new_val = field2->getValue(nullptr);
-        cout << (string() + "new static field value: " + TargetClass::static_field + " == " + field2_new_val) << endl;
+        cout << string("new static field value: ") + TargetClass::static_field + " == " + field2_new_val << endl;
     }
 
   private:

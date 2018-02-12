@@ -3,7 +3,7 @@ class TestClass
       constant_arr = [5]
       
       mutable_arr = [1]
-      mutable_arr << (2)
+      mutable_arr << 2
       
       puts "len1: #{constant_arr.length}, len2: #{mutable_arr.length}"
   end
