@@ -9,7 +9,7 @@ public class TestClass
         var result = new List<string> {  };
         var map = new Dictionary<string, int>
         {
-          { "x", 5 }
+            { "x", 5 }
         };
         var keys = map.Keys.ToArray();
         Console.WriteLine(result);

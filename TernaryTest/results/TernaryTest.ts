@@ -1,15 +1,15 @@
 class TestClass {
-  getResult() {
-    return true;
-  }
+    getResult() {
+        return true;
+    }
   
-  testMethod() {
-    console.log(this.getResult() ? "true" : "false");
-  }
+    testMethod() {
+        console.log(this.getResult() ? "true" : "false");
+    }
 }
 
 try {
-  new TestClass().testMethod();
+    new TestClass().testMethod();
 } catch(e) {
-  console.log(`Exception: ${e.message}`);
+    console.log(`Exception: ${e.message}`);
 }

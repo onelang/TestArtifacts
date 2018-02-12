@@ -1,7 +1,7 @@
 class Calculator {
-  calc() {
-    return 4;
-  }
+    calc() {
+        return 4;
+    }
 }
 
 console.log("Hello!");
@@ -11,8 +11,8 @@ console.log(`n = ${calc.calc()}`);
 
 const arr = [1, 2, 3];
 const map = {
-  a: 2,
-  b: 3
+    a: 2,
+    b: 3
 };
 console.log(`map['a'] = ${map["a"]}, arr[1] = ${arr[1]}`);
 

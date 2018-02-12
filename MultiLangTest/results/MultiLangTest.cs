@@ -22,8 +22,8 @@ public class Program
         var arr = new List<int> { 1, 2, 3 };
         var map = new Dictionary<string, int>
         {
-          { "a", 2 },
-          { "b", 3 }
+            { "a", 2 },
+            { "b", 3 }
         };
         Console.WriteLine($"map['a'] = {map["a"]}, arr[1] = {arr[1]}");
         

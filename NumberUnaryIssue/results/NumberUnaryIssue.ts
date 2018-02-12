@@ -1,5 +1,5 @@
 class NumberUnaryIssue {
-  test(num: number) {
-    num--;
-  }
+    test(num: number) {
+        num--;
+    }
 }

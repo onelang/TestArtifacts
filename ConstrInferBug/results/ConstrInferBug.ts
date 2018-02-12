@@ -1,13 +1,13 @@
 class TestClass {
-  methodTest(methodParam: OneArray) {
-  }
+    methodTest(methodParam: OneArray) {
+    }
   
-  testMethod() {
-  }
+    testMethod() {
+    }
 }
 
 try {
-  new TestClass().testMethod();
+    new TestClass().testMethod();
 } catch(e) {
-  console.log(`Exception: ${e.message}`);
+    console.log(`Exception: ${e.message}`);
 }

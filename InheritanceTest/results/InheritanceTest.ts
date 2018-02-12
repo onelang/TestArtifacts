@@ -1,54 +1,54 @@
 interface IPrinterBase {
-  someBaseFunc();
+    someBaseFunc();
 }
 
 interface IPrinter extends IPrinterBase {
-  printIt();
+    printIt();
 }
 
 class BasePrinter implements IPrinter {
-  numValue: number = 42;
+    numValue: number = 42;
 
-  getValue() {
-    return "Base";
-  }
+    getValue() {
+        return "Base";
+    }
   
-  printIt() {
-    console.log(`BasePrinter: ${this.getValue()}`);
-  }
+    printIt() {
+        console.log(`BasePrinter: ${this.getValue()}`);
+    }
   
-  someBaseFunc() {
-    return this.numValue;
-  }
+    someBaseFunc() {
+        return this.numValue;
+    }
 }
 
 class ChildPrinter extends BasePrinter {
-  getValue() {
-    return "Child";
-  }
+    getValue() {
+        return "Child";
+    }
 }
 
 class TestClass {
-  getPrinter(name: string) {
-    const result = name == "child" ? new ChildPrinter() : new BasePrinter();
-    return result;
-  }
+    getPrinter(name: string) {
+        const result = name == "child" ? new ChildPrinter() : new BasePrinter();
+        return result;
+    }
   
-  testMethod() {
-    const basePrinter = this.getPrinter("base");
-    const childPrinter = this.getPrinter("child");
-    basePrinter.printIt();
-    childPrinter.printIt();
-    console.log(`${basePrinter.someBaseFunc()} == ${childPrinter.someBaseFunc()}`);
-    
-    const baseP2 = new BasePrinter();
-    const childP2 = new ChildPrinter();
-    console.log(`${baseP2.numValue} == ${childP2.numValue}`);
-  }
+    testMethod() {
+        const basePrinter = this.getPrinter("base");
+        const childPrinter = this.getPrinter("child");
+        basePrinter.printIt();
+        childPrinter.printIt();
+        console.log(`${basePrinter.someBaseFunc()} == ${childPrinter.someBaseFunc()}`);
+        
+        const baseP2 = new BasePrinter();
+        const childP2 = new ChildPrinter();
+        console.log(`${baseP2.numValue} == ${childP2.numValue}`);
+    }
 }
 
 try {
-  new TestClass().testMethod();
+    new TestClass().testMethod();
 } catch(e) {
-  console.log(`Exception: ${e.message}`);
+    console.log(`Exception: ${e.message}`);
 }

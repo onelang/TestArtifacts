@@ -1,0 +1,80 @@
+IPrinterBase::someBaseFunc(): OneNumber
+
+IPrinter::printIt(): void
+
+BasePrinter::numValue: OneNumber
+- Variable: numValue [OneNumber]
+  - Literal (numeric): "42" [OneNumber]
+
+BasePrinter::getValue(): OneString
+  - Return
+    - Literal (string): "Base" [OneString]
+
+BasePrinter::printIt(): void
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - Call [OneString]
+          - MethodReference (this) [BasePrinter::getValue]
+
+BasePrinter::someBaseFunc(): OneNumber
+  - Return
+    - InstanceField (this): numValue [OneNumber]
+
+ChildPrinter::getValue(): OneString
+  - Return
+    - Literal (string): "Child" [OneString]
+
+TestClass::getPrinter(name: OneString): (I)IPrinter
+  - Variable: result [(I)IPrinter]
+    - Conditional [(I)IPrinter]
+      - Binary: == [OneBoolean]
+        - MethodArgument: name [OneString]
+        - Literal (string): "child" [OneString]
+      - New ChildPrinter [ChildPrinter]
+      - New BasePrinter [BasePrinter]
+  - Return
+    - LocalVar: result [(I)IPrinter]
+
+TestClass::testMethod(): void
+  - Variable: basePrinter [(I)IPrinter]
+    - Call [(I)IPrinter]
+      - MethodReference (this) [TestClass::getPrinter]
+      - Literal (string): "base" [OneString]
+  - Variable: childPrinter [(I)IPrinter]
+    - Call [(I)IPrinter]
+      - MethodReference (this) [TestClass::getPrinter]
+      - Literal (string): "child" [OneString]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [(I)IPrinter::printIt]
+        - LocalVar: basePrinter [(I)IPrinter]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [(I)IPrinter::printIt]
+        - LocalVar: childPrinter [(I)IPrinter]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - Call [OneNumber]
+          - MethodReference [(I)IPrinterBase::someBaseFunc]
+            - LocalVar: basePrinter [(I)IPrinter]
+        - Call [OneNumber]
+          - MethodReference [(I)IPrinterBase::someBaseFunc]
+            - LocalVar: childPrinter [(I)IPrinter]
+  - Comment: "\n"
+  - Variable: baseP2 [BasePrinter]
+    - New BasePrinter [BasePrinter]
+  - Variable: childP2 [ChildPrinter]
+    - New ChildPrinter [ChildPrinter]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - TemplateString [OneString]
+        - InstanceField: numValue [OneNumber]
+          - LocalVar: baseP2 [BasePrinter]
+        - InstanceField: numValue [OneNumber]
+          - LocalVar: childP2 [ChildPrinter]
+

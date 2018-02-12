@@ -1,13 +1,13 @@
 class TestClass {
-  testMethod() {
-    const map = {
-    };
-    const keys = Object.keys(map);
-  }
+    testMethod() {
+        const map = {
+        };
+        const keys = Object.keys(map);
+    }
 }
 
 try {
-  new TestClass().testMethod();
+    new TestClass().testMethod();
 } catch(e) {
-  console.log(`Exception: ${e.message}`);
+    console.log(`Exception: ${e.message}`);
 }

@@ -1,17 +1,17 @@
 class TestClass {
-  testMethod() {
-    const value = 1 + 2 * 3 - 4;
-    const map_ = {
-      a: 5,
-      b: 6
-    };
-    const text = `Hello world! value = ${value}, map[a] = ${map_["a"]}`;
-    console.log(text);
-  }
+    testMethod() {
+        const value = 1 + 2 * 3 - 4;
+        const map_ = {
+            a: 5,
+            b: 6
+        };
+        const text = `Hello world! value = ${value}, map[a] = ${map_["a"]}`;
+        console.log(text);
+    }
 }
 
 try {
-  new TestClass().testMethod();
+    new TestClass().testMethod();
 } catch(e) {
-  console.log(`Exception: ${e.message}`);
+    console.log(`Exception: ${e.message}`);
 }

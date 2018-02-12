@@ -1,5 +1,5 @@
 class StrLenInferIssue {
-  test(str: string) {
-    return str.length;
-  }
+    test(str: string) {
+        return str.length;
+    }
 }

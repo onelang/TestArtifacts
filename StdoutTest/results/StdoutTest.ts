@@ -1,20 +1,20 @@
 class TestClass {
-  reverseString(str: string) {
-    let result = "";
-    for (let i = str.length - 1; i >= 0; i--) {
-        result += str[i];
+    reverseString(str: string) {
+        let result = "";
+        for (let i = str.length - 1; i >= 0; i--) {
+            result += str[i];
+        }
+        return result;
     }
-    return result;
-  }
   
-  testMethod() {
-    console.log(this.reverseString("print value"));
-    return "return value";
-  }
+    testMethod() {
+        console.log(this.reverseString("print value"));
+        return "return value";
+    }
 }
 
 try {
-  new TestClass().testMethod();
+    new TestClass().testMethod();
 } catch(e) {
-  console.log(`Exception: ${e.message}`);
+    console.log(`Exception: ${e.message}`);
 }
