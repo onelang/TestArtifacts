@@ -1,6 +1,21 @@
-Calculator::calc(): any
-  - Return
-    - Literal (numeric): "4"
+Calculator::factor(n: TsNumber): any
+  - If
+    - Binary: <=
+      - Identifier: n
+      - Literal (numeric): "1"
+    Then
+      - Return
+        - Literal (numeric): "1"
+    Else
+      - Return
+        - Binary: *
+          - Call
+            - PropertyAccess (.factor)
+              - Identifier: this
+            - Binary: -
+              - Identifier: n
+              - Literal (numeric): "1"
+          - Identifier: n
 
 main()
   - ExpressionStatement
@@ -9,22 +24,29 @@ main()
         - Identifier: console
       - Literal (string): "Hello!"
   - Comment: "\n"
-  - Variable: calc
-    - New Calculator
-  - ExpressionStatement
-    - Call
-      - PropertyAccess (.log)
-        - Identifier: console
-      - TemplateString
-        - Call
-          - PropertyAccess (.calc)
-            - Identifier: calc
-  - Comment: "\n"
   - Variable: arr
     - ArrayLiteral
       - Literal (numeric): "1"
       - Literal (numeric): "2"
       - Literal (numeric): "3"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.push)
+        - Identifier: arr
+      - Literal (numeric): "4"
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - TemplateString
+        - PropertyAccess (.length)
+          - Identifier: arr
+        - Call
+          - PropertyAccess (.get)
+            - Identifier: arr
+          - Literal (numeric): "0"
+  - Comment: "\n"
   - Variable: map
     - MapLiteral
       - Variable: a
@@ -90,3 +112,15 @@ main()
       - PropertyAccess (.log)
         - Identifier: console
       - Identifier: sum
+  - Comment: "\n"
+  - Variable: calc
+    - New Calculator
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - TemplateString
+        - Call
+          - PropertyAccess (.factor)
+            - Identifier: calc
+          - Literal (numeric): "5"

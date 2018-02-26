@@ -1,15 +1,20 @@
 class Calculator {
-    calc() {
-        return 4;
+    factor(n: number) {
+        if (n <= 1) {
+            return 1;
+        } else {
+            return this.factor(n - 1) * n;
+        }
     }
 }
 
 console.log("Hello!");
 
-const calc = new Calculator();
-console.log(`n = ${calc.calc()}`);
-
 const arr = [1, 2, 3];
+arr.push(4);
+
+console.log(`n = ${arr.length}, arr[0] = ${arr[0]}`);
+
 const map = {
     a: 2,
     b: 3
@@ -27,3 +32,6 @@ for (let i = 0; i < 10; i++) {
     sum += i + 2;
 }
 console.log(sum);
+
+const calc = new Calculator();
+console.log(`5! = ${calc.factor(5)}`);

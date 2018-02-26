@@ -1,4 +1,4 @@
-class ConstructorTest 
+class ConstructorTest
   attr_accessor(:field2)
   attr_accessor(:field1)
 
@@ -8,7 +8,7 @@ class ConstructorTest
   end
 end
 
-class TestClass 
+class TestClass
   def test_method()
       test = ConstructorTest.new(3)
       puts test.field2

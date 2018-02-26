@@ -4,9 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 
 class Calculator {
-    public Integer calc() throws Exception
+    public Integer factor(Integer n) throws Exception
     {
-        return 4;
+        if (n <= 1) {
+            return 1;
+        } else {
+            return this.factor(n - 1) * n;
+        }
     }
 }
 
@@ -14,10 +18,11 @@ class Program {
     public static void main(String[] args) throws Exception {
         System.out.println("Hello!");
         
-        Calculator calc = new Calculator();
-        System.out.println("n = " + calc.calc());
-        
         List<Integer> arr = new ArrayList<Integer>(Arrays.asList(1, 2, 3));
+        arr.add(4);
+        
+        System.out.println("n = " + arr.size() + ", arr[0] = " + arr.get(0));
+        
         HashMap<String, Integer> map = new HashMap<String, Integer>();
         map.put("a", 2);
         map.put("b", 3);
@@ -34,5 +39,8 @@ class Program {
             sum += i + 2;
         }
         System.out.println(sum);
+        
+        Calculator calc = new Calculator();
+        System.out.println("5! = " + calc.factor(5));
     }
 }

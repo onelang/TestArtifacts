@@ -1,13 +1,17 @@
 class Calculator:
-    def calc(self):
-        return 4
+    def factor(self, n):
+        if n <= 1:
+            return 1
+        else:
+            return self.factor(n - 1) * n
 
 print "Hello!"
 
-calc = Calculator()
-print "n = %s" % (calc.calc())
-
 arr = [1, 2, 3]
+arr.append(4)
+
+print "n = %s, arr[0] = %s" % (len(arr), arr[0])
+
 map = {
   "a": 2,
   "b": 3,
@@ -25,3 +29,6 @@ while i < 10:
     sum += i + 2
     i += 1
 print sum
+
+calc = Calculator()
+print "5! = %s" % (calc.factor(5))

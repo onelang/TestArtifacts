@@ -1,4 +1,4 @@
-class TestClass 
+class TestClass
   def test_method()
       str = "a1A"
       i = 0

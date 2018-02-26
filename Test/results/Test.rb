@@ -1,4 +1,4 @@
-class TestClass 
+class TestClass
   def map_test()
       map_obj = {
         "x" => 5,

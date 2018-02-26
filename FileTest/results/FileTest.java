@@ -1,5 +1,5 @@
-import java.nio.file.Paths;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 
 class Program {
     public static void main(String[] args) throws Exception {

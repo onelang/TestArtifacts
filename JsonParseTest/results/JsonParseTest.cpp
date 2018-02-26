@@ -1,7 +1,7 @@
 #include <one.hpp>
+#include <iostream>
 #include <stdexcept>
 #include <vector>
-#include <iostream>
 
 int main()
 {

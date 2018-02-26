@@ -1,4 +1,4 @@
-class TestClass 
+class TestClass
   def method_test(method_param)
   end
 

@@ -1,4 +1,4 @@
-class XorByte 
+class XorByte
   attr_accessor(:xor_value)
 
   def initialize(xor_value)
@@ -18,7 +18,7 @@ class XorByte
   end
 end
 
-class Base64 
+class Base64
   def decode(src)
       dest = []
       
@@ -59,7 +59,7 @@ class Base64
   end
 end
 
-class TestClass 
+class TestClass
   def test_method()
       src1 = [4, 5, 6]
       decoder = XorByte.new(0xff)

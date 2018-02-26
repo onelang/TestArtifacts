@@ -1,4 +1,4 @@
-class TestClass 
+class TestClass
   def test_method()
       value = 1 + 2 * 3 - 4
       map_ = {

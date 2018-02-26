@@ -7,7 +7,7 @@ module TokenKind
   STRING_ = 3
 end
 
-class Token 
+class Token
   attr_accessor(:kind)
   attr_accessor(:value)
 
@@ -17,7 +17,7 @@ class Token
   end
 end
 
-class ExprLangLexer 
+class ExprLangLexer
   attr_accessor(:offset)
   attr_accessor(:tokens)
   attr_accessor(:expression)
@@ -146,7 +146,7 @@ class ExprLangLexer
   end
 end
 
-class TestClass 
+class TestClass
   def test_method()
       lexer = ExprLangLexer.new("1+2", ["+"])
       result = ""

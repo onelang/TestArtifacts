@@ -1,6 +1,6 @@
 #include <one.hpp>
-#include <map>
 #include <iostream>
+#include <map>
 
 class TestClass {
   public:

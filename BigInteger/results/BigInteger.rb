@@ -1,4 +1,4 @@
-class MathUtils 
+class MathUtils
   def self.calc(n)
       result = 1
       i = 2

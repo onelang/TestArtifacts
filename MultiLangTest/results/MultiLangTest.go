@@ -10,17 +10,22 @@ func NewCalculator() *Calculator {
     return this
 }
 
-func (this *Calculator) Calc() int {
-    return 4
+func (this *Calculator) Factor(n int) int {
+    if n <= 1 {
+        return 1
+    } else {
+        return this.Factor(n - 1) * n
+    }
 }
 
 func main() {
     fmt.Println("Hello!")
     
-    calc := NewCalculator()
-    fmt.Println(fmt.Sprintf("n = %v", calc.Calc()))
-    
     arr := []int{1, 2, 3}
+    arr = append(arr, 4)
+    
+    fmt.Println(fmt.Sprintf("n = %v, arr[0] = %v", len(arr), arr[0]))
+    
     map := map[string]int{
       "a": 2,
       "b": 3,
@@ -38,4 +43,7 @@ func main() {
         sum += i + 2
     }
     fmt.Println(sum)
+    
+    calc := NewCalculator()
+    fmt.Println(fmt.Sprintf("5! = %v", calc.Factor(5)))
 }

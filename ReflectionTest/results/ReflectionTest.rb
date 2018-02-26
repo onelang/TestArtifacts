@@ -1,6 +1,6 @@
 require 'one'
 
-class TargetClass 
+class TargetClass
   attr_accessor(:instance_field)
   @static_field = "hello"
 
@@ -32,7 +32,7 @@ One::Reflect::setup_class(One::Class.new(TargetClass, [
     ]),
   ]));
 
-class TestClass 
+class TestClass
   def test_method()
       obj = TargetClass.new()
       #console.log(`instanceMethod (direct): ${obj.instanceMethod()}`);

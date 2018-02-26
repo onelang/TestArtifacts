@@ -1,17 +1,22 @@
 <?php
 
 class Calculator {
-    function calc() {
-        return 4;
+    function factor($n) {
+        if ($n <= 1) {
+            return 1;
+        } else {
+            return $this->factor($n - 1) * $n;
+        }
     }
 }
 
 print("Hello!" . "\n");
 
-$calc = new Calculator();
-print("n = " . $calc->calc() . "\n");
-
 $arr = array(1, 2, 3);
+$arr[] = 4;
+
+print("n = " . count($arr) . ", arr[0] = " . $arr[0] . "\n");
+
 $map = array(
   "a" => 2,
   "b" => 3,
@@ -29,3 +34,6 @@ for ($i = 0; $i < 10; $i++) {
     $sum += $i + 2;
 }
 print($sum . "\n");
+
+$calc = new Calculator();
+print("5! = " . $calc->factor(5) . "\n");

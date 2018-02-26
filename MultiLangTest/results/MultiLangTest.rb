@@ -1,15 +1,20 @@
-class Calculator 
-  def calc()
-      return 4
+class Calculator
+  def factor(n)
+      if n <= 1
+          return 1
+      else
+          return self.factor(n - 1) * n
+      end
   end
 end
 
 puts "Hello!"
 
-calc = Calculator.new()
-puts "n = #{calc.calc()}"
-
 arr = [1, 2, 3]
+arr << 4
+
+puts "n = #{arr.length}, arr[0] = #{arr[0]}"
+
 map = {
   "a" => 2,
   "b" => 3,
@@ -29,3 +34,6 @@ while i < 10
     i += 1
 end
 puts sum
+
+calc = Calculator.new()
+puts "5! = #{calc.factor(5)}"

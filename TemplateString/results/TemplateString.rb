@@ -1,4 +1,4 @@
-class TestClass 
+class TestClass
   def test_method()
       str_val = "str"
       num = 1337

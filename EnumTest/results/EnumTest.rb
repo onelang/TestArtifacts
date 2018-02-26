@@ -3,7 +3,7 @@ module TestEnum
   ITEM2 = 1
 end
 
-class TestClass 
+class TestClass
   def test_method()
       enum_v = TestEnum::ITEM1
       if 3 * 2 == 6

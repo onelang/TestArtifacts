@@ -1,4 +1,4 @@
-class TokenType 
+class TokenType
   @end_token = "EndToken"
   @whitespace = "Whitespace"
   @identifier = "Identifier"
@@ -10,7 +10,7 @@ class TokenType
   end
 end
 
-class TestClass 
+class TestClass
   def test_method()
       casing_test = TokenType.end_token
       return casing_test

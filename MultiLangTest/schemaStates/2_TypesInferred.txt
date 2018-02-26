@@ -1,6 +1,20 @@
-Calculator::calc(): TsNumber
-  - Return
-    - Literal (numeric): "4" [TsNumber]
+Calculator::factor(n: TsNumber): TsNumber
+  - If
+    - Binary: <= [OneBoolean]
+      - MethodArgument: n [TsNumber]
+      - Literal (numeric): "1" [TsNumber]
+    Then
+      - Return
+        - Literal (numeric): "1" [TsNumber]
+    Else
+      - Return
+        - Binary: * [any]
+          - Call [any]
+            - MethodReference (this) [Calculator::factor]
+            - Binary: - [TsNumber]
+              - MethodArgument: n [TsNumber]
+              - Literal (numeric): "1" [TsNumber]
+          - MethodArgument: n [TsNumber]
 
 main()
   - ExpressionStatement
@@ -8,21 +22,28 @@ main()
       - MethodReference (static) [console::log]
       - Literal (string): "Hello!" [TsString]
   - Comment: "\n"
-  - Variable: calc [Calculator]
-    - New Calculator [Calculator]
-  - ExpressionStatement
-    - Call [void]
-      - MethodReference (static) [console::log]
-      - TemplateString [OneString]
-        - Call [TsNumber]
-          - MethodReference [Calculator::calc]
-            - LocalVar: calc [Calculator]
-  - Comment: "\n"
   - Variable: arr [TsArray<TsNumber>]
     - ArrayLiteral [TsArray<TsNumber>]
       - Literal (numeric): "1" [TsNumber]
       - Literal (numeric): "2" [TsNumber]
       - Literal (numeric): "3" [TsNumber]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference [TsArray<TsNumber>::push]
+        - LocalVar: arr [TsArray<TsNumber>]
+      - Literal (numeric): "4" [TsNumber]
+  - Comment: "\n"
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - TemplateString [OneString]
+        - InstanceField: length [TsNumber]
+          - LocalVar: arr [TsArray<TsNumber>]
+        - Call [TsNumber]
+          - MethodReference [TsArray<TsNumber>::get]
+            - LocalVar: arr [TsArray<TsNumber>]
+          - Literal (numeric): "0" [TsNumber]
+  - Comment: "\n"
   - Variable: map [TsMap<OneString, TsNumber>]
     - MapLiteral [TsMap<OneString, TsNumber>]
       - Variable: a [TsNumber]
@@ -84,3 +105,14 @@ main()
     - Call [void]
       - MethodReference (static) [console::log]
       - LocalVar: sum [TsNumber]
+  - Comment: "\n"
+  - Variable: calc [Calculator]
+    - New Calculator [Calculator]
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - TemplateString [OneString]
+        - Call [TsNumber]
+          - MethodReference [Calculator::factor]
+            - LocalVar: calc [Calculator]
+          - Literal (numeric): "5" [TsNumber]

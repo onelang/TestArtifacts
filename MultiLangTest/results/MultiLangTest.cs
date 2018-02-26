@@ -4,9 +4,16 @@ using System.Linq;
 
 public class Calculator
 {
-    public int Calc()
+    public int Factor(int n)
     {
-        return 4;
+        if (n <= 1)
+        {
+            return 1;
+        }
+        else
+        {
+            return this.Factor(n - 1) * n;
+        }
     }
 }
 
@@ -16,10 +23,11 @@ public class Program
     {
         Console.WriteLine("Hello!");
         
-        var calc = new Calculator();
-        Console.WriteLine($"n = {calc.Calc()}");
-        
         var arr = new List<int> { 1, 2, 3 };
+        arr.Add(4);
+        
+        Console.WriteLine($"n = {arr.Count}, arr[0] = {arr[0]}");
+        
         var map = new Dictionary<string, int>
         {
             { "a", 2 },
@@ -42,5 +50,8 @@ public class Program
             sum += i + 2;
         }
         Console.WriteLine(sum);
+        
+        var calc = new Calculator();
+        Console.WriteLine($"5! = {calc.Factor(5)}");
     }
-}    
+}

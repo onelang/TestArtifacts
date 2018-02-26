@@ -1,4 +1,4 @@
-class TestClass 
+class TestClass
   def not_throws()
       return 5
   end

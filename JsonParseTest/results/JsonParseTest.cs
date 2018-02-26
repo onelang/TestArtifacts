@@ -1,7 +1,7 @@
 using Newtonsoft.Json.Linq;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Program
 {
@@ -28,4 +28,4 @@ public class Program
         }
         Console.WriteLine($"b = {(long)((JValue)obj1["b"]).Value}");
     }
-}    
+}

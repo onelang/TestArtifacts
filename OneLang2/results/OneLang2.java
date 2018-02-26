@@ -1,6 +1,6 @@
-import java.util.List;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 enum TokenKind { NUMBER, IDENTIFIER, OPERATOR_, STRING_ };
 

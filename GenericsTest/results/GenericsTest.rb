@@ -1,4 +1,4 @@
-class MapX 
+class MapX
   attr_accessor(:value)
 
   def set(key, value)
@@ -10,7 +10,7 @@ class MapX
   end
 end
 
-class TestClass 
+class TestClass
   def test_method()
       map_x = MapX.new()
       map_x.set("hello", 3)

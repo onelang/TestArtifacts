@@ -1,4 +1,4 @@
-class TestClass 
+class TestClass
   def test_method()
       str = "A x B x C x D"
       result = str.gsub(/#{Regexp.escape("x")}/, "y")

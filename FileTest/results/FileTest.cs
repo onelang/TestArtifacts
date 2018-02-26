@@ -1,5 +1,5 @@
-using System.IO;
 using System;
+using System.IO;
 
 public class Program
 {
@@ -8,4 +8,4 @@ public class Program
         var fileContent = File.ReadAllText("../../../input/test.txt");
         Console.WriteLine(fileContent);
     }
-}    
+}

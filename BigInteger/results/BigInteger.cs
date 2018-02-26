@@ -1,5 +1,5 @@
-using System.Numerics;
 using System;
+using System.Numerics;
 
 public class MathUtils
 {
@@ -39,4 +39,4 @@ public class Program
     {
         Console.WriteLine($"5 -> {MathUtils.Calc(5)}, 24 -> {MathUtils.CalcBig(24)}");
     }
-}    
+}

@@ -1,4 +1,4 @@
-class TestClass 
+class TestClass
   def reverse_string(str)
       result = ""
       i = str.length - 1

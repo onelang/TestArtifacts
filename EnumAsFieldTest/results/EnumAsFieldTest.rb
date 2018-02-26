@@ -4,7 +4,7 @@ module SomeKind
   ENUM_VAL2 = 2
 end
 
-class TestClass 
+class TestClass
   attr_accessor(:enum_field)
 
   def initialize()

@@ -1,4 +1,4 @@
-class TestClass 
+class TestClass
   def test_method()
       str = "ABCDEF"
       t_a0_true = str[0...0 + "A".length] == "A"

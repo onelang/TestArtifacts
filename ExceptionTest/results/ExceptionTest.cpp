@@ -1,6 +1,6 @@
 #include <one.hpp>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
 class TestClass {
   public:

@@ -1,8 +1,8 @@
-class List 
+class List
   attr_accessor(:items)
 end
 
-class Item 
+class Item
   attr_accessor(:offset)
   attr_accessor(:str_test)
   attr_accessor(:str_constr)
@@ -16,7 +16,7 @@ class Item
   end
 end
 
-class Container 
+class Container
   attr_accessor(:item_list)
   attr_accessor(:string_list)
 

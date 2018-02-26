@@ -1,4 +1,4 @@
-class BasePrinter 
+class BasePrinter
   attr_accessor(:num_value)
 
   def initialize()
@@ -18,13 +18,13 @@ class BasePrinter
   end
 end
 
-class ChildPrinter < BasePrinter 
+class ChildPrinter < BasePrinter
   def get_value()
       return "Child"
   end
 end
 
-class TestClass 
+class TestClass
   def get_printer(name)
       result = name == "child" ? ChildPrinter.new() : BasePrinter.new()
       return result

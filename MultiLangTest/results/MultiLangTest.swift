@@ -1,15 +1,20 @@
 class Calculator {
-  func calc() -> Int {
-      return 4
+  func factor(n: Int) -> Int {
+      if n <= 1 {
+          return 1
+      } else {
+          return self.factor(n: n - 1) * n
+      }
   }
 }
 
 print("Hello!")
 
-let calc: Calculator? = Calculator()
-print("n = \(calc!.calc())")
+var arr: [Int]? = [1, 2, 3]
+arr!.append(4)
 
-let arr: [Int]? = [1, 2, 3]
+print("n = \(arr!.count), arr[0] = \(arr![0])")
+
 let map: [String: Int]? = [
   "a": 2,
   "b": 3
@@ -29,3 +34,6 @@ while i < 10 {
     i += 1
 }
 print(sum)
+
+let calc: Calculator? = Calculator()
+print("5! = \(calc!.factor(n: 5))")

@@ -1,7 +1,7 @@
 #include <one.hpp>
+#include <iostream>
 #include <stdexcept>
 #include <vector>
-#include <iostream>
 
 enum class TokenKind { Number, Identifier, Operator_, String_ };
 const char* TokenKindToStr[] = { "Number", "Identifier", "Operator_", "String_" };
