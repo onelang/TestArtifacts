@@ -18,32 +18,32 @@ class Calculator {
 
 int main()
 {
-    cout << string("Hello!") << endl;
+    std::cout << std::string("Hello!") << std::endl;
     
     auto arr = make_shared<vector<int>>(initializer_list<int>{ 1, 2, 3 });
     arr->push_back(4);
     
-    cout << string("n = ") + to_string(arr->size()) + ", arr[0] = " + to_string(arr->at(0)) << endl;
+    std::cout << std::string("n = ") + std::to_string(arr->size()) + ", arr[0] = " + std::to_string(arr->at(0)) << std::endl;
     
-    auto map = make_shared_map<string, int>({
+    auto map = make_shared_map<std::string, int>({
       { "a", 2 },
       { "b", 3 }
     });
-    cout << string("map['a'] = ") + to_string(map->operator[](string("a"))) + ", arr[1] = " + to_string(arr->at(1)) << endl;
+    std::cout << std::string("map['a'] = ") + std::to_string(map->operator[](std::string("a"))) + ", arr[1] = " + std::to_string(arr->at(1)) << std::endl;
     
     if (arr->at(0) == 1) {
-        cout << string("TRUE-X") << endl;
+        std::cout << std::string("TRUE-X") << std::endl;
     } else {
-        cout << string("FALSE") << endl;
+        std::cout << std::string("FALSE") << std::endl;
     }
     
     int sum = 0;
     for (int i = 0; i < 10; i++) {
         sum += i + 2;
     }
-    cout << sum << endl;
+    std::cout << sum << std::endl;
     
     auto calc = make_shared<Calculator>();
-    cout << string("5! = ") + to_string(calc->factor(5)) << endl;
+    std::cout << std::string("5! = ") + std::to_string(calc->factor(5)) << std::endl;
     return 0;
 }

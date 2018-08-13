@@ -4,7 +4,7 @@
 class TestClass {
   public:
     void testMethod() {
-        auto map = make_shared_map<string, any>({
+        auto map = make_shared_map<std::string, any>({
         });
         auto keys = OneMapHelper::keys(map);
     }
@@ -18,7 +18,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

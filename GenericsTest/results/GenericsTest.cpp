@@ -20,10 +20,10 @@ class MapX {
 class TestClass {
   public:
     void testMethod() {
-        auto map_x = make_shared<MapX<string, int>>();
-        map_x->set(string("hello"), 3);
-        int num_value = map_x->get(string("hello2"));
-        cout << string(to_string(num_value)) << endl;
+        auto map_x = make_shared<MapX<std::string, int>>();
+        map_x->set(std::string("hello"), 3);
+        int num_value = map_x->get(std::string("hello2"));
+        std::cout << std::string(std::to_string(num_value)) << std::endl;
     }
 
   private:
@@ -35,7 +35,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

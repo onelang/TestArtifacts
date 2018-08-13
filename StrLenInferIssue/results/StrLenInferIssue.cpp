@@ -1,7 +1,7 @@
 #include <one.hpp>
 class StrLenInferIssue {
   public:
-    int test(string str) {
+    int test(std::string str) {
         return str.size();
     }
 

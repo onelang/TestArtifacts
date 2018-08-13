@@ -9,7 +9,7 @@ class TestClass {
     SomeKind enum_field = SomeKind::EnumVal2;
 
     void testMethod() {
-        cout << string("Value: ") + SomeKindToStr[(int)(this->enum_field)] << endl;
+        std::cout << std::string("Value: ") + SomeKindToStr[(int)(this->enum_field)] << std::endl;
     }
 
   private:
@@ -21,7 +21,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

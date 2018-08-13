@@ -18,7 +18,7 @@ class TestClass {
   public:
     void testMethod() {
         auto test = make_shared<ConstructorTest>(3);
-        cout << test->field2 << endl;
+        std::cout << test->field2 << std::endl;
     }
 
   private:
@@ -30,7 +30,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

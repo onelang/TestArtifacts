@@ -3,17 +3,17 @@
 
 class TestClass {
   public:
-    string reverseString(string str) {
-        auto result = string("");
+    std::string reverseString(std::string str) {
+        auto result = std::string("");
         for (int i = str.size() - 1; i >= 0; i--) {
             result += str[i];
         }
         return result;
     }
     
-    string testMethod() {
-        cout << this->reverseString(string("print value")) << endl;
-        return string("return value");
+    std::string testMethod() {
+        std::cout << this->reverseString(std::string("print value")) << std::endl;
+        return std::string("return value");
     }
 
   private:
@@ -25,7 +25,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

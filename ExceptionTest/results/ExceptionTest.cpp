@@ -9,11 +9,11 @@ class TestClass {
     }
     
     void fThrows() {
-        throw std::runtime_error(string("exception message"));
+        throw std::runtime_error(std::string("exception message"));
     }
     
     void testMethod() {
-        cout << this->notThrows() << endl;
+        std::cout << this->notThrows() << std::endl;
         this->fThrows();
     }
 
@@ -26,7 +26,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

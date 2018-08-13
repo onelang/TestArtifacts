@@ -4,9 +4,9 @@
 class TestClass {
   public:
     void testMethod() {
-        auto str = string("A x B x C x D");
-        auto result = OneStringHelper::replace(str, string("x"), string("y"));
-        cout << string("R: ") + result + ", O: " + str << endl;
+        auto str = std::string("A x B x C x D");
+        auto result = OneStringHelper::replace(str, std::string("x"), std::string("y"));
+        std::cout << std::string("R: ") + result + ", O: " + str << std::endl;
     }
 
   private:
@@ -18,7 +18,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

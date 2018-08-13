@@ -9,9 +9,9 @@ const char* TokenKindToStr[] = { "Number", "Identifier", "Operator_", "String_" 
 class Token {
   public:
     TokenKind kind;
-    string value;
+    std::string value;
 
-    Token(TokenKind kind, string value) {
+    Token(TokenKind kind, std::string value) {
         this->kind = kind;
         this->value = value;
     }
@@ -23,10 +23,10 @@ class ExprLangLexer {
   public:
     int offset = 0;
     vec<sp<Token>> tokens = make_shared<vector<sp<Token>>>(initializer_list<sp<Token>>{  });
-    string expression;
-    vec<string> operators;
+    std::string expression;
+    vec<std::string> operators;
 
-    ExprLangLexer(string expression, vec<string> operators) {
+    ExprLangLexer(std::string expression, vec<std::string> operators) {
         this->expression = expression;
         this->operators = operators;
         if (!this->tryToReadNumber()) {
@@ -36,22 +36,22 @@ class ExprLangLexer {
         
         while (this->hasMoreToken()) {
             if (!this->tryToReadOperator()) {
-                this->fail(string("expected operator here"));
+                this->fail(std::string("expected operator here"));
             }
             
             if (!this->tryToReadLiteral()) {
-                this->fail(string("expected literal here"));
+                this->fail(std::string("expected literal here"));
             }
         }
     }
 
-    void fail(string message) {
+    void fail(std::string message) {
         int end_offset = this->offset + 30;
         if (end_offset > this->expression.size()) {
             end_offset = this->expression.size();
         }
-        auto context = this->expression.substr(this->offset, end_offset - this->offset) + string("...");
-        throw std::runtime_error(string("TokenizerException: ") + message + " at '" + context + "' (offset: " + to_string(this->offset) + ")");
+        auto context = this->expression.substr(this->offset, end_offset - this->offset) + std::string("...");
+        throw std::runtime_error(std::string("TokenizerException: ") + message + " at '" + context + "' (offset: " + std::to_string(this->offset) + ")");
     }
     
     bool hasMoreToken() {
@@ -59,14 +59,14 @@ class ExprLangLexer {
         return !this->eof();
     }
     
-    void add(TokenKind kind, string value) {
+    void add(TokenKind kind, std::string value) {
         this->tokens->push_back(make_shared<Token>(kind, value));
         this->offset += value.size();
     }
     
-    string tryToMatch(string pattern) {
+    std::string tryToMatch(std::string pattern) {
         auto matches = OneRegex::matchFromIndex(pattern, this->expression, this->offset);
-        return matches == nullptr ? string("") : matches->at(0);
+        return matches == nullptr ? std::string("") : matches->at(0);
     }
     
     bool tryToReadOperator() {
@@ -84,15 +84,15 @@ class ExprLangLexer {
     bool tryToReadNumber() {
         this->skipWhitespace();
         
-        auto number = this->tryToMatch(string("[+-]?(\\d*\\.\\d+|\\d+\\.\\d+|0x[0-9a-fA-F_]+|0b[01_]+|[0-9_]+)"));
-        if (number == string("")) {
+        auto number = this->tryToMatch(std::string("[+-]?(\\d*\\.\\d+|\\d+\\.\\d+|0x[0-9a-fA-F_]+|0b[01_]+|[0-9_]+)"));
+        if (number == std::string("")) {
             return false;
         }
         
         this->add(TokenKind::Number, number);
         
-        if (this->tryToMatch(string("[0-9a-zA-Z]")) != string("")) {
-            this->fail(string("invalid character in number"));
+        if (this->tryToMatch(std::string("[0-9a-zA-Z]")) != std::string("")) {
+            this->fail(std::string("invalid character in number"));
         }
         
         return true;
@@ -100,8 +100,8 @@ class ExprLangLexer {
     
     bool tryToReadIdentifier() {
         this->skipWhitespace();
-        auto identifier = this->tryToMatch(string("[a-zA-Z_][a-zA-Z0-9_]*"));
-        if (identifier == string("")) {
+        auto identifier = this->tryToMatch(std::string("[a-zA-Z_][a-zA-Z0-9_]*"));
+        if (identifier == std::string("")) {
             return false;
         }
         
@@ -112,16 +112,16 @@ class ExprLangLexer {
     bool tryToReadString() {
         this->skipWhitespace();
         
-        auto match = this->tryToMatch(string("'(\\\\'|[^'])*'"));
-        if (match == string("")) {
-            match = this->tryToMatch(string("\"(\\\\\"|[^\"])*\""));
+        auto match = this->tryToMatch(std::string("'(\\\\'|[^'])*'"));
+        if (match == std::string("")) {
+            match = this->tryToMatch(std::string("\"(\\\\\"|[^\"])*\""));
         }
-        if (match == string("")) {
+        if (match == std::string("")) {
             return false;
         }
         
         auto str = match.substr(1, 1 + match.size() - 2 - 1);
-        str = match[0] == '\'' ? OneStringHelper::replace(str, string("\\'"), string("'")) : OneStringHelper::replace(str, string("\\\""), string("\""));
+        str = match[0] == '\'' ? OneStringHelper::replace(str, std::string("\\'"), std::string("'")) : OneStringHelper::replace(str, std::string("\\\""), std::string("\""));
         this->tokens->push_back(make_shared<Token>(TokenKind::String_, str));
         this->offset += match.size();
         return true;
@@ -153,17 +153,17 @@ class ExprLangLexer {
 class TestClass {
   public:
     void testMethod() {
-        auto lexer = make_shared<ExprLangLexer>(string("1+2"), make_shared<vector<string>>(initializer_list<string>{ string("+") }));
-        auto result = string("");
+        auto lexer = make_shared<ExprLangLexer>(std::string("1+2"), make_shared<vector<std::string>>(initializer_list<std::string>{ std::string("+") }));
+        auto result = std::string("");
         for (auto it = lexer->tokens->begin(); it != lexer->tokens->end(); ++it) {
             auto token = *it;
-            if (result != string("")) {
-                result += string(", ");
+            if (result != std::string("")) {
+                result += std::string(", ");
             }
             result += token->value;
         }
         
-        cout << string("[") + to_string(lexer->tokens->size()) + "]: " + result << endl;
+        std::cout << std::string("[") + std::to_string(lexer->tokens->size()) + "]: " + result << std::endl;
     }
 
   private:
@@ -175,7 +175,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

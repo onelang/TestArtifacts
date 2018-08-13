@@ -12,10 +12,10 @@ class TestClass {
             enum_v = TestEnum::Item2;
         }
         
-        auto check1 = enum_v == TestEnum::Item2 ? string("SUCCESS") : string("FAIL");
-        auto check2 = enum_v == TestEnum::Item1 ? string("FAIL") : string("SUCCESS");
+        auto check1 = enum_v == TestEnum::Item2 ? std::string("SUCCESS") : std::string("FAIL");
+        auto check2 = enum_v == TestEnum::Item1 ? std::string("FAIL") : std::string("SUCCESS");
         
-        cout << string("Item1: ") + TestEnumToStr[(int)(TestEnum::Item1)] + ", Item2: " + TestEnumToStr[(int)(enum_v)] + ", checks: " + check1 + " " + check2 << endl;
+        std::cout << std::string("Item1: ") + TestEnumToStr[(int)(TestEnum::Item1)] + ", Item2: " + TestEnumToStr[(int)(enum_v)] + ", checks: " + check1 + " " + check2 << std::endl;
     }
 
   private:
@@ -27,7 +27,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

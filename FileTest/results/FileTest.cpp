@@ -3,7 +3,7 @@
 
 int main()
 {
-    auto file_content = OneFile::readText(string("../../../input/test.txt"));
-    cout << file_content << endl;
+    auto file_content = OneFile::readText(std::string("../../../input/test.txt"));
+    std::cout << file_content << std::endl;
     return 0;
 }

@@ -10,10 +10,10 @@ class List {
 class Item {
   public:
     int offset = 5;
-    string str_test = string("test") + string("test2");
-    string str_constr = string("constr");
+    std::string str_test = std::string("test") + std::string("test2");
+    std::string str_constr = std::string("constr");
 
-    Item(string str_constr) {
+    Item(std::string str_constr) {
         this->str_constr = str_constr;
     }
 
@@ -23,12 +23,12 @@ class Item {
 class Container {
   public:
     sp<List<Item>> item_list;
-    sp<List<string>> string_list;
+    sp<List<std::string>> string_list;
 
     void method0() {
     }
     
-    string method1(string str) {
+    std::string method1(std::string str) {
         return str;
     }
 

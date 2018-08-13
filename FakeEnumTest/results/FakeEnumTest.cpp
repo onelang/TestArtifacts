@@ -1,23 +1,23 @@
 #include <one.hpp>
 class TokenType {
   public:
-    static string end_token;
-    static string whitespace;
-    static string identifier;
-    static string operator_x;
-    static string no_initializer;
+    static std::string end_token;
+    static std::string whitespace;
+    static std::string identifier;
+    static std::string operator_x;
+    static std::string no_initializer;
 
   private:
 };
 
-string TokenType::end_token = string("EndToken");
-string TokenType::whitespace = string("Whitespace");
-string TokenType::identifier = string("Identifier");
-string TokenType::operator_x = string("Operator");
+std::string TokenType::end_token = std::string("EndToken");
+std::string TokenType::whitespace = std::string("Whitespace");
+std::string TokenType::identifier = std::string("Identifier");
+std::string TokenType::operator_x = std::string("Operator");
 
 class TestClass {
   public:
-    string testMethod() {
+    std::string testMethod() {
         auto casing_test = TokenType::end_token;
         return casing_test;
     }
@@ -31,7 +31,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

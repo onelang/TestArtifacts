@@ -86,17 +86,17 @@ class TestClass {
         auto dst1 = decoder->decode(src1);
         for (auto it = dst1->begin(); it != dst1->end(); ++it) {
             auto x = *it;
-            cout << x << endl;
+            std::cout << x << std::endl;
         }
         
-        cout << string("|") << endl;
+        std::cout << std::string("|") << std::endl;
         
         auto src2 = make_shared<vector<int>>(initializer_list<int>{ 97, 71, 86, 115, 98, 71, 56, 61 });
         auto decoder2 = make_shared<Base64>();
         auto dst2 = decoder2->decode(src2);
         for (auto it = dst2->begin(); it != dst2->end(); ++it) {
             auto x = *it;
-            cout << x << endl;
+            std::cout << x << std::endl;
         }
     }
 
@@ -109,7 +109,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

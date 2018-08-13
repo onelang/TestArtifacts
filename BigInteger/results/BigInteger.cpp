@@ -31,6 +31,6 @@ class MathUtils {
 
 int main()
 {
-    cout << string("5 -> ") + to_string(MathUtils::calc(5)) + ", 24 -> " + MathUtils::calcBig(24) << endl;
+    std::cout << std::string("5 -> ") + std::to_string(MathUtils::calc(5)) + ", 24 -> " + MathUtils::calcBig(24) << std::endl;
     return 0;
 }

@@ -5,13 +5,13 @@
 class TestClass {
   public:
     void testMethod() {
-        auto result = make_shared<vector<string>>(initializer_list<string>{  });
-        auto map = make_shared_map<string, int>({
+        auto result = make_shared<vector<std::string>>(initializer_list<std::string>{  });
+        auto map = make_shared_map<std::string, int>({
           { "x", 5 }
         });
         auto keys = OneMapHelper::keys(map);
-        cout << result << endl;
-        cout << keys << endl;
+        std::cout << result << std::endl;
+        std::cout << keys << std::endl;
     }
 
   private:
@@ -23,7 +23,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

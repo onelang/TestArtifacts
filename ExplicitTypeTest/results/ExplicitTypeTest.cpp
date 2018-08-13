@@ -5,7 +5,7 @@ class TestClass {
   public:
     void testMethod() {
         auto op = nullptr;
-        cout << op.size() << endl;
+        std::cout << op.size() << std::endl;
     }
 
   private:
@@ -17,7 +17,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

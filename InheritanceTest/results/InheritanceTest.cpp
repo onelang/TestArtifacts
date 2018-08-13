@@ -15,12 +15,12 @@ class BasePrinter : public IPrinter {
   public:
     int num_value = 42;
 
-    virtual string getValue() {
-        return string("Base");
+    virtual std::string getValue() {
+        return std::string("Base");
     }
     
     void printIt() {
-        cout << string("BasePrinter: ") + this->getValue() << endl;
+        std::cout << std::string("BasePrinter: ") + this->getValue() << std::endl;
     }
     
     int someBaseFunc() {
@@ -32,8 +32,8 @@ class BasePrinter : public IPrinter {
 
 class ChildPrinter : public BasePrinter {
   public:
-    string getValue() {
-        return string("Child");
+    std::string getValue() {
+        return std::string("Child");
     }
 
   private:
@@ -41,21 +41,21 @@ class ChildPrinter : public BasePrinter {
 
 class TestClass {
   public:
-    sp<IPrinter> getPrinter(string name) {
-        auto result = name == string("child") ? make_shared<ChildPrinter>() : make_shared<BasePrinter>();
+    sp<IPrinter> getPrinter(std::string name) {
+        auto result = name == std::string("child") ? make_shared<ChildPrinter>() : make_shared<BasePrinter>();
         return result;
     }
     
     void testMethod() {
-        auto base_printer = this->getPrinter(string("base"));
-        auto child_printer = this->getPrinter(string("child"));
+        auto base_printer = this->getPrinter(std::string("base"));
+        auto child_printer = this->getPrinter(std::string("child"));
         base_printer->printIt();
         child_printer->printIt();
-        cout << string(to_string(base_printer->someBaseFunc())) + " == " + to_string(child_printer->someBaseFunc()) << endl;
+        std::cout << std::string(std::to_string(base_printer->someBaseFunc())) + " == " + std::to_string(child_printer->someBaseFunc()) << std::endl;
         
         auto base_p2 = make_shared<BasePrinter>();
         auto child_p2 = make_shared<ChildPrinter>();
-        cout << string(to_string(base_p2->num_value)) + " == " + to_string(child_p2->num_value) << endl;
+        std::cout << std::string(std::to_string(base_p2->num_value)) + " == " + std::to_string(child_p2->num_value) << std::endl;
     }
 
   private:
@@ -67,7 +67,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

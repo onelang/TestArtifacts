@@ -8,7 +8,7 @@ class TestClass {
     }
     
     void testMethod() {
-        cout << (this->getResult() ? string("true") : string("false")) << endl;
+        std::cout << (this->getResult() ? std::string("true") : std::string("false")) << std::endl;
     }
 
   private:
@@ -20,7 +20,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

@@ -18,8 +18,8 @@ TestClass::mapTest(): TsNumber
         - LocalVar: mapObj [TsMap<OneString, TsNumber>]
       - Literal (string): "x" [TsString]
   - Comment: "\n"
-  - Variable: keysVar [OneArray<OneString>]
-    - Call [OneArray<OneString>]
+  - Variable: keysVar [OneArray<K>]
+    - Call [OneArray<K>]
       - MethodReference (static) [Object::keys]
       - LocalVar: mapObj [TsMap<OneString, TsNumber>]
   - Variable: valuesVar [OneArray<V>]

@@ -8,7 +8,7 @@ class TestClass {
         auto b = false;
         auto c = a && b;
         auto d = a || b;
-        cout << string("a: ") + (a ? "true" : "false") + ", b: " + (b ? "true" : "false") + ", c: " + (c ? "true" : "false") + ", d: " + (d ? "true" : "false") << endl;
+        std::cout << std::string("a: ") + (a ? "true" : "false") + ", b: " + (b ? "true" : "false") + ", c: " + (c ? "true" : "false") + ", d: " + (d ? "true" : "false") << std::endl;
     }
 
   private:
@@ -20,7 +20,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

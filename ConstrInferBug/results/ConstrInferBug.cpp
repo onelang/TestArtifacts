@@ -1,7 +1,7 @@
 #include <one.hpp>
 class TestClass {
   public:
-    void methodTest(vec<string> method_param) {
+    void methodTest(vec<std::string> method_param) {
     }
     
     void testMethod() {
@@ -16,7 +16,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }

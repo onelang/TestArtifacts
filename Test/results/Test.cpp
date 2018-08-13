@@ -1,4 +1,5 @@
 #include <one.hpp>
+#include <$libDir/one.hpp>
 #include <iostream>
 #include <map>
 #include <vector>
@@ -6,46 +7,46 @@
 class TestClass {
   public:
     int mapTest() {
-        auto map_obj = make_shared_map<string, int>({
+        auto map_obj = make_shared_map<std::string, int>({
           { "x", 5 },
           { "y", 3 }
         });
         
         //let containsX = "x" in mapObj;
-        map_obj->operator[](string("z")) = 9;
-        map_obj->erase(string("x"));
+        map_obj->operator[](std::string("z")) = 9;
+        map_obj->erase(std::string("x"));
         
         auto keys_var = OneMapHelper::keys(map_obj);
         auto values_var = OneMapHelper::values(map_obj);
-        return map_obj->operator[](string("z"));
+        return map_obj->operator[](std::string("z"));
     }
     
     void explicitTypeTest() {
-        auto op = string("");
-        cout << op.size() << endl;
+        auto op = std::string("");
+        std::cout << op.size() << std::endl;
     }
     
-    string ifTest(int x) {
-        auto result = string("<unk>");
+    std::string ifTest(int x) {
+        auto result = std::string("<unk>");
         
         if (x > 3) {
-            result = string("hello");
+            result = std::string("hello");
         } else if (x < 1) {
-            result = string("bello");
+            result = std::string("bello");
         } else if (x < 0) {
-            result = string("bello2");
+            result = std::string("bello2");
         } else {
-            result = string("???");
+            result = std::string("???");
         }
         
         if (x > 3) {
-            result = string("z");
+            result = std::string("z");
         }
         
         if (x > 3) {
-            result = string("x");
+            result = std::string("x");
         } else {
-            result = string("y");
+            result = std::string("y");
         }
         
         return result;
@@ -54,27 +55,27 @@ class TestClass {
     void arrayTest() {
         //const c2 = new Class2();
         
-        auto mutable_arr = make_shared<vector<int>>(initializer_list<int>{ 1, 2 });
+        auto mutable_arr = std::make_shared<std::vector<int>>(std::initializer_list<int>{ 1, 2 });
         mutable_arr->push_back(3);
         mutable_arr->push_back(4);
         // mutableArr.push(c2.property);
         // mutableArr.push(c2.child.property);
         // mutableArr.push(c2.child.child.property);
         
-        auto constant_arr = make_shared<vector<int>>(initializer_list<int>{ 5, 6 });
+        auto constant_arr = std::make_shared<std::vector<int>>(std::initializer_list<int>{ 5, 6 });
         
         // some comment
         //   some comment line 2
         for (auto it = mutable_arr->begin(); it != mutable_arr->end(); ++it) {
             auto item = *it;
-            cout << item << endl;
+            std::cout << item << std::endl;
         }
         
         /* some other comment
            multiline and stuff
         */
         for (int i = 0; i < constant_arr->size(); i++) {
-            cout << constant_arr->at(i) << endl;
+            std::cout << constant_arr->at(i) << std::endl;
         }
     }
     
@@ -87,19 +88,19 @@ class TestClass {
         return stuff;
     }
     
-    string stringTest() {
-        auto x = string("x");
-        auto y = string("y");
+    std::string stringTest() {
+        auto x = std::string("x");
+        auto y = std::string("y");
         
-        auto z = string("z");
-        z += string("Z");
+        auto z = std::string("z");
+        z += std::string("Z");
         z += x;
         
-        return z + string("|") + x + y;
+        return z + std::string("|") + x + y;
     }
     
-    string reverseString(string str) {
-        auto result = string("");
+    std::string reverseString(std::string str) {
+        auto result = std::string("");
         for (int i = str.size() - 1; i >= 0; i--) {
             result += str[i];
         }
@@ -112,10 +113,10 @@ class TestClass {
     
     void testMethod() {
         this->arrayTest();
-        cout << this->mapTest() << endl;
-        cout << this->stringTest() << endl;
-        cout << this->reverseString(string("print value")) << endl;
-        cout << (this->getBoolResult(true) ? string("true") : string("false")) << endl;
+        std::cout << this->mapTest() << std::endl;
+        std::cout << this->stringTest() << std::endl;
+        std::cout << this->reverseString(std::string("print value")) << std::endl;
+        std::cout << (this->getBoolResult(true) ? std::string("true") : std::string("false")) << std::endl;
     }
 
   private:
@@ -127,7 +128,7 @@ int main()
         TestClass c;
         c.testMethod();
     } catch(std::exception& err) {
-        cout << "Exception: " << err.what() << '\n';
+        std::cout << "Exception: " << err.what() << '\n';
     }
     return 0;
 }
