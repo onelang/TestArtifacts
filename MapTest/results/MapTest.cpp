@@ -1,6 +1,7 @@
 #include <one.hpp>
 #include <iostream>
 #include <map>
+#include <{{libDir}}/one.hpp>
 
 class TestClass {
   public:

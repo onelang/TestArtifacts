@@ -22,7 +22,7 @@ class Token {
 class ExprLangLexer {
   public:
     int offset = 0;
-    vec<sp<Token>> tokens = make_shared<vector<sp<Token>>>(initializer_list<sp<Token>>{  });
+    vec<sp<Token>> tokens = std::make_shared<std::vector<sp<Token>>>(std::initializer_list<sp<Token>>{  });
     std::string expression;
     vec<std::string> operators;
 
@@ -60,7 +60,7 @@ class ExprLangLexer {
     }
     
     void add(TokenKind kind, std::string value) {
-        this->tokens->push_back(make_shared<Token>(kind, value));
+        this->tokens->push_back(std::make_shared<Token>(kind, value));
         this->offset += value.size();
     }
     
@@ -122,7 +122,7 @@ class ExprLangLexer {
         
         auto str = match.substr(1, 1 + match.size() - 2 - 1);
         str = match[0] == '\'' ? OneStringHelper::replace(str, std::string("\\'"), std::string("'")) : OneStringHelper::replace(str, std::string("\\\""), std::string("\""));
-        this->tokens->push_back(make_shared<Token>(TokenKind::String_, str));
+        this->tokens->push_back(std::make_shared<Token>(TokenKind::String_, str));
         this->offset += match.size();
         return true;
     }
@@ -153,7 +153,7 @@ class ExprLangLexer {
 class TestClass {
   public:
     void testMethod() {
-        auto lexer = make_shared<ExprLangLexer>(std::string("1+2"), make_shared<vector<std::string>>(initializer_list<std::string>{ std::string("+") }));
+        auto lexer = std::make_shared<ExprLangLexer>(std::string("1+2"), std::make_shared<std::vector<std::string>>(std::initializer_list<std::string>{ std::string("+") }));
         auto result = std::string("");
         for (auto it = lexer->tokens->begin(); it != lexer->tokens->end(); ++it) {
             auto token = *it;

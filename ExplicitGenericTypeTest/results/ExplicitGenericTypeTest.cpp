@@ -1,11 +1,12 @@
 #include <one.hpp>
 #include <iostream>
 #include <map>
+#include <{{libDir}}/one.hpp>
 
 class TestClass {
   public:
     void testMethod() {
-        auto result = make_shared<vector<std::string>>(initializer_list<std::string>{  });
+        auto result = std::make_shared<std::vector<std::string>>(std::initializer_list<std::string>{  });
         auto map = make_shared_map<std::string, int>({
           { "x", 5 }
         });

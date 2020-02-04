@@ -42,7 +42,7 @@ class ChildPrinter : public BasePrinter {
 class TestClass {
   public:
     sp<IPrinter> getPrinter(std::string name) {
-        auto result = name == std::string("child") ? make_shared<ChildPrinter>() : make_shared<BasePrinter>();
+        auto result = name == std::string("child") ? std::make_shared<ChildPrinter>() : std::make_shared<BasePrinter>();
         return result;
     }
     
@@ -53,8 +53,8 @@ class TestClass {
         child_printer->printIt();
         std::cout << std::string(std::to_string(base_printer->someBaseFunc())) + " == " + std::to_string(child_printer->someBaseFunc()) << std::endl;
         
-        auto base_p2 = make_shared<BasePrinter>();
-        auto child_p2 = make_shared<ChildPrinter>();
+        auto base_p2 = std::make_shared<BasePrinter>();
+        auto child_p2 = std::make_shared<ChildPrinter>();
         std::cout << std::string(std::to_string(base_p2->num_value)) + " == " + std::to_string(child_p2->num_value) << std::endl;
     }
 

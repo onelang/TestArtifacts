@@ -17,7 +17,7 @@ class ConstructorTest {
 class TestClass {
   public:
     void testMethod() {
-        auto test = make_shared<ConstructorTest>(3);
+        auto test = std::make_shared<ConstructorTest>(3);
         std::cout << test->field2 << std::endl;
     }
 

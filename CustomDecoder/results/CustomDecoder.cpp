@@ -16,7 +16,7 @@ class XorByte : public ICustomDecoder {
     }
 
     vec<int> decode(vec<int> src) {
-        auto dest = make_shared<vector<int>>(initializer_list<int>{  });
+        auto dest = std::make_shared<std::vector<int>>(std::initializer_list<int>{  });
         
         for (int i = 0; i < src->size(); i++) {
             dest->push_back(src->at(i) ^ this->xor_value);
@@ -31,7 +31,7 @@ class XorByte : public ICustomDecoder {
 class Base64 : public ICustomDecoder {
   public:
     vec<int> decode(vec<int> src) {
-        auto dest = make_shared<vector<int>>(initializer_list<int>{  });
+        auto dest = std::make_shared<std::vector<int>>(std::initializer_list<int>{  });
         
         // 4 base64 chars => 3 bytes
         for (int i = 0; i < src->size(); i += 4) {
@@ -81,8 +81,8 @@ class Base64 : public ICustomDecoder {
 class TestClass {
   public:
     void testMethod() {
-        auto src1 = make_shared<vector<int>>(initializer_list<int>{ 4, 5, 6 });
-        auto decoder = make_shared<XorByte>(0xff);
+        auto src1 = std::make_shared<std::vector<int>>(std::initializer_list<int>{ 4, 5, 6 });
+        auto decoder = std::make_shared<XorByte>(0xff);
         auto dst1 = decoder->decode(src1);
         for (auto it = dst1->begin(); it != dst1->end(); ++it) {
             auto x = *it;
@@ -91,8 +91,8 @@ class TestClass {
         
         std::cout << std::string("|") << std::endl;
         
-        auto src2 = make_shared<vector<int>>(initializer_list<int>{ 97, 71, 86, 115, 98, 71, 56, 61 });
-        auto decoder2 = make_shared<Base64>();
+        auto src2 = std::make_shared<std::vector<int>>(std::initializer_list<int>{ 97, 71, 86, 115, 98, 71, 56, 61 });
+        auto decoder2 = std::make_shared<Base64>();
         auto dst2 = decoder2->decode(src2);
         for (auto it = dst2->begin(); it != dst2->end(); ++it) {
             auto x = *it;

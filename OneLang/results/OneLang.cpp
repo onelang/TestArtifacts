@@ -61,7 +61,7 @@ class Tokenizer {
     }
     
     vec<sp<Token>> tokenize() {
-        auto result = make_shared<vector<sp<Token>>>(initializer_list<sp<Token>>{  });
+        auto result = std::make_shared<std::vector<sp<Token>>>(std::initializer_list<sp<Token>>{  });
         
         while (this->offset < this->text.size()) {
             auto char_type = this->getTokenType();
@@ -76,7 +76,7 @@ class Tokenizer {
                     this->offset++;
                 }
                 auto identifier = this->text.substr(start_offset, this->offset - start_offset);
-                result->push_back(make_shared<Token>(identifier, false));
+                result->push_back(std::make_shared<Token>(identifier, false));
             } else {
                 auto op = std::string("");
                 for (auto it = this->operators->begin(); it != this->operators->end(); ++it) {
@@ -92,7 +92,7 @@ class Tokenizer {
                 }
                 
                 this->offset += op.size();
-                result->push_back(make_shared<Token>(op, true));
+                result->push_back(std::make_shared<Token>(op, true));
             }
         }
         
@@ -105,10 +105,10 @@ class Tokenizer {
 class TestClass {
   public:
     void testMethod() {
-        auto operators = make_shared<vector<std::string>>(initializer_list<std::string>{ std::string("<<"), std::string(">>"), std::string("++"), std::string("--"), std::string("=="), std::string("!="), std::string("!"), std::string("<"), std::string(">"), std::string("="), std::string("("), std::string(")"), std::string("["), std::string("]"), std::string("{"), std::string("}"), std::string(";"), std::string("+"), std::string("-"), std::string("*"), std::string("/"), std::string("&&"), std::string("&"), std::string("%"), std::string("||"), std::string("|"), std::string("^"), std::string(","), std::string(".") });
+        auto operators = std::make_shared<std::vector<std::string>>(std::initializer_list<std::string>{ std::string("<<"), std::string(">>"), std::string("++"), std::string("--"), std::string("=="), std::string("!="), std::string("!"), std::string("<"), std::string(">"), std::string("="), std::string("("), std::string(")"), std::string("["), std::string("]"), std::string("{"), std::string("}"), std::string(";"), std::string("+"), std::string("-"), std::string("*"), std::string("/"), std::string("&&"), std::string("&"), std::string("%"), std::string("||"), std::string("|"), std::string("^"), std::string(","), std::string(".") });
         
         auto input = std::string("hello * 5");
-        auto tokenizer = make_shared<Tokenizer>(input, operators);
+        auto tokenizer = std::make_shared<Tokenizer>(input, operators);
         auto result = tokenizer->tokenize();
         
         std::cout << std::string("token count:") << std::endl;

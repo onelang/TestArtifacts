@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <{{libDir}}/one.hpp>
 
 class Calculator {
   public:
@@ -20,7 +21,7 @@ int main()
 {
     std::cout << std::string("Hello!") << std::endl;
     
-    auto arr = make_shared<vector<int>>(initializer_list<int>{ 1, 2, 3 });
+    auto arr = std::make_shared<std::vector<int>>(std::initializer_list<int>{ 1, 2, 3 });
     arr->push_back(4);
     
     std::cout << std::string("n = ") + std::to_string(arr->size()) + ", arr[0] = " + std::to_string(arr->at(0)) << std::endl;
@@ -43,7 +44,7 @@ int main()
     }
     std::cout << sum << std::endl;
     
-    auto calc = make_shared<Calculator>();
+    auto calc = std::make_shared<Calculator>();
     std::cout << std::string("5! = ") + std::to_string(calc->factor(5)) << std::endl;
     return 0;
 }
