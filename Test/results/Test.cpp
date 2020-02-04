@@ -1,8 +1,8 @@
 #include <one.hpp>
-#include <$libDir/one.hpp>
 #include <iostream>
 #include <map>
 #include <vector>
+#include <{{libDir}}/one.hpp>
 
 class TestClass {
   public:

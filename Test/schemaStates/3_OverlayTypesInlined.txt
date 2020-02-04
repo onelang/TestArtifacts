@@ -18,8 +18,8 @@ TestClass::mapTest(): OneNumber
         - LocalVar: mapObj [OneMap<OneString, OneNumber>]
       - Literal (string): "x" [OneString]
   - Comment: "\n"
-  - Variable: keysVar [OneArray<K>]
-    - Call [OneArray<K>]
+  - Variable: keysVar [OneArray<OneString>]
+    - Call [OneArray<OneString>]
       - MethodReference [OneMap<K, V>::keys]
         - LocalVar: mapObj [OneMap<OneString, OneNumber>]
   - Variable: valuesVar [OneArray<V>]
