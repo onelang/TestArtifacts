@@ -1,8 +1,13 @@
 main()
+  - ExpressionStatement
+    - Call [OneString]
+      - MethodReference (static) [OneFile::writeText]
+      - Literal (string): "test.txt" [OneString]
+      - Literal (string): "example content" [OneString]
   - Variable: fileContent [OneString]
     - Call [OneString]
       - MethodReference (static) [OneFile::readText]
-      - Literal (string): "../../../input/test.txt" [OneString]
+      - Literal (string): "test.txt" [OneString]
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [OneConsole::print]

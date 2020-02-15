@@ -5,7 +5,8 @@ public class Program
 {
     static public void Main(string[] args)
     {
-        var fileContent = File.ReadAllText("../../../input/test.txt");
+        File.WriteAllText("test.txt", "example content");
+        var fileContent = File.ReadAllText("test.txt");
         Console.WriteLine(fileContent);
     }
 }

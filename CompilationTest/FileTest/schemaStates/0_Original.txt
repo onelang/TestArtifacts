@@ -1,9 +1,15 @@
 main()
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.writeText)
+        - Identifier: OneFile
+      - Literal (string): "test.txt"
+      - Literal (string): "example content"
   - Variable: fileContent
     - Call
       - PropertyAccess (.readText)
         - Identifier: OneFile
-      - Literal (string): "../../../input/test.txt"
+      - Literal (string): "test.txt"
   - ExpressionStatement
     - Call
       - PropertyAccess (.log)
