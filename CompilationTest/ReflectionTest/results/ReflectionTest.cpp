@@ -1,3 +1,5 @@
+#include <OneLang-Core-v0.1/one.hpp>
+#include <OneLang-Reflect-v0.1/one.hpp>
 #include <any>
 #include <iostream>
 #include <string>
@@ -25,21 +27,21 @@ static struct ReflectionTargetClass
   ReflectionTargetClass() {
     OneReflect::addClass("TargetClass", typeid(TargetClass))
       .addField(std::make_shared<OneField>("instance_field", /*isStatic*/ false, "int", 
-          [](sp<ReflectedClass> obj){ return (any)static_pointer_cast<TargetClass>(obj)->instance_field; },
-          [](sp<ReflectedClass> obj, any value){ static_pointer_cast<TargetClass>(obj)->instance_field = any_cast<int>(value); }))
+          [](one::sp<ReflectedClass> obj){ return (std::any)std::static_pointer_cast<TargetClass>(obj)->instance_field; },
+          [](one::sp<ReflectedClass> obj, std::any value){ std::static_pointer_cast<TargetClass>(obj)->instance_field = std::any_cast<int>(value); }))
       .addField(std::make_shared<OneField>("static_field", /*isStatic*/ true, "std::string", 
-          [](sp<ReflectedClass> obj){ return (any)TargetClass::static_field; },
-          [](sp<ReflectedClass> obj, any value){ TargetClass::static_field = any_cast<std::string>(value); }))
+          [](one::sp<ReflectedClass> obj){ return (std::any)TargetClass::static_field; },
+          [](one::sp<ReflectedClass> obj, std::any value){ TargetClass::static_field = std::any_cast<std::string>(value); }))
       .addMethod(std::make_shared<OneMethod>("staticMethod", /*isStatic*/ true, "std::string", std::vector<OneMethodArgument> {
           OneMethodArgument("arg1", "std::string"),
         }, 
-        [](sp<ReflectedClass> obj, vec<any> args){ 
-          return (any)TargetClass::staticMethod(any_cast<std::string>(args->at(0))); 
+        [](one::sp<ReflectedClass> obj, one::vec<std::any> args){ 
+          return (std::any)TargetClass::staticMethod(std::any_cast<std::string>(args->at(0))); 
         }))
       .addMethod(std::make_shared<OneMethod>("instanceMethod", /*isStatic*/ false, "std::string", std::vector<OneMethodArgument> {
         }, 
-        [](sp<ReflectedClass> obj, vec<any> args){ 
-          return (any)static_pointer_cast<TargetClass>(obj)->instanceMethod(); 
+        [](one::sp<ReflectedClass> obj, one::vec<std::any> args){ 
+          return (std::any)std::static_pointer_cast<TargetClass>(obj)->instanceMethod(); 
         }))
       ;
   }
