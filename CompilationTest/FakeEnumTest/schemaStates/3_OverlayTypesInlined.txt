@@ -16,10 +16,11 @@ TokenType::OperatorX: OneString
 
 TokenType::NoInitializer: OneString
 
-TestClass::testMethod(): OneString
+main()
   - Variable: casingTest [OneString]
     - StaticField: EndToken [OneString]
       - ClassReference [TokenType]
-  - Return
-    - LocalVar: casingTest [OneString]
-
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - LocalVar: casingTest [OneString]

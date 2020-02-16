@@ -16,10 +16,11 @@ TokenType::OperatorX: TsString
 
 TokenType::NoInitializer: TsString
 
-TestClass::testMethod(): TsString
+main()
   - Variable: casingTest [TsString]
     - StaticField: EndToken [TsString]
       - ClassReference [TokenType]
-  - Return
-    - LocalVar: casingTest [TsString]
-
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - LocalVar: casingTest [TsString]

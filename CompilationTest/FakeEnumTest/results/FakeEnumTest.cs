@@ -1,3 +1,5 @@
+using System;
+
 public class TokenType
 {
     public static string EndToken = "EndToken";
@@ -7,26 +9,11 @@ public class TokenType
     public static string NoInitializer;
 }
 
-public class TestClass
-{
-    public string TestMethod()
-    {
-        var casingTest = TokenType.EndToken;
-        return casingTest;
-    }
-}
-
 public class Program
 {
     static public void Main(string[] args)
     {
-        try 
-        {
-            new TestClass().TestMethod();
-        }
-        catch (System.Exception e)
-        {
-            System.Console.WriteLine($"Exception: {e.Message}");
-        }
+        var casingTest = TokenType.EndToken;
+        Console.WriteLine(casingTest);
     }
 }

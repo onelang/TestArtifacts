@@ -8,16 +8,5 @@ class TokenType {
     public static $no_initializer;
 }
 
-class TestClass {
-    function testMethod() {
-        $casing_test = TokenType::$end_token;
-        return $casing_test;
-    }
-}
-
-try {
-    $c = new TestClass();
-    $c->testMethod();
-} catch (Exception $err) {
-    echo 'Exception: ' . $err->getMessage() . "\n";
-}
+$casing_test = TokenType::$end_token;
+print($casing_test . "\n");

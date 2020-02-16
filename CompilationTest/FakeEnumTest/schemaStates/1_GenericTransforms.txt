@@ -16,10 +16,12 @@ TokenType::OperatorX: TsString
 
 TokenType::NoInitializer: TsString
 
-TestClass::testMethod(): TsString
+main()
   - Variable: casingTest
     - PropertyAccess (.EndToken)
       - Identifier: TokenType
-  - Return
-    - Identifier: casingTest
-
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - Identifier: casingTest

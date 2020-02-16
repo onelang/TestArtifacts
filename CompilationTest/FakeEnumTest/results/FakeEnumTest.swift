@@ -6,11 +6,5 @@ class TokenType {
   static var noInitializer: String
 }
 
-class TestClass {
-  func testMethod() -> String {
-      let casingTest = TokenType.endToken
-      return casingTest
-  }
-}
-
-TestClass().testMethod()
+let casingTest = TokenType.endToken
+print(casingTest)

@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 
 class TokenType {
@@ -16,23 +17,9 @@ std::string TokenType::whitespace = std::string("Whitespace");
 std::string TokenType::identifier = std::string("Identifier");
 std::string TokenType::operator_x = std::string("Operator");
 
-class TestClass {
-  public:
-    std::string testMethod() {
-        auto casing_test = TokenType::end_token;
-        return casing_test;
-    }
-
-  private:
-};
-
 int main()
 {
-    try {
-        TestClass c;
-        c.testMethod();
-    } catch(std::exception& err) {
-        std::cout << "Exception: " << err.what() << '\n';
-    }
+    auto casing_test = TokenType::end_token;
+    std::cout << casing_test << std::endl;
     return 0;
 }

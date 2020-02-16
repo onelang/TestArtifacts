@@ -16,26 +16,7 @@ var TokenTypeIdentifier string = "Identifier";
 var TokenTypeOperatorX string = "Operator";
 var TokenTypeNoInitializer string;
 
-type TestClass struct {
-}
-
-func NewTestClass() *TestClass {
-    this := new(TestClass)
-    return this
-}
-
-func (this *TestClass) TestMethod() string {
-    casingTest := TokenTypeEndToken
-    return casingTest
-}
-
 func main() {
-    defer func() {
-      if r := recover(); r != nil {
-          fmt.Print("Exception: ", r)
-      }
-    }()
-
-    c := NewTestClass()
-    c.TestMethod();
+    casingTest := TokenTypeEndToken
+    fmt.Println(casingTest)
 }

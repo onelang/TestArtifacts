@@ -6,15 +6,5 @@ class TokenType {
     static noInitializer: string;
 }
 
-class TestClass {
-    testMethod() {
-        const casingTest = TokenType.endToken;
-        return casingTest;
-    }
-}
-
-try {
-    new TestClass().testMethod();
-} catch(e) {
-    console.log(`Exception: ${e.message}`);
-}
+const casingTest = TokenType.endToken;
+console.log(casingTest);

@@ -10,15 +10,5 @@ class TokenType
   end
 end
 
-class TestClass
-  def test_method()
-      casing_test = TokenType.end_token
-      return casing_test
-  end
-end
-
-begin
-    TestClass.new().test_method()
-rescue Exception => err
-    print "Exception: #{err}"
-end
+casing_test = TokenType.end_token
+puts casing_test
