@@ -1,6 +1,7 @@
 TestClass::testMethod(): void
   - Variable: result [OneArray<OneString>]
     - ArrayLiteral [OneArray<OneString>]
+      - Literal (string): "y" [OneString]
   - Variable: map [OneMap<OneString, OneNumber>]
     - MapLiteral [OneMap<OneString, OneNumber>]
       - Variable: x [OneNumber]
@@ -12,9 +13,15 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [OneConsole::print]
-      - LocalVar: result [OneArray<OneString>]
+      - Call [OneString]
+        - MethodReference [OneArray<T>::get]
+          - LocalVar: result [OneArray<OneString>]
+        - Literal (numeric): "0" [OneNumber]
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [OneConsole::print]
-      - LocalVar: keys [OneArray<OneString>]
+      - Call [OneString]
+        - MethodReference [OneArray<T>::get]
+          - LocalVar: keys [OneArray<OneString>]
+        - Literal (numeric): "0" [OneNumber]
 

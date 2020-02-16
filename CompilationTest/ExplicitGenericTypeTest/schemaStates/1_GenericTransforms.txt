@@ -1,6 +1,7 @@
 TestClass::testMethod(): any
   - Variable: result [TsArray<TsString>]
     - ArrayLiteral
+      - Literal (string): "y"
   - Variable: map
     - MapLiteral
       - Variable: x
@@ -14,10 +15,16 @@ TestClass::testMethod(): any
     - Call
       - PropertyAccess (.log)
         - Identifier: console
-      - Identifier: result
+      - Call
+        - PropertyAccess (.get)
+          - Identifier: result
+        - Literal (numeric): "0"
   - ExpressionStatement
     - Call
       - PropertyAccess (.log)
         - Identifier: console
-      - Identifier: keys
+      - Call
+        - PropertyAccess (.get)
+          - Identifier: keys
+        - Literal (numeric): "0"
 

@@ -1,6 +1,7 @@
 TestClass::testMethod(): void
   - Variable: result [TsArray<TsString>]
     - ArrayLiteral [TsArray<TsString>]
+      - Literal (string): "y" [TsString]
   - Variable: map [TsMap<OneString, TsNumber>]
     - MapLiteral [TsMap<OneString, TsNumber>]
       - Variable: x [TsNumber]
@@ -12,9 +13,15 @@ TestClass::testMethod(): void
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [console::log]
-      - LocalVar: result [TsArray<TsString>]
+      - Call [TsString]
+        - MethodReference [TsArray<TsString>::get]
+          - LocalVar: result [TsArray<TsString>]
+        - Literal (numeric): "0" [TsNumber]
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [console::log]
-      - LocalVar: keys [OneArray<K>]
+      - Call [K]
+        - MethodReference [OneArray<K>::get]
+          - LocalVar: keys [OneArray<K>]
+        - Literal (numeric): "0" [TsNumber]
 

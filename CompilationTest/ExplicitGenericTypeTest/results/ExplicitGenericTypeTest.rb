@@ -1,12 +1,12 @@
 class TestClass
   def test_method()
-      result = []
+      result = ["y"]
       map = {
         "x" => 5,
       }
       keys = map.keys
-      puts result
-      puts keys
+      puts result[0]
+      puts keys[0]
   end
 end
 

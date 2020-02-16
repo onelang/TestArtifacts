@@ -2,13 +2,13 @@
 
 class TestClass {
     function testMethod() {
-        $result = array();
+        $result = array("y");
         $map = array(
           "x" => 5,
         );
         $keys = array_keys($map);
-        print($result . "\n");
-        print($keys . "\n");
+        print($result[0] . "\n");
+        print($keys[0] . "\n");
     }
 }
 

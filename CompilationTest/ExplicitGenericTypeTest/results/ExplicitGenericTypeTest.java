@@ -6,12 +6,12 @@ import java.util.List;
 class TestClass {
     public void testMethod() throws Exception
     {
-        List<String> result = new ArrayList<String>(Arrays.asList());
+        List<String> result = new ArrayList<String>(Arrays.asList("y"));
         HashMap<String, Integer> map = new HashMap<String, Integer>();
         map.put("x", 5);
         List<String> keys = new ArrayList(map.keySet());
-        System.out.println(result);
-        System.out.println(keys);
+        System.out.println(result.get(0));
+        System.out.println(keys.get(0));
     }
 }
 

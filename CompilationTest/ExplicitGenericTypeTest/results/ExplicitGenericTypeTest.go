@@ -11,7 +11,7 @@ func NewTestClass() *TestClass {
 }
 
 func (this *TestClass) TestMethod() {
-    result := []string{}
+    result := []string{"y"}
     map := map[string]int{
       "x": 5,
     }
@@ -19,8 +19,8 @@ func (this *TestClass) TestMethod() {
     for  key, _ := range map {
       keys = append(keys, key)
     }
-    fmt.Println(result)
-    fmt.Println(keys)
+    fmt.Println(result[0])
+    fmt.Println(keys[0])
 }
 
 func main() {
