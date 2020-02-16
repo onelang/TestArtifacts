@@ -13,7 +13,7 @@ sub new
 
 sub test_method {
     my ( $self ) = @_;
-    my $op = undef;
+    my $op = "x";
     print((length($op)) . "\n");
 }
 

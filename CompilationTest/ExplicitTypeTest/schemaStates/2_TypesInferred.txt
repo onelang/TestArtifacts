@@ -1,6 +1,6 @@
 TestClass::testMethod(): void
   - Variable: op [TsString]
-    - Literal (null): "null" [null]
+    - Literal (string): "x" [TsString]
   - ExpressionStatement
     - Call [void]
       - MethodReference (static) [console::log]

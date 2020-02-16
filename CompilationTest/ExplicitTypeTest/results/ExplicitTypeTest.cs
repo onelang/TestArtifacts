@@ -4,7 +4,7 @@ public class TestClass
 {
     public void TestMethod()
     {
-        var op = null;
+        var op = "x";
         Console.WriteLine(op.Length);
     }
 }

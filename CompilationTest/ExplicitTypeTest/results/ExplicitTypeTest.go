@@ -11,7 +11,7 @@ func NewTestClass() *TestClass {
 }
 
 func (this *TestClass) TestMethod() {
-    op := nil
+    op := "x"
     fmt.Println(len(op))
 }
 

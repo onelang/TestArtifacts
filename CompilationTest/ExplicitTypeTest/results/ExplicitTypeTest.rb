@@ -1,6 +1,6 @@
 class TestClass
   def test_method()
-      op = nil
+      op = "x"
       puts op.length
   end
 end

@@ -2,7 +2,7 @@
 
 class TestClass {
     function testMethod() {
-        $op = NULL;
+        $op = "x";
         print(strlen($op) . "\n");
     }
 }

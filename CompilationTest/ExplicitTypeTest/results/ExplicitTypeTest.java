@@ -1,7 +1,7 @@
 class TestClass {
     public void testMethod() throws Exception
     {
-        String op = null;
+        String op = "x";
         System.out.println(op.length());
     }
 }

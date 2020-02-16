@@ -1,6 +1,6 @@
 class TestClass {
   func testMethod() -> Void {
-      let op = nil
+      let op = "x"
       print(op.count)
   }
 }

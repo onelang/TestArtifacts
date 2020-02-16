@@ -4,7 +4,7 @@
 class TestClass {
   public:
     void testMethod() {
-        auto op = nullptr;
+        auto op = std::string("x");
         std::cout << op.size() << std::endl;
     }
 

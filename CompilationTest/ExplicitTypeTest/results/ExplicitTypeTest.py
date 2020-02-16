@@ -1,6 +1,6 @@
 class TestClass:
     def test_method(self):
-        op = None
+        op = "x"
         print len(op)
 
 try:

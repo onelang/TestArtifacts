@@ -1,6 +1,6 @@
 class TestClass {
     testMethod() {
-        const op = null;
+        const op = "x";
         console.log(op.length);
     }
 }

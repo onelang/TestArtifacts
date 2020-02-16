@@ -1,6 +1,6 @@
 TestClass::testMethod(): any
   - Variable: op [TsString]
-    - Literal (null): "null"
+    - Literal (string): "x"
   - ExpressionStatement
     - Call
       - PropertyAccess (.log)
