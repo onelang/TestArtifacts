@@ -42,3 +42,7 @@ func (this *Container) Method0() {
 func (this *Container) Method1(str string) string {
     return str
 }
+
+func main() {
+    fmt.Println("ok")
+}

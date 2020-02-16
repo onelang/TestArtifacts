@@ -13,3 +13,7 @@ func NewNumberUnaryIssue() *NumberUnaryIssue {
 func (this *NumberUnaryIssue) Test(num int) {
     num--
 }
+
+func main() {
+    fmt.Println("ok")
+}

@@ -5,3 +5,5 @@ class NumberUnaryIssue {
         $num--;
     }
 }
+
+print("ok" . "\n");

@@ -29,3 +29,9 @@ class Container {
         return str;
     }
 }
+
+class Program {
+    public static void main(String[] args) throws Exception {
+        System.out.println("ok");
+    }
+}

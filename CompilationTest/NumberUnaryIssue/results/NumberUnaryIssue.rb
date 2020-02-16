@@ -3,3 +3,5 @@ class NumberUnaryIssue
       num -= 1
   end
 end
+
+puts "ok"

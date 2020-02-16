@@ -29,3 +29,8 @@ Container::method1(str: OneString): OneString
   - Return
     - MethodArgument: str [OneString]
 
+main()
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Literal (string): "ok" [OneString]

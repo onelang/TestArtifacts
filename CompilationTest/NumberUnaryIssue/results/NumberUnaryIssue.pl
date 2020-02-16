@@ -15,3 +15,5 @@ sub test {
     my ( $self, $num ) = @_;
     $num--;
 }
+
+print(("ok") . "\n");

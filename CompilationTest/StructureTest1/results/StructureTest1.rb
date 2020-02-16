@@ -27,3 +27,5 @@ class Container
       return str
   end
 end
+
+puts "ok"

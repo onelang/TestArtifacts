@@ -3,3 +3,8 @@ NumberUnaryIssue::test(num: TsNumber): void
     - Unary (postfix): -- [any]
       - MethodArgument: num [TsNumber]
 
+main()
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - Literal (string): "ok" [TsString]

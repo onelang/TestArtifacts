@@ -30,3 +30,9 @@ Container::method1(str: TsString): any
   - Return
     - Identifier: str
 
+main()
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - Literal (string): "ok"

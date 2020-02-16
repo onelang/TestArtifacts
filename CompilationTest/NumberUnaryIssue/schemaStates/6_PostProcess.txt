@@ -3,3 +3,8 @@ NumberUnaryIssue::test(num: OneNumber): void
     - Unary (postfix): -- [OneNumber]
       - MethodArgument: num [OneNumber]
 
+main()
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Literal (string): "ok" [OneString]

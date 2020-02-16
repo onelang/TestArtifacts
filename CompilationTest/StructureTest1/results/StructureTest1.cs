@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 public class List<T>
@@ -29,5 +30,13 @@ public class Container
     public string Method1(string str)
     {
         return str;
+    }
+}
+
+public class Program
+{
+    static public void Main(string[] args)
+    {
+        Console.WriteLine("ok");
     }
 }

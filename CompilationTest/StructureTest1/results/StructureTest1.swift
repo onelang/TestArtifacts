@@ -23,3 +23,5 @@ class Container {
       return str
   }
 }
+
+print("ok")

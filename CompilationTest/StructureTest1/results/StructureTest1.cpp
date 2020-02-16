@@ -1,4 +1,5 @@
 #include <OneLang-Core-v0.1/one.hpp>
+#include <iostream>
 #include <string>
 
 template<typename T>
@@ -36,3 +37,9 @@ class Container {
 
   private:
 };
+
+int main()
+{
+    std::cout << std::string("ok") << std::endl;
+    return 0;
+}

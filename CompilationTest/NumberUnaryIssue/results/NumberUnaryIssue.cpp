@@ -1,3 +1,5 @@
+#include <iostream>
+
 class NumberUnaryIssue {
   public:
     void test(int num) {
@@ -6,3 +8,9 @@ class NumberUnaryIssue {
 
   private:
 };
+
+int main()
+{
+    std::cout << std::string("ok") << std::endl;
+    return 0;
+}

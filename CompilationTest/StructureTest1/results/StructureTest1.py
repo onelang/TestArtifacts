@@ -14,3 +14,5 @@ class Container:
     
     def method1(self, str):
         return str
+
+print "ok"

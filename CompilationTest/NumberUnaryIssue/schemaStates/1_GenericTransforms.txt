@@ -3,3 +3,9 @@ NumberUnaryIssue::test(num: TsNumber): any
     - Unary (postfix): --
       - Identifier: num
 
+main()
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - Literal (string): "ok"

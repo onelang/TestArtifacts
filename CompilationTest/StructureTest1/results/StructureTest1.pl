@@ -44,3 +44,5 @@ sub method1 {
     my ( $self, $str ) = @_;
     return $str;
 }
+
+print(("ok") . "\n");
