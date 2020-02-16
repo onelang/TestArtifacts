@@ -1,4 +1,3 @@
-#include <one.hpp>
 #include <iostream>
 
 class TestClass {

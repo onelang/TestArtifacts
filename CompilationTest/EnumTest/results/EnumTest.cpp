@@ -1,4 +1,3 @@
-#include <one.hpp>
 #include <iostream>
 
 enum class TestEnum { Item1, Item2 };

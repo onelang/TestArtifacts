@@ -1,4 +1,3 @@
-#include <one.hpp>
 class TestClass {
   public:
     void methodTest(vec<std::string> method_param) {

@@ -1,4 +1,3 @@
-#include <one.hpp>
 #include <iostream>
 
 enum class SomeKind { EnumVal0, EnumVal1, EnumVal2 };

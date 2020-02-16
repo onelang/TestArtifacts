@@ -1,6 +1,5 @@
-#include <one.hpp>
+#include <OneLang-Core-v0.1/one.hpp>
 #include <map>
-#include <{{libDir}}/one.hpp>
 
 class TestClass {
   public:

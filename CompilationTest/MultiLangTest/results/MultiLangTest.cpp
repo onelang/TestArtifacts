@@ -1,8 +1,7 @@
-#include <one.hpp>
+#include <OneLang-Core-v0.1/one.hpp>
 #include <iostream>
 #include <map>
 #include <vector>
-#include <{{libDir}}/one.hpp>
 
 class Calculator {
   public:

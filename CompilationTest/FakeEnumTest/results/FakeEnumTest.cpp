@@ -1,4 +1,3 @@
-#include <one.hpp>
 class TokenType {
   public:
     static std::string end_token;
