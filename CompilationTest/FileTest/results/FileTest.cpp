@@ -1,5 +1,6 @@
 #include <OneLang-File-v0.1/OneFile.hpp>
 #include <iostream>
+#include <string>
 
 int main()
 {

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 template<typename K, typename V>
 class MapX {

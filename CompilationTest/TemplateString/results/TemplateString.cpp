@@ -11,7 +11,7 @@ class TestClass {
         std::cout << result << std::endl;
         std::cout << std::string("before ") + str_val + ", num: " + std::to_string(num) + ", true: " + (b ? "true" : "false") + " after" << std::endl;
         
-        auto result2 = std::string("before ") + str_val + std::string(", num: ") + to_string(num) + std::string(", true: ") + (b ? "true" : "false") + std::string(" after");
+        auto result2 = std::string("before ") + str_val + std::string(", num: ") + std::to_string(num) + std::string(", true: ") + (b ? "true" : "false") + std::string(" after");
         std::cout << result2 << std::endl;
     }
 

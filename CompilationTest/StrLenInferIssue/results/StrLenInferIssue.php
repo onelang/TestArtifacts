@@ -1,7 +1,9 @@
 <?php
 
 class StrLenInferIssue {
-    function test($str) {
+    static function test($str) {
         return strlen($str);
     }
 }
+
+print(StrLenInferIssue::test("hello") . "\n");

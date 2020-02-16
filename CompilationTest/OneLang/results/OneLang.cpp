@@ -1,5 +1,6 @@
 #include <OneLang-Core-v0.1/one.hpp>
 #include <iostream>
+#include <string>
 
 class TokenType {
   public:

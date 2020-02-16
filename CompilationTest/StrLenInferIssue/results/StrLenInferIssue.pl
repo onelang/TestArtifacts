@@ -12,6 +12,8 @@ sub new
 }
 
 sub test {
-    my ( $self, $str ) = @_;
+    my ( $str ) = @_;
     return length($str);
 }
+
+print((StrLenInferIssue::test("hello")) . "\n");

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 class IPrinterBase {
   public:

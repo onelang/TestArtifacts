@@ -1,5 +1,7 @@
 class StrLenInferIssue {
-  test(str) {
+  static test(str) {
     return str.length;
   }
 }
+
+console.log(StrLenInferIssue.test("hello"));

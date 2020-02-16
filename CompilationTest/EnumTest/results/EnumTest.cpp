@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 enum class TestEnum { Item1, Item2 };
 const char* TestEnumToStr[] = { "Item1", "Item2" };

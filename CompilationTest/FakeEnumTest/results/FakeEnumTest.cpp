@@ -1,3 +1,5 @@
+#include <string>
+
 class TokenType {
   public:
     static std::string end_token;

@@ -1,5 +1,14 @@
-StrLenInferIssue::test(str: TsString): TsNumber
+StrLenInferIssue::test(str: TsString): TsNumber [static]
   - Return
     - PropertyAccess (.length)
       - Identifier: str
 
+main()
+  - ExpressionStatement
+    - Call
+      - PropertyAccess (.log)
+        - Identifier: console
+      - Call
+        - PropertyAccess (.test)
+          - Identifier: StrLenInferIssue
+        - Literal (string): "hello"

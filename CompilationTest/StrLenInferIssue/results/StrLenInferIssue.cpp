@@ -1,8 +1,17 @@
+#include <iostream>
+#include <string>
+
 class StrLenInferIssue {
   public:
-    int test(std::string str) {
+    static int test(std::string str) {
         return str.size();
     }
 
   private:
 };
+
+int main()
+{
+    std::cout << StrLenInferIssue::test(std::string("hello")) << std::endl;
+    return 0;
+}

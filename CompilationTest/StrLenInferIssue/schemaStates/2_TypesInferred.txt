@@ -1,5 +1,12 @@
-StrLenInferIssue::test(str: TsString): TsNumber
+StrLenInferIssue::test(str: TsString): TsNumber [static]
   - Return
     - InstanceField: length [OneNumber]
       - MethodArgument: str [TsString]
 
+main()
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [console::log]
+      - Call [TsNumber]
+        - MethodReference (static) [StrLenInferIssue::test]
+        - Literal (string): "hello" [TsString]

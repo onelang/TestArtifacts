@@ -10,6 +10,10 @@ func NewStrLenInferIssue() *StrLenInferIssue {
     return this
 }
 
-func (this *StrLenInferIssue) Test(str string) int {
+func StrLenInferIssue_Test(str string) int {
     return len(str)
+}
+
+func main() {
+    fmt.Println(StrLenInferIssue_Test("hello"))
 }

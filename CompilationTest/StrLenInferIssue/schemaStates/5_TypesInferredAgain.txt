@@ -1,5 +1,12 @@
-StrLenInferIssue::test(str: OneString): OneNumber
+StrLenInferIssue::test(str: OneString): OneNumber [static]
   - Return
     - InstanceField: length [OneNumber]
       - MethodArgument: str [OneString]
 
+main()
+  - ExpressionStatement
+    - Call [void]
+      - MethodReference (static) [OneConsole::print]
+      - Call [OneNumber]
+        - MethodReference (static) [StrLenInferIssue::test]
+        - Literal (string): "hello" [OneString]
