@@ -5,7 +5,7 @@
 class TestClass {
   public:
     void testMethod() {
-        auto map = one::make_shared_map<std::string, any>({
+        auto map = one::make_shared_map<std::string, std::any>({
         });
         auto keys = OneMapHelper::keys(map);
     }

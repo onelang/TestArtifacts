@@ -68,7 +68,7 @@ class TestClass {
             std::cout << std::string("method1 is null!") << std::endl;
             return;
         }
-        auto method1_result = method1->call(obj, std::make_shared<std::vector<any>>(std::initializer_list<any>{  }));
+        auto method1_result = method1->call(obj, std::make_shared<std::vector<std::any>>(std::initializer_list<std::any>{  }));
         std::cout << std::string("instanceMethod: ") + method1_result << std::endl;
         
         auto method2 = cls->getMethod(std::string("staticMethod"));
@@ -76,7 +76,7 @@ class TestClass {
             std::cout << std::string("method2 is null!") << std::endl;
             return;
         }
-        auto method2_result = method2->call(nullptr, std::make_shared<std::vector<any>>(std::initializer_list<any>{ std::string("arg1value") }));
+        auto method2_result = method2->call(nullptr, std::make_shared<std::vector<std::any>>(std::initializer_list<std::any>{ std::string("arg1value") }));
         std::cout << std::string("staticMethod: ") + method2_result << std::endl;
         
         auto field1 = cls->getField(std::string("instanceField"));
