@@ -5,7 +5,7 @@
 class TestClass {
   public:
     int getResult() {
-        auto map_obj = make_shared_map<std::string, int>({
+        auto map_obj = one::make_shared_map<std::string, int>({
           { "x", 5 }
         });
         //let containsX = "x" in mapObj;

@@ -1,5 +1,5 @@
+#include <OneLang-Core-v0.1/one.hpp>
 #include <iostream>
-#include <vector>
 
 class TokenType {
   public:
@@ -42,9 +42,9 @@ class Tokenizer {
   public:
     int offset;
     std::string text;
-    vec<std::string> operators;
+    one::vec<std::string> operators;
 
-    Tokenizer(std::string text, vec<std::string> operators) {
+    Tokenizer(std::string text, one::vec<std::string> operators) {
         this->text = text;
         this->operators = operators;
         this->offset = 0;
@@ -59,8 +59,8 @@ class Tokenizer {
         return c == ' ' || c == '\n' || c == '\t' || c == '\r' ? TokenType::whitespace : ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || ('0' <= c && c <= '9') || c == '_' ? TokenType::identifier : TokenType::operator_x;
     }
     
-    vec<sp<Token>> tokenize() {
-        auto result = std::make_shared<std::vector<sp<Token>>>(std::initializer_list<sp<Token>>{  });
+    one::vec<one::sp<Token>> tokenize() {
+        auto result = std::make_shared<std::vector<one::sp<Token>>>(std::initializer_list<one::sp<Token>>{  });
         
         while (this->offset < this->text.size()) {
             auto char_type = this->getTokenType();

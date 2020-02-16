@@ -40,7 +40,7 @@ class ChildPrinter : public BasePrinter {
 
 class TestClass {
   public:
-    sp<IPrinter> getPrinter(std::string name) {
+    one::sp<IPrinter> getPrinter(std::string name) {
         auto result = name == std::string("child") ? std::make_shared<ChildPrinter>() : std::make_shared<BasePrinter>();
         return result;
     }

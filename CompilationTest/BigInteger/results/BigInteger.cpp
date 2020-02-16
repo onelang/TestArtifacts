@@ -13,7 +13,7 @@ class MathUtils {
         return result;
     }
     
-    static sp<OneBigInteger> calcBig(int n) {
+    static one::sp<OneBigInteger> calcBig(int n) {
         auto result = OneBigInteger::fromInt(1);
         for (int i = 2; i <= n; i++) {
             result = result * i + 123;

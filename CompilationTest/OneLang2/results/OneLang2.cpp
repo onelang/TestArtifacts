@@ -1,6 +1,6 @@
+#include <OneLang-Core-v0.1/one.hpp>
 #include <iostream>
 #include <stdexcept>
-#include <vector>
 
 enum class TokenKind { Number, Identifier, Operator_, String_ };
 const char* TokenKindToStr[] = { "Number", "Identifier", "Operator_", "String_" };
@@ -21,11 +21,11 @@ class Token {
 class ExprLangLexer {
   public:
     int offset = 0;
-    vec<sp<Token>> tokens = std::make_shared<std::vector<sp<Token>>>(std::initializer_list<sp<Token>>{  });
+    one::vec<one::sp<Token>> tokens = std::make_shared<std::vector<one::sp<Token>>>(std::initializer_list<one::sp<Token>>{  });
     std::string expression;
-    vec<std::string> operators;
+    one::vec<std::string> operators;
 
-    ExprLangLexer(std::string expression, vec<std::string> operators) {
+    ExprLangLexer(std::string expression, one::vec<std::string> operators) {
         this->expression = expression;
         this->operators = operators;
         if (!this->tryToReadNumber()) {

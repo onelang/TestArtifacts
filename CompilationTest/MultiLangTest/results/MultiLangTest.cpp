@@ -1,7 +1,6 @@
 #include <OneLang-Core-v0.1/one.hpp>
 #include <iostream>
 #include <map>
-#include <vector>
 
 class Calculator {
   public:
@@ -25,7 +24,7 @@ int main()
     
     std::cout << std::string("n = ") + std::to_string(arr->size()) + ", arr[0] = " + std::to_string(arr->at(0)) << std::endl;
     
-    auto map = make_shared_map<std::string, int>({
+    auto map = one::make_shared_map<std::string, int>({
       { "a", 2 },
       { "b", 3 }
     });

@@ -6,7 +6,7 @@ class TestClass {
   public:
     void testMethod() {
         int value = 1 + 2 * 3 - 4;
-        auto map_ = make_shared_map<std::string, int>({
+        auto map_ = one::make_shared_map<std::string, int>({
           { "a", 5 },
           { "b", 6 }
         });

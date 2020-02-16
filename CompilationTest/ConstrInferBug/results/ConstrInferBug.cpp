@@ -1,6 +1,8 @@
+#include <OneLang-Core-v0.1/one.hpp>
+
 class TestClass {
   public:
-    void methodTest(vec<std::string> method_param) {
+    void methodTest(one::vec<std::string> method_param) {
     }
     
     void testMethod() {

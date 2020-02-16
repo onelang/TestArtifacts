@@ -1,7 +1,7 @@
 template<typename T>
 class List {
   public:
-    vec<T> items;
+    one::vec<T> items;
 
   private:
 };
@@ -21,8 +21,8 @@ class Item {
 
 class Container {
   public:
-    sp<List<Item>> item_list;
-    sp<List<std::string>> string_list;
+    one::sp<List<Item>> item_list;
+    one::sp<List<std::string>> string_list;
 
     void method0() {
     }

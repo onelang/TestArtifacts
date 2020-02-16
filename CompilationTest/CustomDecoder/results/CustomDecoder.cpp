@@ -1,9 +1,9 @@
+#include <OneLang-Core-v0.1/one.hpp>
 #include <iostream>
-#include <vector>
 
 class ICustomDecoder {
   public:
-    virtual vec<int> decode(vec<int> src) = 0;
+    virtual one::vec<int> decode(one::vec<int> src) = 0;
 };
 
 class XorByte : public ICustomDecoder {
@@ -14,7 +14,7 @@ class XorByte : public ICustomDecoder {
         this->xor_value = xor_value;
     }
 
-    vec<int> decode(vec<int> src) {
+    one::vec<int> decode(one::vec<int> src) {
         auto dest = std::make_shared<std::vector<int>>(std::initializer_list<int>{  });
         
         for (int i = 0; i < src->size(); i++) {
@@ -29,7 +29,7 @@ class XorByte : public ICustomDecoder {
 
 class Base64 : public ICustomDecoder {
   public:
-    vec<int> decode(vec<int> src) {
+    one::vec<int> decode(one::vec<int> src) {
         auto dest = std::make_shared<std::vector<int>>(std::initializer_list<int>{  });
         
         // 4 base64 chars => 3 bytes

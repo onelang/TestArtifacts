@@ -1,12 +1,11 @@
 #include <OneLang-Core-v0.1/one.hpp>
 #include <iostream>
 #include <map>
-#include <vector>
 
 class TestClass {
   public:
     int mapTest() {
-        auto map_obj = make_shared_map<std::string, int>({
+        auto map_obj = one::make_shared_map<std::string, int>({
           { "x", 5 },
           { "y", 3 }
         });

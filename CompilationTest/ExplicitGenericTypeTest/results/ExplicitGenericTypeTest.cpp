@@ -6,7 +6,7 @@ class TestClass {
   public:
     void testMethod() {
         auto result = std::make_shared<std::vector<std::string>>(std::initializer_list<std::string>{  });
-        auto map = make_shared_map<std::string, int>({
+        auto map = one::make_shared_map<std::string, int>({
           { "x", 5 }
         });
         auto keys = OneMapHelper::keys(map);

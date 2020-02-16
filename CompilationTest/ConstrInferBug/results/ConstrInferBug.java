@@ -1,3 +1,7 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 class TestClass {
     public void methodTest(List<String> methodParam) throws Exception
     {
