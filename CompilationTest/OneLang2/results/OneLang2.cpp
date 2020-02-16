@@ -1,4 +1,5 @@
 #include <OneLang-Core-v0.1/one.hpp>
+#include <OneLang-Regex-v0.1/OneRegex.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <string>
