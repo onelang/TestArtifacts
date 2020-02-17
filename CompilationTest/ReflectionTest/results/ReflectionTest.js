@@ -1,4 +1,4 @@
-const one = require('one');
+const OneReflect = require('OneLang-Reflect-v0.1/OneReflect');
 
 class TargetClass {
   constructor() {
@@ -16,14 +16,14 @@ class TargetClass {
 
 TargetClass.staticField = "hello";
 
-one.Reflect.setupClass(new one.Class(TargetClass, [
-    new one.Field("instanceField", false, "OneNumber"),
-    new one.Field("staticField", true, "OneString"),
+OneReflect.setupClass(new OneReflect.Class(TargetClass, [
+    new OneReflect.Field("instanceField", false, "OneNumber"),
+    new OneReflect.Field("staticField", true, "OneString"),
   ], [
-    new one.Method("staticMethod", true, "OneString", [
-      new one.MethodArgument("arg1", "OneString"),
+    new OneReflect.Method("staticMethod", true, "OneString", [
+      new OneReflect.MethodArgument("arg1", "OneString"),
     ]),
-    new one.Method("instanceMethod", false, "OneString", [
+    new OneReflect.Method("instanceMethod", false, "OneString", [
     ]),
   ]));
 
@@ -34,12 +34,12 @@ class TestClass {
     //console.log(`staticMethod (direct): ${TargetClass.staticMethod("arg1value")}`);
     //console.log(`instanceField (direct): ${obj.instanceField}`);
     //console.log(`staticField (direct): ${TargetClass.staticField}`);
-    const cls = one.Reflect.getClass(obj);
+    const cls = OneReflect.getClass(obj);
     if (cls == null) {
         console.log("cls is null!");
         return;
     }
-    const cls2 = one.Reflect.getClassByName("TargetClass");
+    const cls2 = OneReflect.getClassByName("TargetClass");
     if (cls2 == null) {
         console.log("cls2 is null!");
         return;

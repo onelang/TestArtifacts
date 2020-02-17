@@ -1,4 +1,4 @@
-const one = require('one');
+const OneRegex = require('OneLang-Regex-v0.1/OneRegex');
 
 const TokenKind = Object.freeze({
   NUMBER: "Number",
@@ -56,7 +56,7 @@ class ExprLangLexer {
   }
   
   tryToMatch(pattern) {
-    const matches = one.Regex.matchFromIndex(pattern, this.expression, this.offset);
+    const matches = OneRegex.matchFromIndex(pattern, this.expression, this.offset);
     return matches == null ? "" : matches[0];
   }
   
