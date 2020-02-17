@@ -1,4 +1,4 @@
-List::items: OneArray<T>
+MyList::items: OneArray<T>
 
 Item::offset: OneNumber
 - Variable: offset [OneNumber]
@@ -20,8 +20,8 @@ Item::constructor
       - InstanceField (this): strConstr [OneString]
       - MethodArgument: strConstr [OneString]
 
-Container::itemList: List<Item>
-Container::stringList: List<OneString>
+Container::itemList: MyList<Item>
+Container::stringList: MyList<OneString>
 
 Container::method0(): void
 

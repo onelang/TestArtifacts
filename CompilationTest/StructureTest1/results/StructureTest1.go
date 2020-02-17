@@ -2,12 +2,12 @@ package main
 
 import "fmt"
 
-type List struct {
+type MyList struct {
     Items []interface{}
 }
 
-func NewList() *List {
-    this := new(List)
+func NewMyList() *MyList {
+    this := new(MyList)
     return this
 }
 
@@ -27,8 +27,8 @@ func NewItem(strConstr string) *Item {
 }
 
 type Container struct {
-    ItemList *List<Item>
-    StringList *List<string>
+    ItemList *MyList<Item>
+    StringList *MyList<string>
 }
 
 func NewContainer() *Container {

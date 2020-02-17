@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-package List;
+package MyList;
 
 sub new
 {

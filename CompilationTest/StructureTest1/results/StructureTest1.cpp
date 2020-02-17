@@ -3,7 +3,7 @@
 #include <string>
 
 template<typename T>
-class List {
+class MyList {
   public:
     one::vec<T> items;
 
@@ -25,8 +25,8 @@ class Item {
 
 class Container {
   public:
-    one::sp<List<Item>> item_list;
-    one::sp<List<std::string>> string_list;
+    one::sp<MyList<Item>> item_list;
+    one::sp<MyList<std::string>> string_list;
 
     void method0() {
     }

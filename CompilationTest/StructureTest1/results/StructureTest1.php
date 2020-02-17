@@ -1,6 +1,6 @@
 <?php
 
-class List {
+class MyList {
     public $items;
 }
 

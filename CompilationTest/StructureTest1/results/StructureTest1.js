@@ -1,4 +1,4 @@
-class List {
+class MyList {
 }
 
 class Item {

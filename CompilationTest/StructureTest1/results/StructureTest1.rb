@@ -1,4 +1,4 @@
-class List
+class MyList
   attr_accessor(:items)
 end
 

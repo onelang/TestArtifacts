@@ -1,4 +1,4 @@
-List::items: TsArray<T>
+MyList::items: TsArray<T>
 
 Item::offset: TsNumber
 - Variable: offset [TsNumber]
@@ -20,8 +20,8 @@ Item::constructor
       - InstanceField (this): strConstr [TsString]
       - MethodArgument: strConstr [TsString]
 
-Container::itemList: List<Item>
-Container::stringList: List<TsString>
+Container::itemList: MyList<Item>
+Container::stringList: MyList<TsString>
 
 Container::method0(): void
 

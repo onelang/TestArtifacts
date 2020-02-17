@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-class List<T> {
+class MyList<T> {
     public List<T> items;
 }
 
@@ -17,8 +17,8 @@ class Item {
 }
 
 class Container {
-    public List<Item> itemList;
-    public List<String> stringList;
+    public MyList<Item> itemList;
+    public MyList<String> stringList;
 
     public void method0() throws Exception
     {

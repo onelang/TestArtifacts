@@ -1,4 +1,4 @@
-class List:
+class MyList:
     pass
 
 class Item:

@@ -1,4 +1,4 @@
-class List<T> {
+class MyList<T> {
     items: OneArray;
 }
 
@@ -13,8 +13,8 @@ class Item {
 }
 
 class Container {
-    itemList: List<Item>;
-    stringList: List<string>;
+    itemList: MyList<Item>;
+    stringList: MyList<string>;
 
     method0() {
     }

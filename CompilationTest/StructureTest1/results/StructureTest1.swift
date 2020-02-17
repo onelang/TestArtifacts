@@ -1,4 +1,4 @@
-class List<T> {
+class MyList<T> {
   var items: [T]?
 }
 
@@ -13,8 +13,8 @@ class Item {
 }
 
 class Container {
-  var itemList: List<Item>?
-  var stringList: List<String>?
+  var itemList: MyList<Item>?
+  var stringList: MyList<String>?
 
   func method0() -> Void {
   }

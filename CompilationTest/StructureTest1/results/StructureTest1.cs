@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class List<T>
+public class MyList<T>
 {
     public List<T> Items;
 }
@@ -20,8 +20,8 @@ public class Item
 
 public class Container
 {
-    public List<Item> ItemList;
-    public List<string> StringList;
+    public MyList<Item> ItemList;
+    public MyList<string> StringList;
 
     public void Method0()
     {
