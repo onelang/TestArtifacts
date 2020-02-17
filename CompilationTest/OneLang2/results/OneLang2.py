@@ -1,5 +1,5 @@
 from enum import Enum
-import one
+import OneRegex
 
 class TokenKind(Enum):
     NUMBER = 0
@@ -44,7 +44,7 @@ class ExprLangLexer:
         self.offset += len(value)
     
     def try_to_match(self, pattern):
-        matches = one.Regex.match_from_index(pattern, self.expression, self.offset)
+        matches = OneRegex.match_from_index(pattern, self.expression, self.offset)
         return "" if matches == None else matches[0]
     
     def try_to_read_operator(self):

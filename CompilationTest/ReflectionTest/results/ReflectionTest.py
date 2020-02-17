@@ -1,4 +1,4 @@
-import one
+import OneReflect
 
 class TargetClass:
     def __init__(self):
@@ -13,14 +13,14 @@ class TargetClass:
 
 TargetClass.static_field = "hello";
 
-one.Reflect.setup_class(one.Class(TargetClass, [
-    one.Field("instance_field", False, "OneNumber"),
-    one.Field("static_field", True, "OneString"),
+OneReflect.setup_class(OneReflect.Class(TargetClass, [
+    OneReflect.Field("instance_field", False, "OneNumber"),
+    OneReflect.Field("static_field", True, "OneString"),
   ], [
-    one.Method("static_method", True, "OneString", [
-      one.MethodArgument("arg1", "OneString"),
+    OneReflect.Method("static_method", True, "OneString", [
+      OneReflect.MethodArgument("arg1", "OneString"),
     ]),
-    one.Method("instance_method", False, "OneString", [
+    OneReflect.Method("instance_method", False, "OneString", [
     ]),
   ]));
 
@@ -31,11 +31,11 @@ class TestClass:
         #console.log(`staticMethod (direct): ${TargetClass.staticMethod("arg1value")}`);
         #console.log(`instanceField (direct): ${obj.instanceField}`);
         #console.log(`staticField (direct): ${TargetClass.staticField}`);
-        cls = one.Reflect.get_class(obj)
+        cls = OneReflect.get_class(obj)
         if cls == None:
             print "cls is null!"
             return
-        cls2 = one.Reflect.get_class_by_name("TargetClass")
+        cls2 = OneReflect.get_class_by_name("TargetClass")
         if cls2 == None:
             print "cls2 is null!"
             return
