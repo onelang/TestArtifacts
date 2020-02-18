@@ -1,4 +1,4 @@
-require 'one'
+require 'OneRegex'
 
 module TokenKind
   NUMBER = 0
@@ -64,7 +64,7 @@ class ExprLangLexer
   end
 
   def try_to_match(pattern)
-      matches = One::Regex.match_from_index(pattern, self.expression, self.offset)
+      matches = OneRegex.match_from_index(pattern, self.expression, self.offset)
       return matches == nil ? "" : matches[0]
   end
 

@@ -1,4 +1,4 @@
-require 'one'
+require 'OneReflect'
 
 class TargetClass
   attr_accessor(:instance_field)
@@ -21,14 +21,14 @@ class TargetClass
   end
 end
 
-One::Reflect::setup_class(One::Class.new(TargetClass, [
-    One::Field.new("instance_field", false, "OneNumber"),
-    One::Field.new("static_field", true, "OneString"),
+OneReflect::setup_class(OneReflect::Class.new(TargetClass, [
+    OneReflect::Field.new("instance_field", false, "OneNumber"),
+    OneReflect::Field.new("static_field", true, "OneString"),
   ], [
-    One::Method.new("static_method", true, "OneString", [
-      One::MethodArgument.new("arg1", "OneString"),
+    OneReflect::Method.new("static_method", true, "OneString", [
+      OneReflect::MethodArgument.new("arg1", "OneString"),
     ]),
-    One::Method.new("instance_method", false, "OneString", [
+    OneReflect::Method.new("instance_method", false, "OneString", [
     ]),
   ]));
 
@@ -39,12 +39,12 @@ class TestClass
       #console.log(`staticMethod (direct): ${TargetClass.staticMethod("arg1value")}`);
       #console.log(`instanceField (direct): ${obj.instanceField}`);
       #console.log(`staticField (direct): ${TargetClass.staticField}`);
-      cls = One::Reflect.get_class(obj)
+      cls = OneReflect.get_class(obj)
       if cls == nil
           puts "cls is null!"
           return
       end
-      cls2 = One::Reflect.get_class_by_name("TargetClass")
+      cls2 = OneReflect.get_class_by_name("TargetClass")
       if cls2 == nil
           puts "cls2 is null!"
           return
