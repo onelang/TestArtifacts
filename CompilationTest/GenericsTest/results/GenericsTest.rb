@@ -22,5 +22,5 @@ end
 begin
     TestClass.new().test_method()
 rescue Exception => err
-    print "Exception: #{err}"
+    puts "Exception: #{err}"
 end
