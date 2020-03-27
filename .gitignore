@@ -1,2 +1,7 @@
 **/*.json
 **/*_Init.txt
+.DS_Store
+bin/
+obj/
+lastState.txt
+allChanges.txt
