@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using One;
@@ -7,12 +8,13 @@ using One.Ast;
 namespace One.Transforms
 {
     public class InstanceOfImplicitCast : AstTransformer {
-        public InstanceOfExpression[] casts;
-        public int[] castCounts;
+        public List<InstanceOfExpression> casts;
+        public List<int> castCounts;
         
-        public InstanceOfImplicitCast(): base("InstanceOfImplicitCast") {
-            this.casts = new InstanceOfExpression[0];
-            this.castCounts = new int[0];
+        public InstanceOfImplicitCast(): base("InstanceOfImplicitCast")
+        {
+            this.casts = new List<InstanceOfExpression>();
+            this.castCounts = new List<int>();
         }
         
         protected void addCast(InstanceOfExpression cast) {

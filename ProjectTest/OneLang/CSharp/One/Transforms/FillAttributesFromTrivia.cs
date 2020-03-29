@@ -1,34 +1,35 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using One.Ast;
 
 namespace One.Transforms
 {
     public class FillAttributesFromTrivia {
-        static public Dictionary<string, string> processTrivia(string trivia) {
+        public static Dictionary<string, string> processTrivia(string trivia) {
             var result = new Dictionary<string, string> {};
-            if (trivia != "") {
-                var regex = new RegExp("(?:n|^)s*(?://|#)s*@([a-z0-9_.-]+)(?: ([^n]+)|$|n)");
+            if (trivia != null && trivia != "") {
+                var regex = new RegExp("(?:\\n|^)\\s*(?:\\/\\/|#|\\/\\*\\*?)\\s*@([a-z0-9_.-]+) ?((?!\\n|\\*\\/|$).+)?");
                 while (true) {
                     var match = regex.exec(trivia);
                     if (match == null)
                         break;
-                    result.set(match.get(0), match.get(1));
+                    result.set(match.get(1), match.get(2) ?? "true");
                 }
             }
             return result;
         }
         
-        static private void process(IHasAttributesAndTrivia[] items) {
+        private static void process(IHasAttributesAndTrivia[] items) {
             foreach (var item in items)
                 item.attributes = FillAttributesFromTrivia.processTrivia(item.leadingTrivia);
         }
         
-        static private void processBlock(Block block) {
+        private static void processBlock(Block block) {
             if (block == null)
                 return;
-            FillAttributesFromTrivia.process(block.statements);
-            foreach (var stmt in block.statements)
+            FillAttributesFromTrivia.process(block.statements.ToArray());
+            foreach (var stmt in block.statements) {
                 if (stmt is ForeachStatement)
                     FillAttributesFromTrivia.processBlock(((ForeachStatement)stmt).body);
                 else if (stmt is ForStatement)
@@ -37,16 +38,17 @@ namespace One.Transforms
                     FillAttributesFromTrivia.processBlock(((IfStatement)stmt).then);
                     FillAttributesFromTrivia.processBlock(((IfStatement)stmt).else_);
                 }
+            }
         }
         
-        static private void processMethod(IMethodBaseWithTrivia method) {
+        private static void processMethod(IMethodBaseWithTrivia method) {
             if (method == null)
                 return;
-            FillAttributesFromTrivia.process(new[] { method });
+            FillAttributesFromTrivia.process(new IMethodBaseWithTrivia[] { method });
             FillAttributesFromTrivia.processBlock(method.body);
         }
         
-        static public void processFile(SourceFile file) {
+        public static void processFile(SourceFile file) {
             FillAttributesFromTrivia.process(file.imports);
             FillAttributesFromTrivia.process(file.enums);
             FillAttributesFromTrivia.process(file.interfaces);
@@ -70,7 +72,7 @@ namespace One.Transforms
             }
         }
         
-        static public void processPackage(Package pkg) {
+        public static void processPackage(Package pkg) {
             foreach (var file in Object.values(pkg.files))
                 FillAttributesFromTrivia.processFile(file);
         }

@@ -14,7 +14,8 @@ namespace One.Ast
         public Block then;
         public Block else_;
         
-        public IfStatement(Expression condition, Block then, Block else_): base() {
+        public IfStatement(Expression condition, Block then, Block else_): base()
+        {
             this.condition = condition;
             this.then = then;
             this.else_ = else_;
@@ -24,7 +25,8 @@ namespace One.Ast
     public class ReturnStatement : Statement {
         public Expression expression;
         
-        public ReturnStatement(Expression expression): base() {
+        public ReturnStatement(Expression expression): base()
+        {
             this.expression = expression;
         }
     }
@@ -32,7 +34,8 @@ namespace One.Ast
     public class ThrowStatement : Statement {
         public Expression expression;
         
-        public ThrowStatement(Expression expression): base() {
+        public ThrowStatement(Expression expression): base()
+        {
             this.expression = expression;
         }
     }
@@ -40,7 +43,8 @@ namespace One.Ast
     public class ExpressionStatement : Statement {
         public Expression expression;
         
-        public ExpressionStatement(Expression expression): base() {
+        public ExpressionStatement(Expression expression): base()
+        {
             this.expression = expression;
         }
     }
@@ -56,7 +60,8 @@ namespace One.Ast
     public class UnsetStatement : Statement {
         public Expression expression;
         
-        public UnsetStatement(Expression expression): base() {
+        public UnsetStatement(Expression expression): base()
+        {
             this.expression = expression;
         }
     }
@@ -65,14 +70,15 @@ namespace One.Ast
         public string name { get; set; }
         public Type_ type { get; set; }
         public Expression initializer { get; set; }
-        public bool isMutable;
-        public VariableDeclarationReference[] references;
+        public List<VariableDeclarationReference> references;
+        public MutabilityInfo mutability { get; set; }
         
-        public VariableDeclaration(string name, Type_ type, Expression initializer): base() {
-            this.references = new VariableDeclarationReference[0];
+        public VariableDeclaration(string name, Type_ type, Expression initializer): base()
+        {
             this.name = name;
             this.type = type;
             this.initializer = initializer;
+            this.references = new List<VariableDeclarationReference>();
         }
         
         public Reference createReference() {
@@ -84,7 +90,8 @@ namespace One.Ast
         public Expression condition;
         public Block body;
         
-        public WhileStatement(Expression condition, Block body): base() {
+        public WhileStatement(Expression condition, Block body): base()
+        {
             this.condition = condition;
             this.body = body;
         }
@@ -94,7 +101,8 @@ namespace One.Ast
         public Expression condition;
         public Block body;
         
-        public DoStatement(Expression condition, Block body): base() {
+        public DoStatement(Expression condition, Block body): base()
+        {
             this.condition = condition;
             this.body = body;
         }
@@ -103,11 +111,13 @@ namespace One.Ast
     public class ForeachVariable : IVariable, IReferencable {
         public string name { get; set; }
         public Type_ type { get; set; }
-        public ForeachVariableReference[] references;
+        public List<ForeachVariableReference> references;
+        public MutabilityInfo mutability { get; set; }
         
-        public ForeachVariable(string name) {
-            this.references = new ForeachVariableReference[0];
+        public ForeachVariable(string name)
+        {
             this.name = name;
+            this.references = new List<ForeachVariableReference>();
         }
         
         public Reference createReference() {
@@ -120,7 +130,8 @@ namespace One.Ast
         public Expression items;
         public Block body;
         
-        public ForeachStatement(ForeachVariable itemVar, Expression items, Block body): base() {
+        public ForeachStatement(ForeachVariable itemVar, Expression items, Block body): base()
+        {
             this.itemVar = itemVar;
             this.items = items;
             this.body = body;
@@ -131,13 +142,15 @@ namespace One.Ast
         public string name { get; set; }
         public Type_ type { get; set; }
         public Expression initializer { get; set; }
-        public ForVariableReference[] references;
+        public List<ForVariableReference> references;
+        public MutabilityInfo mutability { get; set; }
         
-        public ForVariable(string name, Type_ type, Expression initializer) {
-            this.references = new ForVariableReference[0];
+        public ForVariable(string name, Type_ type, Expression initializer)
+        {
             this.name = name;
             this.type = type;
             this.initializer = initializer;
+            this.references = new List<ForVariableReference>();
         }
         
         public Reference createReference() {
@@ -151,7 +164,8 @@ namespace One.Ast
         public Expression incrementor;
         public Block body;
         
-        public ForStatement(ForVariable itemVar, Expression condition, Expression incrementor, Block body): base() {
+        public ForStatement(ForVariable itemVar, Expression condition, Expression incrementor, Block body): base()
+        {
             this.itemVar = itemVar;
             this.condition = condition;
             this.incrementor = incrementor;
@@ -162,12 +176,14 @@ namespace One.Ast
     public class CatchVariable : IVariable, IReferencable {
         public string name { get; set; }
         public Type_ type { get; set; }
-        public CatchVariableReference[] references;
+        public List<CatchVariableReference> references;
+        public MutabilityInfo mutability { get; set; }
         
-        public CatchVariable(string name, Type_ type) {
-            this.references = new CatchVariableReference[0];
+        public CatchVariable(string name, Type_ type)
+        {
             this.name = name;
             this.type = type;
+            this.references = new List<CatchVariableReference>();
         }
         
         public Reference createReference() {
@@ -181,7 +197,8 @@ namespace One.Ast
         public Block catchBody;
         public Block finallyBody;
         
-        public TryStatement(Block tryBody, CatchVariable catchVar, Block catchBody, Block finallyBody): base() {
+        public TryStatement(Block tryBody, CatchVariable catchVar, Block catchBody, Block finallyBody): base()
+        {
             this.tryBody = tryBody;
             this.catchVar = catchVar;
             this.catchBody = catchBody;

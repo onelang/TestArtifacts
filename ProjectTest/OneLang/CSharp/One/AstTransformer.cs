@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using One.Ast;
 using One;
 
@@ -12,13 +13,14 @@ namespace One
         public Statement currentStatement;
         public string name;
         
-        public AstTransformer(string name) {
+        public AstTransformer(string name)
+        {
+            this.name = name;
             this.errorMan = new ErrorManager();
             this.currentFile = null;
             this.currentInterface = null;
             this.currentMethod = null;
             this.currentStatement = null;
-            this.name = name;
         }
         
         protected virtual Type_ visitType(Type_ type) {
@@ -38,7 +40,7 @@ namespace One
             return null;
         }
         
-        protected IVariable visitVariable(IVariable variable) {
+        protected virtual IVariable visitVariable(IVariable variable) {
             if (variable.type != null)
                 variable.type = this.visitType(variable.type) ?? variable.type;
             return null;
@@ -63,9 +65,10 @@ namespace One
         
         protected virtual Statement visitStatement(Statement stmt) {
             this.currentStatement = stmt;
-            if (stmt is ReturnStatement)
+            if (stmt is ReturnStatement) {
                 if (((ReturnStatement)stmt).expression != null)
                     ((ReturnStatement)stmt).expression = this.visitExpression(((ReturnStatement)stmt).expression) ?? ((ReturnStatement)stmt).expression;
+            }
             else if (stmt is ExpressionStatement)
                 ((ExpressionStatement)stmt).expression = this.visitExpression(((ExpressionStatement)stmt).expression) ?? ((ExpressionStatement)stmt).expression;
             else if (stmt is IfStatement) {
@@ -117,7 +120,7 @@ namespace One
         }
         
         protected virtual Block visitBlock(Block block) {
-            block.statements = block.statements.map((Statement x) => { return this.visitStatement(x) ?? x; });
+            block.statements = block.statements.map((Statement x) => { return this.visitStatement(x) ?? x; }).ToList();
             return null;
         }
         
@@ -137,6 +140,10 @@ namespace One
         
         protected virtual Lambda visitLambda(Lambda lambda) {
             this.visitMethodBase(lambda);
+            return null;
+        }
+        
+        protected virtual VariableReference visitVariableReference(VariableReference varRef) {
             return null;
         }
         
@@ -212,22 +219,33 @@ namespace One
             else if (expr is EnumReference) { }
             else if (expr is ThisReference) { }
             else if (expr is StaticThisReference) { }
-            else if (expr is MethodParameterReference) { }
-            else if (expr is VariableDeclarationReference) { }
-            else if (expr is ForVariableReference) { }
-            else if (expr is ForeachVariableReference) { }
-            else if (expr is CatchVariableReference) { }
+            else if (expr is MethodParameterReference)
+                return this.visitVariableReference(((MethodParameterReference)expr));
+            else if (expr is VariableDeclarationReference)
+                return this.visitVariableReference(((VariableDeclarationReference)expr));
+            else if (expr is ForVariableReference)
+                return this.visitVariableReference(((ForVariableReference)expr));
+            else if (expr is ForeachVariableReference)
+                return this.visitVariableReference(((ForeachVariableReference)expr));
+            else if (expr is CatchVariableReference)
+                return this.visitVariableReference(((CatchVariableReference)expr));
             else if (expr is GlobalFunctionReference) { }
             else if (expr is SuperReference) { }
-            else if (expr is InstanceFieldReference) { }
-            else if (expr is InstancePropertyReference) { }
-            else if (expr is StaticFieldReference) { }
-            else if (expr is StaticPropertyReference) { }
+            else if (expr is InstanceFieldReference)
+                return this.visitVariableReference(((InstanceFieldReference)expr));
+            else if (expr is InstancePropertyReference)
+                return this.visitVariableReference(((InstancePropertyReference)expr));
+            else if (expr is StaticFieldReference)
+                return this.visitVariableReference(((StaticFieldReference)expr));
+            else if (expr is StaticPropertyReference)
+                return this.visitVariableReference(((StaticPropertyReference)expr));
             else if (expr is EnumMemberReference) { }
             else if (expr is StaticMethodCallExpression) {
                 ((StaticMethodCallExpression)expr).typeArgs = ((StaticMethodCallExpression)expr).typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
                 ((StaticMethodCallExpression)expr).args = ((StaticMethodCallExpression)expr).args.map((Expression x) => { return this.visitExpression(x) ?? x; });
             }
+            else if (expr is GlobalFunctionCallExpression)
+                ((GlobalFunctionCallExpression)expr).args = ((GlobalFunctionCallExpression)expr).args.map((Expression x) => { return this.visitExpression(x) ?? x; });
             else if (expr is InstanceMethodCallExpression) {
                 ((InstanceMethodCallExpression)expr).object_ = this.visitExpression(((InstanceMethodCallExpression)expr).object_) ?? ((InstanceMethodCallExpression)expr).object_;
                 ((InstanceMethodCallExpression)expr).typeArgs = ((InstanceMethodCallExpression)expr).typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });

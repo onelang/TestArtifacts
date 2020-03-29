@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using One.Ast;
 using One;
 
@@ -13,6 +14,7 @@ namespace One.Ast
     public interface IVariable {
         string name { get; set; }
         Type_ type { get; set; }
+        MutabilityInfo mutability { get; set; }
     }
     
     public interface IClassMember {
@@ -37,6 +39,7 @@ namespace One.Ast
         string name { get; set; }
         string[] typeArguments { get; set; }
         Type_[] baseInterfaces { get; set; }
+        Field[] fields { get; set; }
         Method[] methods { get; set; }
         string leadingTrivia { get; set; }
         SourceFile parentFile { get; set; }
@@ -59,8 +62,19 @@ namespace One.Ast
         
     }
     
+    public class MutabilityInfo {
+        public bool unused = true;
+        public bool reassigned = false;
+        public bool mutated = false;
+    }
+    
     public class ExportedScope {
         public Map<string, IImportable> exports;
+        
+        public ExportedScope()
+        {
+            this.exports = new Map<string, IImportable>();
+        }
         
         public IImportable getExport(string name) {
             var exp = this.exports.get(name);
@@ -84,13 +98,14 @@ namespace One.Ast
         public Dictionary<string, SourceFile> files;
         public Dictionary<string, ExportedScope> exportedScopes;
         
-        public Package(string name) {
+        public Package(string name)
+        {
+            this.name = name;
             this.files = new Dictionary<string, SourceFile> {};
             this.exportedScopes = new Dictionary<string, ExportedScope> {};
-            this.name = name;
         }
         
-        static public ExportedScope collectExportsFromFile(SourceFile file, bool exportAll, ExportedScope scope = null) {
+        public static ExportedScope collectExportsFromFile(SourceFile file, bool exportAll, ExportedScope scope = null) {
             if (scope == null)
                 scope = new ExportedScope();
             
@@ -130,6 +145,12 @@ namespace One.Ast
         public Dictionary<string, Package> packages;
         public ErrorManager errorManager;
         
+        public Workspace()
+        {
+            this.packages = new Dictionary<string, Package> {};
+            this.errorManager = new ErrorManager();
+        }
+        
         public void addPackage(Package pkg) {
             this.packages.set(pkg.name, pkg);
         }
@@ -146,7 +167,8 @@ namespace One.Ast
         public Package pkg;
         public string path;
         
-        public SourcePath(Package pkg, string path) {
+        public SourcePath(Package pkg, string path)
+        {
             this.pkg = pkg;
             this.path = path;
         }
@@ -166,7 +188,8 @@ namespace One.Ast
         public ClassType error;
         public ClassType promise;
         
-        public LiteralTypes(ClassType boolean, ClassType numeric, ClassType string_, ClassType regex, ClassType array, ClassType map, ClassType error, ClassType promise) {
+        public LiteralTypes(ClassType boolean, ClassType numeric, ClassType string_, ClassType regex, ClassType array, ClassType map, ClassType error, ClassType promise)
+        {
             this.boolean = boolean;
             this.numeric = numeric;
             this.string_ = string_;
@@ -191,9 +214,8 @@ namespace One.Ast
         public LiteralTypes literalTypes;
         public ClassType[] arrayTypes;
         
-        public SourceFile(Import[] imports, Interface[] interfaces, Class[] classes, Enum_[] enums, GlobalFunction[] funcs, Block mainBlock, SourcePath sourcePath, ExportScopeRef exportScope) {
-            this.availableSymbols = new Map<string, IImportable>();
-            this.arrayTypes = new ClassType[0];
+        public SourceFile(Import[] imports, Interface[] interfaces, Class[] classes, Enum_[] enums, GlobalFunction[] funcs, Block mainBlock, SourcePath sourcePath, ExportScopeRef exportScope)
+        {
             this.imports = imports;
             this.interfaces = interfaces;
             this.classes = classes;
@@ -202,6 +224,8 @@ namespace One.Ast
             this.mainBlock = mainBlock;
             this.sourcePath = sourcePath;
             this.exportScope = exportScope;
+            this.availableSymbols = new Map<string, IImportable>();
+            this.arrayTypes = new ClassType[0];
             var fileScope = Package.collectExportsFromFile(this, true);
             this.addAvailableSymbols(fileScope.getAllExports());
         }
@@ -216,7 +240,8 @@ namespace One.Ast
         public string packageName;
         public string scopeName;
         
-        public ExportScopeRef(string packageName, string scopeName) {
+        public ExportScopeRef(string packageName, string scopeName)
+        {
             this.packageName = packageName;
             this.scopeName = scopeName;
         }
@@ -231,7 +256,8 @@ namespace One.Ast
         public SourceFile parentFile { get; set; }
         public Dictionary<string, string> attributes { get; set; }
         
-        public Import(ExportScopeRef exportScope, bool importAll, IImportable[] imports, string importAs, string leadingTrivia) {
+        public Import(ExportScopeRef exportScope, bool importAll, IImportable[] imports, string importAs, string leadingTrivia)
+        {
             this.exportScope = exportScope;
             this.importAll = importAll;
             this.imports = imports;
@@ -249,16 +275,17 @@ namespace One.Ast
         public string leadingTrivia { get; set; }
         public SourceFile parentFile { get; set; }
         public Dictionary<string, string> attributes { get; set; }
-        public EnumReference[] references;
+        public List<EnumReference> references;
         public EnumType type;
         
-        public Enum_(string name, EnumMember[] values, bool isExported, string leadingTrivia) {
-            this.references = new EnumReference[0];
-            this.type = new EnumType(this);
+        public Enum_(string name, EnumMember[] values, bool isExported, string leadingTrivia)
+        {
             this.name = name;
             this.values = values;
             this.isExported = isExported;
             this.leadingTrivia = leadingTrivia;
+            this.references = new List<EnumReference>();
+            this.type = new EnumType(this);
         }
         
         public Reference createReference() {
@@ -269,11 +296,12 @@ namespace One.Ast
     public class EnumMember {
         public string name;
         public Enum_ parentEnum;
-        public EnumMemberReference[] references;
+        public List<EnumMemberReference> references;
         
-        public EnumMember(string name) {
-            this.references = new EnumMemberReference[0];
+        public EnumMember(string name)
+        {
             this.name = name;
+            this.references = new List<EnumMemberReference>();
         }
     }
     
@@ -281,7 +309,8 @@ namespace One.Ast
         public string name { get; set; }
         public bool isExported { get; set; }
         
-        public UnresolvedImport(string name) {
+        public UnresolvedImport(string name)
+        {
             this.name = name;
         }
     }
@@ -290,7 +319,7 @@ namespace One.Ast
         public string name { get; set; }
         public string[] typeArguments { get; set; }
         public Type_[] baseInterfaces { get; set; }
-        public Field[] fields;
+        public Field[] fields { get; set; }
         public Method[] methods { get; set; }
         public bool isExported { get; set; }
         public string leadingTrivia { get; set; }
@@ -299,9 +328,8 @@ namespace One.Ast
         public InterfaceType type;
         public IInterface[] _baseInterfaceCache;
         
-        public Interface(string name, string[] typeArguments, Type_[] baseInterfaces, Field[] fields, Method[] methods, bool isExported, string leadingTrivia) {
-            this.type = new InterfaceType(this, this.typeArguments.map((string x) => { return new GenericsType(x); }));
-            this._baseInterfaceCache = null;
+        public Interface(string name, string[] typeArguments, Type_[] baseInterfaces, Field[] fields, Method[] methods, bool isExported, string leadingTrivia)
+        {
             this.name = name;
             this.typeArguments = typeArguments;
             this.baseInterfaces = baseInterfaces;
@@ -309,6 +337,8 @@ namespace One.Ast
             this.methods = methods;
             this.isExported = isExported;
             this.leadingTrivia = leadingTrivia;
+            this.type = new InterfaceType(this, this.typeArguments.map((string x) => { return new GenericsType(x); }));
+            this._baseInterfaceCache = null;
         }
         
         public IInterface[] getAllBaseInterfaces() {
@@ -321,7 +351,7 @@ namespace One.Ast
         public string[] typeArguments { get; set; }
         public Type_ baseClass;
         public Type_[] baseInterfaces { get; set; }
-        public Field[] fields;
+        public Field[] fields { get; set; }
         public Property[] properties;
         public Constructor constructor_;
         public Method[] methods { get; set; }
@@ -329,20 +359,15 @@ namespace One.Ast
         public string leadingTrivia { get; set; }
         public SourceFile parentFile { get; set; }
         public Dictionary<string, string> attributes { get; set; }
-        public ClassReference[] classReferences;
-        public ThisReference[] thisReferences;
-        public StaticThisReference[] staticThisReferences;
-        public SuperReference[] superReferences;
+        public List<ClassReference> classReferences;
+        public List<ThisReference> thisReferences;
+        public List<StaticThisReference> staticThisReferences;
+        public List<SuperReference> superReferences;
         public ClassType type;
         public IInterface[] _baseInterfaceCache;
         
-        public Class(string name, string[] typeArguments, Type_ baseClass, Type_[] baseInterfaces, Field[] fields, Property[] properties, Constructor constructor_, Method[] methods, bool isExported, string leadingTrivia) {
-            this.classReferences = new ClassReference[0];
-            this.thisReferences = new ThisReference[0];
-            this.staticThisReferences = new StaticThisReference[0];
-            this.superReferences = new SuperReference[0];
-            this.type = new ClassType(this, this.typeArguments.map((string x) => { return new GenericsType(x); }));
-            this._baseInterfaceCache = null;
+        public Class(string name, string[] typeArguments, Type_ baseClass, Type_[] baseInterfaces, Field[] fields, Property[] properties, Constructor constructor_, Method[] methods, bool isExported, string leadingTrivia)
+        {
             this.name = name;
             this.typeArguments = typeArguments;
             this.baseClass = baseClass;
@@ -353,6 +378,12 @@ namespace One.Ast
             this.methods = methods;
             this.isExported = isExported;
             this.leadingTrivia = leadingTrivia;
+            this.classReferences = new List<ClassReference>();
+            this.thisReferences = new List<ThisReference>();
+            this.staticThisReferences = new List<StaticThisReference>();
+            this.superReferences = new List<SuperReference>();
+            this.type = new ClassType(this, this.typeArguments.map((string x) => { return new GenericsType(x); }));
+            this._baseInterfaceCache = null;
         }
         
         public Reference createReference() {
@@ -370,23 +401,27 @@ namespace One.Ast
         public Expression initializer { get; set; }
         public Visibility visibility { get; set; }
         public bool isStatic { get; set; }
+        public MethodParameter constructorParam;
         public string leadingTrivia { get; set; }
         public IInterface parentInterface;
         public Dictionary<string, string> attributes { get; set; }
-        public StaticFieldReference[] staticReferences;
-        public InstanceFieldReference[] instanceReferences;
+        public List<StaticFieldReference> staticReferences;
+        public List<InstanceFieldReference> instanceReferences;
         public Field[] interfaceDeclarations;
+        public MutabilityInfo mutability { get; set; }
         
-        public Field(string name, Type_ type, Expression initializer, Visibility visibility, bool isStatic, string leadingTrivia) {
-            this.staticReferences = new StaticFieldReference[0];
-            this.instanceReferences = new InstanceFieldReference[0];
-            this.interfaceDeclarations = null;
+        public Field(string name, Type_ type, Expression initializer, Visibility visibility, bool isStatic, MethodParameter constructorParam, string leadingTrivia)
+        {
             this.name = name;
             this.type = type;
             this.initializer = initializer;
             this.visibility = visibility;
             this.isStatic = isStatic;
+            this.constructorParam = constructorParam;
             this.leadingTrivia = leadingTrivia;
+            this.staticReferences = new List<StaticFieldReference>();
+            this.instanceReferences = new List<InstanceFieldReference>();
+            this.interfaceDeclarations = null;
         }
     }
     
@@ -400,12 +435,12 @@ namespace One.Ast
         public string leadingTrivia { get; set; }
         public Class parentClass;
         public Dictionary<string, string> attributes { get; set; }
-        public StaticPropertyReference[] staticReferences;
-        public InstancePropertyReference[] instanceReferences;
+        public List<StaticPropertyReference> staticReferences;
+        public List<InstancePropertyReference> instanceReferences;
+        public MutabilityInfo mutability { get; set; }
         
-        public Property(string name, Type_ type, Block getter, Block setter, Visibility visibility, bool isStatic, string leadingTrivia) {
-            this.staticReferences = new StaticPropertyReference[0];
-            this.instanceReferences = new InstancePropertyReference[0];
+        public Property(string name, Type_ type, Block getter, Block setter, Visibility visibility, bool isStatic, string leadingTrivia)
+        {
             this.name = name;
             this.type = type;
             this.getter = getter;
@@ -413,6 +448,8 @@ namespace One.Ast
             this.visibility = visibility;
             this.isStatic = isStatic;
             this.leadingTrivia = leadingTrivia;
+            this.staticReferences = new List<StaticPropertyReference>();
+            this.instanceReferences = new List<InstancePropertyReference>();
         }
     }
     
@@ -421,14 +458,16 @@ namespace One.Ast
         public Type_ type { get; set; }
         public Expression initializer { get; set; }
         public IMethodBase parentMethod;
-        public MethodParameterReference[] references;
+        public List<MethodParameterReference> references;
+        public MutabilityInfo mutability { get; set; }
         
-        public MethodParameter(string name, Type_ type, Expression initializer) {
-            this.parentMethod = null;
-            this.references = new MethodParameterReference[0];
+        public MethodParameter(string name, Type_ type, Expression initializer)
+        {
             this.name = name;
             this.type = type;
             this.initializer = initializer;
+            this.parentMethod = null;
+            this.references = new List<MethodParameterReference>();
         }
         
         public Reference createReference() {
@@ -445,7 +484,8 @@ namespace One.Ast
         public Dictionary<string, string> attributes { get; set; }
         public bool throws { get; set; }
         
-        public Constructor(MethodParameter[] parameters, Block body, Expression[] superCallArgs, string leadingTrivia) {
+        public Constructor(MethodParameter[] parameters, Block body, Expression[] superCallArgs, string leadingTrivia)
+        {
             this.parameters = parameters;
             this.body = body;
             this.superCallArgs = superCallArgs;
@@ -467,13 +507,11 @@ namespace One.Ast
         public Dictionary<string, string> attributes { get; set; }
         public Method[] interfaceDeclarations;
         public Method overrides;
-        public Method[] overriddenBy;
+        public List<Method> overriddenBy;
         public bool throws { get; set; }
-        public bool mutates;
         
-        public Method(string name, string[] typeArguments, MethodParameter[] parameters, Block body, Visibility visibility, bool isStatic, Type_ returns, bool async, string leadingTrivia) {
-            this.overrides = null;
-            this.overriddenBy = new Method[0];
+        public Method(string name, string[] typeArguments, MethodParameter[] parameters, Block body, Visibility visibility, bool isStatic, Type_ returns, bool async, string leadingTrivia)
+        {
             this.name = name;
             this.typeArguments = typeArguments;
             this.parameters = parameters;
@@ -483,10 +521,12 @@ namespace One.Ast
             this.returns = returns;
             this.async = async;
             this.leadingTrivia = leadingTrivia;
+            this.overrides = null;
+            this.overriddenBy = new List<Method>();
         }
     }
     
-    public class GlobalFunction : IMethodBaseWithTrivia, IImportable, IHasAttributesAndTrivia, IReferencable {
+    public class GlobalFunction : IMethodBaseWithTrivia, IImportable, IHasAttributesAndTrivia, IReferencable, IMethodBase {
         public string name { get; set; }
         public MethodParameter[] parameters { get; set; }
         public Block body { get; set; }
@@ -495,16 +535,17 @@ namespace One.Ast
         public string leadingTrivia { get; set; }
         public Dictionary<string, string> attributes { get; set; }
         public bool throws { get; set; }
-        public GlobalFunctionReference[] references;
+        public List<GlobalFunctionReference> references;
         
-        public GlobalFunction(string name, MethodParameter[] parameters, Block body, Type_ returns, bool isExported, string leadingTrivia) {
-            this.references = new GlobalFunctionReference[0];
+        public GlobalFunction(string name, MethodParameter[] parameters, Block body, Type_ returns, bool isExported, string leadingTrivia)
+        {
             this.name = name;
             this.parameters = parameters;
             this.body = body;
             this.returns = returns;
             this.isExported = isExported;
             this.leadingTrivia = leadingTrivia;
+            this.references = new List<GlobalFunctionReference>();
         }
         
         public Reference createReference() {
@@ -513,10 +554,11 @@ namespace One.Ast
     }
     
     public class Block {
-        public Statement[] statements;
+        public List<Statement> statements;
         
-        public Block(Statement[] statements) {
-            this.statements = statements;
+        public Block(Statement[] statements)
+        {
+            this.statements = statements.ToList();
         }
     }
     
@@ -526,10 +568,11 @@ namespace One.Ast
         public Type_ returns;
         public bool throws { get; set; }
         
-        public Lambda(MethodParameter[] parameters, Block body): base() {
-            this.returns = null;
+        public Lambda(MethodParameter[] parameters, Block body): base()
+        {
             this.parameters = parameters;
             this.body = body;
+            this.returns = null;
         }
     }
 }

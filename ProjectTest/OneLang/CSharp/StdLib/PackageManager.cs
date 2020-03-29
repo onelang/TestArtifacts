@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
+using Utils;
 
 namespace StdLib
 {
@@ -12,20 +14,13 @@ namespace StdLib
         Task<PackageBundle> getAllCached();
     }
     
-    public interface InterfaceYaml {
-        int fileversion { get; set; }
-        string vendor { get; set; }
-        string name { get; set; }
-        int version { get; set; }
-        string definitionfile { get; set; }
-    }
-    
     public class PackageId {
         public PackageType type;
         public string name;
         public string version;
         
-        public PackageId(PackageType type, string name, string version) {
+        public PackageId(PackageType type, string name, string version)
+        {
             this.type = type;
             this.name = name;
             this.version = version;
@@ -36,7 +31,8 @@ namespace StdLib
         public PackageId id;
         public Dictionary<string, string> files;
         
-        public PackageContent(PackageId id, Dictionary<string, string> files, bool fromCache) {
+        public PackageContent(PackageId id, Dictionary<string, string> files, bool fromCache)
+        {
             this.id = id;
             this.files = files;
         }
@@ -45,7 +41,8 @@ namespace StdLib
     public class PackageBundle {
         public PackageContent[] packages;
         
-        public PackageBundle(PackageContent[] packages) {
+        public PackageBundle(PackageContent[] packages)
+        {
             this.packages = packages;
         }
     }
@@ -58,15 +55,30 @@ namespace StdLib
         public string code;
     }
     
+    public class InterfaceDependency {
+        public string name;
+        public double minver;
+    }
+    
+    public class InterfaceYaml {
+        public int fileVersion;
+        public string vendor;
+        public string name;
+        public double version;
+        public string definitionFile;
+        public InterfaceDependency[] dependencies;
+    }
+    
     public class InterfacePackage {
         public InterfaceYaml interfaceYaml;
         public string definition;
         public PackageContent content;
         
-        public InterfacePackage(PackageContent content) {
+        public InterfacePackage(PackageContent content)
+        {
             this.content = content;
-            this.interfaceYaml = ((InterfaceYaml)YAML.safeLoad(content.files.get("interface.yaml")));
-            this.definition = content.files.get(this.interfaceYaml.definitionfile);
+            this.interfaceYaml = Yaml.load<InterfaceYaml>(content.files.get("interface.yaml"));
+            this.definition = content.files.get(this.interfaceYaml.definitionFile);
         }
     }
     
@@ -79,12 +91,12 @@ namespace StdLib
     public class ImplPkgImplementation {
         public ImplPkgImplIntf interface_;
         public string language;
-        public string[] nativeincludes;
-        public string nativeincludedir;
+        public string[] nativeIncludes;
+        public string nativeIncludeDir;
     }
     
     public class ImplPackageYaml {
-        public int fileversion;
+        public int fileVersion;
         public string vendor;
         public string name;
         public string description;
@@ -95,18 +107,19 @@ namespace StdLib
     
     public class ImplementationPackage {
         public ImplPackageYaml implementationYaml;
-        public ImplPkgImplementation[] implementations;
+        public List<ImplPkgImplementation> implementations;
         public PackageContent content;
         
-        public ImplementationPackage(PackageContent content) {
-            this.implementations = new ImplPkgImplementation[0];
+        public ImplementationPackage(PackageContent content)
+        {
             this.content = content;
-            this.implementationYaml = ((ImplPackageYaml)YAML.safeLoad(content.files.get("package.yaml")));
-            this.implementations = new ImplPkgImplementation[0];
+            this.implementations = new List<ImplPkgImplementation>();
+            this.implementationYaml = Yaml.load<ImplPackageYaml>(content.files.get("package.yaml"));
+            this.implementations = new List<ImplPkgImplementation>();
             foreach (var impl in this.implementationYaml.implements ?? new ImplPkgImplementation[0])
                 this.implementations.push(impl);
             foreach (var include in this.implementationYaml.includes ?? new string[0]) {
-                var included = ((ImplPackageYaml)YAML.safeLoad(content.files.get(include)));
+                var included = Yaml.load<ImplPackageYaml>(content.files.get(include));
                 foreach (var impl in included.implements)
                     this.implementations.push(impl);
             }
@@ -114,14 +127,15 @@ namespace StdLib
     }
     
     public class PackageManager {
-        public InterfacePackage[] interfacesPkgs;
-        public ImplementationPackage[] implementationPkgs;
+        public List<InterfacePackage> interfacesPkgs;
+        public List<ImplementationPackage> implementationPkgs;
         public PackageSource source;
         
-        public PackageManager(PackageSource source) {
-            this.interfacesPkgs = new InterfacePackage[0];
-            this.implementationPkgs = new ImplementationPackage[0];
+        public PackageManager(PackageSource source)
+        {
             this.source = source;
+            this.interfacesPkgs = new List<InterfacePackage>();
+            this.implementationPkgs = new List<ImplementationPackage>();
         }
         
         public async Task loadAllCached() {
@@ -135,7 +149,7 @@ namespace StdLib
         }
         
         public ImplPkgImplementation[] getLangImpls(string langName) {
-            var allImpls = new ImplPkgImplementation[0];
+            var allImpls = new List<ImplPkgImplementation>();
             foreach (var pkg in this.implementationPkgs)
                 foreach (var impl in pkg.implementations)
                     allImpls.push(impl);
@@ -147,14 +161,14 @@ namespace StdLib
         }
         
         public PackageNativeImpl[] getLangNativeImpls(string langName) {
-            var result = new PackageNativeImpl[0];
+            var result = new List<PackageNativeImpl>();
             foreach (var pkg in this.implementationPkgs)
                 foreach (var pkgImpl in pkg.implementations.filter((ImplPkgImplementation x) => { return x.language == langName; })) {
                     var fileNamePaths = new Dictionary<string, string> {};
-                    foreach (var fileName in pkgImpl.nativeincludes ?? new string[0])
+                    foreach (var fileName in pkgImpl.nativeIncludes ?? new string[0])
                         fileNamePaths.set(fileName, $"native/{fileName}");
                     
-                    var incDir = pkgImpl.nativeincludedir;
+                    var incDir = pkgImpl.nativeIncludeDir;
                     if (incDir != null) {
                         if (!incDir.endsWith("/"))
                             incDir += "/";
@@ -177,7 +191,7 @@ namespace StdLib
                         result.push(impl);
                     }
                 }
-            return result;
+            return result.ToArray();
         }
     }
 }

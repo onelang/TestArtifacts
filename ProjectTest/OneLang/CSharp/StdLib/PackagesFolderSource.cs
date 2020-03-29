@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using StdLib;
@@ -9,7 +10,8 @@ namespace StdLib
     public class PackagesFolderSource : PackageSource {
         public string packagesDir;
         
-        public PackagesFolderSource(string packagesDir = "packages") {
+        public PackagesFolderSource(string packagesDir = "packages")
+        {
             this.packagesDir = packagesDir;
         }
         
@@ -25,7 +27,7 @@ namespace StdLib
             var packages = new Dictionary<string, PackageContent> {};
             var allFiles = glob.sync($"{this.packagesDir}/**/*", new Dictionary<string, bool> { ["nodir"] = true });
             foreach (var fn in allFiles) {
-                var pathParts = path.relative(this.packagesDir, fn).split(new RegExp("/"));
+                var pathParts = path.relative(this.packagesDir, fn).split(new RegExp("\\/"));
                 // [0]=implementations/interfaces, [1]=package-name, [2:]=path
                 var type = pathParts.shift();
                 var pkgDir = pathParts.shift();

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using One;
@@ -8,10 +9,18 @@ namespace One.Transforms
 {
     public class SymbolLookup {
         public ErrorManager errorMan;
-        public string[][] levelSymbols;
-        public string[] levelNames;
-        public string[] currLevel;
+        public List<List<string>> levelSymbols;
+        public List<string> levelNames;
+        public List<string> currLevel;
         public Map<string, IReferencable> symbols;
+        
+        public SymbolLookup()
+        {
+            this.errorMan = new ErrorManager();
+            this.levelSymbols = new List<List<string>>();
+            this.levelNames = new List<string>();
+            this.symbols = new Map<string, IReferencable>();
+        }
         
         public void throw_(string msg) {
             this.errorMan.throw_($"{msg} (context: {this.levelNames.join(" > ")})");
@@ -19,7 +28,7 @@ namespace One.Transforms
         
         public void pushContext(string name) {
             this.levelNames.push(name);
-            this.currLevel = new string[0];
+            this.currLevel = new List<string>();
             this.levelSymbols.push(this.currLevel);
         }
         
@@ -35,7 +44,7 @@ namespace One.Transforms
                 this.symbols.delete(name);
             this.levelSymbols.pop();
             this.levelNames.pop();
-            this.currLevel = this.levelSymbols.get(this.levelSymbols.length() - 1);
+            this.currLevel = this.levelSymbols.length() == 0 ? null : this.levelSymbols.get(this.levelSymbols.length() - 1);
         }
         
         public IReferencable getSymbol(string name) {
@@ -46,7 +55,8 @@ namespace One.Transforms
     public class ResolveIdentifiers : AstTransformer {
         public SymbolLookup symbolLookup;
         
-        public ResolveIdentifiers(): base("ResolveIdentifiers") {
+        public ResolveIdentifiers(): base("ResolveIdentifiers")
+        {
             this.symbolLookup = new SymbolLookup();
         }
         
@@ -152,7 +162,7 @@ namespace One.Transforms
             this.errorMan.resetContext(this);
             this.symbolLookup.pushContext($"File: {sourceFile.sourcePath}");
             
-            foreach (var symbol in sourceFile.availableSymbols.values())
+            foreach (var symbol in sourceFile.availableSymbols.values()) {
                 if (symbol is Class)
                     this.symbolLookup.addSymbol(((Class)symbol).name, ((Class)symbol));
                 else if (symbol is Interface) { }
@@ -161,6 +171,7 @@ namespace One.Transforms
                 else if (symbol is GlobalFunction)
                     this.symbolLookup.addSymbol(((GlobalFunction)symbol).name, ((GlobalFunction)symbol));
                 else { }
+            }
             
             base.visitSourceFile(sourceFile);
             

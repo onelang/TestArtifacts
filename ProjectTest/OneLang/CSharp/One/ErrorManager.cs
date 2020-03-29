@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using One.Ast;
 using One;
@@ -14,7 +15,8 @@ namespace One
         public string transformerName;
         public IAstNode node;
         
-        public CompilationError(string msg, bool isWarning, string transformerName, IAstNode node) {
+        public CompilationError(string msg, bool isWarning, string transformerName, IAstNode node)
+        {
             this.msg = msg;
             this.isWarning = isWarning;
             this.transformerName = transformerName;
@@ -25,14 +27,22 @@ namespace One
     public class ErrorManager {
         public AstTransformer transformer;
         public IAstNode currentNode;
-        public CompilationError[] errors;
-        public string[] contextInfo;
+        public List<CompilationError> errors;
+        public List<string> contextInfo;
         
         public string lastContextInfo {
             get {
             
                 return this.contextInfo.length() > 0 ? this.contextInfo.get(this.contextInfo.length() - 1) : null;
             }
+        }
+        
+        public ErrorManager()
+        {
+            this.transformer = null;
+            this.currentNode = null;
+            this.errors = new List<CompilationError>();
+            this.contextInfo = new List<string>();
         }
         
         public void resetContext(AstTransformer transformer = null) {
@@ -75,23 +85,23 @@ namespace One
             }
             
             if (this.currentNode != null)
-                text += $"\\n  Node: {TSOverviewGenerator.nodeRepr(this.currentNode)}";
+                text += $"\n  Node: {TSOverviewGenerator.nodeRepr(this.currentNode)}";
             
             if (location != null)
-                text += $"\\n  Location: {location}";
+                text += $"\n  Location: {location}";
             
             if (t != null && t.currentStatement != null)
-                text += $"\\n  Statement: {TSOverviewGenerator.stmt(t.currentStatement, true)}";
+                text += $"\n  Statement: {TSOverviewGenerator.stmt(t.currentStatement, true)}";
             
             if (this.lastContextInfo != null)
-                text += $"\\n  Context: {this.lastContextInfo}";
+                text += $"\n  Context: {this.lastContextInfo}";
             
             if (type == LogType.Info)
                 console.log(text);
             else if (type == LogType.Warning)
-                console.error($"[WARNING] {text}\\n");
+                console.error($"[WARNING] {text}\n");
             else if (type == LogType.Error)
-                console.error($"{text}\\n");
+                console.error($"{text}\n");
             else { }
             
             if (type == LogType.Error || type == LogType.Warning)

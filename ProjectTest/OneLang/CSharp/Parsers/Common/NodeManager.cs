@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using Parsers.Common;
@@ -6,12 +7,13 @@ using Parsers.Common;
 namespace Parsers.Common
 {
     public class NodeManager {
-        public object[] nodes;
+        public List<object> nodes;
         public Reader reader;
         
-        public NodeManager(Reader reader) {
-            this.nodes = new object[0];
+        public NodeManager(Reader reader)
+        {
             this.reader = reader;
+            this.nodes = new List<object>();
         }
         
         public void addNode(object node, int start) {

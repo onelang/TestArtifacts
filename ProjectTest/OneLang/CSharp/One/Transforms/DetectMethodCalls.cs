@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using One;
 using One.Ast;
@@ -6,7 +7,8 @@ using One.Ast;
 namespace One.Transforms
 {
     public class DetectMethodCalls : AstTransformer {
-        public DetectMethodCalls(): base("DetectMethodCalls") {
+        public DetectMethodCalls(): base("DetectMethodCalls")
+        {
             
         }
         

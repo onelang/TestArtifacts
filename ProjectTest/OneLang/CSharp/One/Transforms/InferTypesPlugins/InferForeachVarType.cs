@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using One.Transforms.InferTypesPlugins.Helpers;
@@ -7,7 +8,8 @@ using One.Ast;
 namespace One.Transforms.InferTypesPlugins
 {
     public class InferForeachVarType : InferTypesPlugin {
-        public InferForeachVarType(): base("InferForeachVarType") {
+        public InferForeachVarType(): base("InferForeachVarType")
+        {
             
         }
         

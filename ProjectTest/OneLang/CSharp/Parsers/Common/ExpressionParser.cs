@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using Parsers.Common;
@@ -19,7 +20,8 @@ namespace Parsers.Common
         public bool isRightAssoc;
         public bool isPostfix;
         
-        public Operator(string text, int precedence, bool isBinary, bool isRightAssoc, bool isPostfix) {
+        public Operator(string text, int precedence, bool isBinary, bool isRightAssoc, bool isPostfix)
+        {
             this.text = text;
             this.precedence = precedence;
             this.isBinary = isBinary;
@@ -33,7 +35,8 @@ namespace Parsers.Common
         public string[] operators;
         public bool binary;
         
-        public PrecedenceLevel(string name, string[] operators, bool binary) {
+        public PrecedenceLevel(string name, string[] operators, bool binary)
+        {
             this.name = name;
             this.operators = operators;
             this.binary = binary;
@@ -59,23 +62,24 @@ namespace Parsers.Common
         public NodeManager nodeManager;
         public ExpressionParserConfig config;
         
-        public ExpressionParser(Reader reader, IExpressionParserHooks hooks = null, NodeManager nodeManager = null, ExpressionParserConfig config = null) {
-            this.stringLiteralType = null;
-            this.numericLiteralType = null;
+        public ExpressionParser(Reader reader, IExpressionParserHooks hooks = null, NodeManager nodeManager = null, ExpressionParserConfig config = null)
+        {
             this.reader = reader;
             this.hooks = hooks;
             this.nodeManager = nodeManager;
             this.config = config;
+            this.stringLiteralType = null;
+            this.numericLiteralType = null;
             if (this.config == null)
                 this.config = ExpressionParser.defaultConfig();
             this.reconfigure();
         }
         
-        static public ExpressionParserConfig defaultConfig() {
+        public static ExpressionParserConfig defaultConfig() {
             var config = new ExpressionParserConfig();
-            config.unary = new[] { "++", "--", "!", "not", "+", "-", "~" };
-            config.precedenceLevels = new[] { new PrecedenceLevel("assignment", new[] { "=", "+=", "-=", "*=", "/=", "<<=", ">>=" }, true), new PrecedenceLevel("conditional", new[] { "?" }, false), new PrecedenceLevel("or", new[] { "||", "or" }, true), new PrecedenceLevel("and", new[] { "&&", "and" }, true), new PrecedenceLevel("comparison", new[] { ">=", "!=", "===", "!==", "==", "<=", ">", "<" }, true), new PrecedenceLevel("sum", new[] { "+", "-" }, true), new PrecedenceLevel("product", new[] { "*", "/", "%" }, true), new PrecedenceLevel("bitwise", new[] { "|", "&", "^" }, true), new PrecedenceLevel("exponent", new[] { "**" }, true), new PrecedenceLevel("shift", new[] { "<<", ">>" }, true), new PrecedenceLevel("range", new[] { "..." }, true), new PrecedenceLevel("in", new[] { "in" }, true), new PrecedenceLevel("prefix", new string[0], false), new PrecedenceLevel("postfix", new[] { "++", "--" }, false), new PrecedenceLevel("call", new[] { "(" }, false), new PrecedenceLevel("propertyAccess", new string[0], false), new PrecedenceLevel("elementAccess", new[] { "[" }, false) };
-            config.rightAssoc = new[] { "**" };
+            config.unary = new string[] { "++", "--", "!", "not", "+", "-", "~" };
+            config.precedenceLevels = new PrecedenceLevel[] { new PrecedenceLevel("assignment", new string[] { "=", "+=", "-=", "*=", "/=", "<<=", ">>=" }, true), new PrecedenceLevel("conditional", new string[] { "?" }, false), new PrecedenceLevel("or", new string[] { "||", "or" }, true), new PrecedenceLevel("and", new string[] { "&&", "and" }, true), new PrecedenceLevel("comparison", new string[] { ">=", "!=", "===", "!==", "==", "<=", ">", "<" }, true), new PrecedenceLevel("sum", new string[] { "+", "-" }, true), new PrecedenceLevel("product", new string[] { "*", "/", "%" }, true), new PrecedenceLevel("bitwise", new string[] { "|", "&", "^" }, true), new PrecedenceLevel("exponent", new string[] { "**" }, true), new PrecedenceLevel("shift", new string[] { "<<", ">>" }, true), new PrecedenceLevel("range", new string[] { "..." }, true), new PrecedenceLevel("in", new string[] { "in" }, true), new PrecedenceLevel("prefix", new string[0], false), new PrecedenceLevel("postfix", new string[] { "++", "--" }, false), new PrecedenceLevel("call", new string[] { "(" }, false), new PrecedenceLevel("propertyAccess", new string[0], false), new PrecedenceLevel("elementAccess", new string[] { "[" }, false) };
+            config.rightAssoc = new string[] { "**" };
             config.aliases = new Dictionary<string, string> {
                 ["==="] = "==",
                 ["!=="] = "!=",
@@ -83,7 +87,7 @@ namespace Parsers.Common
                 ["and"] = "&&",
                 ["or"] = "||"
             };
-            config.propertyAccessOps = new[] { ".", "::" };
+            config.propertyAccessOps = new string[] { ".", "::" };
             return config;
         }
         
@@ -115,7 +119,7 @@ namespace Parsers.Common
             if (!this.reader.readToken(startToken))
                 return null;
             
-            var items = new MapLiteralItem[0];
+            var items = new List<MapLiteralItem>();
             do {
                 if (this.reader.peekToken(endToken))
                     break;
@@ -130,14 +134,14 @@ namespace Parsers.Common
             } while (this.reader.readToken(","));
             
             this.reader.expectToken(endToken);
-            return new MapLiteral(items);
+            return new MapLiteral(items.ToArray());
         }
         
         public ArrayLiteral parseArrayLiteral(string startToken = "[", string endToken = "]") {
             if (!this.reader.readToken(startToken))
                 return null;
             
-            var items = new Expression[0];
+            var items = new List<Expression>();
             if (!this.reader.readToken(endToken)) {
                 do {
                     var item = this.parse();
@@ -146,7 +150,7 @@ namespace Parsers.Common
                 
                 this.reader.expectToken(endToken);
             }
-            return new ArrayLiteral(items);
+            return new ArrayLiteral(items.ToArray());
         }
         
         public Expression parseLeft(bool required = true) {
@@ -185,15 +189,16 @@ namespace Parsers.Common
         }
         
         public Operator parseOperator() {
-            foreach (var opText in this.operators)
+            foreach (var opText in this.operators) {
                 if (this.reader.peekToken(opText))
                     return this.operatorMap.get(opText);
+            }
             
             return null;
         }
         
         public Expression[] parseCallArguments() {
-            var args = new Expression[0];
+            var args = new List<Expression>();
             
             if (!this.reader.readToken(")")) {
                 do {
@@ -204,7 +209,7 @@ namespace Parsers.Common
                 this.reader.expectToken(")");
             }
             
-            return args;
+            return args.ToArray();
         }
         
         public void addNode(object node, int start) {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using One.Ast;
@@ -8,18 +9,41 @@ namespace One.Transforms.InferTypesPlugins.Helpers
     public class GenericsResolver {
         public Map<string, Type_> resolutionMap;
         
-        static public GenericsResolver fromObject(Expression object_) {
+        public GenericsResolver()
+        {
+            this.resolutionMap = new Map<string, Type_>();
+        }
+        
+        public static GenericsResolver fromObject(Expression object_) {
             var resolver = new GenericsResolver();
             resolver.collectClassGenericsFromObject(object_);
             return resolver;
         }
         
+        public void addResolution(string typeVarName, Type_ actualType) {
+            var prevRes = this.resolutionMap.get(typeVarName);
+            if (prevRes != null && !Type_.equals(prevRes, actualType))
+                throw new Error($"Resolving '{typeVarName}' is ambiguous, {prevRes.repr()} <> {actualType.repr()}");
+            this.resolutionMap.set(typeVarName, actualType);
+        }
+        
+        public void collectFromMethodCall(IMethodCallExpression methodCall) {
+            if (methodCall.typeArgs.length() == 0)
+                return;
+            if (methodCall.typeArgs.length() != methodCall.method.typeArguments.length())
+                throw new Error($"Expected {methodCall.method.typeArguments.length()} type argument(s) for method call, but got {methodCall.typeArgs.length()}");
+            for (int i = 0; i < methodCall.typeArgs.length(); i++)
+                this.addResolution(methodCall.method.typeArguments.get(i), methodCall.typeArgs.get(i));
+        }
+        
         public void collectClassGenericsFromObject(Expression actualObject) {
             var actualType = actualObject.getType();
-            if (actualType is ClassType)
+            if (actualType is ClassType) {
                 if (!this.collectResolutionsFromActualType(((ClassType)actualType).decl.type, ((ClassType)actualType))) { }
-            else if (actualType is InterfaceType)
+            }
+            else if (actualType is InterfaceType) {
                 if (!this.collectResolutionsFromActualType(((InterfaceType)actualType).decl.type, ((InterfaceType)actualType))) { }
+            }
             else
                 throw new Error($"Expected ClassType or InterfaceType, got {(actualType != null ? actualType.repr() : "<null>")}");
         }
@@ -28,10 +52,7 @@ namespace One.Transforms.InferTypesPlugins.Helpers
             if (!Type_.isGeneric(genericType))
                 return true;
             if (genericType is GenericsType) {
-                var prevRes = this.resolutionMap.get(((GenericsType)genericType).typeVarName);
-                if (prevRes != null && !Type_.equals(prevRes, actualType))
-                    throw new Error($"Resolving {((GenericsType)genericType).repr()} is ambiguous, {prevRes.repr()} <> {actualType.repr()}");
-                this.resolutionMap.set(((GenericsType)genericType).typeVarName, actualType);
+                this.addResolution(((GenericsType)genericType).typeVarName, actualType);
                 return true;
             }
             else if (genericType is ClassType && actualType is ClassType && ((ClassType)genericType).decl == ((ClassType)actualType).decl) {

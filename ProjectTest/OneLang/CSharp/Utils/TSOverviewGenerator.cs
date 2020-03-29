@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using One.Ast;
@@ -6,38 +7,38 @@ using One.Ast;
 namespace Utils
 {
     public class TSOverviewGenerator {
-        static public string leading(Statement item) {
+        public static string leading(Statement item) {
             var result = "";
             if (item.leadingTrivia != null && item.leadingTrivia.length() > 0)
                 result += item.leadingTrivia;
             if (item.attributes != null)
-                result += Object.keys(item.attributes).map((string x) => { return $"/// {{ATTR}} name=\"{x}\", value={JSON.stringify(item.attributes.get(x))}\\n"; }).join("");
+                result += Object.keys(item.attributes).map((string x) => { return $"/// {{ATTR}} name=\"{x}\", value={JSON.stringify(item.attributes.get(x))}\n"; }).join("");
             return result;
         }
         
-        static public string preArr(string prefix, string[] value) {
+        public static string preArr(string prefix, string[] value) {
             return value.length() > 0 ? $"{prefix}{value.join(", ")}" : "";
         }
         
-        static public string preIf(string prefix, bool condition) {
+        public static string preIf(string prefix, bool condition) {
             return condition ? prefix : "";
         }
         
-        static public string pre(string prefix, string value) {
+        public static string pre(string prefix, string value) {
             return value != null ? $"{prefix}{value}" : "";
         }
         
-        static public string typeArgs(string[] args) {
+        public static string typeArgs(string[] args) {
             return args != null && args.length() > 0 ? $"<{args.join(", ")}>" : "";
         }
         
-        static public string type(Type_ t, bool raw = false) {
+        public static string type(Type_ t, bool raw = false) {
             var repr = t == null ? "???" : t.repr();
             if (repr == "U:UNKNOWN") { }
             return (raw ? "" : "{T}") + repr;
         }
         
-        static public string var(IVariable v) {
+        public static string var(IVariable v) {
             var result = "";
             var isProp = v is Property;
             if (v is Field || v is Property) {
@@ -45,7 +46,13 @@ namespace Utils
                 result += TSOverviewGenerator.preIf("static ", m.isStatic);
                 result += m.visibility == Visibility.Private ? "private " : m.visibility == Visibility.Protected ? "protected " : m.visibility == Visibility.Public ? "public " : "VISIBILITY-NOT-SET";
             }
-            result += $"{(isProp ? "get " : "")}{v.name}{(isProp ? "()" : "")}: {TSOverviewGenerator.type(v.type)}";
+            result += $"{(isProp ? "@prop " : "")}";
+            if (v.mutability != null) {
+                result += $"{(v.mutability.unused ? "@unused " : "")}";
+                result += $"{(v.mutability.mutated ? "@mutated " : "")}";
+                result += $"{(v.mutability.reassigned ? "@reass " : "")}";
+            }
+            result += $"{v.name}{(isProp ? "()" : "")}: {TSOverviewGenerator.type(v.type)}";
             if (v is VariableDeclaration || v is ForVariable || v is Field || v is MethodParameter) {
                 var init = (((IVariableWithInitializer)v)).initializer;
                 if (init != null)
@@ -54,7 +61,7 @@ namespace Utils
             return result;
         }
         
-        static public string expr(IExpression expr, bool previewOnly = false) {
+        public static string expr(IExpression expr, bool previewOnly = false) {
             var res = "UNKNOWN-EXPR";
             if (expr is NewExpression)
                 res = $"new {TSOverviewGenerator.type(((NewExpression)expr).cls)}({(previewOnly ? "..." : ((NewExpression)expr).args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
@@ -118,7 +125,7 @@ namespace Utils
                 res = $"{TSOverviewGenerator.expr(((UnaryExpression)expr).operand)}{((UnaryExpression)expr).operator_}";
             else if (expr is MapLiteral) {
                 var repr = ((MapLiteral)expr).items.map((MapLiteralItem item) => { return $"{item.key}: {TSOverviewGenerator.expr(item.value)}"; }).join(",\n");
-                res = "{L:M}" + (repr == "" ? "{}" : repr.includes("\n") ? $"{{\\n{TSOverviewGenerator.pad(repr)}\\n}}" : $"{{ {repr} }}");
+                res = "{L:M}" + (repr == "" ? "{}" : repr.includes("\n") ? $"{{\n{TSOverviewGenerator.pad(repr)}\n}}" : $"{{ {repr} }}");
             }
             else if (expr is NullLiteral)
                 res = $"null";
@@ -162,14 +169,14 @@ namespace Utils
             return res;
         }
         
-        static public string block(Block block, bool previewOnly = false, bool allowOneLiner = true) {
+        public static string block(Block block, bool previewOnly = false, bool allowOneLiner = true) {
             if (previewOnly)
                 return " { ... }";
             var stmtLen = block.statements.length();
-            return stmtLen == 0 ? " { }" : allowOneLiner && stmtLen == 1 ? $"\\n{TSOverviewGenerator.pad(TSOverviewGenerator.rawBlock(block))}" : $" {{\\n{TSOverviewGenerator.pad(TSOverviewGenerator.rawBlock(block))}\\n}}";
+            return stmtLen == 0 ? " { }" : allowOneLiner && stmtLen == 1 ? $"\n{TSOverviewGenerator.pad(TSOverviewGenerator.rawBlock(block))}" : $" {{\n{TSOverviewGenerator.pad(TSOverviewGenerator.rawBlock(block))}\n}}";
         }
         
-        static public string stmt(Statement stmt, bool previewOnly = false) {
+        public static string stmt(Statement stmt, bool previewOnly = false) {
             var res = "UNKNOWN-STATEMENT";
             if (stmt is BreakStatement)
                 res = "break;";
@@ -182,14 +189,14 @@ namespace Utils
             else if (stmt is ExpressionStatement)
                 res = $"{TSOverviewGenerator.expr(((ExpressionStatement)stmt).expression)};";
             else if (stmt is VariableDeclaration)
-                res = $"{(((VariableDeclaration)stmt).isMutable ? "let" : "const")} {TSOverviewGenerator.var(((VariableDeclaration)stmt))};";
+                res = $"var {TSOverviewGenerator.var(((VariableDeclaration)stmt))};";
             else if (stmt is ForeachStatement)
                 res = $"for (const {((ForeachStatement)stmt).itemVar.name} of {TSOverviewGenerator.expr(((ForeachStatement)stmt).items)})" + TSOverviewGenerator.block(((ForeachStatement)stmt).body, previewOnly);
             else if (stmt is IfStatement) {
                 var elseIf = ((IfStatement)stmt).else_ != null && ((IfStatement)stmt).else_.statements.length() == 1 && ((IfStatement)stmt).else_.statements.get(0) is IfStatement;
                 res = $"if ({TSOverviewGenerator.expr(((IfStatement)stmt).condition)}){TSOverviewGenerator.block(((IfStatement)stmt).then, previewOnly)}";
                 if (!previewOnly)
-                    res += (elseIf ? $"\\nelse {TSOverviewGenerator.stmt(((IfStatement)stmt).else_.statements.get(0))}" : "") + (!elseIf && ((IfStatement)stmt).else_ != null ? $"\\nelse" + TSOverviewGenerator.block(((IfStatement)stmt).else_) : "");
+                    res += (elseIf ? $"\nelse {TSOverviewGenerator.stmt(((IfStatement)stmt).else_.statements.get(0))}" : "") + (!elseIf && ((IfStatement)stmt).else_ != null ? $"\nelse" + TSOverviewGenerator.block(((IfStatement)stmt).else_) : "");
             }
             else if (stmt is WhileStatement)
                 res = $"while ({TSOverviewGenerator.expr(((WhileStatement)stmt).condition)})" + TSOverviewGenerator.block(((WhileStatement)stmt).body, previewOnly);
@@ -205,26 +212,26 @@ namespace Utils
             return previewOnly ? res : TSOverviewGenerator.leading(stmt) + res;
         }
         
-        static public string rawBlock(Block block) {
+        public static string rawBlock(Block block) {
             return block.statements.map((Statement stmt) => { return TSOverviewGenerator.stmt(stmt); }).join("\n");
         }
         
-        static public string methodBase(IMethodBase method, Type_ returns) {
+        public static string methodBase(IMethodBase method, Type_ returns) {
             if (method == null)
                 return "";
             var name = method is Method ? ((Method)method).name : method is Constructor ? "constructor" : method is GlobalFunction ? ((GlobalFunction)method).name : "???";
             var typeArgs = method is Method ? ((Method)method).typeArguments : null;
-            return TSOverviewGenerator.preIf("/* throws */ ", method.throws) + $"{name}{TSOverviewGenerator.typeArgs(typeArgs)}({method.parameters.map((MethodParameter p) => { return TSOverviewGenerator.var(p); }).join(", ")})" + (returns is VoidType ? "" : $": {TSOverviewGenerator.type(returns)}") + (method.body != null ? $" {{\\n{TSOverviewGenerator.pad(TSOverviewGenerator.rawBlock(method.body))}\\n}}" : ";");
+            return TSOverviewGenerator.preIf("/* throws */ ", method.throws) + $"{name}{TSOverviewGenerator.typeArgs(typeArgs)}({method.parameters.map((MethodParameter p) => { return TSOverviewGenerator.var(p); }).join(", ")})" + (returns is VoidType ? "" : $": {TSOverviewGenerator.type(returns)}") + (method.body != null ? $" {{\n{TSOverviewGenerator.pad(TSOverviewGenerator.rawBlock(method.body))}\n}}" : ";");
         }
         
-        static public string method(Method method) {
-            return method == null ? "" : $"{(method.isStatic ? "static " : "")}{(method.mutates ? "/* mutates */ " : "")}{TSOverviewGenerator.methodBase(method, method.returns)}";
+        public static string method(Method method) {
+            return method == null ? "" : $"{(method.isStatic ? "static " : "")}{(method.attributes.hasKey("mutates") ? "@mutates " : "")}{TSOverviewGenerator.methodBase(method, method.returns)}";
         }
         
-        static public string classLike(IInterface cls) {
-            var resList = new string[0];
+        public static string classLike(IInterface cls) {
+            var resList = new List<string>();
+            resList.push(cls.fields.map((Field field) => { return TSOverviewGenerator.var(field) + ";"; }).join("\n"));
             if (cls is Class) {
-                resList.push(((Class)cls).fields.map((Field field) => { return TSOverviewGenerator.var(field) + ";"; }).join("\n"));
                 resList.push(((Class)cls).properties.map((Property prop) => { return TSOverviewGenerator.var(prop) + ";"; }).join("\n"));
                 resList.push(TSOverviewGenerator.methodBase(((Class)cls).constructor_, VoidType.instance));
             }
@@ -232,15 +239,15 @@ namespace Utils
             return TSOverviewGenerator.pad(resList.filter((string x) => { return x != ""; }).join("\n\n"));
         }
         
-        static public string pad(string str) {
-            return str.split(new RegExp("n")).map((string x) => { return $"    {x}"; }).join("\n");
+        public static string pad(string str) {
+            return str.split(new RegExp("\\n")).map((string x) => { return $"    {x}"; }).join("\n");
         }
         
-        static public string imp(IImportable imp) {
+        public static string imp(IImportable imp) {
             return "" + (imp is UnresolvedImport ? "X" : imp is Class ? "C" : imp is Interface ? "I" : imp is Enum_ ? "E" : "???") + $":{imp.name}";
         }
         
-        static public string nodeRepr(IAstNode node) {
+        public static string nodeRepr(IAstNode node) {
             if (node is Statement)
                 return TSOverviewGenerator.stmt(((Statement)node), true);
             else if (node is Expression)
@@ -249,14 +256,14 @@ namespace Utils
                 return "/* TODO: missing */";
         }
         
-        static public string generate(SourceFile sourceFile) {
+        public static string generate(SourceFile sourceFile) {
             var imps = sourceFile.imports.map((Import imp) => { return (imp.importAll ? $"import * as {imp.importAs}" : $"import {{ {imp.imports.map((IImportable x) => { return TSOverviewGenerator.imp(x); }).join(", ")} }}") + $" from \"{imp.exportScope.packageName}{TSOverviewGenerator.pre("/", imp.exportScope.scopeName)}\";"; });
             var enums = sourceFile.enums.map((Enum_ enum_) => { return $"enum {enum_.name} {{ {enum_.values.map((EnumMember x) => { return x.name; }).join(", ")} }}"; });
-            var intfs = sourceFile.interfaces.map((Interface intf) => { return $"interface {intf.name}{TSOverviewGenerator.typeArgs(intf.typeArguments)}" + $"{TSOverviewGenerator.preArr(" extends ", intf.baseInterfaces.map((Type_ x) => { return TSOverviewGenerator.type(x); }))} {{\\n{TSOverviewGenerator.classLike(intf)}\\n}}"; });
-            var classes = sourceFile.classes.map((Class cls) => { return $"class {cls.name}{TSOverviewGenerator.typeArgs(cls.typeArguments)}" + TSOverviewGenerator.pre(" extends ", cls.baseClass != null ? TSOverviewGenerator.type(cls.baseClass) : null) + TSOverviewGenerator.preArr(" implements ", cls.baseInterfaces.map((Type_ x) => { return TSOverviewGenerator.type(x); })) + $" {{\\n{TSOverviewGenerator.classLike(cls)}\\n}}"; });
+            var intfs = sourceFile.interfaces.map((Interface intf) => { return $"interface {intf.name}{TSOverviewGenerator.typeArgs(intf.typeArguments)}" + $"{TSOverviewGenerator.preArr(" extends ", intf.baseInterfaces.map((Type_ x) => { return TSOverviewGenerator.type(x); }))} {{\n{TSOverviewGenerator.classLike(intf)}\n}}"; });
+            var classes = sourceFile.classes.map((Class cls) => { return $"class {cls.name}{TSOverviewGenerator.typeArgs(cls.typeArguments)}" + TSOverviewGenerator.pre(" extends ", cls.baseClass != null ? TSOverviewGenerator.type(cls.baseClass) : null) + TSOverviewGenerator.preArr(" implements ", cls.baseInterfaces.map((Type_ x) => { return TSOverviewGenerator.type(x); })) + $" {{\n{TSOverviewGenerator.classLike(cls)}\n}}"; });
             var funcs = sourceFile.funcs.map((GlobalFunction func) => { return $"function {func.name}{TSOverviewGenerator.methodBase(func, func.returns)}"; });
             var main = TSOverviewGenerator.rawBlock(sourceFile.mainBlock);
-            var result = $"// export scope: {sourceFile.exportScope.packageName}/{sourceFile.exportScope.scopeName}\\n" + new[] { imps.join("\n"), enums.join("\n"), intfs.join("\n\n"), classes.join("\n\n"), funcs.join("\n\n"), main }.filter((string x) => { return x != ""; }).join("\n\n");
+            var result = $"// export scope: {sourceFile.exportScope.packageName}/{sourceFile.exportScope.scopeName}\n" + new List<string> { imps.join("\n"), enums.join("\n"), intfs.join("\n\n"), classes.join("\n\n"), funcs.join("\n\n"), main }.filter((string x) => { return x != ""; }).join("\n\n");
             return result;
         }
     }

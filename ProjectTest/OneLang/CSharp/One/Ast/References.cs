@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using One.Ast;
 
 namespace One.Ast
@@ -14,10 +15,17 @@ namespace One.Ast
         
     }
     
+    public class VariableReference : Reference {
+        public virtual IVariable getVariable() {
+            throw new Error("Abstract method");
+        }
+    }
+    
     public class ClassReference : Reference {
         public Class decl;
         
-        public ClassReference(Class decl): base() {
+        public ClassReference(Class decl): base()
+        {
             this.decl = decl;
             decl.classReferences.push(this);
         }
@@ -30,7 +38,8 @@ namespace One.Ast
     public class GlobalFunctionReference : Reference, IGetMethodBase {
         public GlobalFunction decl;
         
-        public GlobalFunctionReference(GlobalFunction decl): base() {
+        public GlobalFunctionReference(GlobalFunction decl): base()
+        {
             this.decl = decl;
             decl.references.push(this);
         }
@@ -44,10 +53,11 @@ namespace One.Ast
         }
     }
     
-    public class MethodParameterReference : Reference {
+    public class MethodParameterReference : VariableReference {
         public MethodParameter decl;
         
-        public MethodParameterReference(MethodParameter decl): base() {
+        public MethodParameterReference(MethodParameter decl): base()
+        {
             this.decl = decl;
             decl.references.push(this);
         }
@@ -55,12 +65,17 @@ namespace One.Ast
         public override void setActualType(Type_ type, bool allowVoid, bool allowGeneric) {
             base.setActualType(type, false, this.decl.parentMethod is Lambda ? ((Lambda)this.decl.parentMethod).parameters.some((MethodParameter x) => { return Type_.isGeneric(x.type); }) : this.decl.parentMethod is Constructor ? ((Constructor)this.decl.parentMethod).parentClass.typeArguments.length() > 0 : this.decl.parentMethod is Method ? ((Method)this.decl.parentMethod).typeArguments.length() > 0 || ((Method)this.decl.parentMethod).parentInterface.typeArguments.length() > 0 : false);
         }
+        
+        public override IVariable getVariable() {
+            return this.decl;
+        }
     }
     
     public class EnumReference : Reference {
         public Enum_ decl;
         
-        public EnumReference(Enum_ decl): base() {
+        public EnumReference(Enum_ decl): base()
+        {
             this.decl = decl;
             decl.references.push(this);
         }
@@ -70,10 +85,11 @@ namespace One.Ast
         }
     }
     
-    public class EnumMemberReference : Expression {
+    public class EnumMemberReference : Reference {
         public EnumMember decl;
         
-        public EnumMemberReference(EnumMember decl): base() {
+        public EnumMemberReference(EnumMember decl): base()
+        {
             this.decl = decl;
             decl.references.push(this);
         }
@@ -88,7 +104,8 @@ namespace One.Ast
     public class StaticThisReference : Reference {
         public Class cls;
         
-        public StaticThisReference(Class cls): base() {
+        public StaticThisReference(Class cls): base()
+        {
             this.cls = cls;
             cls.staticThisReferences.push(this);
         }
@@ -101,7 +118,8 @@ namespace One.Ast
     public class ThisReference : Reference {
         public Class cls;
         
-        public ThisReference(Class cls): base() {
+        public ThisReference(Class cls): base()
+        {
             this.cls = cls;
             cls.thisReferences.push(this);
         }
@@ -116,7 +134,8 @@ namespace One.Ast
     public class SuperReference : Reference {
         public Class cls;
         
-        public SuperReference(Class cls): base() {
+        public SuperReference(Class cls): base()
+        {
             this.cls = cls;
             cls.superReferences.push(this);
         }
@@ -128,46 +147,67 @@ namespace One.Ast
         }
     }
     
-    public class VariableDeclarationReference : Reference {
+    public class VariableDeclarationReference : VariableReference {
         public VariableDeclaration decl;
         
-        public VariableDeclarationReference(VariableDeclaration decl): base() {
+        public VariableDeclarationReference(VariableDeclaration decl): base()
+        {
             this.decl = decl;
             decl.references.push(this);
         }
+        
+        public override IVariable getVariable() {
+            return this.decl;
+        }
     }
     
-    public class ForVariableReference : Reference {
+    public class ForVariableReference : VariableReference {
         public ForVariable decl;
         
-        public ForVariableReference(ForVariable decl): base() {
+        public ForVariableReference(ForVariable decl): base()
+        {
             this.decl = decl;
             decl.references.push(this);
         }
+        
+        public override IVariable getVariable() {
+            return this.decl;
+        }
     }
     
-    public class CatchVariableReference : Reference {
+    public class CatchVariableReference : VariableReference {
         public CatchVariable decl;
         
-        public CatchVariableReference(CatchVariable decl): base() {
+        public CatchVariableReference(CatchVariable decl): base()
+        {
             this.decl = decl;
             decl.references.push(this);
         }
+        
+        public override IVariable getVariable() {
+            return this.decl;
+        }
     }
     
-    public class ForeachVariableReference : Reference {
+    public class ForeachVariableReference : VariableReference {
         public ForeachVariable decl;
         
-        public ForeachVariableReference(ForeachVariable decl): base() {
+        public ForeachVariableReference(ForeachVariable decl): base()
+        {
             this.decl = decl;
             decl.references.push(this);
         }
+        
+        public override IVariable getVariable() {
+            return this.decl;
+        }
     }
     
-    public class StaticFieldReference : Reference {
+    public class StaticFieldReference : VariableReference {
         public Field decl;
         
-        public StaticFieldReference(Field decl): base() {
+        public StaticFieldReference(Field decl): base()
+        {
             this.decl = decl;
             decl.staticReferences.push(this);
         }
@@ -177,12 +217,17 @@ namespace One.Ast
                 throw new Error("StaticField's type cannot be Generic");
             base.setActualType(type);
         }
+        
+        public override IVariable getVariable() {
+            return this.decl;
+        }
     }
     
-    public class StaticPropertyReference : Reference {
+    public class StaticPropertyReference : VariableReference {
         public Property decl;
         
-        public StaticPropertyReference(Property decl): base() {
+        public StaticPropertyReference(Property decl): base()
+        {
             this.decl = decl;
             decl.staticReferences.push(this);
         }
@@ -192,27 +237,41 @@ namespace One.Ast
                 throw new Error("StaticProperty's type cannot be Generic");
             base.setActualType(type);
         }
+        
+        public override IVariable getVariable() {
+            return this.decl;
+        }
     }
     
-    public class InstanceFieldReference : Reference {
+    public class InstanceFieldReference : VariableReference {
         public Expression object_;
         public Field field;
         
-        public InstanceFieldReference(Expression object_, Field field): base() {
+        public InstanceFieldReference(Expression object_, Field field): base()
+        {
             this.object_ = object_;
             this.field = field;
             field.instanceReferences.push(this);
         }
+        
+        public override IVariable getVariable() {
+            return this.field;
+        }
     }
     
-    public class InstancePropertyReference : Reference {
+    public class InstancePropertyReference : VariableReference {
         public Expression object_;
         public Property property;
         
-        public InstancePropertyReference(Expression object_, Property property): base() {
+        public InstancePropertyReference(Expression object_, Property property): base()
+        {
             this.object_ = object_;
             this.property = property;
             property.instanceReferences.push(this);
+        }
+        
+        public override IVariable getVariable() {
+            return this.property;
         }
     }
 }

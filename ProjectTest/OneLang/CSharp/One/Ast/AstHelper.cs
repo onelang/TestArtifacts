@@ -1,11 +1,12 @@
+using System.Collections.Generic;
 using One.Ast;
 
 namespace One.Ast
 {
     public class AstHelper {
-        static public IInterface[] collectAllBaseInterfaces(IInterface intf) {
+        public static IInterface[] collectAllBaseInterfaces(IInterface intf) {
             var result = new Set<IInterface>();
-            var toBeProcessed = new[] { intf };
+            var toBeProcessed = new List<IInterface> { intf };
             
             while (toBeProcessed.length() > 0) {
                 var curr = toBeProcessed.pop();

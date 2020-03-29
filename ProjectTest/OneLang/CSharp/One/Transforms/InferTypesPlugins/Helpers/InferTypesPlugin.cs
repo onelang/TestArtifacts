@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using One;
@@ -12,9 +13,10 @@ namespace One.Transforms.InferTypesPlugins.Helpers
         public ErrorManager errorMan;
         public string name;
         
-        public InferTypesPlugin(string name) {
-            this.errorMan = null;
+        public InferTypesPlugin(string name)
+        {
             this.name = name;
+            this.errorMan = null;
         }
         
         public virtual bool canTransform(Expression expr) {

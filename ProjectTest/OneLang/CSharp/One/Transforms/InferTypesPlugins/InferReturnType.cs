@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using One.Transforms.InferTypesPlugins.Helpers;
@@ -10,12 +11,13 @@ namespace One.Transforms.InferTypesPlugins
     public class ReturnTypeInferer {
         public bool returnsNull = false;
         public bool throws = false;
-        public Type_[] returnTypes;
+        public List<Type_> returnTypes;
         public ErrorManager errorMan;
         
-        public ReturnTypeInferer(ErrorManager errorMan) {
-            this.returnTypes = new Type_[0];
+        public ReturnTypeInferer(ErrorManager errorMan)
+        {
             this.errorMan = errorMan;
+            this.returnTypes = new List<Type_>();
         }
         
         public void addReturn(Expression returnValue) {
@@ -35,16 +37,18 @@ namespace One.Transforms.InferTypesPlugins
         public Type_ finish(Type_ declaredType, string errorContext, ClassType asyncType) {
             Type_ inferredType = null;
             
-            if (this.returnTypes.length() == 0)
+            if (this.returnTypes.length() == 0) {
                 if (this.throws)
                     inferredType = declaredType ?? VoidType.instance;
-                else if (this.returnsNull)
+                else if (this.returnsNull) {
                     if (declaredType != null)
                         inferredType = declaredType;
                     else
                         this.errorMan.throw_($"{errorContext} returns only null and it has no declared return type!");
+                }
                 else
                     inferredType = VoidType.instance;
+            }
             else if (this.returnTypes.length() == 1)
                 inferredType = this.returnTypes.get(0);
             else if (declaredType != null && this.returnTypes.every((Type_ x, int i) => { return Type_.isAssignableTo(x, declaredType); }))
@@ -67,7 +71,7 @@ namespace One.Transforms.InferTypesPlugins
     }
     
     public class InferReturnType : InferTypesPlugin {
-        public ReturnTypeInferer[] returnTypeInfer;
+        public List<ReturnTypeInferer> returnTypeInfer;
         
         public ReturnTypeInferer current {
             get {
@@ -76,8 +80,9 @@ namespace One.Transforms.InferTypesPlugins
             }
         }
         
-        public InferReturnType(): base("InferReturnType") {
-            this.returnTypeInfer = new ReturnTypeInferer[0];
+        public InferReturnType(): base("InferReturnType")
+        {
+            this.returnTypeInfer = new List<ReturnTypeInferer>();
         }
         
         public void start() {

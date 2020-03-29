@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using One;
@@ -7,7 +8,8 @@ using One.Ast;
 namespace One.Transforms
 {
     public class ResolveUnresolvedTypes : AstTransformer {
-        public ResolveUnresolvedTypes(): base("ResolveUnresolvedTypes") {
+        public ResolveUnresolvedTypes(): base("ResolveUnresolvedTypes")
+        {
             
         }
         

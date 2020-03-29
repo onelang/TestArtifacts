@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using One.Ast;
@@ -6,7 +7,7 @@ using One.Ast;
 namespace One.Transforms
 {
     public class ResolveImports {
-        static public void processWorkspace(Workspace ws) {
+        public static void processWorkspace(Workspace ws) {
             foreach (var pkg in Object.values(ws.packages))
                 foreach (var file in Object.values(pkg.files))
                     foreach (var imp in file.imports) {

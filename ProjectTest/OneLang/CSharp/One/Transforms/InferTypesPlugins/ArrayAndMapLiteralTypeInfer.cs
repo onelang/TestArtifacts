@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using One.Transforms.InferTypesPlugins.Helpers;
@@ -7,20 +8,22 @@ using One.Ast;
 namespace One.Transforms.InferTypesPlugins
 {
     public class ArrayAndMapLiteralTypeInfer : InferTypesPlugin {
-        public ArrayAndMapLiteralTypeInfer(): base("ArrayAndMapLiteralTypeInfer") {
+        public ArrayAndMapLiteralTypeInfer(): base("ArrayAndMapLiteralTypeInfer")
+        {
             
         }
         
         protected Type_ inferArrayOrMapItemType(Expression[] items, Type_ expectedType, bool isMap) {
-            var itemTypes = new Type_[0];
-            foreach (var item in items)
+            var itemTypes = new List<Type_>();
+            foreach (var item in items) {
                 if (!itemTypes.some((Type_ t) => { return Type_.equals(t, item.getType()); }))
                     itemTypes.push(item.getType());
+            }
             
             var literalType = isMap ? this.main.currentFile.literalTypes.map : this.main.currentFile.literalTypes.array;
             
             Type_ itemType = null;
-            if (itemTypes.length() == 0)
+            if (itemTypes.length() == 0) {
                 if (expectedType == null) {
                     this.errorMan.warn($"Could not determine the type of an empty {(isMap ? "MapLiteral" : "ArrayLiteral")}, using AnyType instead");
                     itemType = AnyType.instance;
@@ -29,6 +32,7 @@ namespace One.Transforms.InferTypesPlugins
                     itemType = ((ClassType)expectedType).typeArguments.get(0);
                 else
                     itemType = AnyType.instance;
+            }
             else if (itemTypes.length() == 1)
                 itemType = itemTypes.get(0);
             else if (!(expectedType is AnyType)) {
@@ -53,11 +57,11 @@ namespace One.Transforms.InferTypesPlugins
             
             if (expr is ArrayLiteral) {
                 var itemType = this.inferArrayOrMapItemType(((ArrayLiteral)expr).items, ((ArrayLiteral)expr).expectedType, false);
-                ((ArrayLiteral)expr).setActualType(new ClassType(this.main.currentFile.literalTypes.array.decl, new[] { itemType }));
+                ((ArrayLiteral)expr).setActualType(new ClassType(this.main.currentFile.literalTypes.array.decl, new Type_[] { itemType }));
             }
             else if (expr is MapLiteral) {
                 var itemType = this.inferArrayOrMapItemType(((MapLiteral)expr).items.map((MapLiteralItem x) => { return x.value; }), ((MapLiteral)expr).expectedType, true);
-                ((MapLiteral)expr).setActualType(new ClassType(this.main.currentFile.literalTypes.map.decl, new[] { itemType }));
+                ((MapLiteral)expr).setActualType(new ClassType(this.main.currentFile.literalTypes.map.decl, new Type_[] { itemType }));
             }
             
             return true;

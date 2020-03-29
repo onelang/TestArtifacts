@@ -1,35 +1,46 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using StdLib;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 public class Error : Exception {
     public Error() { }
-    public Error(string msg) { }
+    public Error(string msg): base(msg) { }
     public static int stackTraceLimit = 0;
     public string stack;
 }
 
 public static class console {
     public static void log(string msg) {
-        throw new NotImplementedException();
+        Console.WriteLine(msg);
     }
 
     public static void error(string msg) {
-        throw new NotImplementedException();
+        var oldColor = Console.ForegroundColor;
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(msg);
+        Console.ForegroundColor = oldColor;
     }
 }
 
 public static class Global {
     public static int parseInt(string str) {
-        throw new NotImplementedException();
+        return int.Parse(str);
     }
 
     public static async Task<object> import(string moduleName) {
-        if (moduleName == "fs") return new Fs();
-        else if (moduleName == "glob") return new Glob();
-        else if (moduleName == "path") return new Path();
+        if (moduleName == "fs") return await Task.FromResult(new Fs());
+        else if (moduleName == "glob") return await Task.FromResult(new Glob());
+        else if (moduleName == "path") return await Task.FromResult(new Path());
         throw new NotImplementedException();
     }
 }
@@ -47,134 +58,163 @@ public class Promise {
 }
 
 public class YAML {
-    public static object safeLoad(string str) {
-        throw new NotImplementedException();
+    public static T safeLoad<T>(string str) {
+        return new DeserializerBuilder()
+            .WithNamingConvention(HyphenatedNamingConvention.Instance)
+            .IgnoreUnmatchedProperties()
+            .Build()
+            .Deserialize<T>(new StringReader(str));
     }
 }
 
 public class Glob {
     public string[] sync(string dir, object config) {
-        throw new NotImplementedException();
+        if (dir.EndsWith(dir)) {
+            var baseDir = dir.Replace("/**/*", "");
+            return Directory.GetFiles(baseDir, "*", SearchOption.AllDirectories).Where(x => x.Replace(baseDir, "").Contains("/")).ToArray();
+        } else {
+            throw new NotImplementedException();
+        }
     }
 }
 
 public class Path {
     public string relative(string dir, string fn) {
+        if (fn.StartsWith(dir))
+            return fn.Substring(dir.Length);
         throw new NotImplementedException();
     }
 }
 
 public class Fs {
     public string readFileSync(string fn, string encoding) {
-        throw new NotImplementedException();
+        if (encoding != "utf-8")
+            throw new NotImplementedException();
+        return File.ReadAllText(fn);
     }
 }
 
 public class Set<T>: IEnumerable<T>
 {
-    public Set() {}
-    public Set(T[] items) {
-        throw new NotImplementedException();
+    HashSet<T> items;
+
+    public Set() {
+        items = new HashSet<T>();
+    }
+
+    public Set(IEnumerable<T> items) {
+        this.items = new HashSet<T>(items);
     }
 
     public void add(T item) {
-        throw new NotImplementedException();
+        items.Add(item);
     }
 
     public T[] values() {
-        throw new NotImplementedException();
+        return items.ToArray();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-        throw new NotImplementedException();
+        return items.GetEnumerator();
     }
 
     public IEnumerator<T> GetEnumerator()
     {
-        throw new NotImplementedException();
+        return items.GetEnumerator();
     }
 }
 
 public class Map<TKey, TValue> {
-    public TValue get(TKey key) {
-        throw new NotImplementedException();
+    Dictionary<TKey, TValue> items = new Dictionary<TKey, TValue>();
+
+    public TValue get(TKey key)
+    {
+        return items.GetValueOrDefault(key);
     }
 
-    public void set(TKey key, TValue value) {
-        throw new NotImplementedException();
+    public void set(TKey key, TValue value)
+    {
+        items[key] = value;
     }
 
-    public void delete(TKey key) {
-        throw new NotImplementedException();
+    public void delete(TKey key)
+    {
+        items.Remove(key);
     }
 
-    public bool has(TKey key) {
-        throw new NotImplementedException();
+    public bool has(TKey key)
+    {
+        return items.ContainsKey(key);
     }
 
-    public TValue[] values() {
-        throw new NotImplementedException();
+    public TValue[] values()
+    {
+        return items.Values.ToArray();
     }
 }
 
 public static class Object {
     public static string[] keys<TValue>(Dictionary<string, TValue> dict) {
-        throw new NotImplementedException();
+        return dict.Select(x => x.Key).ToArray();
     }
 
     public static TValue[] values<TValue>(Dictionary<string, TValue> dict) {
-        throw new NotImplementedException();
+        return dict.Select(x => x.Value).ToArray();
     }
 }
 
 public static class JSON {
     public static string stringify(object obj) {
-        throw new NotImplementedException();
+        return JsonConvert.SerializeObject(obj);
     }
 }
 
 public static class Array {
-    public static T[] from<T>(T[] obj) {
-        return obj;
+    public static T[] from<T>(IEnumerable<T> obj) {
+        return obj.ToArray();
     }
 }
 
 public class RegExp {
+    public string pattern;
+    public string modifiers;
     public int lastIndex;
+    public Match lastMatch;
 
-    public RegExp(string pattern) {
-        throw new NotImplementedException();
-    }
+    public RegExp(string pattern): this(pattern, null) { }
 
     public RegExp(string pattern, string modifiers) {
-        throw new NotImplementedException();
+        this.pattern = pattern;
+        this.modifiers = modifiers;
     }
 
     public string[] exec(string data) {
-        throw new NotImplementedException();
+        this.lastMatch = this.lastMatch == null ? new Regex($"\\G(?:{this.pattern})").Match(data, this.lastIndex) : lastMatch.NextMatch();
+        return this.lastMatch.Success ? this.lastMatch.Groups.Cast<Group>().Select(x => x.Value).ToArray() : null;
     }
 }
 
 public static class ExtensionMethods {
     public static bool startsWith(this string str, string v) {
-        throw new NotImplementedException();
+        return str.StartsWith(v);
     }
     
     public static bool endsWith(this string str, string v) {
-        throw new NotImplementedException();
+        return str.EndsWith(v);
     }
 
     public static string substr(this string str, int offs, int len) {
-        throw new NotImplementedException();
+        return str.Substring(offs, len);
     }
 
     public static string substr(this string str, int offs) {
-        throw new NotImplementedException();
+        if (offs >= str.Length) return "";
+        return str.Substring(offs);
     }
 
-    public static string substring(this string str, int offs, int len) {
-        throw new NotImplementedException();
+    public static string substring(this string str, int offs, int end) {
+        return str.Substring(offs, end - offs);
     }
 
     public static int length(this string str) {
@@ -182,7 +222,7 @@ public static class ExtensionMethods {
     }
 
     public static bool includes(this string str, string substr) {
-        throw new NotImplementedException();
+        return str.Contains(substr);
     }
 
     public static string replace(this string str, string from, string to) {
@@ -190,43 +230,59 @@ public static class ExtensionMethods {
     }
 
     public static string replace(this string str, RegExp from, string to) {
-        throw new NotImplementedException();
+        return Regex.Replace(str, from.pattern, to);
+    }
+
+    public static T2[] map<T, T2>(this List<T> items, Func<T, T2> converter) {
+        return items.Select(converter).ToArray();
     }
 
     public static T2[] map<T, T2>(this T[] items, Func<T, T2> converter) {
         return items.Select(converter).ToArray();
     }
 
-    public static T find<T>(this T[] items, Func<T, bool> filter) {
+    public static T find<T>(this IEnumerable<T> items, Func<T, bool> filter) {
         return items.FirstOrDefault(filter);
     }
 
-    public static T[] filter<T>(this T[] items, Func<T, bool> filter) {
+    public static T[] filter<T>(this IEnumerable<T> items, Func<T, bool> filter) {
         return items.Where(filter).ToArray();
     }
 
-    public static bool some<T>(this T[] items, Func<T, bool> filter) {
+    public static bool some<T>(this IEnumerable<T> items, Func<T, bool> filter) {
         return items.Any(filter);
     }
 
-    public static bool every<T>(this T[] items, Func<T, int, bool> filter) {
-        return items.Where((x, i) => !filter(x, i)).Any();
+    public static bool every<T>(this IEnumerable<T> items, Func<T, int, bool> filter) {
+        return !items.Where((x, i) => !filter(x, i)).Any();
     }
 
     public static string join(this string[] items, string separator) {
         return String.Join(separator, items);
     }
 
+    public static string join(this List<string> items, string separator) {
+        return String.Join(separator, items);
+    }
+
+    public static T get<T>(this List<T> items, int idx){
+        return items[idx];
+    }
+
     public static T get<T>(this T[] items, int idx){
         return items[idx];
+    }
+
+    public static void set<T>(this List<T> items, int idx, T value){
+        items[idx] = value;
     }
 
     public static void set<T>(this T[] items, int idx, T value){
         items[idx] = value;
     }
 
-    public static void push<T>(this T[] items, T newItem){
-        throw new NotImplementedException();
+    public static void push<T>(this List<T> items, T newItem){
+        items.Add(newItem);
     }
 
     public static string get(this string str, int idx){
@@ -234,7 +290,15 @@ public static class ExtensionMethods {
     }
 
     public static bool startsWith(this string str, string substr, int idx) {
-        throw new NotImplementedException();
+        return String.Compare(str, idx, substr, 0, substr.Length) == 0;
+    }
+
+    public static string toUpperCase(this string str) {
+        return str.ToUpper();
+    }
+
+    public static int length<T>(this List<T> array) {
+        return array.Count;
     }
 
     public static int length<T>(this T[] array) {
@@ -242,59 +306,81 @@ public static class ExtensionMethods {
     }
 
     public static string repeat(this string str, int count) {
-        throw new NotImplementedException();
+        var sb = new StringBuilder(str.Length * count);
+        for (int i = 0; i < count; i++)
+            sb.Append(str);
+        return sb.ToString();
     }
 
-    public static T shift<T>(this T[] items) {
-        throw new NotImplementedException();
+    public static T shift<T>(this List<T> items) {
+        var result = items[0];
+        items.RemoveAt(0);
+        return result;
     }
 
     public static TValue get<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) {
-        return dict[key];
+        return dict.GetValueOrDefault(key);
     }
 
     public static void set<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue value) {
         dict[key] = value;
     }
 
-    public static T pop<T>(this T[] items) {
-        throw new NotImplementedException();
+    public static T pop<T>(this List<T> items) {
+        var idx = items.Count - 1;
+        var result = items[idx];
+        items.RemoveAt(idx);
+        return result;
     }
 
-    public static bool includes<T>(this T[] items, T item) {
-        throw new NotImplementedException();
+    public static bool includes<T>(this List<T> items, T item) {
+        return items.IndexOf(item) !=  -1;
     }
 
-    public static string[] split(this string str, string separator) {
-        throw new NotImplementedException();
+    public static bool includes<T>(this T[] items, T item) where T: class {
+        return items.Any(x => Object.Equals(x, item));
     }
 
-    public static string[] split(this string str, RegExp separator) {
-        throw new NotImplementedException();
+    public static List<string> split(this string str, RegExp separator) {
+        return new Regex(separator.pattern).Split(str).ToList();
     }
 
-    public static T[] concat<T>(this T[] items, T[] otherItems) {
-        throw new NotImplementedException();
+    public static T[] concat<T>(this IEnumerable<T> items, IEnumerable<T> otherItems) {
+        return items.Concat(otherItems).ToArray();
     }
 
-    public static void splice<T>(this T[] items, int offset, int count) {
-        throw new NotImplementedException();
+    public static void splice<T>(this List<T> items, int offset, int count) {
+        items.RemoveRange(offset, count);
     }
 
-    public static T[] sort<T>(this T[] items, Func<T, T, int> comparer) {
-        throw new NotImplementedException();
+    class LambdaComparer<T> : IComparer<T>
+    {
+        public readonly Func<T, T, int> Comparer;
+
+        public LambdaComparer(Func<T, T, int> comparer) {
+            Comparer = comparer;
+        }
+
+        public int Compare(T x, T y)
+        {
+            return this.Comparer(x, y);
+        }
     }
 
-    public static bool hasKey<TKey, TValue>(this Dictionary<TKey, TValue> dict, string key) {
-        throw new NotImplementedException();
+    public static T[] sort<T>(this IEnumerable<T> items, Func<T, T, int> comparer) {
+        return items.OrderBy(x => x, new LambdaComparer<T>(comparer)).ToArray();
+    }
+
+    public static bool hasKey<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) {
+        return dict.ContainsKey(key);
     }
 
     public static int indexOf(this string str, string substr, int offset) {
-        throw new NotImplementedException();
+        return str.IndexOf(substr, offset);
     }
 
     public static int lastIndexOf(this string str, string substr, int offset) {
-        throw new NotImplementedException();
+        return str.LastIndexOf(substr, offset);
     }
 
     public static int charCodeAt(this string str, int offset) {

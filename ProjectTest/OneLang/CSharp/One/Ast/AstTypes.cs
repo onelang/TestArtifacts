@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using One.Ast;
 
 namespace One.Ast
@@ -17,7 +18,7 @@ namespace One.Ast
     }
     
     public class Type_ : IType {
-        static public bool isGeneric(Type_ type) {
+        public static bool isGeneric(Type_ type) {
             if (type is GenericsType)
                 return true;
             else if (type is ClassType)
@@ -30,7 +31,7 @@ namespace One.Ast
                 return false;
         }
         
-        static public bool equals(Type_ type1, Type_ type2) {
+        public static bool equals(Type_ type1, Type_ type2) {
             if (type1 == null || type2 == null)
                 throw new Error("Type is missing!");
             if (type1 is VoidType && type2 is VoidType)
@@ -50,7 +51,7 @@ namespace One.Ast
             return false;
         }
         
-        static public bool isAssignableTo(Type_ toBeAssigned, Type_ whereTo) {
+        public static bool isAssignableTo(Type_ toBeAssigned, Type_ whereTo) {
             // AnyType can assigned to any type except to void
             if (toBeAssigned is AnyType && !(whereTo is VoidType))
                 return true;
@@ -71,7 +72,7 @@ namespace One.Ast
             if (toBeAssigned is ClassType && whereTo is ClassType)
                 return (((ClassType)toBeAssigned).decl.baseClass != null && Type_.isAssignableTo(((ClassType)toBeAssigned).decl.baseClass, ((ClassType)whereTo))) || ((ClassType)toBeAssigned).decl == ((ClassType)whereTo).decl && ((ClassType)toBeAssigned).typeArguments.every((Type_ x, int i) => { return Type_.isAssignableTo(x, ((ClassType)whereTo).typeArguments.get(i)); });
             if (toBeAssigned is ClassType && whereTo is InterfaceType)
-                return ((ClassType)toBeAssigned).decl.baseInterfaces.some((Type_ x) => { return Type_.isAssignableTo(x, ((InterfaceType)whereTo)); });
+                return (((ClassType)toBeAssigned).decl.baseClass != null && Type_.isAssignableTo(((ClassType)toBeAssigned).decl.baseClass, ((InterfaceType)whereTo))) || ((ClassType)toBeAssigned).decl.baseInterfaces.some((Type_ x) => { return Type_.isAssignableTo(x, ((InterfaceType)whereTo)); });
             if (toBeAssigned is InterfaceType && whereTo is InterfaceType)
                 return ((InterfaceType)toBeAssigned).decl.baseInterfaces.some((Type_ x) => { return Type_.isAssignableTo(x, ((InterfaceType)whereTo)); }) || ((InterfaceType)toBeAssigned).decl == ((InterfaceType)whereTo).decl && ((InterfaceType)toBeAssigned).typeArguments.every((Type_ x, int i) => { return Type_.isAssignableTo(x, ((InterfaceType)whereTo).typeArguments.get(i)); });
             if (toBeAssigned is LambdaType && whereTo is LambdaType)
@@ -86,7 +87,7 @@ namespace One.Ast
     }
     
     public class TypeHelper {
-        static public string argsRepr(Type_[] args) {
+        public static string argsRepr(Type_[] args) {
             return args.length() == 0 ? "" : $"<{args.map((Type_ x) => { return x.repr(); }).join(", ")}>";
         }
     }
@@ -98,6 +99,11 @@ namespace One.Ast
     public class VoidType : PrimitiveType {
         public static VoidType instance;
         
+        static VoidType()
+        {
+            VoidType.instance = new VoidType();
+        }
+        
         public override string repr() {
             return "Void";
         }
@@ -105,6 +111,11 @@ namespace One.Ast
     
     public class AnyType : PrimitiveType {
         public static AnyType instance;
+        
+        static AnyType()
+        {
+            AnyType.instance = new AnyType();
+        }
         
         public override string repr() {
             return "Any";
@@ -114,6 +125,11 @@ namespace One.Ast
     public class NullType : PrimitiveType {
         public static NullType instance;
         
+        static NullType()
+        {
+            NullType.instance = new NullType();
+        }
+        
         public override string repr() {
             return "Null";
         }
@@ -122,7 +138,8 @@ namespace One.Ast
     public class GenericsType : Type_ {
         public string typeVarName;
         
-        public GenericsType(string typeVarName): base() {
+        public GenericsType(string typeVarName): base()
+        {
             this.typeVarName = typeVarName;
         }
         
@@ -134,7 +151,8 @@ namespace One.Ast
     public class EnumType : Type_ {
         public Enum_ decl;
         
-        public EnumType(Enum_ decl): base() {
+        public EnumType(Enum_ decl): base()
+        {
             this.decl = decl;
         }
         
@@ -147,7 +165,8 @@ namespace One.Ast
         public Interface decl;
         public Type_[] typeArguments { get; set; }
         
-        public InterfaceType(Interface decl, Type_[] typeArguments): base() {
+        public InterfaceType(Interface decl, Type_[] typeArguments): base()
+        {
             this.decl = decl;
             this.typeArguments = typeArguments;
         }
@@ -165,7 +184,8 @@ namespace One.Ast
         public Class decl;
         public Type_[] typeArguments { get; set; }
         
-        public ClassType(Class decl, Type_[] typeArguments): base() {
+        public ClassType(Class decl, Type_[] typeArguments): base()
+        {
             this.decl = decl;
             this.typeArguments = typeArguments;
         }
@@ -183,7 +203,8 @@ namespace One.Ast
         public string typeName;
         public Type_[] typeArguments { get; set; }
         
-        public UnresolvedType(string typeName, Type_[] typeArguments): base() {
+        public UnresolvedType(string typeName, Type_[] typeArguments): base()
+        {
             this.typeName = typeName;
             this.typeArguments = typeArguments;
         }
@@ -197,7 +218,8 @@ namespace One.Ast
         public MethodParameter[] parameters;
         public Type_ returnType;
         
-        public LambdaType(MethodParameter[] parameters, Type_ returnType): base() {
+        public LambdaType(MethodParameter[] parameters, Type_ returnType): base()
+        {
             this.parameters = parameters;
             this.returnType = returnType;
             if (returnType == null) { }

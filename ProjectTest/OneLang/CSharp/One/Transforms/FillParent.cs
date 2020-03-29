@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using One.Ast;
 using One;
@@ -6,10 +7,11 @@ using One;
 namespace One.Transforms
 {
     public class FillParent : AstTransformer {
-        public IAstNode[] parentNodeStack;
+        public List<IAstNode> parentNodeStack;
         
-        public FillParent(): base("FillParent") {
-            this.parentNodeStack = new IAstNode[0];
+        public FillParent(): base("FillParent")
+        {
+            this.parentNodeStack = new List<IAstNode>();
         }
         
         protected override Expression visitExpression(Expression expr) {

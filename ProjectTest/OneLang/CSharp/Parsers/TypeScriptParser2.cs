@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using Parsers.Common;
@@ -10,7 +11,8 @@ namespace Parsers
         public Type_ type;
         public Expression init;
         
-        public TypeAndInit(Type_ type, Expression init) {
+        public TypeAndInit(Type_ type, Expression init)
+        {
             this.type = type;
             this.init = init;
         }
@@ -23,7 +25,8 @@ namespace Parsers
         public Type_ returns;
         public Expression[] superCallArgs;
         
-        public MethodSignature(MethodParameter[] params_, Field[] fields, Block body, Type_ returns, Expression[] superCallArgs) {
+        public MethodSignature(MethodParameter[] params_, Field[] fields, Block body, Type_ returns, Expression[] superCallArgs)
+        {
             this.params_ = params_;
             this.fields = fields;
             this.body = body;
@@ -33,7 +36,7 @@ namespace Parsers
     }
     
     public class TypeScriptParser2 : IParser, IExpressionParserHooks, IReaderHooks {
-        public string[] context;
+        public List<string> context;
         public Reader reader;
         public ExpressionParser expressionParser;
         public NodeManager nodeManager { get; set; }
@@ -41,9 +44,10 @@ namespace Parsers
         public bool missingReturnTypeIsVoid = false;
         public SourcePath path;
         
-        public TypeScriptParser2(string source, SourcePath path = null) {
-            this.context = new string[0];
+        public TypeScriptParser2(string source, SourcePath path = null)
+        {
             this.path = path;
+            this.context = new List<string>();
             this.reader = new Reader(source);
             this.reader.hooks = this;
             this.nodeManager = new NodeManager(this.reader);
@@ -59,7 +63,7 @@ namespace Parsers
         }
         
         public void errorCallback(ParseError error) {
-            throw new Error($"[TypeScriptParser] {error.message} at {error.cursor.line}:{error.cursor.column} (context: {this.context.join("/")})\\n{this.reader.linePreview(error.cursor)}");
+            throw new Error($"[TypeScriptParser] {error.message} at {error.cursor.line}:{error.cursor.column} (context: {this.context.join("/")})\n{this.reader.linePreview(error.cursor)}");
         }
         
         public Expression infixPrehook(Expression left) {
@@ -75,7 +79,7 @@ namespace Parsers
             }
             else if (left is Identifier && this.reader.readToken("=>")) {
                 var block = this.parseLambdaBlock();
-                return new Lambda(new[] { new MethodParameter(((Identifier)left).text, null, null) }, block);
+                return new Lambda(new MethodParameter[] { new MethodParameter(((Identifier)left).text, null, null) }, block);
             }
             return null;
         }
@@ -84,7 +88,7 @@ namespace Parsers
             if (!this.reader.readToken("("))
                 return null;
             
-            var params_ = new MethodParameter[0];
+            var params_ = new List<MethodParameter>();
             if (!this.reader.readToken(")")) {
                 do {
                     var paramName = this.reader.expectIdentifier();
@@ -93,7 +97,7 @@ namespace Parsers
                 } while (this.reader.readToken(","));
                 this.reader.expectToken(")");
             }
-            return params_;
+            return params_.ToArray();
         }
         
         public Type_ parseType() {
@@ -107,7 +111,7 @@ namespace Parsers
                 var mapValueType = this.parseType();
                 this.reader.readToken(";");
                 this.reader.expectToken("}");
-                return new UnresolvedType("TsMap", new[] { mapValueType });
+                return new UnresolvedType("TsMap", new Type_[] { mapValueType });
             }
             
             if (this.reader.peekToken("(")) {
@@ -139,7 +143,7 @@ namespace Parsers
             this.nodeManager.addNode(type, startPos);
             
             while (this.reader.readToken("[]")) {
-                type = new UnresolvedType("TsArray", new[] { type });
+                type = new UnresolvedType("TsArray", new Type_[] { type });
                 this.nodeManager.addNode(type, startPos);
             }
             
@@ -158,13 +162,16 @@ namespace Parsers
             else if (this.reader.readToken("false"))
                 return new BooleanLiteral(false);
             else if (this.reader.readToken("`")) {
-                var parts = new TemplateStringPart[0];
+                var parts = new List<TemplateStringPart>();
                 while (true) {
                     var litMatch = this.reader.readRegex("([^$`]|\\$[^{]|\\\\${|\\\\`)*").get(0);
-                    litMatch = litMatch.replace(new RegExp("\\\""), "\"");
-                    litMatch = litMatch.replace(new RegExp("\\`"), "`");
-                    litMatch = litMatch.replace(new RegExp("\\$"), "$");
-                    litMatch = litMatch.replace(new RegExp("\\\\"), "\\");
+                    litMatch = litMatch.replace(new RegExp("\\\\\""), "\"");
+                    litMatch = litMatch.replace(new RegExp("\\\\n"), "\n");
+                    litMatch = litMatch.replace(new RegExp("\\\\r"), "\r");
+                    litMatch = litMatch.replace(new RegExp("\\\\t"), "\t");
+                    litMatch = litMatch.replace(new RegExp("\\\\`"), "`");
+                    litMatch = litMatch.replace(new RegExp("\\\\$"), "$");
+                    litMatch = litMatch.replace(new RegExp("\\\\\\\\"), "\\");
                     parts.push(TemplateStringPart.Literal(litMatch));
                     if (this.reader.readToken("`"))
                         break;
@@ -175,7 +182,7 @@ namespace Parsers
                         this.reader.expectToken("}");
                     }
                 }
-                return new TemplateString(parts);
+                return new TemplateString(parts.ToArray());
             }
             else if (this.reader.readToken("new")) {
                 var type = this.parseType();
@@ -195,9 +202,9 @@ namespace Parsers
             }
             else if (this.reader.readToken("/")) {
                 var pattern = this.reader.readRegex("((?<![\\\\])[\\\\]/|[^/])+").get(0);
-                pattern = pattern.replace(new RegExp("\\(.)"), "$1");
+                //pattern = pattern.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\r/g, "\r").replace(/\\\\/g, "\\");
                 this.reader.expectToken("/");
-                var modifiers = this.reader.readModifiers(new[] { "g", "i" });
+                var modifiers = this.reader.readModifiers(new string[] { "g", "i" });
                 return new RegexLiteral(pattern, modifiers.includes("i"), modifiers.includes("g"));
             }
             else if (this.reader.readToken("typeof")) {
@@ -253,7 +260,7 @@ namespace Parsers
             var returnExpr = this.parseExpression();
             if (returnExpr is ParenthesizedExpression)
                 returnExpr = ((ParenthesizedExpression)returnExpr).expression;
-            return new Block(new[] { new ReturnStatement(returnExpr) });
+            return new Block(new ReturnStatement[] { new ReturnStatement(returnExpr) });
         }
         
         public TypeAndInit parseTypeAndInit() {
@@ -271,8 +278,11 @@ namespace Parsers
             if (block != null)
                 return block;
             
+            var stmts = new List<Statement>();
             var stmt = this.expectStatement();
-            return new Block(stmt == null ? ((Statement[])new Statement[0]) : new[] { stmt });
+            if (stmt != null)
+                stmts.push(stmt);
+            return new Block(stmts.ToArray());
         }
         
         public Statement expectStatement() {
@@ -319,7 +329,7 @@ namespace Parsers
             else if (this.reader.readToken("for")) {
                 requiresClosing = false;
                 this.reader.expectToken("(");
-                var varDeclMod = this.reader.readAnyOf(new[] { "const", "let", "var" });
+                var varDeclMod = this.reader.readAnyOf(new string[] { "const", "let", "var" });
                 var itemVarName = varDeclMod == null ? null : this.reader.expectIdentifier();
                 if (itemVarName != null && this.reader.readToken("of")) {
                     var items = this.parseExpression();
@@ -374,8 +384,8 @@ namespace Parsers
             else {
                 var expr = this.parseExpression();
                 statement = new ExpressionStatement(expr);
-                var isBinarySet = expr is BinaryExpression && new[] { "=", "+=", "-=" }.includes(((BinaryExpression)expr).operator_);
-                var isUnarySet = expr is UnaryExpression && new[] { "++", "--" }.includes(((UnaryExpression)expr).operator_);
+                var isBinarySet = expr is BinaryExpression && new List<string> { "=", "+=", "-=" }.includes(((BinaryExpression)expr).operator_);
+                var isUnarySet = expr is UnaryExpression && new List<string> { "++", "--" }.includes(((UnaryExpression)expr).operator_);
                 if (!(expr is UnresolvedCallExpression || isBinarySet || isUnarySet || expr is AwaitExpression))
                     this.reader.fail("this expression is not allowed as statement");
             }
@@ -398,7 +408,7 @@ namespace Parsers
                 return null;
             var startPos = this.reader.prevTokenOffset;
             
-            var statements = new Statement[0];
+            var statements = new List<Statement>();
             if (!this.reader.readToken("}"))
                 do {
                     var statement = this.expectStatement();
@@ -406,7 +416,7 @@ namespace Parsers
                         statements.push(statement);
                 } while (!this.reader.readToken("}"));
             
-            var block = new Block(statements);
+            var block = new Block(statements.ToArray());
             this.nodeManager.addNode(block, startPos);
             return block;
         }
@@ -419,7 +429,7 @@ namespace Parsers
         }
         
         public Type_[] parseTypeArgs() {
-            var typeArguments = new Type_[0];
+            var typeArguments = new List<Type_>();
             if (this.reader.readToken("<")) {
                 do {
                     var generics = this.parseType();
@@ -427,11 +437,11 @@ namespace Parsers
                 } while (this.reader.readToken(","));
                 this.reader.expectToken(">");
             }
-            return typeArguments;
+            return typeArguments.ToArray();
         }
         
         public string[] parseGenericsArgs() {
-            var typeArguments = new string[0];
+            var typeArguments = new List<string>();
             if (this.reader.readToken("<")) {
                 do {
                     var generics = this.reader.expectIdentifier();
@@ -439,7 +449,7 @@ namespace Parsers
                 } while (this.reader.readToken(","));
                 this.reader.expectToken(">");
             }
-            return typeArguments;
+            return typeArguments.ToArray();
         }
         
         public ExpressionStatement parseExprStmtFromString(string expression) {
@@ -448,9 +458,8 @@ namespace Parsers
         }
         
         public MethodSignature parseMethodSignature(bool isConstructor, bool declarationOnly) {
-            var bodyPrefixStatements = new Statement[0];
-            var params_ = new MethodParameter[0];
-            var fields = new Field[0];
+            var params_ = new List<MethodParameter>();
+            var fields = new List<Field>();
             if (!this.reader.readToken(")")) {
                 do {
                     this.reader.skipWhitespace();
@@ -465,11 +474,10 @@ namespace Parsers
                     var param = new MethodParameter(paramName, typeAndInit.type, typeAndInit.init);
                     params_.push(param);
                     
-                    if (isPublic) {
-                        // init should be used as ony the constructor's method parameter, but not again as a field initializer too
-                        fields.push(new Field(paramName, typeAndInit.type, null, Visibility.Public, false, null));
-                        bodyPrefixStatements.push(this.parseExprStmtFromString($"this.{paramName} = {paramName}"));
-                    }
+                    // init should be used as only the constructor's method parameter, but not again as a field initializer too
+                    //   (otherwise it would called twice if cloned or cause AST error is just referenced from two separate places)
+                    if (isPublic)
+                        fields.push(new Field(paramName, typeAndInit.type, null, Visibility.Public, false, param, null));
                     
                     this.nodeManager.addNode(param, paramStart);
                     this.context.pop();
@@ -494,10 +502,9 @@ namespace Parsers
                     superCallArgs = ((UnresolvedCallExpression)((ExpressionStatement)firstStmt).expression).args;
                     body.statements.shift();
                 }
-                body.statements = bodyPrefixStatements.concat(body.statements);
             }
             
-            return new MethodSignature(params_, fields, body, returns, superCallArgs);
+            return new MethodSignature(params_.ToArray(), fields.ToArray(), body, returns, superCallArgs);
         }
         
         public string parseIdentifierOrString() {
@@ -514,13 +521,13 @@ namespace Parsers
             
             var intfTypeArgs = this.parseGenericsArgs();
             
-            var baseInterfaces = new Type_[0];
+            var baseInterfaces = new List<Type_>();
             if (this.reader.readToken("extends"))
                 do
                     baseInterfaces.push(this.parseType()); while (this.reader.readToken(","));
             
-            var methods = new Method[0];
-            var fields = new Field[0];
+            var methods = new List<Method>();
+            var fields = new List<Field>();
             
             this.reader.expectToken("{");
             while (!this.reader.readToken("}")) {
@@ -534,7 +541,7 @@ namespace Parsers
                     var fieldType = this.parseType();
                     this.reader.expectToken(";");
                     
-                    var field = new Field(memberName, fieldType, null, Visibility.Public, false, memberLeadingTrivia);
+                    var field = new Field(memberName, fieldType, null, Visibility.Public, false, null, memberLeadingTrivia);
                     fields.push(field);
                     
                     this.nodeManager.addNode(field, memberStart);
@@ -555,7 +562,7 @@ namespace Parsers
                 }
             }
             
-            var intf = new Interface(intfName, intfTypeArgs, baseInterfaces, fields, methods, isExported, leadingTrivia);
+            var intf = new Interface(intfName, intfTypeArgs, baseInterfaces.ToArray(), fields.ToArray(), methods.ToArray(), isExported, leadingTrivia);
             this.nodeManager.addNode(intf, intfStart);
             this.context.pop();
             return intf;
@@ -568,7 +575,7 @@ namespace Parsers
         }
         
         public Class parseClass(string leadingTrivia, bool isExported, bool declarationOnly) {
-            var clsModifiers = this.reader.readModifiers(new[] { "abstract" });
+            var clsModifiers = this.reader.readModifiers(new string[] { "abstract" });
             if (!this.reader.readToken("class"))
                 return null;
             var clsStart = this.reader.prevTokenOffset;
@@ -579,22 +586,22 @@ namespace Parsers
             var typeArgs = this.parseGenericsArgs();
             var baseClass = this.reader.readToken("extends") ? this.parseSpecifiedType() : null;
             
-            var baseInterfaces = new Type_[0];
+            var baseInterfaces = new List<Type_>();
             if (this.reader.readToken("implements"))
                 do
                     baseInterfaces.push(this.parseSpecifiedType()); while (this.reader.readToken(","));
             
             Constructor constructor = null;
-            var fields = new Field[0];
-            var methods = new Method[0];
-            var properties = new Property[0];
+            var fields = new List<Field>();
+            var methods = new List<Method>();
+            var properties = new List<Property>();
             
             this.reader.expectToken("{");
             while (!this.reader.readToken("}")) {
                 var memberLeadingTrivia = this.reader.readLeadingTrivia();
                 
                 var memberStart = this.reader.offset;
-                var modifiers = this.reader.readModifiers(new[] { "static", "public", "protected", "private", "readonly", "async" });
+                var modifiers = this.reader.readModifiers(new string[] { "static", "public", "protected", "private", "readonly", "async" });
                 var isStatic = modifiers.includes("static");
                 var isAsync = modifiers.includes("async");
                 var visibility = modifiers.includes("private") ? Visibility.Private : modifiers.includes("protected") ? Visibility.Protected : Visibility.Public;
@@ -677,7 +684,7 @@ namespace Parsers
                     var typeAndInit = this.parseTypeAndInit();
                     this.reader.expectToken(";");
                     
-                    var field = new Field(memberName, typeAndInit.type, typeAndInit.init, visibility, isStatic, memberLeadingTrivia);
+                    var field = new Field(memberName, typeAndInit.type, typeAndInit.init, visibility, isStatic, null, memberLeadingTrivia);
                     fields.push(field);
                     
                     this.nodeManager.addNode(field, memberStart);
@@ -685,7 +692,7 @@ namespace Parsers
                 }
             }
             
-            var cls = new Class(clsName, typeArgs, baseClass, baseInterfaces, fields, properties, constructor, methods, isExported, leadingTrivia);
+            var cls = new Class(clsName, typeArgs, baseClass, baseInterfaces.ToArray(), fields.ToArray(), properties.ToArray(), constructor, methods.ToArray(), isExported, leadingTrivia);
             this.nodeManager.addNode(cls, clsStart);
             this.context.pop();
             return cls;
@@ -699,7 +706,7 @@ namespace Parsers
             var name = this.reader.expectIdentifier("expected identifier after 'enum' keyword");
             this.context.push($"E:{name}");
             
-            var members = new EnumMember[0];
+            var members = new List<EnumMember>();
             
             this.reader.expectToken("{");
             if (!this.reader.readToken("}")) {
@@ -718,20 +725,20 @@ namespace Parsers
                 this.reader.expectToken("}");
             }
             
-            var enumObj = new Enum_(name, members, isExported, leadingTrivia);
+            var enumObj = new Enum_(name, members.ToArray(), isExported, leadingTrivia);
             this.nodeManager.addNode(enumObj, enumStart);
             this.context.pop();
             return enumObj;
         }
         
-        static public string calculateRelativePath(string currFile, string relPath) {
+        public static string calculateRelativePath(string currFile, string relPath) {
             if (!relPath.startsWith("."))
                 throw new Error($"relPath must start with '.', but got '{relPath}'");
             
-            var curr = currFile.split(new RegExp("/"));
+            var curr = currFile.split(new RegExp("\\/"));
             curr.pop();
             // filename does not matter
-            foreach (var part in relPath.split(new RegExp("/"))) {
+            foreach (var part in relPath.split(new RegExp("\\/"))) {
                 if (part == "")
                     throw new Error($"relPath should not contain multiple '/' next to each other (relPath='{relPath}')");
                 if (part == ".")
@@ -749,12 +756,12 @@ namespace Parsers
             return curr.join("/");
         }
         
-        static public ExportScopeRef calculateImportScope(ExportScopeRef currScope, string importFile) {
+        public static ExportScopeRef calculateImportScope(ExportScopeRef currScope, string importFile) {
             if (importFile.startsWith("."))
                 // relative
                 return new ExportScopeRef(currScope.packageName, TypeScriptParser2.calculateRelativePath(currScope.scopeName, importFile));
             else {
-                var path = importFile.split(new RegExp("/"));
+                var path = importFile.split(new RegExp("\\/"));
                 var pkgName = path.shift();
                 return new ExportScopeRef(pkgName, path.length() == 0 ? Package.INDEX : path.join("/"));
             }
@@ -797,22 +804,22 @@ namespace Parsers
             
             var importScope = this.exportScope != null ? TypeScriptParser2.calculateImportScope(this.exportScope, moduleName) : null;
             
-            var imports = new Import[0];
+            var imports = new List<Import>();
             foreach (var name in Object.keys(nameAliases))
-                imports.push(new Import(importScope, false, new[] { new UnresolvedImport(name) }, nameAliases.get(name), leadingTrivia));
+                imports.push(new Import(importScope, false, new UnresolvedImport[] { new UnresolvedImport(name) }, nameAliases.get(name), leadingTrivia));
             
             if (importAllAlias != null)
                 imports.push(new Import(importScope, true, null, importAllAlias, leadingTrivia));
             //this.nodeManager.addNode(imports, importStart);
-            return imports;
+            return imports.ToArray();
         }
         
         public SourceFile parseSourceFile() {
-            var imports = new Import[0];
-            var enums = new Enum_[0];
-            var intfs = new Interface[0];
-            var classes = new Class[0];
-            var funcs = new GlobalFunction[0];
+            var imports = new List<Import>();
+            var enums = new List<Enum_>();
+            var intfs = new List<Interface>();
+            var classes = new List<Class>();
+            var funcs = new List<GlobalFunction>();
             while (true) {
                 var leadingTrivia = this.reader.readLeadingTrivia();
                 if (this.reader.eof)
@@ -825,7 +832,7 @@ namespace Parsers
                     continue;
                 }
                 
-                var modifiers = this.reader.readModifiers(new[] { "export", "declare" });
+                var modifiers = this.reader.readModifiers(new string[] { "export", "declare" });
                 var isExported = modifiers.includes("export");
                 var isDeclaration = modifiers.includes("declare");
                 
@@ -860,7 +867,7 @@ namespace Parsers
             
             this.reader.skipWhitespace();
             
-            var stmts = new Statement[0];
+            var stmts = new List<Statement>();
             while (true) {
                 var leadingTrivia = this.reader.readLeadingTrivia();
                 if (this.reader.eof)
@@ -874,14 +881,14 @@ namespace Parsers
                 stmts.push(stmt);
             }
             
-            return new SourceFile(imports, intfs, classes, enums, funcs, new Block(stmts), this.path, this.exportScope);
+            return new SourceFile(imports.ToArray(), intfs.ToArray(), classes.ToArray(), enums.ToArray(), funcs.ToArray(), new Block(stmts.ToArray()), this.path, this.exportScope);
         }
         
         public SourceFile parse() {
             return this.parseSourceFile();
         }
         
-        static public SourceFile parseFile(string source, SourcePath path = null) {
+        public static SourceFile parseFile(string source, SourcePath path = null) {
             return new TypeScriptParser2(source, path).parseSourceFile();
         }
     }

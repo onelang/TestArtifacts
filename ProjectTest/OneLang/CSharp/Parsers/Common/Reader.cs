@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using Parsers.Common;
@@ -16,7 +17,8 @@ namespace Parsers.Common
         public int lineStart;
         public int lineEnd;
         
-        public Cursor(int offset, int line, int column, int lineStart, int lineEnd) {
+        public Cursor(int offset, int line, int column, int lineStart, int lineEnd)
+        {
             this.offset = offset;
             this.line = line;
             this.column = column;
@@ -30,7 +32,8 @@ namespace Parsers.Common
         public Cursor cursor;
         public Reader reader;
         
-        public ParseError(string message, Cursor cursor = null, Reader reader = null) {
+        public ParseError(string message, Cursor cursor = null, Reader reader = null)
+        {
             this.message = message;
             this.cursor = cursor;
             this.reader = reader;
@@ -48,7 +51,7 @@ namespace Parsers.Common
         public bool commentDisabled = false;
         public string identifierRegex = "[A-Za-z_][A-Za-z0-9_]*";
         public string numberRegex = "[+-]?(\\d*\\.\\d+|\\d+\\.\\d+|0x[0-9a-fA-F_]+|0b[01_]+|[0-9_]+)";
-        public ParseError[] errors;
+        public List<ParseError> errors;
         public IReaderHooks hooks;
         public int wsLineCounter = 0;
         public bool moveWsOffset = true;
@@ -70,7 +73,7 @@ namespace Parsers.Common
         public string preview {
             get {
              {
-                var preview = this.input.substr(this.offset, 20).replace(new RegExp("n"), "\\\n");
+                var preview = this.input.substr(this.offset, 20).replace(new RegExp("\\n"), "\\\n");
                 if (preview.length() == 20)
                     preview += "...";
                 return preview;
@@ -78,17 +81,18 @@ namespace Parsers.Common
             }
         }
         
-        public Reader(string input) {
-            this.errors = new ParseError[0];
+        public Reader(string input)
+        {
+            this.input = input;
+            this.errors = new List<ParseError>();
             this.hooks = null;
             this.prevTokenOffset = -1;
-            this.input = input;
             this.cursorSearch = new CursorPositionSearch(input);
         }
         
         public string linePreview(Cursor cursor) {
             var line = this.input.substring(cursor.lineStart, cursor.lineEnd - 1);
-            return $"{line}\\n{" ".repeat(cursor.column - 1)}^^^";
+            return $"{line}\n{" ".repeat(cursor.column - 1)}^^^";
         }
         
         public void fail(string message, int offset = -1) {
@@ -98,7 +102,7 @@ namespace Parsers.Common
             if (this.hooks != null)
                 this.hooks.errorCallback(error);
             else
-                throw new Error($"{message} at {error.cursor.line}:{error.cursor.column}\\n{this.linePreview(error.cursor)}");
+                throw new Error($"{message} at {error.cursor.line}:{error.cursor.column}\n{this.linePreview(error.cursor)}");
         }
         
         public void skipWhitespace(bool includeInTrivia = false) {
@@ -159,9 +163,10 @@ namespace Parsers.Common
         }
         
         public string readAnyOf(string[] tokens) {
-            foreach (var token in tokens)
+            foreach (var token in tokens) {
                 if (this.readToken(token))
                     return token;
+            }
             return null;
         }
         
@@ -184,17 +189,17 @@ namespace Parsers.Common
             return result;
         }
         
-        static public string[] matchFromIndex(string pattern, string input, int offset) {
+        public static string[] matchFromIndex(string pattern, string input, int offset) {
             var regex = new RegExp(pattern, "gy");
             regex.lastIndex = offset;
             var matches = regex.exec(input);
             if (matches == null)
                 return null;
             else {
-                var result = new string[0];
+                var result = new List<string>();
                 for (int i = 0; i < matches.length(); i++)
                     result.push(matches.get(i));
-                return result;
+                return result.ToArray();
             }
         }
         
@@ -221,9 +226,10 @@ namespace Parsers.Common
                 this.skipWhitespace(true);
                 if (this.input.startsWith(this.lineComment, this.offset))
                     this.skipLine();
-                else if (this.supportsBlockComment && this.input.startsWith(this.blockCommentStart, this.offset))
+                else if (this.supportsBlockComment && this.input.startsWith(this.blockCommentStart, this.offset)) {
                     if (!this.skipUntil(this.blockCommentEnd))
                         this.fail($"block comment end (\"{this.blockCommentEnd}\") was not found");
+                }
                 else
                     break;
             }
@@ -271,7 +277,7 @@ namespace Parsers.Common
             
             var str = strMatch.get(0).substr(1, strMatch.get(0).length() - 2);
             // TODO: hack: this logic is langauge-dependent
-            str = str.replace(new RegExp("\\\""), "\"").replace(new RegExp("\\'"), "'").replace(new RegExp("\\n"), "\n").replace(new RegExp("\\t"), "\t").replace(new RegExp("\\r"), "\r").replace(new RegExp("\\\\"), "\\");
+            str = str.replace(new RegExp("\\\\\""), "\"").replace(new RegExp("\\\\'"), "'").replace(new RegExp("\\\\n"), "\n").replace(new RegExp("\\\\t"), "\t").replace(new RegExp("\\\\r"), "\r").replace(new RegExp("\\\\\\\\"), "\\");
             return str;
         }
         
@@ -283,31 +289,34 @@ namespace Parsers.Common
         }
         
         public string[] readModifiers(string[] modifiers) {
-            var result = new string[0];
+            var result = new List<string>();
             while (true) {
                 var success = false;
-                foreach (var modifier in modifiers)
+                foreach (var modifier in modifiers) {
                     if (this.readToken(modifier)) {
                         result.push(modifier);
                         success = true;
                     }
+                }
                 if (!success)
                     break;
             }
-            return result;
+            return result.ToArray();
         }
     }
     
     public class CursorPositionSearch {
-        public int[] lineOffsets;
+        public List<int> lineOffsets;
         public string input;
         
-        public CursorPositionSearch(string input) {
-            this.lineOffsets = new[] { 0 };
+        public CursorPositionSearch(string input)
+        {
             this.input = input;
-            for (int i = 0; i < input.length(); i++)
+            this.lineOffsets = new List<int> { 0 };
+            for (int i = 0; i < input.length(); i++) {
                 if (input.get(i) == "\n")
                     this.lineOffsets.push(i + 1);
+            }
             this.lineOffsets.push(input.length());
         }
         

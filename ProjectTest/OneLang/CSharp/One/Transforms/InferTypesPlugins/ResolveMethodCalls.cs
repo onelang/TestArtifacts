@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using One.Transforms.InferTypesPlugins.Helpers;
@@ -7,19 +8,24 @@ using One.Ast;
 namespace One.Transforms.InferTypesPlugins
 {
     public class ResolveMethodCalls : InferTypesPlugin {
-        public ResolveMethodCalls(): base("ResolveMethodCalls") {
+        public ResolveMethodCalls(): base("ResolveMethodCalls")
+        {
             
         }
         
         protected Method findMethod(IInterface cls, string methodName, bool isStatic, Expression[] args) {
             var allBases = cls is Class ? ((Class)cls).getAllBaseInterfaces().filter((IInterface x) => { return x is Class; }) : cls.getAllBaseInterfaces();
             
-            var allMethods = new Method[0];
+            var allMethods = new List<Method>();
             foreach (var base_ in allBases)
                 foreach (var method in base_.methods)
                     allMethods.push(method);
             
-            var methods = allMethods.filter((Method x) => { return x.name == methodName && x.isStatic == isStatic && x.parameters.filter((MethodParameter p) => { return p.initializer == null; }).length() <= args.length() && args.length() <= x.parameters.length(); });
+            var methods = allMethods.filter((Method m) => { var minLen = m.parameters.filter((MethodParameter p) => { return p.initializer == null; }).length();
+            var maxLen = m.parameters.length();
+            var match = m.name == methodName && m.isStatic == isStatic && minLen <= args.length() && args.length() <= maxLen;
+            return match; });
+            
             if (methods.length() == 0)
                 throw new Error($"Method '{methodName}' was not found on type '{cls.name}' with {args.length()} arguments");
             else if (methods.length() > 1) {
@@ -33,6 +39,8 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         protected void resolveReturnType(IMethodCallExpression expr, GenericsResolver genericsResolver) {
+            genericsResolver.collectFromMethodCall(expr);
+            
             for (int i = 0; i < expr.args.length(); i++) {
                 // actually doesn't have to resolve, but must check if generic type confirm the previous argument with the same generic type
                 var paramType = genericsResolver.resolveType(expr.method.parameters.get(i).type, false);

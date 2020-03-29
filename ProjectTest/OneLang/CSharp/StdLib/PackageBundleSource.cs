@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using StdLib;
@@ -8,7 +9,8 @@ namespace StdLib
     public class PackageBundleSource : PackageSource {
         public PackageBundle bundle;
         
-        public PackageBundleSource(PackageBundle bundle) {
+        public PackageBundleSource(PackageBundle bundle)
+        {
             this.bundle = bundle;
         }
         

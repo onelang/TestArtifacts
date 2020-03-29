@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 using One;
@@ -13,11 +14,12 @@ namespace One.Transforms
     
     public class InferTypes : AstTransformer {
         protected InferTypesStage stage;
-        public InferTypesPlugin[] plugins;
+        public List<InferTypesPlugin> plugins;
         public int logIdx = 0;
         
-        public InferTypes(): base("InferTypes") {
-            this.plugins = new InferTypesPlugin[0];
+        public InferTypes(): base("InferTypes")
+        {
+            this.plugins = new List<InferTypesPlugin>();
             this.addPlugin(new BasicTypeInfer());
             this.addPlugin(new ArrayAndMapLiteralTypeInfer());
             this.addPlugin(new ResolveFieldAndPropertyAccess());
@@ -136,11 +138,12 @@ namespace One.Transforms
             
             var detectSuccess = this.detectType(expr2);
             
-            if (expr2.actualType == null)
+            if (expr2.actualType == null) {
                 if (detectSuccess)
                     this.errorMan.throw_("Type detection failed, although plugin tried to handle it");
                 else
                     this.errorMan.throw_("Type detection failed: none of the plugins could resolve the type");
+            }
             
             return expr2;
         }
@@ -148,9 +151,10 @@ namespace One.Transforms
         protected override Statement visitStatement(Statement stmt) {
             this.currentStatement = stmt;
             
-            foreach (var plugin in this.plugins)
+            foreach (var plugin in this.plugins) {
                 if (plugin.handleStatement(stmt))
                     return null;
+            }
             
             return base.visitStatement(stmt);
         }
@@ -165,9 +169,10 @@ namespace One.Transforms
             if (this.stage != InferTypesStage.Properties)
                 return;
             
-            foreach (var plugin in this.plugins)
+            foreach (var plugin in this.plugins) {
                 if (plugin.handleProperty(prop))
                     return;
+            }
             
             base.visitProperty(prop);
         }
@@ -176,9 +181,10 @@ namespace One.Transforms
             if (this.stage != InferTypesStage.Methods)
                 return;
             
-            foreach (var plugin in this.plugins)
+            foreach (var plugin in this.plugins) {
                 if (plugin.handleMethod(method))
                     return;
+            }
             
             base.visitMethodBase(method);
         }
@@ -187,9 +193,10 @@ namespace One.Transforms
             if (lambda.actualType != null)
                 return null;
             
-            foreach (var plugin in this.plugins)
+            foreach (var plugin in this.plugins) {
                 if (plugin.handleLambda(lambda))
                     return lambda;
+            }
             
             return base.visitLambda(lambda);
         }
@@ -199,7 +206,7 @@ namespace One.Transforms
         }
         
         public override void visitPackage(Package pkg) {
-            foreach (var stage in new[] { InferTypesStage.Fields, InferTypesStage.Properties, InferTypesStage.Methods }) {
+            foreach (var stage in new List<InferTypesStage> { InferTypesStage.Fields, InferTypesStage.Properties, InferTypesStage.Methods }) {
                 this.stage = stage;
                 base.visitPackage(pkg);
             }

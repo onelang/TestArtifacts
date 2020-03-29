@@ -1,19 +1,21 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 
 namespace Parsers.Common
 {
     public class Utils {
-        static public int getPadLen(string line) {
-            for (int i = 0; i < line.length(); i++)
+        public static int getPadLen(string line) {
+            for (int i = 0; i < line.length(); i++) {
                 if (line.get(i) != " ")
                     return i;
+            }
             return -1;
         }
         
-        static public string deindent(string str) {
-            var lines = str.split(new RegExp("n"));
+        public static string deindent(string str) {
+            var lines = str.split(new RegExp("\\n"));
             if (lines.length() == 1)
                 return str;
             
@@ -21,9 +23,10 @@ namespace Parsers.Common
                 lines.shift();
             
             var minPadLen = 9999;
-            foreach (var padLen in lines.map((string x) => { return Utils.getPadLen(x); }).filter((int x) => { return x != -1; }))
+            foreach (var padLen in lines.map((string x) => { return Utils.getPadLen(x); }).filter((int x) => { return x != -1; })) {
                 if (padLen < minPadLen)
                     minPadLen = padLen;
+            }
             var newStr = lines.map((string x) => { return x.length() != 0 ? x.substr(minPadLen) : x; }).join("\n");
             return newStr;
         }

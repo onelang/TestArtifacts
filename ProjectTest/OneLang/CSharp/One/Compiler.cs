@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using One.Ast;
 using Parsers;
@@ -14,6 +15,15 @@ namespace One
         public ExportedScope nativeExports;
         public Package projectPkg;
         
+        public Compiler()
+        {
+            this.pacMan = null;
+            this.workspace = null;
+            this.nativeFile = null;
+            this.nativeExports = null;
+            this.projectPkg = null;
+        }
+        
         public async Task init(string packagesDir) {
             this.pacMan = new PackageManager(new PackagesFolderSource(packagesDir));
             await this.pacMan.loadAllCached();
@@ -26,6 +36,7 @@ namespace One
             FillAttributesFromTrivia.processFile(this.nativeFile);
             new ResolveGenericTypeIdentifiers().visitSourceFile(this.nativeFile);
             new ResolveUnresolvedTypes().visitSourceFile(this.nativeFile);
+            new FillMutabilityInfo().visitSourceFile(this.nativeFile);
         }
         
         public void newWorkspace() {
@@ -52,7 +63,7 @@ namespace One
             var file = TypeScriptParser2.parseFile(content, new SourcePath(this.projectPkg, fn));
             file.addAvailableSymbols(this.nativeExports.getAllExports());
             file.literalTypes = new LiteralTypes((((Class)file.availableSymbols.get("TsBoolean"))).type, (((Class)file.availableSymbols.get("TsNumber"))).type, (((Class)file.availableSymbols.get("TsString"))).type, (((Class)file.availableSymbols.get("RegExp"))).type, (((Class)file.availableSymbols.get("TsArray"))).type, (((Class)file.availableSymbols.get("TsMap"))).type, (((Class)file.availableSymbols.get("Error"))).type, (((Class)file.availableSymbols.get("Promise"))).type);
-            file.arrayTypes = new[] { (((Class)file.availableSymbols.get("TsArray"))).type, (((Class)file.availableSymbols.get("IterableIterator"))).type, (((Class)file.availableSymbols.get("RegExpExecArray"))).type, (((Class)file.availableSymbols.get("TsString"))).type, (((Class)file.availableSymbols.get("Set"))).type };
+            file.arrayTypes = new ClassType[] { (((Class)file.availableSymbols.get("TsArray"))).type, (((Class)file.availableSymbols.get("IterableIterator"))).type, (((Class)file.availableSymbols.get("RegExpExecArray"))).type, (((Class)file.availableSymbols.get("TsString"))).type, (((Class)file.availableSymbols.get("Set"))).type };
             this.projectPkg.addFile(file);
         }
         
@@ -68,6 +79,7 @@ namespace One
             new DetectMethodCalls().visitPackage(this.projectPkg);
             new InferTypes().visitPackage(this.projectPkg);
             new CollectInheritanceInfo().visitPackage(this.projectPkg);
+            new FillMutabilityInfo().visitPackage(this.projectPkg);
         }
     }
 }

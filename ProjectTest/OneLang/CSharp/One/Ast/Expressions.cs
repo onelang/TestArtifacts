@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using One.Ast;
 
 namespace One.Ast
@@ -24,6 +25,14 @@ namespace One.Ast
         public Type_ expectedType;
         public Type_ actualType;
         public string actualTypeStack;
+        
+        public Expression()
+        {
+            this.parentNode = null;
+            this.expectedType = null;
+            this.actualType = null;
+            this.actualTypeStack = null;
+        }
         
         protected void typeCheck(Type_ type, bool allowVoid) {
             if (type == null)
@@ -74,7 +83,8 @@ namespace One.Ast
     public class Identifier : Expression {
         public string text;
         
-        public Identifier(string text): base() {
+        public Identifier(string text): base()
+        {
             this.text = text;
         }
     }
@@ -82,7 +92,8 @@ namespace One.Ast
     public class NumericLiteral : Expression {
         public string valueAsText;
         
-        public NumericLiteral(string valueAsText): base() {
+        public NumericLiteral(string valueAsText): base()
+        {
             this.valueAsText = valueAsText;
         }
     }
@@ -90,7 +101,8 @@ namespace One.Ast
     public class BooleanLiteral : Expression {
         public bool boolValue;
         
-        public BooleanLiteral(bool boolValue): base() {
+        public BooleanLiteral(bool boolValue): base()
+        {
             this.boolValue = boolValue;
         }
     }
@@ -98,7 +110,8 @@ namespace One.Ast
     public class CharacterLiteral : Expression {
         public string charValue;
         
-        public CharacterLiteral(string charValue): base() {
+        public CharacterLiteral(string charValue): base()
+        {
             this.charValue = charValue;
         }
     }
@@ -106,7 +119,8 @@ namespace One.Ast
     public class StringLiteral : Expression {
         public string stringValue;
         
-        public StringLiteral(string stringValue): base() {
+        public StringLiteral(string stringValue): base()
+        {
             this.stringValue = stringValue;
         }
     }
@@ -120,7 +134,8 @@ namespace One.Ast
         public bool caseInsensitive;
         public bool global;
         
-        public RegexLiteral(string pattern, bool caseInsensitive, bool global): base() {
+        public RegexLiteral(string pattern, bool caseInsensitive, bool global): base()
+        {
             this.pattern = pattern;
             this.caseInsensitive = caseInsensitive;
             this.global = global;
@@ -132,17 +147,18 @@ namespace One.Ast
         public string literalText;
         public Expression expression;
         
-        public TemplateStringPart(bool isLiteral, string literalText, Expression expression) {
+        public TemplateStringPart(bool isLiteral, string literalText, Expression expression)
+        {
             this.isLiteral = isLiteral;
             this.literalText = literalText;
             this.expression = expression;
         }
         
-        static public TemplateStringPart Literal(string literalText) {
+        public static TemplateStringPart Literal(string literalText) {
             return new TemplateStringPart(true, literalText, null);
         }
         
-        static public TemplateStringPart Expression(Expression expr) {
+        public static TemplateStringPart Expression(Expression expr) {
             return new TemplateStringPart(false, null, expr);
         }
     }
@@ -150,7 +166,8 @@ namespace One.Ast
     public class TemplateString : Expression {
         public TemplateStringPart[] parts;
         
-        public TemplateString(TemplateStringPart[] parts): base() {
+        public TemplateString(TemplateStringPart[] parts): base()
+        {
             this.parts = parts;
         }
     }
@@ -158,7 +175,8 @@ namespace One.Ast
     public class ArrayLiteral : Expression {
         public Expression[] items;
         
-        public ArrayLiteral(Expression[] items): base() {
+        public ArrayLiteral(Expression[] items): base()
+        {
             this.items = items;
         }
     }
@@ -167,7 +185,8 @@ namespace One.Ast
         public string key;
         public Expression value;
         
-        public MapLiteralItem(string key, Expression value) {
+        public MapLiteralItem(string key, Expression value)
+        {
             this.key = key;
             this.value = value;
         }
@@ -176,7 +195,8 @@ namespace One.Ast
     public class MapLiteral : Expression {
         public MapLiteralItem[] items;
         
-        public MapLiteral(MapLiteralItem[] items): base() {
+        public MapLiteral(MapLiteralItem[] items): base()
+        {
             this.items = items;
         }
     }
@@ -185,7 +205,8 @@ namespace One.Ast
         public UnresolvedType cls;
         public Expression[] args;
         
-        public UnresolvedNewExpression(UnresolvedType cls, Expression[] args): base() {
+        public UnresolvedNewExpression(UnresolvedType cls, Expression[] args): base()
+        {
             this.cls = cls;
             this.args = args;
         }
@@ -195,7 +216,8 @@ namespace One.Ast
         public ClassType cls;
         public Expression[] args;
         
-        public NewExpression(ClassType cls, Expression[] args): base() {
+        public NewExpression(ClassType cls, Expression[] args): base()
+        {
             this.cls = cls;
             this.args = args;
         }
@@ -206,7 +228,8 @@ namespace One.Ast
         public string operator_;
         public Expression right;
         
-        public BinaryExpression(Expression left, string operator_, Expression right): base() {
+        public BinaryExpression(Expression left, string operator_, Expression right): base()
+        {
             this.left = left;
             this.operator_ = operator_;
             this.right = right;
@@ -217,7 +240,8 @@ namespace One.Ast
         public Expression defaultExpr;
         public Expression exprIfNull;
         
-        public NullCoalesceExpression(Expression defaultExpr, Expression exprIfNull): base() {
+        public NullCoalesceExpression(Expression defaultExpr, Expression exprIfNull): base()
+        {
             this.defaultExpr = defaultExpr;
             this.exprIfNull = exprIfNull;
         }
@@ -228,7 +252,8 @@ namespace One.Ast
         public string operator_;
         public Expression operand;
         
-        public UnaryExpression(UnaryType unaryType, string operator_, Expression operand): base() {
+        public UnaryExpression(UnaryType unaryType, string operator_, Expression operand): base()
+        {
             this.unaryType = unaryType;
             this.operator_ = operator_;
             this.operand = operand;
@@ -240,7 +265,8 @@ namespace One.Ast
         public Expression expression;
         public bool implicit_;
         
-        public CastExpression(Type_ newType, Expression expression, bool implicit_ = false): base() {
+        public CastExpression(Type_ newType, Expression expression, bool implicit_ = false): base()
+        {
             this.newType = newType;
             this.expression = expression;
             this.implicit_ = implicit_;
@@ -250,7 +276,8 @@ namespace One.Ast
     public class ParenthesizedExpression : Expression {
         public Expression expression;
         
-        public ParenthesizedExpression(Expression expression): base() {
+        public ParenthesizedExpression(Expression expression): base()
+        {
             this.expression = expression;
         }
     }
@@ -260,7 +287,8 @@ namespace One.Ast
         public Expression whenTrue;
         public Expression whenFalse;
         
-        public ConditionalExpression(Expression condition, Expression whenTrue, Expression whenFalse): base() {
+        public ConditionalExpression(Expression condition, Expression whenTrue, Expression whenFalse): base()
+        {
             this.condition = condition;
             this.whenTrue = whenTrue;
             this.whenFalse = whenFalse;
@@ -271,7 +299,8 @@ namespace One.Ast
         public Expression object_;
         public string propertyName;
         
-        public PropertyAccessExpression(Expression object_, string propertyName): base() {
+        public PropertyAccessExpression(Expression object_, string propertyName): base()
+        {
             this.object_ = object_;
             this.propertyName = propertyName;
         }
@@ -281,7 +310,8 @@ namespace One.Ast
         public Expression object_;
         public Expression elementExpr;
         
-        public ElementAccessExpression(Expression object_, Expression elementExpr): base() {
+        public ElementAccessExpression(Expression object_, Expression elementExpr): base()
+        {
             this.object_ = object_;
             this.elementExpr = elementExpr;
         }
@@ -292,7 +322,8 @@ namespace One.Ast
         public Type_[] typeArgs;
         public Expression[] args;
         
-        public UnresolvedCallExpression(Expression func, Type_[] typeArgs, Expression[] args): base() {
+        public UnresolvedCallExpression(Expression func, Type_[] typeArgs, Expression[] args): base()
+        {
             this.func = func;
             this.typeArgs = typeArgs;
             this.args = args;
@@ -305,7 +336,8 @@ namespace One.Ast
         public Type_[] typeArgs;
         public Expression[] args;
         
-        public UnresolvedMethodCallExpression(Expression object_, string methodName, Type_[] typeArgs, Expression[] args): base() {
+        public UnresolvedMethodCallExpression(Expression object_, string methodName, Type_[] typeArgs, Expression[] args): base()
+        {
             this.object_ = object_;
             this.methodName = methodName;
             this.typeArgs = typeArgs;
@@ -319,7 +351,8 @@ namespace One.Ast
         public Expression[] args { get; set; }
         public bool isThisCall;
         
-        public StaticMethodCallExpression(Method method, Type_[] typeArgs, Expression[] args, bool isThisCall): base() {
+        public StaticMethodCallExpression(Method method, Type_[] typeArgs, Expression[] args, bool isThisCall): base()
+        {
             this.method = method;
             this.typeArgs = typeArgs;
             this.args = args;
@@ -333,7 +366,8 @@ namespace One.Ast
         public Type_[] typeArgs { get; set; }
         public Expression[] args { get; set; }
         
-        public InstanceMethodCallExpression(Expression object_, Method method, Type_[] typeArgs, Expression[] args): base() {
+        public InstanceMethodCallExpression(Expression object_, Method method, Type_[] typeArgs, Expression[] args): base()
+        {
             this.object_ = object_;
             this.method = method;
             this.typeArgs = typeArgs;
@@ -345,7 +379,8 @@ namespace One.Ast
         public GlobalFunction func;
         public Expression[] args;
         
-        public GlobalFunctionCallExpression(GlobalFunction func, Expression[] args): base() {
+        public GlobalFunctionCallExpression(GlobalFunction func, Expression[] args): base()
+        {
             this.func = func;
             this.args = args;
         }
@@ -355,7 +390,8 @@ namespace One.Ast
         public Expression method;
         public Expression[] args;
         
-        public LambdaCallExpression(Expression method, Expression[] args): base() {
+        public LambdaCallExpression(Expression method, Expression[] args): base()
+        {
             this.method = method;
             this.args = args;
         }
@@ -364,7 +400,8 @@ namespace One.Ast
     public class TodoExpression : Expression {
         public Expression expr;
         
-        public TodoExpression(Expression expr): base() {
+        public TodoExpression(Expression expr): base()
+        {
             this.expr = expr;
         }
     }
@@ -373,7 +410,8 @@ namespace One.Ast
         public Expression expr;
         public Type_ checkType;
         
-        public InstanceOfExpression(Expression expr, Type_ checkType): base() {
+        public InstanceOfExpression(Expression expr, Type_ checkType): base()
+        {
             this.expr = expr;
             this.checkType = checkType;
         }
@@ -382,7 +420,8 @@ namespace One.Ast
     public class AwaitExpression : Expression {
         public Expression expr;
         
-        public AwaitExpression(Expression expr): base() {
+        public AwaitExpression(Expression expr): base()
+        {
             this.expr = expr;
         }
     }
