@@ -48,6 +48,7 @@ namespace CSharp
             compiler.processWorkspace();
             var genCsharp = new CsharpGenerator().generate(compiler.projectPkg);
 
+            var allMatch = true;
             foreach (var genFile in genCsharp) {
                 var tsGenPath = $"{baseDir}test/artifacts/ProjectTest/OneLang/CSharp/{genFile.path.replace(".ts", ".cs")}";
                 var csGenPath = $"{baseDir}test/artifacts/ProjectTest/OneLang/CSharp_Regen_CSharp/{genFile.path.replace(".ts", ".cs")}";
@@ -57,9 +58,13 @@ namespace CSharp
                 new DirectoryInfo(System.IO.Path.GetDirectoryName(csGenPath)).Create();
                 File.WriteAllText(csGenPath, genFile.content);
                 
-                if (tsGenContent != csGenContent)
+                if (tsGenContent != csGenContent) {
                     console.error($"Content does not match: {genFile.path}");
+                    allMatch = false;
+                }
             }
+
+            Console.WriteLine(allMatch ? "[+} SUCCESS! All generated files are the same" : "[!] FAIL! Not all files are the same");
 
             Console.WriteLine("DONE");
         }
