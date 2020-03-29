@@ -300,12 +300,14 @@ namespace Parsers.Common
                         str += "\t";
                     else if (esc == "\\")
                         str += "\\";
+                    else if (esc == sepChar)
+                        str += sepChar;
                     else
                         this.fail("invalid escape", this.offset - 1);
                 }
                 else {
                     var chrCode = chr.charCodeAt(0);
-                    if (!(32 <= chrCode && chrCode <= 126) || chr == "\\")
+                    if (!(32 <= chrCode && chrCode <= 126) || chr == "\\" || chr == sepChar)
                         this.fail($"not allowed character (code={chrCode})", this.offset - 1);
                     str += chr;
                 }
