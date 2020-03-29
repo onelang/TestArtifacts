@@ -26,21 +26,13 @@ namespace One
         public AstTransformer transformer;
         public IAstNode currentNode;
         public List<CompilationError> errors;
-        public List<string> contextInfo;
-        
-        public string lastContextInfo {
-            get {
-            
-                return this.contextInfo.length() > 0 ? this.contextInfo.get(this.contextInfo.length() - 1) : null;
-            }
-        }
+        public string lastContextInfo;
         
         public ErrorManager()
         {
             this.transformer = null;
             this.currentNode = null;
             this.errors = new List<CompilationError>();
-            this.contextInfo = new List<string>();
         }
         
         public void resetContext(AstTransformer transformer = null) {

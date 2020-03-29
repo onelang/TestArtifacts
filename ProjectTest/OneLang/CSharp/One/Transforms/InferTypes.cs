@@ -13,7 +13,7 @@ namespace One.Transforms
     public class InferTypes : AstTransformer {
         protected InferTypesStage stage;
         public List<InferTypesPlugin> plugins;
-        public int logIdx = 0;
+        public int contextInfoIdx = 0;
         
         public InferTypes(): base("InferTypes")
         {
@@ -88,7 +88,7 @@ namespace One.Transforms
                 return null;
             
             var plugin = transformers.get(0);
-            this.errorMan.contextInfo.push($"[{++this.logIdx}] running transform plugin \"{plugin.name}\" on '{TSOverviewGenerator.nodeRepr(expr)}'...");
+            this.errorMan.lastContextInfo = $"[{++this.contextInfoIdx}] running transform plugin \"{plugin.name}\"";
             try {
                 var newExpr = plugin.transform(expr);
                 // expression changed, restart the type infering process on the new expression
@@ -108,7 +108,7 @@ namespace One.Transforms
             foreach (var plugin in this.plugins) {
                 if (!plugin.canDetectType(expr))
                     continue;
-                this.errorMan.contextInfo.push($"[{++this.logIdx}] running type detection plugin \"{plugin.name}\" on '{TSOverviewGenerator.nodeRepr(expr)}'");
+                this.errorMan.lastContextInfo = $"[{++this.contextInfoIdx}] running type detection plugin \"{plugin.name}\"";
                 this.errorMan.currentNode = expr;
                 try {
                     if (plugin.detectType(expr))

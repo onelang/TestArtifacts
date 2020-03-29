@@ -23,14 +23,12 @@ namespace One.Ast
         public IAstNode parentNode;
         public Type_ expectedType;
         public Type_ actualType;
-        public string actualTypeStack;
         
         public Expression()
         {
             this.parentNode = null;
             this.expectedType = null;
             this.actualType = null;
-            this.actualTypeStack = null;
         }
         
         protected void typeCheck(Type_ type, bool allowVoid) {
@@ -53,13 +51,11 @@ namespace One.Ast
             if (this.expectedType != null && !Type_.isAssignableTo(actualType, this.expectedType))
                 throw new Error($"Actual type ({actualType.repr()}) is not assignable to the declared type ({this.expectedType.repr()})!");
             
+            // TODO: decide if this check needed or not
             //if (!allowGeneric && Type.isGeneric(actualType))
             //    throw new Error(`Actual type cannot be generic (${actualType.repr()})!`);
             
             this.actualType = actualType;
-            // TODO: debug only
-            Error.stackTraceLimit = 999;
-            this.actualTypeStack = (new Error()).stack;
         }
         
         public void setExpectedType(Type_ type, bool allowVoid = false) {
