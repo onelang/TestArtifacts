@@ -5,6 +5,7 @@ using Generator;
 using One;
 using One.Ast;
 using One.Transforms;
+using Parsers;
 using Utils;
 
 namespace CSharp
@@ -48,9 +49,14 @@ namespace CSharp
             var genCsharp = new CsharpGenerator().generate(compiler.projectPkg);
 
             foreach (var genFile in genCsharp) {
-                var outPath = $"{baseDir}test/artifacts/ProjectTest/OneLang/CSharp/{genFile.path.replace(".ts", ".cs")}";
-                var tsGenContent = File.ReadAllText(outPath);
+                var tsGenPath = $"{baseDir}test/artifacts/ProjectTest/OneLang/CSharp/{genFile.path.replace(".ts", ".cs")}";
+                var csGenPath = $"{baseDir}test/artifacts/ProjectTest/OneLang/CSharp_Regen_CSharp/{genFile.path.replace(".ts", ".cs")}";
+                var tsGenContent = File.ReadAllText(tsGenPath);
                 var csGenContent = genFile.content;
+
+                new DirectoryInfo(System.IO.Path.GetDirectoryName(csGenPath)).Create();
+                File.WriteAllText(csGenPath, genFile.content);
+                
                 if (tsGenContent != csGenContent)
                     console.error($"Content does not match: {genFile.path}");
             }

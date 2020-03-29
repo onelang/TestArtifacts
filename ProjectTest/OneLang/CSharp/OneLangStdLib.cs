@@ -205,7 +205,7 @@ public static class ExtensionMethods {
     }
 
     public static string substr(this string str, int offs, int len) {
-        return str.Substring(offs, len);
+        return offs + len > str.Length ? str.Substring(offs) : str.Substring(offs, len);
     }
 
     public static string substr(this string str, int offs) {
