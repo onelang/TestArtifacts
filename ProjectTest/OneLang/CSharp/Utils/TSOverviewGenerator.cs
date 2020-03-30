@@ -38,7 +38,7 @@ namespace Utils
         public static string var(IVariable v) {
             var result = "";
             var isProp = v is Property;
-            if (v is Field || v is Property) {
+            if (v is Field field || v is Property) {
                 var m = ((IClassMember)v);
                 result += TSOverviewGenerator.preIf("static ", m.isStatic);
                 result += m.visibility == Visibility.Private ? "private " : m.visibility == Visibility.Protected ? "protected " : m.visibility == Visibility.Public ? "public " : "VISIBILITY-NOT-SET";
@@ -50,7 +50,7 @@ namespace Utils
                 result += $"{(v.mutability.reassigned ? "@reass " : "")}";
             }
             result += $"{v.name}{(isProp ? "()" : "")}: {TSOverviewGenerator.type(v.type)}";
-            if (v is VariableDeclaration || v is ForVariable || v is Field || v is MethodParameter) {
+            if (v is VariableDeclaration varDecl || v is ForVariable || v is Field || v is MethodParameter) {
                 var init = (((IVariableWithInitializer)v)).initializer;
                 if (init != null)
                     result += TSOverviewGenerator.pre(" = ", TSOverviewGenerator.expr(init));
@@ -60,108 +60,108 @@ namespace Utils
         
         public static string expr(IExpression expr, bool previewOnly = false) {
             var res = "UNKNOWN-EXPR";
-            if (expr is NewExpression)
-                res = $"new {TSOverviewGenerator.type(((NewExpression)expr).cls)}({(previewOnly ? "..." : ((NewExpression)expr).args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
-            else if (expr is UnresolvedNewExpression)
-                res = $"new {TSOverviewGenerator.type(((UnresolvedNewExpression)expr).cls)}({(previewOnly ? "..." : ((UnresolvedNewExpression)expr).args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
-            else if (expr is Identifier)
-                res = $"{{ID}}{((Identifier)expr).text}";
-            else if (expr is PropertyAccessExpression)
-                res = $"{TSOverviewGenerator.expr(((PropertyAccessExpression)expr).object_)}.{{PA}}{((PropertyAccessExpression)expr).propertyName}";
-            else if (expr is UnresolvedCallExpression) {
-                var typeArgs = ((UnresolvedCallExpression)expr).typeArgs.length() > 0 ? $"<{((UnresolvedCallExpression)expr).typeArgs.map((Type_ x) => { return TSOverviewGenerator.type(x); }).join(", ")}>" : "";
-                res = $"{TSOverviewGenerator.expr(((UnresolvedCallExpression)expr).func)}{typeArgs}({(previewOnly ? "..." : ((UnresolvedCallExpression)expr).args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
+            if (expr is NewExpression newExpr)
+                res = $"new {TSOverviewGenerator.type(newExpr.cls)}({(previewOnly ? "..." : newExpr.args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
+            else if (expr is UnresolvedNewExpression unrNewExpr)
+                res = $"new {TSOverviewGenerator.type(unrNewExpr.cls)}({(previewOnly ? "..." : unrNewExpr.args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
+            else if (expr is Identifier ident)
+                res = $"{{ID}}{ident.text}";
+            else if (expr is PropertyAccessExpression propAccExpr)
+                res = $"{TSOverviewGenerator.expr(propAccExpr.object_)}.{{PA}}{propAccExpr.propertyName}";
+            else if (expr is UnresolvedCallExpression unrCallExpr) {
+                var typeArgs = unrCallExpr.typeArgs.length() > 0 ? $"<{unrCallExpr.typeArgs.map((Type_ x) => { return TSOverviewGenerator.type(x); }).join(", ")}>" : "";
+                res = $"{TSOverviewGenerator.expr(unrCallExpr.func)}{typeArgs}({(previewOnly ? "..." : unrCallExpr.args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
             }
-            else if (expr is UnresolvedMethodCallExpression) {
-                var typeArgs = ((UnresolvedMethodCallExpression)expr).typeArgs.length() > 0 ? $"<{((UnresolvedMethodCallExpression)expr).typeArgs.map((Type_ x) => { return TSOverviewGenerator.type(x); }).join(", ")}>" : "";
-                res = $"{TSOverviewGenerator.expr(((UnresolvedMethodCallExpression)expr).object_)}.{{UM}}{((UnresolvedMethodCallExpression)expr).methodName}{typeArgs}({(previewOnly ? "..." : ((UnresolvedMethodCallExpression)expr).args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
+            else if (expr is UnresolvedMethodCallExpression unrMethCallExpr) {
+                var typeArgs = unrMethCallExpr.typeArgs.length() > 0 ? $"<{unrMethCallExpr.typeArgs.map((Type_ x) => { return TSOverviewGenerator.type(x); }).join(", ")}>" : "";
+                res = $"{TSOverviewGenerator.expr(unrMethCallExpr.object_)}.{{UM}}{unrMethCallExpr.methodName}{typeArgs}({(previewOnly ? "..." : unrMethCallExpr.args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
             }
-            else if (expr is InstanceMethodCallExpression) {
-                var typeArgs = ((InstanceMethodCallExpression)expr).typeArgs.length() > 0 ? $"<{((InstanceMethodCallExpression)expr).typeArgs.map((Type_ x) => { return TSOverviewGenerator.type(x); }).join(", ")}>" : "";
-                res = $"{TSOverviewGenerator.expr(((InstanceMethodCallExpression)expr).object_)}.{{M}}{((InstanceMethodCallExpression)expr).method.name}{typeArgs}({(previewOnly ? "..." : ((InstanceMethodCallExpression)expr).args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
+            else if (expr is InstanceMethodCallExpression instMethCallExpr) {
+                var typeArgs = instMethCallExpr.typeArgs.length() > 0 ? $"<{instMethCallExpr.typeArgs.map((Type_ x) => { return TSOverviewGenerator.type(x); }).join(", ")}>" : "";
+                res = $"{TSOverviewGenerator.expr(instMethCallExpr.object_)}.{{M}}{instMethCallExpr.method.name}{typeArgs}({(previewOnly ? "..." : instMethCallExpr.args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
             }
-            else if (expr is StaticMethodCallExpression) {
-                var typeArgs = ((StaticMethodCallExpression)expr).typeArgs.length() > 0 ? $"<{((StaticMethodCallExpression)expr).typeArgs.map((Type_ x) => { return TSOverviewGenerator.type(x); }).join(", ")}>" : "";
-                res = $"{((StaticMethodCallExpression)expr).method.parentInterface.name}.{{M}}{((StaticMethodCallExpression)expr).method.name}{typeArgs}({(previewOnly ? "..." : ((StaticMethodCallExpression)expr).args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
+            else if (expr is StaticMethodCallExpression statMethCallExpr) {
+                var typeArgs = statMethCallExpr.typeArgs.length() > 0 ? $"<{statMethCallExpr.typeArgs.map((Type_ x) => { return TSOverviewGenerator.type(x); }).join(", ")}>" : "";
+                res = $"{statMethCallExpr.method.parentInterface.name}.{{M}}{statMethCallExpr.method.name}{typeArgs}({(previewOnly ? "..." : statMethCallExpr.args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
             }
-            else if (expr is GlobalFunctionCallExpression)
-                res = $"{((GlobalFunctionCallExpression)expr).func.name}({(previewOnly ? "..." : ((GlobalFunctionCallExpression)expr).args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
-            else if (expr is LambdaCallExpression)
-                res = $"{TSOverviewGenerator.expr(((LambdaCallExpression)expr).method)}({(previewOnly ? "..." : ((LambdaCallExpression)expr).args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
-            else if (expr is BooleanLiteral)
-                res = $"{((BooleanLiteral)expr).boolValue}";
-            else if (expr is StringLiteral)
-                res = $"{JSON.stringify(((StringLiteral)expr).stringValue)}";
-            else if (expr is NumericLiteral)
-                res = $"{((NumericLiteral)expr).valueAsText}";
-            else if (expr is CharacterLiteral)
-                res = $"'{((CharacterLiteral)expr).charValue}'";
-            else if (expr is ElementAccessExpression)
-                res = $"({TSOverviewGenerator.expr(((ElementAccessExpression)expr).object_)})[{TSOverviewGenerator.expr(((ElementAccessExpression)expr).elementExpr)}]";
-            else if (expr is TemplateString)
-                res = "`" + ((TemplateString)expr).parts.map((TemplateStringPart x) => { return x.isLiteral ? x.literalText : "${" + TSOverviewGenerator.expr(x.expression) + "}"; }).join("") + "`";
-            else if (expr is BinaryExpression)
-                res = $"{TSOverviewGenerator.expr(((BinaryExpression)expr).left)} {((BinaryExpression)expr).operator_} {TSOverviewGenerator.expr(((BinaryExpression)expr).right)}";
-            else if (expr is ArrayLiteral)
-                res = $"[{((ArrayLiteral)expr).items.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", ")}]";
-            else if (expr is CastExpression)
-                res = $"<{TSOverviewGenerator.type(((CastExpression)expr).newType)}>({TSOverviewGenerator.expr(((CastExpression)expr).expression)})";
-            else if (expr is ConditionalExpression)
-                res = $"{TSOverviewGenerator.expr(((ConditionalExpression)expr).condition)} ? {TSOverviewGenerator.expr(((ConditionalExpression)expr).whenTrue)} : {TSOverviewGenerator.expr(((ConditionalExpression)expr).whenFalse)}";
-            else if (expr is InstanceOfExpression)
-                res = $"{TSOverviewGenerator.expr(((InstanceOfExpression)expr).expr)} instanceof {TSOverviewGenerator.type(((InstanceOfExpression)expr).checkType)}";
-            else if (expr is ParenthesizedExpression)
-                res = $"({TSOverviewGenerator.expr(((ParenthesizedExpression)expr).expression)})";
-            else if (expr is RegexLiteral)
-                res = $"/{((RegexLiteral)expr).pattern}/{(((RegexLiteral)expr).global ? "g" : "")}{(((RegexLiteral)expr).caseInsensitive ? "g" : "")}";
-            else if (expr is Lambda)
-                res = $"({((Lambda)expr).parameters.map((MethodParameter x) => { return x.name + (x.type != null ? $": {TSOverviewGenerator.type(x.type)}" : ""); }).join(", ")}) => {{ {TSOverviewGenerator.rawBlock(((Lambda)expr).body)} }}";
-            else if (expr is UnaryExpression && ((UnaryExpression)expr).unaryType == UnaryType.Prefix)
-                res = $"{((UnaryExpression)expr).operator_}{TSOverviewGenerator.expr(((UnaryExpression)expr).operand)}";
-            else if (expr is UnaryExpression && ((UnaryExpression)expr).unaryType == UnaryType.Postfix)
-                res = $"{TSOverviewGenerator.expr(((UnaryExpression)expr).operand)}{((UnaryExpression)expr).operator_}";
-            else if (expr is MapLiteral) {
-                var repr = ((MapLiteral)expr).items.map((MapLiteralItem item) => { return $"{item.key}: {TSOverviewGenerator.expr(item.value)}"; }).join(",\n");
+            else if (expr is GlobalFunctionCallExpression globFunctCallExpr)
+                res = $"{globFunctCallExpr.func.name}({(previewOnly ? "..." : globFunctCallExpr.args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
+            else if (expr is LambdaCallExpression lambdCallExpr)
+                res = $"{TSOverviewGenerator.expr(lambdCallExpr.method)}({(previewOnly ? "..." : lambdCallExpr.args.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", "))})";
+            else if (expr is BooleanLiteral boolLit)
+                res = $"{boolLit.boolValue}";
+            else if (expr is StringLiteral strLit)
+                res = $"{JSON.stringify(strLit.stringValue)}";
+            else if (expr is NumericLiteral numLit)
+                res = $"{numLit.valueAsText}";
+            else if (expr is CharacterLiteral charLit)
+                res = $"'{charLit.charValue}'";
+            else if (expr is ElementAccessExpression elemAccExpr)
+                res = $"({TSOverviewGenerator.expr(elemAccExpr.object_)})[{TSOverviewGenerator.expr(elemAccExpr.elementExpr)}]";
+            else if (expr is TemplateString templStr)
+                res = "`" + templStr.parts.map((TemplateStringPart x) => { return x.isLiteral ? x.literalText : "${" + TSOverviewGenerator.expr(x.expression) + "}"; }).join("") + "`";
+            else if (expr is BinaryExpression binExpr)
+                res = $"{TSOverviewGenerator.expr(binExpr.left)} {binExpr.operator_} {TSOverviewGenerator.expr(binExpr.right)}";
+            else if (expr is ArrayLiteral arrayLit)
+                res = $"[{arrayLit.items.map((Expression x) => { return TSOverviewGenerator.expr(x); }).join(", ")}]";
+            else if (expr is CastExpression castExpr)
+                res = $"<{TSOverviewGenerator.type(castExpr.newType)}>({TSOverviewGenerator.expr(castExpr.expression)})";
+            else if (expr is ConditionalExpression condExpr)
+                res = $"{TSOverviewGenerator.expr(condExpr.condition)} ? {TSOverviewGenerator.expr(condExpr.whenTrue)} : {TSOverviewGenerator.expr(condExpr.whenFalse)}";
+            else if (expr is InstanceOfExpression instOfExpr)
+                res = $"{TSOverviewGenerator.expr(instOfExpr.expr)} instanceof {TSOverviewGenerator.type(instOfExpr.checkType)}";
+            else if (expr is ParenthesizedExpression parExpr)
+                res = $"({TSOverviewGenerator.expr(parExpr.expression)})";
+            else if (expr is RegexLiteral regexLit)
+                res = $"/{regexLit.pattern}/{(regexLit.global ? "g" : "")}{(regexLit.caseInsensitive ? "g" : "")}";
+            else if (expr is Lambda lambd)
+                res = $"({lambd.parameters.map((MethodParameter x) => { return x.name + (x.type != null ? $": {TSOverviewGenerator.type(x.type)}" : ""); }).join(", ")}) => {{ {TSOverviewGenerator.rawBlock(lambd.body)} }}";
+            else if (expr is UnaryExpression unaryExpr && unaryExpr.unaryType == UnaryType.Prefix)
+                res = $"{unaryExpr.operator_}{TSOverviewGenerator.expr(unaryExpr.operand)}";
+            else if (expr is UnaryExpression unaryExpr2 && unaryExpr2.unaryType == UnaryType.Postfix)
+                res = $"{TSOverviewGenerator.expr(unaryExpr2.operand)}{unaryExpr2.operator_}";
+            else if (expr is MapLiteral mapLit) {
+                var repr = mapLit.items.map((MapLiteralItem item) => { return $"{item.key}: {TSOverviewGenerator.expr(item.value)}"; }).join(",\n");
                 res = "{L:M}" + (repr == "" ? "{}" : repr.includes("\n") ? $"{{\n{TSOverviewGenerator.pad(repr)}\n}}" : $"{{ {repr} }}");
             }
             else if (expr is NullLiteral)
                 res = $"null";
-            else if (expr is AwaitExpression)
-                res = $"await {TSOverviewGenerator.expr(((AwaitExpression)expr).expr)}";
+            else if (expr is AwaitExpression awaitExpr)
+                res = $"await {TSOverviewGenerator.expr(awaitExpr.expr)}";
             else if (expr is ThisReference)
                 res = $"{{R}}this";
             else if (expr is StaticThisReference)
                 res = $"{{R:Static}}this";
-            else if (expr is EnumReference)
-                res = $"{{R:Enum}}{((EnumReference)expr).decl.name}";
-            else if (expr is ClassReference)
-                res = $"{{R:Cls}}{((ClassReference)expr).decl.name}";
-            else if (expr is MethodParameterReference)
-                res = $"{{R:MetP}}{((MethodParameterReference)expr).decl.name}";
-            else if (expr is VariableDeclarationReference)
-                res = $"{{V}}{((VariableDeclarationReference)expr).decl.name}";
-            else if (expr is ForVariableReference)
-                res = $"{{R:ForV}}{((ForVariableReference)expr).decl.name}";
-            else if (expr is ForeachVariableReference)
-                res = $"{{R:ForEV}}{((ForeachVariableReference)expr).decl.name}";
-            else if (expr is CatchVariableReference)
-                res = $"{{R:CatchV}}{((CatchVariableReference)expr).decl.name}";
-            else if (expr is GlobalFunctionReference)
-                res = $"{{R:GFunc}}{((GlobalFunctionReference)expr).decl.name}";
+            else if (expr is EnumReference enumRef)
+                res = $"{{R:Enum}}{enumRef.decl.name}";
+            else if (expr is ClassReference classRef)
+                res = $"{{R:Cls}}{classRef.decl.name}";
+            else if (expr is MethodParameterReference methParRef)
+                res = $"{{R:MetP}}{methParRef.decl.name}";
+            else if (expr is VariableDeclarationReference varDeclRef)
+                res = $"{{V}}{varDeclRef.decl.name}";
+            else if (expr is ForVariableReference forVarRef)
+                res = $"{{R:ForV}}{forVarRef.decl.name}";
+            else if (expr is ForeachVariableReference forVarRef2)
+                res = $"{{R:ForEV}}{forVarRef2.decl.name}";
+            else if (expr is CatchVariableReference catchVarRef)
+                res = $"{{R:CatchV}}{catchVarRef.decl.name}";
+            else if (expr is GlobalFunctionReference globFunctRef)
+                res = $"{{R:GFunc}}{globFunctRef.decl.name}";
             else if (expr is SuperReference)
                 res = $"{{R}}super";
-            else if (expr is StaticFieldReference)
-                res = $"{{R:StFi}}{((StaticFieldReference)expr).decl.parentInterface.name}::{((StaticFieldReference)expr).decl.name}";
-            else if (expr is StaticPropertyReference)
-                res = $"{{R:StPr}}{((StaticPropertyReference)expr).decl.parentClass.name}::{((StaticPropertyReference)expr).decl.name}";
-            else if (expr is InstanceFieldReference)
-                res = $"{TSOverviewGenerator.expr(((InstanceFieldReference)expr).object_)}.{{F}}{((InstanceFieldReference)expr).field.name}";
-            else if (expr is InstancePropertyReference)
-                res = $"{TSOverviewGenerator.expr(((InstancePropertyReference)expr).object_)}.{{P}}{((InstancePropertyReference)expr).property.name}";
-            else if (expr is EnumMemberReference)
-                res = $"{{E}}{((EnumMemberReference)expr).decl.parentEnum.name}::{((EnumMemberReference)expr).decl.name}";
-            else if (expr is NullCoalesceExpression)
-                res = $"{TSOverviewGenerator.expr(((NullCoalesceExpression)expr).defaultExpr)} ?? {TSOverviewGenerator.expr(((NullCoalesceExpression)expr).exprIfNull)}";
+            else if (expr is StaticFieldReference statFieldRef)
+                res = $"{{R:StFi}}{statFieldRef.decl.parentInterface.name}::{statFieldRef.decl.name}";
+            else if (expr is StaticPropertyReference statPropRef)
+                res = $"{{R:StPr}}{statPropRef.decl.parentClass.name}::{statPropRef.decl.name}";
+            else if (expr is InstanceFieldReference instFieldRef)
+                res = $"{TSOverviewGenerator.expr(instFieldRef.object_)}.{{F}}{instFieldRef.field.name}";
+            else if (expr is InstancePropertyReference instPropRef)
+                res = $"{TSOverviewGenerator.expr(instPropRef.object_)}.{{P}}{instPropRef.property.name}";
+            else if (expr is EnumMemberReference enumMembRef)
+                res = $"{{E}}{enumMembRef.decl.parentEnum.name}::{enumMembRef.decl.name}";
+            else if (expr is NullCoalesceExpression nullCoalExpr)
+                res = $"{TSOverviewGenerator.expr(nullCoalExpr.defaultExpr)} ?? {TSOverviewGenerator.expr(nullCoalExpr.exprIfNull)}";
             else { }
             return res;
         }
@@ -177,32 +177,32 @@ namespace Utils
             var res = "UNKNOWN-STATEMENT";
             if (stmt is BreakStatement)
                 res = "break;";
-            else if (stmt is ReturnStatement)
-                res = ((ReturnStatement)stmt).expression == null ? "return;" : $"return {TSOverviewGenerator.expr(((ReturnStatement)stmt).expression)};";
-            else if (stmt is UnsetStatement)
-                res = $"unset {TSOverviewGenerator.expr(((UnsetStatement)stmt).expression)};";
-            else if (stmt is ThrowStatement)
-                res = $"throw {TSOverviewGenerator.expr(((ThrowStatement)stmt).expression)};";
-            else if (stmt is ExpressionStatement)
-                res = $"{TSOverviewGenerator.expr(((ExpressionStatement)stmt).expression)};";
-            else if (stmt is VariableDeclaration)
-                res = $"var {TSOverviewGenerator.var(((VariableDeclaration)stmt))};";
-            else if (stmt is ForeachStatement)
-                res = $"for (const {((ForeachStatement)stmt).itemVar.name} of {TSOverviewGenerator.expr(((ForeachStatement)stmt).items)})" + TSOverviewGenerator.block(((ForeachStatement)stmt).body, previewOnly);
-            else if (stmt is IfStatement) {
-                var elseIf = ((IfStatement)stmt).else_ != null && ((IfStatement)stmt).else_.statements.length() == 1 && ((IfStatement)stmt).else_.statements.get(0) is IfStatement;
-                res = $"if ({TSOverviewGenerator.expr(((IfStatement)stmt).condition)}){TSOverviewGenerator.block(((IfStatement)stmt).then, previewOnly)}";
+            else if (stmt is ReturnStatement retStat)
+                res = retStat.expression == null ? "return;" : $"return {TSOverviewGenerator.expr(retStat.expression)};";
+            else if (stmt is UnsetStatement unsetStat)
+                res = $"unset {TSOverviewGenerator.expr(unsetStat.expression)};";
+            else if (stmt is ThrowStatement throwStat)
+                res = $"throw {TSOverviewGenerator.expr(throwStat.expression)};";
+            else if (stmt is ExpressionStatement exprStat)
+                res = $"{TSOverviewGenerator.expr(exprStat.expression)};";
+            else if (stmt is VariableDeclaration varDecl2)
+                res = $"var {TSOverviewGenerator.var(varDecl2)};";
+            else if (stmt is ForeachStatement forStat)
+                res = $"for (const {forStat.itemVar.name} of {TSOverviewGenerator.expr(forStat.items)})" + TSOverviewGenerator.block(forStat.body, previewOnly);
+            else if (stmt is IfStatement ifStat) {
+                var elseIf = ifStat.else_ != null && ifStat.else_.statements.length() == 1 && ifStat.else_.statements.get(0) is IfStatement;
+                res = $"if ({TSOverviewGenerator.expr(ifStat.condition)}){TSOverviewGenerator.block(ifStat.then, previewOnly)}";
                 if (!previewOnly)
-                    res += (elseIf ? $"\nelse {TSOverviewGenerator.stmt(((IfStatement)stmt).else_.statements.get(0))}" : "") + (!elseIf && ((IfStatement)stmt).else_ != null ? $"\nelse" + TSOverviewGenerator.block(((IfStatement)stmt).else_) : "");
+                    res += (elseIf ? $"\nelse {TSOverviewGenerator.stmt(ifStat.else_.statements.get(0))}" : "") + (!elseIf && ifStat.else_ != null ? $"\nelse" + TSOverviewGenerator.block(ifStat.else_) : "");
             }
-            else if (stmt is WhileStatement)
-                res = $"while ({TSOverviewGenerator.expr(((WhileStatement)stmt).condition)})" + TSOverviewGenerator.block(((WhileStatement)stmt).body, previewOnly);
-            else if (stmt is ForStatement)
-                res = $"for ({(((ForStatement)stmt).itemVar != null ? TSOverviewGenerator.var(((ForStatement)stmt).itemVar) : "")}; {TSOverviewGenerator.expr(((ForStatement)stmt).condition)}; {TSOverviewGenerator.expr(((ForStatement)stmt).incrementor)})" + TSOverviewGenerator.block(((ForStatement)stmt).body, previewOnly);
-            else if (stmt is DoStatement)
-                res = $"do{TSOverviewGenerator.block(((DoStatement)stmt).body, previewOnly)} while ({TSOverviewGenerator.expr(((DoStatement)stmt).condition)})";
-            else if (stmt is TryStatement)
-                res = "try" + TSOverviewGenerator.block(((TryStatement)stmt).tryBody, previewOnly, false) + (((TryStatement)stmt).catchBody != null ? $" catch ({((TryStatement)stmt).catchVar.name}){TSOverviewGenerator.block(((TryStatement)stmt).catchBody, previewOnly)}" : "") + (((TryStatement)stmt).finallyBody != null ? "finally" + TSOverviewGenerator.block(((TryStatement)stmt).finallyBody, previewOnly) : "");
+            else if (stmt is WhileStatement whileStat)
+                res = $"while ({TSOverviewGenerator.expr(whileStat.condition)})" + TSOverviewGenerator.block(whileStat.body, previewOnly);
+            else if (stmt is ForStatement forStat2)
+                res = $"for ({(forStat2.itemVar != null ? TSOverviewGenerator.var(forStat2.itemVar) : "")}; {TSOverviewGenerator.expr(forStat2.condition)}; {TSOverviewGenerator.expr(forStat2.incrementor)})" + TSOverviewGenerator.block(forStat2.body, previewOnly);
+            else if (stmt is DoStatement doStat)
+                res = $"do{TSOverviewGenerator.block(doStat.body, previewOnly)} while ({TSOverviewGenerator.expr(doStat.condition)})";
+            else if (stmt is TryStatement tryStat)
+                res = "try" + TSOverviewGenerator.block(tryStat.tryBody, previewOnly, false) + (tryStat.catchBody != null ? $" catch ({tryStat.catchVar.name}){TSOverviewGenerator.block(tryStat.catchBody, previewOnly)}" : "") + (tryStat.finallyBody != null ? "finally" + TSOverviewGenerator.block(tryStat.finallyBody, previewOnly) : "");
             else if (stmt is ContinueStatement)
                 res = $"continue;";
             else { }
@@ -216,8 +216,8 @@ namespace Utils
         public static string methodBase(IMethodBase method, Type_ returns) {
             if (method == null)
                 return "";
-            var name = method is Method ? ((Method)method).name : method is Constructor ? "constructor" : method is GlobalFunction ? ((GlobalFunction)method).name : "???";
-            var typeArgs = method is Method ? ((Method)method).typeArguments : null;
+            var name = method is Method meth ? meth.name : method is Constructor ? "constructor" : method is GlobalFunction globFunct ? globFunct.name : "???";
+            var typeArgs = method is Method meth2 ? meth2.typeArguments : null;
             return TSOverviewGenerator.preIf("/* throws */ ", method.throws) + $"{name}{TSOverviewGenerator.typeArgs(typeArgs)}({method.parameters.map((MethodParameter p) => { return TSOverviewGenerator.var(p); }).join(", ")})" + (returns is VoidType ? "" : $": {TSOverviewGenerator.type(returns)}") + (method.body != null ? $" {{\n{TSOverviewGenerator.pad(TSOverviewGenerator.rawBlock(method.body))}\n}}" : ";");
         }
         
@@ -228,9 +228,9 @@ namespace Utils
         public static string classLike(IInterface cls) {
             var resList = new List<string>();
             resList.push(cls.fields.map((Field field) => { return TSOverviewGenerator.var(field) + ";"; }).join("\n"));
-            if (cls is Class) {
-                resList.push(((Class)cls).properties.map((Property prop) => { return TSOverviewGenerator.var(prop) + ";"; }).join("\n"));
-                resList.push(TSOverviewGenerator.methodBase(((Class)cls).constructor_, VoidType.instance));
+            if (cls is Class class_) {
+                resList.push(class_.properties.map((Property prop) => { return TSOverviewGenerator.var(prop) + ";"; }).join("\n"));
+                resList.push(TSOverviewGenerator.methodBase(class_.constructor_, VoidType.instance));
             }
             resList.push(cls.methods.map((Method method) => { return TSOverviewGenerator.method(method); }).join("\n\n"));
             return TSOverviewGenerator.pad(resList.filter((string x) => { return x != ""; }).join("\n\n"));
@@ -245,10 +245,10 @@ namespace Utils
         }
         
         public static string nodeRepr(IAstNode node) {
-            if (node is Statement)
-                return TSOverviewGenerator.stmt(((Statement)node), true);
-            else if (node is Expression)
-                return TSOverviewGenerator.expr(((Expression)node), true);
+            if (node is Statement stat)
+                return TSOverviewGenerator.stmt(stat, true);
+            else if (node is Expression expr)
+                return TSOverviewGenerator.expr(expr, true);
             else
                 return "/* TODO: missing */";
         }

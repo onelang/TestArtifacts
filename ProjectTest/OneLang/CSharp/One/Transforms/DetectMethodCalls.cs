@@ -11,8 +11,8 @@ namespace One.Transforms
         
         protected override Expression visitExpression(Expression expr) {
             base.visitExpression(expr);
-            if (expr is UnresolvedCallExpression && ((UnresolvedCallExpression)expr).func is PropertyAccessExpression)
-                return new UnresolvedMethodCallExpression(((PropertyAccessExpression)((UnresolvedCallExpression)expr).func).object_, ((PropertyAccessExpression)((UnresolvedCallExpression)expr).func).propertyName, ((UnresolvedCallExpression)expr).typeArgs, ((UnresolvedCallExpression)expr).args);
+            if (expr is UnresolvedCallExpression unrCallExpr && unrCallExpr.func is PropertyAccessExpression propAccExpr)
+                return new UnresolvedMethodCallExpression(propAccExpr.object_, propAccExpr.propertyName, unrCallExpr.typeArgs, unrCallExpr.args);
             return null;
         }
     }

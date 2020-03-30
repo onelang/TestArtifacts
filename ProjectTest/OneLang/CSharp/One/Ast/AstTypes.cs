@@ -20,12 +20,12 @@ namespace One.Ast
         public static bool isGeneric(Type_ type) {
             if (type is GenericsType)
                 return true;
-            else if (type is ClassType)
-                return ((ClassType)type).typeArguments.some((Type_ x) => { return Type_.isGeneric(x); });
-            else if (type is InterfaceType)
-                return ((InterfaceType)type).typeArguments.some((Type_ x) => { return Type_.isGeneric(x); });
-            else if (type is LambdaType)
-                return ((LambdaType)type).parameters.some((MethodParameter x) => { return Type_.isGeneric(x.type); }) || Type_.isGeneric(((LambdaType)type).returnType);
+            else if (type is ClassType classType)
+                return classType.typeArguments.some((Type_ x) => { return Type_.isGeneric(x); });
+            else if (type is InterfaceType intType)
+                return intType.typeArguments.some((Type_ x) => { return Type_.isGeneric(x); });
+            else if (type is LambdaType lambdType)
+                return lambdType.parameters.some((MethodParameter x) => { return Type_.isGeneric(x.type); }) || Type_.isGeneric(lambdType.returnType);
             else
                 return false;
         }
@@ -37,16 +37,16 @@ namespace One.Ast
                 return true;
             if (type1 is AnyType && type2 is AnyType)
                 return true;
-            if (type1 is GenericsType && type2 is GenericsType)
-                return ((GenericsType)type1).typeVarName == ((GenericsType)type2).typeVarName;
-            if (type1 is EnumType && type2 is EnumType)
-                return ((EnumType)type1).decl == ((EnumType)type2).decl;
-            if (type1 is LambdaType && type2 is LambdaType)
-                return Type_.equals(((LambdaType)type1).returnType, ((LambdaType)type2).returnType) && ((LambdaType)type1).parameters.length() == ((LambdaType)type2).parameters.length() && ((LambdaType)type1).parameters.every((MethodParameter t, int i) => { return Type_.equals(t.type, ((LambdaType)type2).parameters.get(i).type); });
-            if (type1 is ClassType && type2 is ClassType)
-                return ((ClassType)type1).decl == ((ClassType)type2).decl && ((ClassType)type1).typeArguments.length() == ((ClassType)type2).typeArguments.length() && ((ClassType)type1).typeArguments.every((Type_ t, int i) => { return Type_.equals(t, ((ClassType)type2).typeArguments.get(i)); });
-            if (type1 is InterfaceType && type2 is InterfaceType)
-                return ((InterfaceType)type1).decl == ((InterfaceType)type2).decl && ((InterfaceType)type1).typeArguments.length() == ((InterfaceType)type2).typeArguments.length() && ((InterfaceType)type1).typeArguments.every((Type_ t, int i) => { return Type_.equals(t, ((InterfaceType)type2).typeArguments.get(i)); });
+            if (type1 is GenericsType genType && type2 is GenericsType genType2)
+                return genType.typeVarName == genType2.typeVarName;
+            if (type1 is EnumType enumType && type2 is EnumType enumType2)
+                return enumType.decl == enumType2.decl;
+            if (type1 is LambdaType lambdType2 && type2 is LambdaType lambdType3)
+                return Type_.equals(lambdType2.returnType, lambdType3.returnType) && lambdType2.parameters.length() == lambdType3.parameters.length() && lambdType2.parameters.every((MethodParameter t, int i) => { return Type_.equals(t.type, lambdType3.parameters.get(i).type); });
+            if (type1 is ClassType classType2 && type2 is ClassType classType3)
+                return classType2.decl == classType3.decl && classType2.typeArguments.length() == classType3.typeArguments.length() && classType2.typeArguments.every((Type_ t, int i) => { return Type_.equals(t, classType3.typeArguments.get(i)); });
+            if (type1 is InterfaceType intType2 && type2 is InterfaceType intType3)
+                return intType2.decl == intType3.decl && intType2.typeArguments.length() == intType3.typeArguments.length() && intType2.typeArguments.every((Type_ t, int i) => { return Type_.equals(t, intType3.typeArguments.get(i)); });
             return false;
         }
         
@@ -68,14 +68,14 @@ namespace One.Ast
             if (Type_.equals(toBeAssigned, whereTo))
                 return true;
             
-            if (toBeAssigned is ClassType && whereTo is ClassType)
-                return (((ClassType)toBeAssigned).decl.baseClass != null && Type_.isAssignableTo(((ClassType)toBeAssigned).decl.baseClass, ((ClassType)whereTo))) || ((ClassType)toBeAssigned).decl == ((ClassType)whereTo).decl && ((ClassType)toBeAssigned).typeArguments.every((Type_ x, int i) => { return Type_.isAssignableTo(x, ((ClassType)whereTo).typeArguments.get(i)); });
-            if (toBeAssigned is ClassType && whereTo is InterfaceType)
-                return (((ClassType)toBeAssigned).decl.baseClass != null && Type_.isAssignableTo(((ClassType)toBeAssigned).decl.baseClass, ((InterfaceType)whereTo))) || ((ClassType)toBeAssigned).decl.baseInterfaces.some((Type_ x) => { return Type_.isAssignableTo(x, ((InterfaceType)whereTo)); });
-            if (toBeAssigned is InterfaceType && whereTo is InterfaceType)
-                return ((InterfaceType)toBeAssigned).decl.baseInterfaces.some((Type_ x) => { return Type_.isAssignableTo(x, ((InterfaceType)whereTo)); }) || ((InterfaceType)toBeAssigned).decl == ((InterfaceType)whereTo).decl && ((InterfaceType)toBeAssigned).typeArguments.every((Type_ x, int i) => { return Type_.isAssignableTo(x, ((InterfaceType)whereTo).typeArguments.get(i)); });
-            if (toBeAssigned is LambdaType && whereTo is LambdaType)
-                return ((LambdaType)toBeAssigned).parameters.length() == ((LambdaType)whereTo).parameters.length() && ((LambdaType)toBeAssigned).parameters.every((MethodParameter p, int i) => { return Type_.isAssignableTo(p.type, ((LambdaType)whereTo).parameters.get(i).type); }) && (Type_.isAssignableTo(((LambdaType)toBeAssigned).returnType, ((LambdaType)whereTo).returnType) || ((LambdaType)whereTo).returnType is GenericsType);
+            if (toBeAssigned is ClassType classType4 && whereTo is ClassType classType5)
+                return (classType4.decl.baseClass != null && Type_.isAssignableTo(classType4.decl.baseClass, classType5)) || classType4.decl == classType5.decl && classType4.typeArguments.every((Type_ x, int i) => { return Type_.isAssignableTo(x, classType5.typeArguments.get(i)); });
+            if (toBeAssigned is ClassType classType6 && whereTo is InterfaceType intType4)
+                return (classType6.decl.baseClass != null && Type_.isAssignableTo(classType6.decl.baseClass, intType4)) || classType6.decl.baseInterfaces.some((Type_ x) => { return Type_.isAssignableTo(x, intType4); });
+            if (toBeAssigned is InterfaceType intType5 && whereTo is InterfaceType intType6)
+                return intType5.decl.baseInterfaces.some((Type_ x) => { return Type_.isAssignableTo(x, intType6); }) || intType5.decl == intType6.decl && intType5.typeArguments.every((Type_ x, int i) => { return Type_.isAssignableTo(x, intType6.typeArguments.get(i)); });
+            if (toBeAssigned is LambdaType lambdType4 && whereTo is LambdaType lambdType5)
+                return lambdType4.parameters.length() == lambdType5.parameters.length() && lambdType4.parameters.every((MethodParameter p, int i) => { return Type_.isAssignableTo(p.type, lambdType5.parameters.get(i).type); }) && (Type_.isAssignableTo(lambdType4.returnType, lambdType5.returnType) || lambdType5.returnType is GenericsType);
             
             return false;
         }

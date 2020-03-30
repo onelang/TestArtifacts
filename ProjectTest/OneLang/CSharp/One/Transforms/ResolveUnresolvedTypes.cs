@@ -11,19 +11,19 @@ namespace One.Transforms
         
         protected override Type_ visitType(Type_ type) {
             base.visitType(type);
-            if (type is UnresolvedType) {
-                var symbol = this.currentFile.availableSymbols.get(((UnresolvedType)type).typeName);
+            if (type is UnresolvedType unrType) {
+                var symbol = this.currentFile.availableSymbols.get(unrType.typeName);
                 if (symbol == null) {
-                    this.errorMan.throw_($"Unresolved type '{((UnresolvedType)type).typeName}' was not found in available symbols");
+                    this.errorMan.throw_($"Unresolved type '{unrType.typeName}' was not found in available symbols");
                     return null;
                 }
                 
-                if (symbol is Class)
-                    return new ClassType(((Class)symbol), ((UnresolvedType)type).typeArguments);
-                else if (symbol is Interface)
-                    return new InterfaceType(((Interface)symbol), ((UnresolvedType)type).typeArguments);
-                else if (symbol is Enum_)
-                    return new EnumType(((Enum_)symbol));
+                if (symbol is Class class_)
+                    return new ClassType(class_, unrType.typeArguments);
+                else if (symbol is Interface int_)
+                    return new InterfaceType(int_, unrType.typeArguments);
+                else if (symbol is Enum_ enum_)
+                    return new EnumType(enum_);
                 else {
                     this.errorMan.throw_($"Unknown symbol type: {symbol}");
                     return null;
@@ -34,11 +34,11 @@ namespace One.Transforms
         }
         
         protected override Expression visitExpression(Expression expr) {
-            if (expr is UnresolvedNewExpression) {
-                var classType = this.visitType(((UnresolvedNewExpression)expr).cls);
-                if (classType is ClassType) {
-                    var newExpr = new NewExpression(((ClassType)classType), ((UnresolvedNewExpression)expr).args);
-                    newExpr.parentNode = ((UnresolvedNewExpression)expr).parentNode;
+            if (expr is UnresolvedNewExpression unrNewExpr) {
+                var classType = this.visitType(unrNewExpr.cls);
+                if (classType is ClassType classType) {
+                    var newExpr = new NewExpression(classType, unrNewExpr.args);
+                    newExpr.parentNode = unrNewExpr.parentNode;
                     base.visitExpression(newExpr);
                     return newExpr;
                 }

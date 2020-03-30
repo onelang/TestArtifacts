@@ -386,4 +386,8 @@ public static class ExtensionMethods {
     public static int charCodeAt(this string str, int offset) {
         return (int)str[offset];
     }
+
+    public static string toLowerCase(this string str) {
+        return str.ToLower();
+    }
 }

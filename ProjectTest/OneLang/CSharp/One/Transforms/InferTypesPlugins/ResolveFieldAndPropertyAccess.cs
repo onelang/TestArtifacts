@@ -56,24 +56,24 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         protected Expression transformPA(PropertyAccessExpression expr) {
-            if (expr.object_ is ClassReference)
-                return this.getStaticRef(((ClassReference)expr.object_).decl, expr.propertyName);
+            if (expr.object_ is ClassReference classRef)
+                return this.getStaticRef(classRef.decl, expr.propertyName);
             
-            if (expr.object_ is StaticThisReference)
-                return this.getStaticRef(((StaticThisReference)expr.object_).cls, expr.propertyName);
+            if (expr.object_ is StaticThisReference statThisRef)
+                return this.getStaticRef(statThisRef.cls, expr.propertyName);
             
             expr.object_ = this.main.runPluginsOn(expr.object_);
             
-            if (expr.object_ is ThisReference)
-                return this.getInstanceRef(((ThisReference)expr.object_).cls, expr.propertyName, ((ThisReference)expr.object_));
+            if (expr.object_ is ThisReference thisRef)
+                return this.getInstanceRef(thisRef.cls, expr.propertyName, thisRef);
             
             var type = expr.object_.getType();
-            if (type is ClassType)
-                return this.getInstanceRef(((ClassType)type).decl, expr.propertyName, expr.object_);
-            else if (type is InterfaceType) {
-                var ref_ = this.getInterfaceRef(((InterfaceType)type).decl, expr.propertyName, expr.object_);
+            if (type is ClassType classType)
+                return this.getInstanceRef(classType.decl, expr.propertyName, expr.object_);
+            else if (type is InterfaceType intType) {
+                var ref_ = this.getInterfaceRef(intType.decl, expr.propertyName, expr.object_);
                 if (ref_ == null)
-                    this.errorMan.throw_($"Could not resolve instance member access of a interface: {((InterfaceType)type).repr()}::{expr.propertyName}");
+                    this.errorMan.throw_($"Could not resolve instance member access of a interface: {intType.repr()}::{expr.propertyName}");
                 return ref_;
             }
             else if (type == null)
@@ -88,7 +88,7 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         public override bool canTransform(Expression expr) {
-            return expr is PropertyAccessExpression && !(((PropertyAccessExpression)expr).object_ is EnumReference) && !(((PropertyAccessExpression)expr).parentNode is UnresolvedCallExpression && ((UnresolvedCallExpression)((PropertyAccessExpression)expr).parentNode).func == ((PropertyAccessExpression)expr)) && !(((PropertyAccessExpression)expr).actualType is AnyType);
+            return expr is PropertyAccessExpression propAccExpr && !(propAccExpr.object_ is EnumReference) && !(propAccExpr.parentNode is UnresolvedCallExpression unrCallExpr && unrCallExpr.func == propAccExpr) && !(propAccExpr.actualType is AnyType);
         }
         
         public override Expression transform(Expression expr) {
@@ -96,26 +96,26 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         public override bool canDetectType(Expression expr) {
-            return expr is InstanceFieldReference || expr is InstancePropertyReference || expr is StaticFieldReference || expr is StaticPropertyReference;
+            return expr is InstanceFieldReference instFieldRef || expr is InstancePropertyReference || expr is StaticFieldReference || expr is StaticPropertyReference;
         }
         
         public override bool detectType(Expression expr) {
-            if (expr is InstanceFieldReference) {
-                var actualType = GenericsResolver.fromObject(((InstanceFieldReference)expr).object_).resolveType(((InstanceFieldReference)expr).field.type, true);
-                ((InstanceFieldReference)expr).setActualType(actualType, false, Type_.isGeneric(((InstanceFieldReference)expr).object_.actualType));
+            if (expr is InstanceFieldReference instFieldRef2) {
+                var actualType = GenericsResolver.fromObject(instFieldRef2.object_).resolveType(instFieldRef2.field.type, true);
+                instFieldRef2.setActualType(actualType, false, Type_.isGeneric(instFieldRef2.object_.actualType));
                 return true;
             }
-            else if (expr is InstancePropertyReference) {
-                var actualType = GenericsResolver.fromObject(((InstancePropertyReference)expr).object_).resolveType(((InstancePropertyReference)expr).property.type, true);
-                ((InstancePropertyReference)expr).setActualType(actualType);
+            else if (expr is InstancePropertyReference instPropRef) {
+                var actualType = GenericsResolver.fromObject(instPropRef.object_).resolveType(instPropRef.property.type, true);
+                instPropRef.setActualType(actualType);
                 return true;
             }
-            else if (expr is StaticPropertyReference) {
-                ((StaticPropertyReference)expr).setActualType(((StaticPropertyReference)expr).decl.type, false, false);
+            else if (expr is StaticPropertyReference statPropRef) {
+                statPropRef.setActualType(statPropRef.decl.type, false, false);
                 return true;
             }
-            else if (expr is StaticFieldReference) {
-                ((StaticFieldReference)expr).setActualType(((StaticFieldReference)expr).decl.type, false, false);
+            else if (expr is StaticFieldReference statFieldRef) {
+                statFieldRef.setActualType(statFieldRef.decl.type, false, false);
                 return true;
             }
             

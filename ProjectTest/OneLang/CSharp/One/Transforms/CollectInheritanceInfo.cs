@@ -5,8 +5,8 @@ namespace One.Transforms
     public class CollectInheritanceInfo {
         public void visitClass(Class cls) {
             var allBaseIIntfs = cls.getAllBaseInterfaces();
-            var intfs = allBaseIIntfs.map((IInterface x) => { return x is Interface ? ((Interface)x) : null; }).filter((Interface x) => { return x != null; });
-            var clses = allBaseIIntfs.map((IInterface x) => { return x is Class ? ((Class)x) : null; }).filter((Class x) => { return x != null && x != cls; });
+            var intfs = allBaseIIntfs.map((IInterface x) => { return x is Interface int_ ? int_ : null; }).filter((Interface x) => { return x != null; });
+            var clses = allBaseIIntfs.map((IInterface x) => { return x is Class class_ ? class_ : null; }).filter((Class x) => { return x != null && x != cls; });
             
             foreach (var field in cls.fields)
                 field.interfaceDeclarations = intfs.map((Interface x) => { return x.fields.find((Field f) => { return f.name == field.name; }); }).filter((Field x) => { return x != null; });

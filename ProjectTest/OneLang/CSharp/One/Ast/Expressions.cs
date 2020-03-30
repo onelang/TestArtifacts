@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using One.Ast;
 
 namespace One.Ast
@@ -258,13 +259,13 @@ namespace One.Ast
     public class CastExpression : Expression {
         public Type_ newType;
         public Expression expression;
-        public bool implicit_;
+        public InstanceOfExpression instanceOfCast;
         
-        public CastExpression(Type_ newType, Expression expression, bool implicit_ = false): base()
+        public CastExpression(Type_ newType, Expression expression, InstanceOfExpression instanceOfCast): base()
         {
             this.newType = newType;
             this.expression = expression;
-            this.implicit_ = implicit_;
+            this.instanceOfCast = instanceOfCast;
         }
     }
     
@@ -404,11 +405,15 @@ namespace One.Ast
     public class InstanceOfExpression : Expression {
         public Expression expr;
         public Type_ checkType;
+        public List<CastExpression> implicitCasts;
+        public string alias;
         
         public InstanceOfExpression(Expression expr, Type_ checkType): base()
         {
             this.expr = expr;
             this.checkType = checkType;
+            this.implicitCasts = null;
+            this.alias = null;
         }
     }
     

@@ -56,8 +56,8 @@ namespace One.Transforms.InferTypesPlugins
             }
             
             var checkType = declaredType;
-            if (checkType != null && asyncType != null && checkType is ClassType && ((ClassType)checkType).decl == asyncType.decl)
-                checkType = ((ClassType)checkType).typeArguments.get(0);
+            if (checkType != null && asyncType != null && checkType is ClassType classType && classType.decl == asyncType.decl)
+                checkType = classType.typeArguments.get(0);
             
             if (checkType != null && !Type_.isAssignableTo(inferredType, checkType))
                 this.errorMan.throw_($"{errorContext} returns different type ({inferredType.repr()}) than expected {checkType.repr()}");
@@ -91,10 +91,10 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         public override bool handleStatement(Statement stmt) {
-            if (stmt is ReturnStatement && ((ReturnStatement)stmt).expression != null) {
-                this.main.processStatement(((ReturnStatement)stmt));
+            if (stmt is ReturnStatement retStat && retStat.expression != null) {
+                this.main.processStatement(retStat);
                 if (this.returnTypeInfer.length() != 0)
-                    this.current.addReturn(((ReturnStatement)stmt).expression);
+                    this.current.addReturn(retStat.expression);
                 return true;
             }
             else if (stmt is ThrowStatement) {
@@ -115,10 +115,10 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         public override bool handleMethod(IMethodBase method) {
-            if (method is Method && ((Method)method).body != null) {
+            if (method is Method meth && meth.body != null) {
                 this.start();
-                this.main.processMethodBase(((Method)method));
-                ((Method)method).returns = this.finish(((Method)method).returns, $"Method \"{((Method)method).name}\"", ((Method)method).async ? this.main.currentFile.literalTypes.promise : null);
+                this.main.processMethodBase(meth);
+                meth.returns = this.finish(meth.returns, $"Method \"{meth.name}\"", meth.async ? this.main.currentFile.literalTypes.promise : null);
                 return true;
             }
             else

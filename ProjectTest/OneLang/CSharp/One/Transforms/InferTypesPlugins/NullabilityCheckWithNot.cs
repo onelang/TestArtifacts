@@ -10,7 +10,7 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         public override bool canTransform(Expression expr) {
-            return expr is UnaryExpression ? ((UnaryExpression)expr).operator_ == "!" : false;
+            return expr is UnaryExpression unaryExpr ? unaryExpr.operator_ == "!" : false;
         }
         
         public override Expression transform(Expression expr) {
@@ -19,7 +19,7 @@ namespace One.Transforms.InferTypesPlugins
                 this.main.processExpression(expr);
                 var type = unaryExpr.operand.actualType;
                 var litTypes = this.main.currentFile.literalTypes;
-                if (type is ClassType && ((ClassType)type).decl != litTypes.boolean.decl && ((ClassType)type).decl != litTypes.numeric.decl)
+                if (type is ClassType classType && classType.decl != litTypes.boolean.decl && classType.decl != litTypes.numeric.decl)
                     return new BinaryExpression(unaryExpr.operand, "==", new NullLiteral());
             }
             

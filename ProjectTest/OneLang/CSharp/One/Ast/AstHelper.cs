@@ -12,8 +12,8 @@ namespace One.Ast
                 var curr = toBeProcessed.pop();
                 result.add(curr);
                 
-                if (curr is Class && ((Class)curr).baseClass != null)
-                    toBeProcessed.push((((ClassType)((Class)curr).baseClass)).decl);
+                if (curr is Class class_ && class_.baseClass != null)
+                    toBeProcessed.push((((ClassType)class_.baseClass)).decl);
                 
                 foreach (var baseIntf in curr.baseInterfaces)
                     toBeProcessed.push((((InterfaceType)baseIntf)).decl);

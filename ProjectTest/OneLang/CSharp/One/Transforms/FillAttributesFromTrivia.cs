@@ -28,13 +28,13 @@ namespace One.Transforms
                 return;
             FillAttributesFromTrivia.process(block.statements.ToArray());
             foreach (var stmt in block.statements) {
-                if (stmt is ForeachStatement)
-                    FillAttributesFromTrivia.processBlock(((ForeachStatement)stmt).body);
-                else if (stmt is ForStatement)
-                    FillAttributesFromTrivia.processBlock(((ForStatement)stmt).body);
-                else if (stmt is IfStatement) {
-                    FillAttributesFromTrivia.processBlock(((IfStatement)stmt).then);
-                    FillAttributesFromTrivia.processBlock(((IfStatement)stmt).else_);
+                if (stmt is ForeachStatement forStat)
+                    FillAttributesFromTrivia.processBlock(forStat.body);
+                else if (stmt is ForStatement forStat2)
+                    FillAttributesFromTrivia.processBlock(forStat2.body);
+                else if (stmt is IfStatement ifStat) {
+                    FillAttributesFromTrivia.processBlock(ifStat.then);
+                    FillAttributesFromTrivia.processBlock(ifStat.else_);
                 }
             }
         }

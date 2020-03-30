@@ -13,8 +13,8 @@ namespace One.Transforms.InferTypesPlugins
             if (lambda.expectedType == null)
                 return;
             
-            if (lambda.expectedType is LambdaType) {
-                var declParams = ((LambdaType)lambda.expectedType).parameters;
+            if (lambda.expectedType is LambdaType lambdType) {
+                var declParams = lambdType.parameters;
                 if (declParams.length() != lambda.parameters.length())
                     this.errorMan.throw_($"Expected {lambda.parameters.length()} parameters for lambda, but got {declParams.length()}!");
                 else

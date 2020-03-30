@@ -15,17 +15,17 @@ namespace One.Transforms.InferTypesPlugins
         
         public override Expression transform(Expression expr) {
             var callExpr = ((UnresolvedCallExpression)expr);
-            if (callExpr.func is GlobalFunctionReference) {
-                var newExpr = new GlobalFunctionCallExpression(((GlobalFunctionReference)callExpr.func).decl, callExpr.args);
+            if (callExpr.func is GlobalFunctionReference globFunctRef) {
+                var newExpr = new GlobalFunctionCallExpression(globFunctRef.decl, callExpr.args);
                 callExpr.args = callExpr.args.map((Expression arg) => { return this.main.runPluginsOn(arg) ?? arg; });
-                newExpr.setActualType(((GlobalFunctionReference)callExpr.func).decl.returns);
+                newExpr.setActualType(globFunctRef.decl.returns);
                 return newExpr;
             }
             else {
                 this.main.processExpression(expr);
-                if (callExpr.func.actualType is LambdaType) {
+                if (callExpr.func.actualType is LambdaType lambdType) {
                     var newExpr = new LambdaCallExpression(callExpr.func, callExpr.args);
-                    newExpr.setActualType(((LambdaType)callExpr.func.actualType).returnType);
+                    newExpr.setActualType(lambdType.returnType);
                     return newExpr;
                 }
                 else

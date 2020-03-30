@@ -23,10 +23,10 @@ namespace One.Transforms
         protected override Expression visitExpression(Expression expr) {
             base.visitExpression(expr);
             
-            if (expr is BinaryExpression && ((BinaryExpression)expr).left is VariableReference && ((BinaryExpression)expr).operator_ == "=")
-                this.getVar(((VariableReference)((BinaryExpression)expr).left)).mutability.reassigned = true;
-            else if (expr is InstanceMethodCallExpression && ((InstanceMethodCallExpression)expr).object_ is VariableReference && ((InstanceMethodCallExpression)expr).method.attributes.hasKey("mutates"))
-                this.getVar(((VariableReference)((InstanceMethodCallExpression)expr).object_)).mutability.mutated = true;
+            if (expr is BinaryExpression binExpr && binExpr.left is VariableReference varRef && binExpr.operator_ == "=")
+                this.getVar(varRef).mutability.reassigned = true;
+            else if (expr is InstanceMethodCallExpression instMethCallExpr && instMethCallExpr.object_ is VariableReference varRef2 && instMethCallExpr.method.attributes.hasKey("mutates"))
+                this.getVar(varRef2).mutability.mutated = true;
             return null;
         }
         

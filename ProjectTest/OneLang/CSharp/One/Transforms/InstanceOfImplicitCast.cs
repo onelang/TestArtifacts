@@ -16,6 +16,7 @@ namespace One.Transforms
         
         protected void addCast(InstanceOfExpression cast) {
             if (this.castCounts.length() > 0) {
+                cast.implicitCasts = new List<CastExpression>();
                 this.casts.push(cast);
                 var last = this.castCounts.length() - 1;
                 this.castCounts.set(last, this.castCounts.get(last) + 1);
@@ -34,22 +35,22 @@ namespace One.Transforms
         
         protected bool equals(Expression expr1, Expression expr2) {
             // implicit casts don't matter when checking equality...
-            while (expr1 is CastExpression && ((CastExpression)expr1).implicit_)
-                expr1 = ((CastExpression)expr1).expression;
-            while (expr2 is CastExpression && ((CastExpression)expr2).implicit_)
-                expr2 = ((CastExpression)expr2).expression;
+            while (expr1 is CastExpression castExpr && castExpr.instanceOfCast != null)
+                expr1 = castExpr.expression;
+            while (expr2 is CastExpression castExpr2 && castExpr2.instanceOfCast != null)
+                expr2 = castExpr2.expression;
             
             // MetP, V, MethP.PA, V.PA, MethP/V [ {FEVR} ], FEVR
-            if (expr1 is PropertyAccessExpression)
-                return expr2 is PropertyAccessExpression && ((PropertyAccessExpression)expr1).propertyName == ((PropertyAccessExpression)expr2).propertyName && this.equals(((PropertyAccessExpression)expr1).object_, ((PropertyAccessExpression)expr2).object_);
-            else if (expr1 is VariableDeclarationReference)
-                return expr2 is VariableDeclarationReference && ((VariableDeclarationReference)expr1).decl == ((VariableDeclarationReference)expr2).decl;
-            else if (expr1 is MethodParameterReference)
-                return expr2 is MethodParameterReference && ((MethodParameterReference)expr1).decl == ((MethodParameterReference)expr2).decl;
-            else if (expr1 is ForeachVariableReference)
-                return expr2 is ForeachVariableReference && ((ForeachVariableReference)expr1).decl == ((ForeachVariableReference)expr2).decl;
-            else if (expr1 is InstanceFieldReference)
-                return expr2 is InstanceFieldReference && ((InstanceFieldReference)expr1).field == ((InstanceFieldReference)expr2).field;
+            if (expr1 is PropertyAccessExpression propAccExpr)
+                return expr2 is PropertyAccessExpression propAccExpr2 && propAccExpr.propertyName == propAccExpr2.propertyName && this.equals(propAccExpr.object_, propAccExpr2.object_);
+            else if (expr1 is VariableDeclarationReference varDeclRef)
+                return expr2 is VariableDeclarationReference varDeclRef2 && varDeclRef.decl == varDeclRef2.decl;
+            else if (expr1 is MethodParameterReference methParRef)
+                return expr2 is MethodParameterReference methParRef2 && methParRef.decl == methParRef2.decl;
+            else if (expr1 is ForeachVariableReference forVarRef)
+                return expr2 is ForeachVariableReference forVarRef2 && forVarRef.decl == forVarRef2.decl;
+            else if (expr1 is InstanceFieldReference instFieldRef)
+                return expr2 is InstanceFieldReference instFieldRef2 && instFieldRef.field == instFieldRef2.field;
             else if (expr1 is ThisReference)
                 return expr2 is ThisReference;
             else if (expr1 is StaticThisReference)
@@ -59,30 +60,33 @@ namespace One.Transforms
         
         protected override Expression visitExpression(Expression expr) {
             Expression result = null;
-            if (expr is InstanceOfExpression) {
-                this.visitExpression(((InstanceOfExpression)expr).expr);
-                this.addCast(((InstanceOfExpression)expr));
+            if (expr is InstanceOfExpression instOfExpr) {
+                this.visitExpression(instOfExpr.expr);
+                this.addCast(instOfExpr);
             }
-            else if (expr is BinaryExpression && ((BinaryExpression)expr).operator_ == "&&") {
-                ((BinaryExpression)expr).left = this.visitExpression(((BinaryExpression)expr).left) ?? ((BinaryExpression)expr).left;
-                ((BinaryExpression)expr).right = this.visitExpression(((BinaryExpression)expr).right) ?? ((BinaryExpression)expr).right;
+            else if (expr is BinaryExpression binExpr && binExpr.operator_ == "&&") {
+                binExpr.left = this.visitExpression(binExpr.left) ?? binExpr.left;
+                binExpr.right = this.visitExpression(binExpr.right) ?? binExpr.right;
             }
-            else if (expr is ConditionalExpression) {
+            else if (expr is ConditionalExpression condExpr) {
                 this.pushContext();
-                ((ConditionalExpression)expr).condition = this.visitExpression(((ConditionalExpression)expr).condition) ?? ((ConditionalExpression)expr).condition;
-                ((ConditionalExpression)expr).whenTrue = this.visitExpression(((ConditionalExpression)expr).whenTrue) ?? ((ConditionalExpression)expr).whenTrue;
+                condExpr.condition = this.visitExpression(condExpr.condition) ?? condExpr.condition;
+                condExpr.whenTrue = this.visitExpression(condExpr.whenTrue) ?? condExpr.whenTrue;
                 this.popContext();
                 
-                ((ConditionalExpression)expr).whenFalse = this.visitExpression(((ConditionalExpression)expr).whenFalse) ?? ((ConditionalExpression)expr).whenFalse;
+                condExpr.whenFalse = this.visitExpression(condExpr.whenFalse) ?? condExpr.whenFalse;
             }
-            else if (expr is Reference && ((Reference)expr).parentNode is BinaryExpression && ((BinaryExpression)((Reference)expr).parentNode).operator_ == "=" && ((BinaryExpression)((Reference)expr).parentNode).left == ((Reference)expr)) { }
+            else if (expr is Reference ref_ && ref_.parentNode is BinaryExpression binExpr2 && binExpr2.operator_ == "=" && binExpr2.left == ref_) { }
             else {
                 this.pushContext();
                 result = base.visitExpression(expr) ?? expr;
                 this.popContext();
                 var match = this.casts.find((InstanceOfExpression cast) => { return this.equals(result, cast.expr); });
-                if (match != null)
-                    result = new CastExpression(match.checkType, result, true);
+                if (match != null) {
+                    var castExpr = new CastExpression(match.checkType, result, match);
+                    match.implicitCasts.push(castExpr);
+                    result = castExpr;
+                }
             }
             return result;
         }
@@ -90,19 +94,19 @@ namespace One.Transforms
         protected override Statement visitStatement(Statement stmt) {
             this.currentStatement = stmt;
             
-            if (stmt is IfStatement) {
+            if (stmt is IfStatement ifStat) {
                 this.pushContext();
-                ((IfStatement)stmt).condition = this.visitExpression(((IfStatement)stmt).condition) ?? ((IfStatement)stmt).condition;
-                this.visitBlock(((IfStatement)stmt).then);
+                ifStat.condition = this.visitExpression(ifStat.condition) ?? ifStat.condition;
+                this.visitBlock(ifStat.then);
                 this.popContext();
                 
-                if (((IfStatement)stmt).else_ != null)
-                    this.visitBlock(((IfStatement)stmt).else_);
+                if (ifStat.else_ != null)
+                    this.visitBlock(ifStat.else_);
             }
-            else if (stmt is WhileStatement) {
+            else if (stmt is WhileStatement whileStat) {
                 this.pushContext();
-                ((WhileStatement)stmt).condition = this.visitExpression(((WhileStatement)stmt).condition) ?? ((WhileStatement)stmt).condition;
-                this.visitBlock(((WhileStatement)stmt).body);
+                whileStat.condition = this.visitExpression(whileStat.condition) ?? whileStat.condition;
+                this.visitBlock(whileStat.body);
                 this.popContext();
             }
             else {

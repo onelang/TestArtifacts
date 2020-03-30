@@ -11,7 +11,7 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         protected Method findMethod(IInterface cls, string methodName, bool isStatic, Expression[] args) {
-            var allBases = cls is Class ? ((Class)cls).getAllBaseInterfaces().filter((IInterface x) => { return x is Class; }) : cls.getAllBaseInterfaces();
+            var allBases = cls is Class class_ ? class_.getAllBaseInterfaces().filter((IInterface x) => { return x is Class; }) : cls.getAllBaseInterfaces();
             
             var allMethods = new List<Method>();
             foreach (var base_ in allBases)
@@ -52,12 +52,12 @@ namespace One.Transforms.InferTypesPlugins
                 return;
             }
             
-            expr.setActualType(genericsResolver.resolveType(expr.method.returns, true), true, expr is InstanceMethodCallExpression && Type_.isGeneric(((InstanceMethodCallExpression)expr).object_.getType()));
+            expr.setActualType(genericsResolver.resolveType(expr.method.returns, true), true, expr is InstanceMethodCallExpression instMethCallExpr && Type_.isGeneric(instMethCallExpr.object_.getType()));
         }
         
         protected Expression transformMethodCall(UnresolvedMethodCallExpression expr) {
-            if (expr.object_ is ClassReference || expr.object_ is StaticThisReference) {
-                var cls = expr.object_ is ClassReference ? ((ClassReference)expr.object_).decl : expr.object_ is StaticThisReference ? ((StaticThisReference)expr.object_).cls : null;
+            if (expr.object_ is ClassReference classRef || expr.object_ is StaticThisReference) {
+                var cls = expr.object_ is ClassReference classRef2 ? classRef2.decl : expr.object_ is StaticThisReference statThisRef ? statThisRef.cls : null;
                 var method = this.findMethod(cls, expr.methodName, true, expr.args);
                 var result = new StaticMethodCallExpression(method, expr.typeArgs, expr.args, expr.object_ is StaticThisReference);
                 this.resolveReturnType(result, new GenericsResolver());
@@ -66,7 +66,7 @@ namespace One.Transforms.InferTypesPlugins
             else {
                 var resolvedObject = expr.object_.actualType != null ? expr.object_ : this.main.runPluginsOn(expr.object_) ?? expr.object_;
                 var objectType = resolvedObject.getType();
-                var intfType = objectType is ClassType ? ((IInterface)((ClassType)objectType).decl) : objectType is InterfaceType ? ((InterfaceType)objectType).decl : null;
+                var intfType = objectType is ClassType classType ? ((IInterface)classType.decl) : objectType is InterfaceType intType ? intType.decl : null;
                 
                 if (intfType != null) {
                     var method = this.findMethod(intfType, expr.methodName, false, expr.args);
@@ -84,7 +84,7 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         public override bool canTransform(Expression expr) {
-            return expr is UnresolvedMethodCallExpression && !(((UnresolvedMethodCallExpression)expr).actualType is AnyType);
+            return expr is UnresolvedMethodCallExpression unrMethCallExpr && !(unrMethCallExpr.actualType is AnyType);
         }
         
         public override Expression transform(Expression expr) {

@@ -25,8 +25,8 @@ namespace One.Transforms.InferTypesPlugins
                     this.errorMan.warn($"Could not determine the type of an empty {(isMap ? "MapLiteral" : "ArrayLiteral")}, using AnyType instead");
                     itemType = AnyType.instance;
                 }
-                else if (expectedType is ClassType && ((ClassType)expectedType).decl == literalType.decl)
-                    itemType = ((ClassType)expectedType).typeArguments.get(0);
+                else if (expectedType is ClassType classType && classType.decl == literalType.decl)
+                    itemType = classType.typeArguments.get(0);
                 else
                     itemType = AnyType.instance;
             }
@@ -40,25 +40,25 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         public override bool canDetectType(Expression expr) {
-            return expr is ArrayLiteral || expr is MapLiteral;
+            return expr is ArrayLiteral arrayLit || expr is MapLiteral;
         }
         
         public override bool detectType(Expression expr) {
             // make this work: `<{ [name: string]: SomeObject }> {}`
-            if (expr.parentNode is CastExpression)
-                expr.setExpectedType(((CastExpression)expr.parentNode).newType);
-            else if (expr.parentNode is BinaryExpression && ((BinaryExpression)expr.parentNode).operator_ == "=" && ((BinaryExpression)expr.parentNode).right == expr)
-                expr.setExpectedType(((BinaryExpression)expr.parentNode).left.actualType);
-            else if (expr.parentNode is ConditionalExpression && (((ConditionalExpression)expr.parentNode).whenTrue == expr || ((ConditionalExpression)expr.parentNode).whenFalse == expr))
-                expr.setExpectedType(((ConditionalExpression)expr.parentNode).whenTrue == expr ? ((ConditionalExpression)expr.parentNode).whenFalse.actualType : ((ConditionalExpression)expr.parentNode).whenTrue.actualType);
+            if (expr.parentNode is CastExpression castExpr)
+                expr.setExpectedType(castExpr.newType);
+            else if (expr.parentNode is BinaryExpression binExpr && binExpr.operator_ == "=" && binExpr.right == expr)
+                expr.setExpectedType(binExpr.left.actualType);
+            else if (expr.parentNode is ConditionalExpression condExpr && (condExpr.whenTrue == expr || condExpr.whenFalse == expr))
+                expr.setExpectedType(condExpr.whenTrue == expr ? condExpr.whenFalse.actualType : condExpr.whenTrue.actualType);
             
-            if (expr is ArrayLiteral) {
-                var itemType = this.inferArrayOrMapItemType(((ArrayLiteral)expr).items, ((ArrayLiteral)expr).expectedType, false);
-                ((ArrayLiteral)expr).setActualType(new ClassType(this.main.currentFile.literalTypes.array.decl, new Type_[] { itemType }));
+            if (expr is ArrayLiteral arrayLit2) {
+                var itemType = this.inferArrayOrMapItemType(arrayLit2.items, arrayLit2.expectedType, false);
+                arrayLit2.setActualType(new ClassType(this.main.currentFile.literalTypes.array.decl, new Type_[] { itemType }));
             }
-            else if (expr is MapLiteral) {
-                var itemType = this.inferArrayOrMapItemType(((MapLiteral)expr).items.map((MapLiteralItem x) => { return x.value; }), ((MapLiteral)expr).expectedType, true);
-                ((MapLiteral)expr).setActualType(new ClassType(this.main.currentFile.literalTypes.map.decl, new Type_[] { itemType }));
+            else if (expr is MapLiteral mapLit) {
+                var itemType = this.inferArrayOrMapItemType(mapLit.items.map((MapLiteralItem x) => { return x.value; }), mapLit.expectedType, true);
+                mapLit.setActualType(new ClassType(this.main.currentFile.literalTypes.map.decl, new Type_[] { itemType }));
             }
             
             return true;

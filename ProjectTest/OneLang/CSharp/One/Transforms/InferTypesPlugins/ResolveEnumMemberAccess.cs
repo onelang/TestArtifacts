@@ -10,7 +10,7 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         public override bool canTransform(Expression expr) {
-            return expr is PropertyAccessExpression && ((PropertyAccessExpression)expr).object_ is EnumReference;
+            return expr is PropertyAccessExpression propAccExpr && propAccExpr.object_ is EnumReference;
         }
         
         public override Expression transform(Expression expr) {

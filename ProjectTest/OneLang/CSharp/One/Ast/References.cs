@@ -62,7 +62,7 @@ namespace One.Ast
         }
         
         public override void setActualType(Type_ type, bool allowVoid, bool allowGeneric) {
-            base.setActualType(type, false, this.decl.parentMethod is Lambda ? ((Lambda)this.decl.parentMethod).parameters.some((MethodParameter x) => { return Type_.isGeneric(x.type); }) : this.decl.parentMethod is Constructor ? ((Constructor)this.decl.parentMethod).parentClass.typeArguments.length() > 0 : this.decl.parentMethod is Method ? ((Method)this.decl.parentMethod).typeArguments.length() > 0 || ((Method)this.decl.parentMethod).parentInterface.typeArguments.length() > 0 : false);
+            base.setActualType(type, false, this.decl.parentMethod is Lambda lambd ? lambd.parameters.some((MethodParameter x) => { return Type_.isGeneric(x.type); }) : this.decl.parentMethod is Constructor const ? const.parentClass.typeArguments.length() > 0 : this.decl.parentMethod is Method meth ? meth.typeArguments.length() > 0 || meth.parentInterface.typeArguments.length() > 0 : false);
         }
         
         public override IVariable getVariable() {

@@ -20,11 +20,13 @@ namespace Generator
         public IInterface currentClass;
         public string[] reservedWords;
         public string[] fieldToMethodHack;
+        public Dictionary<string, int> instanceOfIds;
         
         public CsharpGenerator()
         {
-            this.reservedWords = new string[] { "object", "else", "operator", "class", "enum", "void", "string", "implicit", "Type", "Enum", "params", "using", "throw", "ref", "base", "virtual", "interface" };
+            this.reservedWords = new string[] { "object", "else", "operator", "class", "enum", "void", "string", "implicit", "Type", "Enum", "params", "using", "throw", "ref", "base", "virtual", "interface", "int", "const" };
             this.fieldToMethodHack = new string[] { "length" };
+            this.instanceOfIds = new Dictionary<string, int> {};
         }
         
         public string name_(string name) {
@@ -69,51 +71,51 @@ namespace Generator
         }
         
         public string type(Type_ t, bool mutates = true) {
-            if (t is ClassType) {
-                var typeArgs = this.typeArgs(((ClassType)t).typeArguments.map((Type_ x) => { return this.type(x); }));
-                if (((ClassType)t).decl.name == "TsString")
+            if (t is ClassType classType) {
+                var typeArgs = this.typeArgs(classType.typeArguments.map((Type_ x) => { return this.type(x); }));
+                if (classType.decl.name == "TsString")
                     return "string";
-                else if (((ClassType)t).decl.name == "TsBoolean")
+                else if (classType.decl.name == "TsBoolean")
                     return "bool";
-                else if (((ClassType)t).decl.name == "TsNumber")
+                else if (classType.decl.name == "TsNumber")
                     return "int";
-                else if (((ClassType)t).decl.name == "TsArray") {
+                else if (classType.decl.name == "TsArray") {
                     if (mutates) {
                         this.usings.add("System.Collections.Generic");
-                        return $"List<{this.type(((ClassType)t).typeArguments.get(0))}>";
+                        return $"List<{this.type(classType.typeArguments.get(0))}>";
                     }
                     else
-                        return $"{this.type(((ClassType)t).typeArguments.get(0))}[]";
+                        return $"{this.type(classType.typeArguments.get(0))}[]";
                 }
-                else if (((ClassType)t).decl.name == "Promise") {
+                else if (classType.decl.name == "Promise") {
                     this.usings.add("System.Threading.Tasks");
-                    return ((ClassType)t).typeArguments.get(0) is VoidType ? "Task" : $"Task{typeArgs}";
+                    return classType.typeArguments.get(0) is VoidType ? "Task" : $"Task{typeArgs}";
                 }
-                else if (((ClassType)t).decl.name == "Object") {
+                else if (classType.decl.name == "Object") {
                     this.usings.add("System");
                     return $"object";
                 }
-                else if (((ClassType)t).decl.name == "TsMap") {
+                else if (classType.decl.name == "TsMap") {
                     this.usings.add("System.Collections.Generic");
-                    return $"Dictionary<string, {this.type(((ClassType)t).typeArguments.get(0))}>";
+                    return $"Dictionary<string, {this.type(classType.typeArguments.get(0))}>";
                 }
-                return this.name_(((ClassType)t).decl.name) + typeArgs;
+                return this.name_(classType.decl.name) + typeArgs;
             }
-            else if (t is InterfaceType)
-                return $"{this.name_(((InterfaceType)t).decl.name)}{this.typeArgs(((InterfaceType)t).typeArguments.map((Type_ x) => { return this.type(x); }))}";
+            else if (t is InterfaceType intType)
+                return $"{this.name_(intType.decl.name)}{this.typeArgs(intType.typeArguments.map((Type_ x) => { return this.type(x); }))}";
             else if (t is VoidType)
                 return "void";
-            else if (t is EnumType)
-                return $"{this.name_(((EnumType)t).decl.name)}";
+            else if (t is EnumType enumType)
+                return $"{this.name_(enumType.decl.name)}";
             else if (t is AnyType)
                 return $"object";
             else if (t is NullType)
                 return $"null";
-            else if (t is GenericsType)
-                return $"{((GenericsType)t).typeVarName}";
-            else if (t is LambdaType) {
-                var isFunc = !(((LambdaType)t).returnType is VoidType);
-                return $"{(isFunc ? "Func" : "Action")}<{((LambdaType)t).parameters.map((MethodParameter x) => { return this.type(x.type); }).join(", ")}{(isFunc ? this.type(((LambdaType)t).returnType) : "")}>";
+            else if (t is GenericsType genType)
+                return $"{genType.typeVarName}";
+            else if (t is LambdaType lambdType) {
+                var isFunc = !(lambdType.returnType is VoidType);
+                return $"{(isFunc ? "Func" : "Action")}<{lambdType.parameters.map((MethodParameter x) => { return this.type(x.type); }).join(", ")}{(isFunc ? this.type(lambdType.returnType) : "")}>";
             }
             else if (t == null)
                 return "/* TODO */ object";
@@ -122,7 +124,7 @@ namespace Generator
         }
         
         public bool isTsArray(Type_ type) {
-            return type is ClassType && ((ClassType)type).decl.name == "TsArray";
+            return type is ClassType classType2 && classType2.decl.name == "TsArray";
         }
         
         public string vis(Visibility v) {
@@ -133,13 +135,13 @@ namespace Generator
             string type;
             if (attr != null && attr.attributes != null && attr.attributes.hasKey("csharp-type"))
                 type = attr.attributes.get("csharp-type");
-            else if (v.type is ClassType && ((ClassType)v.type).decl.name == "TsArray") {
+            else if (v.type is ClassType classType3 && classType3.decl.name == "TsArray") {
                 if (v.mutability.mutated) {
                     this.usings.add("System.Collections.Generic");
-                    type = $"List<{this.type(((ClassType)v.type).typeArguments.get(0))}>";
+                    type = $"List<{this.type(classType3.typeArguments.get(0))}>";
                 }
                 else
-                    type = $"{this.type(((ClassType)v.type).typeArguments.get(0))}[]";
+                    type = $"{this.type(classType3.typeArguments.get(0))}[]";
             }
             else
                 type = this.type(v.type);
@@ -156,15 +158,15 @@ namespace Generator
         
         public string mutateArg(Expression arg, bool shouldBeMutable) {
             if (this.isTsArray(arg.actualType)) {
-                if (arg is ArrayLiteral && !shouldBeMutable) {
-                    var itemType = (((ClassType)((ArrayLiteral)arg).actualType)).typeArguments.get(0);
-                    return ((ArrayLiteral)arg).items.length() == 0 && !this.isTsArray(itemType) ? $"new {this.type(itemType)}[0]" : $"new {this.type(itemType)}[] {{ {((ArrayLiteral)arg).items.map((Expression x) => { return this.expr(x); }).join(", ")} }}";
+                if (arg is ArrayLiteral arrayLit && !shouldBeMutable) {
+                    var itemType = (((ClassType)arrayLit.actualType)).typeArguments.get(0);
+                    return arrayLit.items.length() == 0 && !this.isTsArray(itemType) ? $"new {this.type(itemType)}[0]" : $"new {this.type(itemType)}[] {{ {arrayLit.items.map((Expression x) => { return this.expr(x); }).join(", ")} }}";
                 }
                 
                 var currentlyMutable = shouldBeMutable;
-                if (arg is VariableReference)
-                    currentlyMutable = ((VariableReference)arg).getVariable().mutability.mutated;
-                else if (arg is InstanceMethodCallExpression || arg is StaticMethodCallExpression)
+                if (arg is VariableReference varRef)
+                    currentlyMutable = varRef.getVariable().mutability.mutated;
+                else if (arg is InstanceMethodCallExpression instMethCallExpr || arg is StaticMethodCallExpression)
                     currentlyMutable = false;
                 
                 if (currentlyMutable && !shouldBeMutable)
@@ -178,8 +180,8 @@ namespace Generator
         }
         
         public string mutatedExpr(Expression expr, Expression toWhere) {
-            if (toWhere is VariableReference) {
-                var v = ((VariableReference)toWhere).getVariable();
+            if (toWhere is VariableReference varRef2) {
+                var v = varRef2.getVariable();
                 if (this.isTsArray(v.type))
                     return this.mutateArg(expr, v.mutability.mutated);
             }
@@ -197,41 +199,74 @@ namespace Generator
             return this.name_(expr.method.name) + this.typeArgs2(expr.typeArgs) + this.callParams(expr.args, expr.method.parameters);
         }
         
+        public string inferExprNameForType(Type_ type) {
+            if (type is ClassType classType4 && classType4.typeArguments.every((Type_ x, int _) => { return x is ClassType; })) {
+                var fullName = classType4.typeArguments.map((Type_ x) => { return (((ClassType)x)).decl.name; }).join("") + classType4.decl.name;
+                var nameParts = new List<string>();
+                var partStartIdx = 0;
+                for (int i = 1; i < fullName.length(); i++) {
+                    var chrCode = fullName.charCodeAt(i);
+                    var chrIsUpper = 65 <= chrCode && chrCode <= 90;
+                    if (chrIsUpper) {
+                        nameParts.push(fullName.substring(partStartIdx, i));
+                        partStartIdx = i;
+                    }
+                }
+                nameParts.push(fullName.substr(partStartIdx));
+                
+                var shortNameParts = new List<string>();
+                for (int i = 0; i < nameParts.length(); i++) {
+                    var p = nameParts.get(i);
+                    if (p.length() > 5) {
+                        var cutPoint = 3;
+                        for (; cutPoint <= 4; cutPoint++) {
+                            if ("aeoiu".includes(p.get(cutPoint)))
+                                break;
+                        }
+                        p = p.substr(0, cutPoint);
+                    }
+                    shortNameParts.push(i == 0 ? p.toLowerCase() : p);
+                }
+                return shortNameParts.join("");
+            }
+            return null;
+        }
+        
         public string expr(IExpression expr) {
             var res = "UNKNOWN-EXPR";
-            if (expr is NewExpression)
-                res = $"new {this.type(((NewExpression)expr).cls)}{this.callParams(((NewExpression)expr).args, ((NewExpression)expr).cls.decl.constructor_ != null ? ((NewExpression)expr).cls.decl.constructor_.parameters : new MethodParameter[0])}";
-            else if (expr is UnresolvedNewExpression)
-                res = $"/* TODO: UnresolvedNewExpression */ new {this.type(((UnresolvedNewExpression)expr).cls)}({((UnresolvedNewExpression)expr).args.map((Expression x) => { return this.expr(x); }).join(", ")})";
-            else if (expr is Identifier)
-                res = $"/* TODO: Identifier */ {((Identifier)expr).text}";
-            else if (expr is PropertyAccessExpression)
-                res = $"/* TODO: PropertyAccessExpression */ {this.expr(((PropertyAccessExpression)expr).object_)}.{((PropertyAccessExpression)expr).propertyName}";
-            else if (expr is UnresolvedCallExpression)
-                res = $"/* TODO: UnresolvedCallExpression */ {this.expr(((UnresolvedCallExpression)expr).func)}{this.exprCall(((UnresolvedCallExpression)expr).typeArgs, ((UnresolvedCallExpression)expr).args)}";
-            else if (expr is UnresolvedMethodCallExpression)
-                res = $"/* TODO: UnresolvedMethodCallExpression */ {this.expr(((UnresolvedMethodCallExpression)expr).object_)}.{((UnresolvedMethodCallExpression)expr).methodName}{this.exprCall(((UnresolvedMethodCallExpression)expr).typeArgs, ((UnresolvedMethodCallExpression)expr).args)}";
-            else if (expr is InstanceMethodCallExpression)
-                res = $"{this.expr(((InstanceMethodCallExpression)expr).object_)}.{this.methodCall(((InstanceMethodCallExpression)expr))}";
-            else if (expr is StaticMethodCallExpression)
-                res = $"{this.name_(((StaticMethodCallExpression)expr).method.parentInterface.name)}.{this.methodCall(((StaticMethodCallExpression)expr))}";
-            else if (expr is GlobalFunctionCallExpression)
-                res = $"Global.{this.name_(((GlobalFunctionCallExpression)expr).func.name)}{this.exprCall(new Type_[0], ((GlobalFunctionCallExpression)expr).args)}";
-            else if (expr is LambdaCallExpression)
-                res = $"{this.expr(((LambdaCallExpression)expr).method)}({((LambdaCallExpression)expr).args.map((Expression x) => { return this.expr(x); }).join(", ")})";
-            else if (expr is BooleanLiteral)
-                res = $"{(((BooleanLiteral)expr).boolValue ? "true" : "false")}";
-            else if (expr is StringLiteral)
-                res = $"{JSON.stringify(((StringLiteral)expr).stringValue)}";
-            else if (expr is NumericLiteral)
-                res = $"{((NumericLiteral)expr).valueAsText}";
-            else if (expr is CharacterLiteral)
-                res = $"'{((CharacterLiteral)expr).charValue}'";
-            else if (expr is ElementAccessExpression)
-                res = $"{this.expr(((ElementAccessExpression)expr).object_)}[{this.expr(((ElementAccessExpression)expr).elementExpr)}]";
-            else if (expr is TemplateString) {
+            if (expr is NewExpression newExpr)
+                res = $"new {this.type(newExpr.cls)}{this.callParams(newExpr.args, newExpr.cls.decl.constructor_ != null ? newExpr.cls.decl.constructor_.parameters : new MethodParameter[0])}";
+            else if (expr is UnresolvedNewExpression unrNewExpr)
+                res = $"/* TODO: UnresolvedNewExpression */ new {this.type(unrNewExpr.cls)}({unrNewExpr.args.map((Expression x) => { return this.expr(x); }).join(", ")})";
+            else if (expr is Identifier ident)
+                res = $"/* TODO: Identifier */ {ident.text}";
+            else if (expr is PropertyAccessExpression propAccExpr)
+                res = $"/* TODO: PropertyAccessExpression */ {this.expr(propAccExpr.object_)}.{propAccExpr.propertyName}";
+            else if (expr is UnresolvedCallExpression unrCallExpr)
+                res = $"/* TODO: UnresolvedCallExpression */ {this.expr(unrCallExpr.func)}{this.exprCall(unrCallExpr.typeArgs, unrCallExpr.args)}";
+            else if (expr is UnresolvedMethodCallExpression unrMethCallExpr)
+                res = $"/* TODO: UnresolvedMethodCallExpression */ {this.expr(unrMethCallExpr.object_)}.{unrMethCallExpr.methodName}{this.exprCall(unrMethCallExpr.typeArgs, unrMethCallExpr.args)}";
+            else if (expr is InstanceMethodCallExpression instMethCallExpr2)
+                res = $"{this.expr(instMethCallExpr2.object_)}.{this.methodCall(instMethCallExpr2)}";
+            else if (expr is StaticMethodCallExpression statMethCallExpr)
+                res = $"{this.name_(statMethCallExpr.method.parentInterface.name)}.{this.methodCall(statMethCallExpr)}";
+            else if (expr is GlobalFunctionCallExpression globFunctCallExpr)
+                res = $"Global.{this.name_(globFunctCallExpr.func.name)}{this.exprCall(new Type_[0], globFunctCallExpr.args)}";
+            else if (expr is LambdaCallExpression lambdCallExpr)
+                res = $"{this.expr(lambdCallExpr.method)}({lambdCallExpr.args.map((Expression x) => { return this.expr(x); }).join(", ")})";
+            else if (expr is BooleanLiteral boolLit)
+                res = $"{(boolLit.boolValue ? "true" : "false")}";
+            else if (expr is StringLiteral strLit)
+                res = $"{JSON.stringify(strLit.stringValue)}";
+            else if (expr is NumericLiteral numLit)
+                res = $"{numLit.valueAsText}";
+            else if (expr is CharacterLiteral charLit)
+                res = $"'{charLit.charValue}'";
+            else if (expr is ElementAccessExpression elemAccExpr)
+                res = $"{this.expr(elemAccExpr.object_)}[{this.expr(elemAccExpr.elementExpr)}]";
+            else if (expr is TemplateString templStr) {
                 var parts = new List<string>();
-                foreach (var part in ((TemplateString)expr).parts) {
+                foreach (var part in templStr.parts) {
                     // parts.push(part.literalText.replace(new RegExp("\\n"), $"\\n").replace(new RegExp("\\r"), $"\\r").replace(new RegExp("\\t"), $"\\t").replace(new RegExp("{"), "{{").replace(new RegExp("}"), "}}").replace(new RegExp("\""), $"\\\""));
                     if (part.isLiteral) {
                         var lit = "";
@@ -268,72 +303,85 @@ namespace Generator
                 }
                 res = $"$\"{parts.join("")}\"";
             }
-            else if (expr is BinaryExpression)
-                res = $"{this.expr(((BinaryExpression)expr).left)} {((BinaryExpression)expr).operator_} {this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator_ == "=" ? ((BinaryExpression)expr).left : null)}";
-            else if (expr is ArrayLiteral) {
-                if (((ArrayLiteral)expr).items.length() == 0)
-                    res = $"new {this.type(((ArrayLiteral)expr).actualType)}()";
+            else if (expr is BinaryExpression binExpr)
+                res = $"{this.expr(binExpr.left)} {binExpr.operator_} {this.mutatedExpr(binExpr.right, binExpr.operator_ == "=" ? binExpr.left : null)}";
+            else if (expr is ArrayLiteral arrayLit2) {
+                if (arrayLit2.items.length() == 0)
+                    res = $"new {this.type(arrayLit2.actualType)}()";
                 else
-                    res = $"new {this.type(((ArrayLiteral)expr).actualType)} {{ {((ArrayLiteral)expr).items.map((Expression x) => { return this.expr(x); }).join(", ")} }}";
+                    res = $"new {this.type(arrayLit2.actualType)} {{ {arrayLit2.items.map((Expression x) => { return this.expr(x); }).join(", ")} }}";
             }
-            else if (expr is CastExpression)
-                res = $"(({this.type(((CastExpression)expr).newType)}){this.expr(((CastExpression)expr).expression)})";
-            else if (expr is ConditionalExpression)
-                res = $"{this.expr(((ConditionalExpression)expr).condition)} ? {this.expr(((ConditionalExpression)expr).whenTrue)} : {this.mutatedExpr(((ConditionalExpression)expr).whenFalse, ((ConditionalExpression)expr).whenTrue)}";
-            else if (expr is InstanceOfExpression)
-                res = $"{this.expr(((InstanceOfExpression)expr).expr)} is {this.type(((InstanceOfExpression)expr).checkType)}";
-            else if (expr is ParenthesizedExpression)
-                res = $"({this.expr(((ParenthesizedExpression)expr).expression)})";
-            else if (expr is RegexLiteral)
-                res = $"new RegExp({JSON.stringify(((RegexLiteral)expr).pattern)})";
-            else if (expr is Lambda)
-                res = $"({((Lambda)expr).parameters.map((MethodParameter x) => { return $"{this.type(x.type)} {this.name_(x.name)}"; }).join(", ")}) => {{ {this.rawBlock(((Lambda)expr).body)} }}";
-            else if (expr is UnaryExpression && ((UnaryExpression)expr).unaryType == UnaryType.Prefix)
-                res = $"{((UnaryExpression)expr).operator_}{this.expr(((UnaryExpression)expr).operand)}";
-            else if (expr is UnaryExpression && ((UnaryExpression)expr).unaryType == UnaryType.Postfix)
-                res = $"{this.expr(((UnaryExpression)expr).operand)}{((UnaryExpression)expr).operator_}";
-            else if (expr is MapLiteral) {
-                var repr = ((MapLiteral)expr).items.map((MapLiteralItem item) => { return $"[{JSON.stringify(item.key)}] = {this.expr(item.value)}"; }).join(",\n");
-                res = $"new {this.type(((MapLiteral)expr).actualType)} " + (repr == "" ? "{}" : repr.includes("\n") ? $"{{\n{this.pad(repr)}\n}}" : $"{{ {repr} }}");
+            else if (expr is CastExpression castExpr) {
+                if (castExpr.instanceOfCast != null && castExpr.instanceOfCast.alias != null)
+                    res = this.name_(castExpr.instanceOfCast.alias);
+                else
+                    res = $"(({this.type(castExpr.newType)}){this.expr(castExpr.expression)})";
+            }
+            else if (expr is ConditionalExpression condExpr)
+                res = $"{this.expr(condExpr.condition)} ? {this.expr(condExpr.whenTrue)} : {this.mutatedExpr(condExpr.whenFalse, condExpr.whenTrue)}";
+            else if (expr is InstanceOfExpression instOfExpr) {
+                if (instOfExpr.implicitCasts != null && instOfExpr.implicitCasts.length() > 0) {
+                    var aliasPrefix = this.inferExprNameForType(instOfExpr.checkType);
+                    if (aliasPrefix == null)
+                        aliasPrefix = instOfExpr.expr is VariableReference varRef3 ? varRef3.getVariable().name : "obj";
+                    var id = this.instanceOfIds.hasKey(aliasPrefix) ? this.instanceOfIds.get(aliasPrefix) : 1;
+                    this.instanceOfIds.set(aliasPrefix, id + 1);
+                    instOfExpr.alias = $"{aliasPrefix}{(id == 1 ? "" : $"{id}")}";
+                }
+                res = $"{this.expr(instOfExpr.expr)} is {this.type(instOfExpr.checkType)}{(instOfExpr.alias != null ? $" {this.name_(instOfExpr.alias)}" : "")}";
+            }
+            else if (expr is ParenthesizedExpression parExpr)
+                res = $"({this.expr(parExpr.expression)})";
+            else if (expr is RegexLiteral regexLit)
+                res = $"new RegExp({JSON.stringify(regexLit.pattern)})";
+            else if (expr is Lambda lambd)
+                res = $"({lambd.parameters.map((MethodParameter x) => { return $"{this.type(x.type)} {this.name_(x.name)}"; }).join(", ")}) => {{ {this.rawBlock(lambd.body)} }}";
+            else if (expr is UnaryExpression unaryExpr && unaryExpr.unaryType == UnaryType.Prefix)
+                res = $"{unaryExpr.operator_}{this.expr(unaryExpr.operand)}";
+            else if (expr is UnaryExpression unaryExpr2 && unaryExpr2.unaryType == UnaryType.Postfix)
+                res = $"{this.expr(unaryExpr2.operand)}{unaryExpr2.operator_}";
+            else if (expr is MapLiteral mapLit) {
+                var repr = mapLit.items.map((MapLiteralItem item) => { return $"[{JSON.stringify(item.key)}] = {this.expr(item.value)}"; }).join(",\n");
+                res = $"new {this.type(mapLit.actualType)} " + (repr == "" ? "{}" : repr.includes("\n") ? $"{{\n{this.pad(repr)}\n}}" : $"{{ {repr} }}");
             }
             else if (expr is NullLiteral)
                 res = $"null";
-            else if (expr is AwaitExpression)
-                res = $"await {this.expr(((AwaitExpression)expr).expr)}";
+            else if (expr is AwaitExpression awaitExpr)
+                res = $"await {this.expr(awaitExpr.expr)}";
             else if (expr is ThisReference)
                 res = $"this";
             else if (expr is StaticThisReference)
                 res = $"{this.currentClass.name}";
-            else if (expr is EnumReference)
-                res = $"{this.name_(((EnumReference)expr).decl.name)}";
-            else if (expr is ClassReference)
-                res = $"{this.name_(((ClassReference)expr).decl.name)}";
-            else if (expr is MethodParameterReference)
-                res = $"{this.name_(((MethodParameterReference)expr).decl.name)}";
-            else if (expr is VariableDeclarationReference)
-                res = $"{this.name_(((VariableDeclarationReference)expr).decl.name)}";
-            else if (expr is ForVariableReference)
-                res = $"{this.name_(((ForVariableReference)expr).decl.name)}";
-            else if (expr is ForeachVariableReference)
-                res = $"{this.name_(((ForeachVariableReference)expr).decl.name)}";
-            else if (expr is CatchVariableReference)
-                res = $"{this.name_(((CatchVariableReference)expr).decl.name)}";
-            else if (expr is GlobalFunctionReference)
-                res = $"{this.name_(((GlobalFunctionReference)expr).decl.name)}";
+            else if (expr is EnumReference enumRef)
+                res = $"{this.name_(enumRef.decl.name)}";
+            else if (expr is ClassReference classRef)
+                res = $"{this.name_(classRef.decl.name)}";
+            else if (expr is MethodParameterReference methParRef)
+                res = $"{this.name_(methParRef.decl.name)}";
+            else if (expr is VariableDeclarationReference varDeclRef)
+                res = $"{this.name_(varDeclRef.decl.name)}";
+            else if (expr is ForVariableReference forVarRef)
+                res = $"{this.name_(forVarRef.decl.name)}";
+            else if (expr is ForeachVariableReference forVarRef2)
+                res = $"{this.name_(forVarRef2.decl.name)}";
+            else if (expr is CatchVariableReference catchVarRef)
+                res = $"{this.name_(catchVarRef.decl.name)}";
+            else if (expr is GlobalFunctionReference globFunctRef)
+                res = $"{this.name_(globFunctRef.decl.name)}";
             else if (expr is SuperReference)
                 res = $"base";
-            else if (expr is StaticFieldReference)
-                res = $"{this.name_(((StaticFieldReference)expr).decl.parentInterface.name)}.{this.name_(((StaticFieldReference)expr).decl.name)}";
-            else if (expr is StaticPropertyReference)
-                res = $"{this.name_(((StaticPropertyReference)expr).decl.parentClass.name)}.{this.name_(((StaticPropertyReference)expr).decl.name)}";
-            else if (expr is InstanceFieldReference)
-                res = $"{this.expr(((InstanceFieldReference)expr).object_)}.{this.name_(((InstanceFieldReference)expr).field.name)}";
-            else if (expr is InstancePropertyReference)
-                res = $"{this.expr(((InstancePropertyReference)expr).object_)}.{this.name_(((InstancePropertyReference)expr).property.name)}";
-            else if (expr is EnumMemberReference)
-                res = $"{this.name_(((EnumMemberReference)expr).decl.parentEnum.name)}.{this.name_(((EnumMemberReference)expr).decl.name)}";
-            else if (expr is NullCoalesceExpression)
-                res = $"{this.expr(((NullCoalesceExpression)expr).defaultExpr)} ?? {this.mutatedExpr(((NullCoalesceExpression)expr).exprIfNull, ((NullCoalesceExpression)expr).defaultExpr)}";
+            else if (expr is StaticFieldReference statFieldRef)
+                res = $"{this.name_(statFieldRef.decl.parentInterface.name)}.{this.name_(statFieldRef.decl.name)}";
+            else if (expr is StaticPropertyReference statPropRef)
+                res = $"{this.name_(statPropRef.decl.parentClass.name)}.{this.name_(statPropRef.decl.name)}";
+            else if (expr is InstanceFieldReference instFieldRef)
+                res = $"{this.expr(instFieldRef.object_)}.{this.name_(instFieldRef.field.name)}";
+            else if (expr is InstancePropertyReference instPropRef)
+                res = $"{this.expr(instPropRef.object_)}.{this.name_(instPropRef.property.name)}";
+            else if (expr is EnumMemberReference enumMembRef)
+                res = $"{this.name_(enumMembRef.decl.parentEnum.name)}.{this.name_(enumMembRef.decl.name)}";
+            else if (expr is NullCoalesceExpression nullCoalExpr)
+                res = $"{this.expr(nullCoalExpr.defaultExpr)} ?? {this.mutatedExpr(nullCoalExpr.exprIfNull, nullCoalExpr.defaultExpr)}";
             else { }
             return res;
         }
@@ -349,43 +397,43 @@ namespace Generator
                 res = stmt.attributes.get("csharp");
             else if (stmt is BreakStatement)
                 res = "break;";
-            else if (stmt is ReturnStatement)
-                res = ((ReturnStatement)stmt).expression == null ? "return;" : $"return {this.mutateArg(((ReturnStatement)stmt).expression, false)};";
-            else if (stmt is UnsetStatement)
-                res = $"/* unset {this.expr(((UnsetStatement)stmt).expression)}; */";
-            else if (stmt is ThrowStatement)
-                res = $"throw {this.expr(((ThrowStatement)stmt).expression)};";
-            else if (stmt is ExpressionStatement)
-                res = $"{this.expr(((ExpressionStatement)stmt).expression)};";
-            else if (stmt is VariableDeclaration) {
-                if (((VariableDeclaration)stmt).initializer is NullLiteral)
-                    res = $"{this.type(((VariableDeclaration)stmt).type, ((VariableDeclaration)stmt).mutability.mutated)} {this.name_(((VariableDeclaration)stmt).name)} = null;";
-                else if (((VariableDeclaration)stmt).initializer != null)
-                    res = $"var {this.name_(((VariableDeclaration)stmt).name)} = {this.expr(((VariableDeclaration)stmt).initializer)};";
+            else if (stmt is ReturnStatement retStat)
+                res = retStat.expression == null ? "return;" : $"return {this.mutateArg(retStat.expression, false)};";
+            else if (stmt is UnsetStatement unsetStat)
+                res = $"/* unset {this.expr(unsetStat.expression)}; */";
+            else if (stmt is ThrowStatement throwStat)
+                res = $"throw {this.expr(throwStat.expression)};";
+            else if (stmt is ExpressionStatement exprStat)
+                res = $"{this.expr(exprStat.expression)};";
+            else if (stmt is VariableDeclaration varDecl) {
+                if (varDecl.initializer is NullLiteral)
+                    res = $"{this.type(varDecl.type, varDecl.mutability.mutated)} {this.name_(varDecl.name)} = null;";
+                else if (varDecl.initializer != null)
+                    res = $"var {this.name_(varDecl.name)} = {this.expr(varDecl.initializer)};";
                 else
-                    res = $"{this.type(((VariableDeclaration)stmt).type)} {this.name_(((VariableDeclaration)stmt).name)};";
+                    res = $"{this.type(varDecl.type)} {this.name_(varDecl.name)};";
             }
-            else if (stmt is ForeachStatement)
-                res = $"foreach (var {this.name_(((ForeachStatement)stmt).itemVar.name)} in {this.expr(((ForeachStatement)stmt).items)})" + this.block(((ForeachStatement)stmt).body);
-            else if (stmt is IfStatement) {
-                var elseIf = ((IfStatement)stmt).else_ != null && ((IfStatement)stmt).else_.statements.length() == 1 && ((IfStatement)stmt).else_.statements.get(0) is IfStatement;
-                res = $"if ({this.expr(((IfStatement)stmt).condition)}){this.block(((IfStatement)stmt).then)}";
-                res += (elseIf ? $"\nelse {this.stmt(((IfStatement)stmt).else_.statements.get(0))}" : "") + (!elseIf && ((IfStatement)stmt).else_ != null ? $"\nelse" + this.block(((IfStatement)stmt).else_) : "");
+            else if (stmt is ForeachStatement forStat)
+                res = $"foreach (var {this.name_(forStat.itemVar.name)} in {this.expr(forStat.items)})" + this.block(forStat.body);
+            else if (stmt is IfStatement ifStat) {
+                var elseIf = ifStat.else_ != null && ifStat.else_.statements.length() == 1 && ifStat.else_.statements.get(0) is IfStatement;
+                res = $"if ({this.expr(ifStat.condition)}){this.block(ifStat.then)}";
+                res += (elseIf ? $"\nelse {this.stmt(ifStat.else_.statements.get(0))}" : "") + (!elseIf && ifStat.else_ != null ? $"\nelse" + this.block(ifStat.else_) : "");
             }
-            else if (stmt is WhileStatement)
-                res = $"while ({this.expr(((WhileStatement)stmt).condition)})" + this.block(((WhileStatement)stmt).body);
-            else if (stmt is ForStatement)
-                res = $"for ({(((ForStatement)stmt).itemVar != null ? this.var(((ForStatement)stmt).itemVar, null) : "")}; {this.expr(((ForStatement)stmt).condition)}; {this.expr(((ForStatement)stmt).incrementor)})" + this.block(((ForStatement)stmt).body);
-            else if (stmt is DoStatement)
-                res = $"do{this.block(((DoStatement)stmt).body)} while ({this.expr(((DoStatement)stmt).condition)});";
-            else if (stmt is TryStatement) {
-                res = "try" + this.block(((TryStatement)stmt).tryBody, false);
-                if (((TryStatement)stmt).catchBody != null) {
+            else if (stmt is WhileStatement whileStat)
+                res = $"while ({this.expr(whileStat.condition)})" + this.block(whileStat.body);
+            else if (stmt is ForStatement forStat2)
+                res = $"for ({(forStat2.itemVar != null ? this.var(forStat2.itemVar, null) : "")}; {this.expr(forStat2.condition)}; {this.expr(forStat2.incrementor)})" + this.block(forStat2.body);
+            else if (stmt is DoStatement doStat)
+                res = $"do{this.block(doStat.body)} while ({this.expr(doStat.condition)});";
+            else if (stmt is TryStatement tryStat) {
+                res = "try" + this.block(tryStat.tryBody, false);
+                if (tryStat.catchBody != null) {
                     this.usings.add("System");
-                    res += $" catch (Exception {this.name_(((TryStatement)stmt).catchVar.name)}) {this.block(((TryStatement)stmt).catchBody, false)}";
+                    res += $" catch (Exception {this.name_(tryStat.catchVar.name)}) {this.block(tryStat.catchBody, false)}";
                 }
-                if (((TryStatement)stmt).finallyBody != null)
-                    res += "finally" + this.block(((TryStatement)stmt).finallyBody);
+                if (tryStat.finallyBody != null)
+                    res += "finally" + this.block(tryStat.finallyBody);
             }
             else if (stmt is ContinueStatement)
                 res = $"continue;";
@@ -407,8 +455,8 @@ namespace Generator
             
             var staticConstructorStmts = new List<Statement>();
             var complexFieldInits = new List<Statement>();
-            if (cls is Class) {
-                resList.push(((Class)cls).fields.map((Field field) => { var isInitializerComplex = field.initializer != null && !(field.initializer is StringLiteral) && !(field.initializer is BooleanLiteral) && !(field.initializer is NumericLiteral);
+            if (cls is Class class_) {
+                resList.push(class_.fields.map((Field field) => { var isInitializerComplex = field.initializer != null && !(field.initializer is StringLiteral) && !(field.initializer is BooleanLiteral) && !(field.initializer is NumericLiteral);
                 
                 var prefix = $"{this.vis(field.visibility)} {this.preIf("static ", field.isStatic)}";
                 if (field.interfaceDeclarations.length() > 0)
@@ -417,32 +465,32 @@ namespace Generator
                     if (field.isStatic)
                         staticConstructorStmts.push(new ExpressionStatement(new BinaryExpression(new StaticFieldReference(field), "=", field.initializer)));
                     else
-                        complexFieldInits.push(new ExpressionStatement(new BinaryExpression(new InstanceFieldReference(new ThisReference(((Class)cls)), field), "=", field.initializer)));
+                        complexFieldInits.push(new ExpressionStatement(new BinaryExpression(new InstanceFieldReference(new ThisReference(class_), field), "=", field.initializer)));
                     
                     return $"{prefix}{this.varWoInit(field, field)};";
                 }
                 else
                     return $"{prefix}{this.var(field, field)};"; }).join("\n"));
                 
-                resList.push(((Class)cls).properties.map((Property prop) => { return $"{this.vis(prop.visibility)} {this.preIf("static ", prop.isStatic)}" + this.varWoInit(prop, prop) + (prop.getter != null ? $" {{\n    get {{\n{this.pad(this.block(prop.getter))}\n    }}\n}}" : "") + (prop.setter != null ? $" {{\n    set {{\n{this.pad(this.block(prop.setter))}\n    }}\n}}" : ""); }).join("\n"));
+                resList.push(class_.properties.map((Property prop) => { return $"{this.vis(prop.visibility)} {this.preIf("static ", prop.isStatic)}" + this.varWoInit(prop, prop) + (prop.getter != null ? $" {{\n    get {{\n{this.pad(this.block(prop.getter))}\n    }}\n}}" : "") + (prop.setter != null ? $" {{\n    set {{\n{this.pad(this.block(prop.setter))}\n    }}\n}}" : ""); }).join("\n"));
                 
                 if (staticConstructorStmts.length() > 0)
-                    resList.push($"static {this.name_(((Class)cls).name)}()\n{{\n{this.pad(this.stmts(staticConstructorStmts.ToArray()))}\n}}");
+                    resList.push($"static {this.name_(class_.name)}()\n{{\n{this.pad(this.stmts(staticConstructorStmts.ToArray()))}\n}}");
                 
-                if (((Class)cls).constructor_ != null) {
-                    var constrFieldInits = ((Class)cls).fields.filter((Field x) => { return x.constructorParam != null; }).map((Field field) => { var fieldRef = new InstanceFieldReference(new ThisReference(((Class)cls)), field);
+                if (class_.constructor_ != null) {
+                    var constrFieldInits = class_.fields.filter((Field x) => { return x.constructorParam != null; }).map((Field field) => { var fieldRef = new InstanceFieldReference(new ThisReference(class_), field);
                     var mpRef = new MethodParameterReference(field.constructorParam);
                     // TODO: decide what to do with "after-TypeEngine" transformations
                     mpRef.setActualType(field.type, false, false);
                     return new ExpressionStatement(new BinaryExpression(fieldRef, "=", mpRef)); });
                     
-                    resList.push("public " + this.preIf("/* throws */ ", ((Class)cls).constructor_.throws) + this.name_(((Class)cls).name) + $"({((Class)cls).constructor_.parameters.map((MethodParameter p) => { return this.var(p, null); }).join(", ")})" + (((Class)cls).constructor_.superCallArgs != null ? $": base({((Class)cls).constructor_.superCallArgs.map((Expression x) => { return this.expr(x); }).join(", ")})" : "") + $"\n{{\n{this.pad(this.stmts(constrFieldInits.concat(complexFieldInits.ToArray()).concat(((Class)cls).constructor_.body.statements.ToArray())))}\n}}");
+                    resList.push("public " + this.preIf("/* throws */ ", class_.constructor_.throws) + this.name_(class_.name) + $"({class_.constructor_.parameters.map((MethodParameter p) => { return this.var(p, null); }).join(", ")})" + (class_.constructor_.superCallArgs != null ? $": base({class_.constructor_.superCallArgs.map((Expression x) => { return this.expr(x); }).join(", ")})" : "") + $"\n{{\n{this.pad(this.stmts(constrFieldInits.concat(complexFieldInits.ToArray()).concat(class_.constructor_.body.statements.ToArray())))}\n}}");
                 }
                 else if (complexFieldInits.length() > 0)
-                    resList.push($"public {this.name_(((Class)cls).name)}()\n{{\n{this.pad(this.stmts(complexFieldInits.ToArray()))}\n}}");
+                    resList.push($"public {this.name_(class_.name)}()\n{{\n{this.pad(this.stmts(complexFieldInits.ToArray()))}\n}}");
             }
-            else if (cls is Interface)
-                resList.push(((Interface)cls).fields.map((Field field) => { return $"{this.varWoInit(field, field)} {{ get; set; }}"; }).join("\n"));
+            else if (cls is Interface int_)
+                resList.push(int_.fields.map((Field field) => { return $"{this.varWoInit(field, field)} {{ get; set; }}"; }).join("\n"));
             
             var methods = new List<string>();
             foreach (var method in cls.methods) {
@@ -467,6 +515,7 @@ namespace Generator
         }
         
         public string genFile(SourceFile sourceFile) {
+            this.instanceOfIds = new Dictionary<string, int> {};
             this.usings = new Set<string>();
             var enums = sourceFile.enums.map((Enum_ enum_) => { return $"public enum {this.name_(enum_.name)} {{ {enum_.values.map((EnumMember x) => { return this.name_(x.name); }).join(", ")} }}"; });
             

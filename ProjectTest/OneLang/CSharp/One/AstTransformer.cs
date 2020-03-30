@@ -23,14 +23,14 @@ namespace One
         }
         
         protected virtual Type_ visitType(Type_ type) {
-            if (type is ClassType || type is InterfaceType || type is UnresolvedType) {
+            if (type is ClassType classType || type is InterfaceType || type is UnresolvedType) {
                 var type2 = ((IHasTypeArguments)type);
                 type2.typeArguments = type2.typeArguments.map((Type_ x) => { return this.visitType(x) ?? x; });
             }
-            else if (type is LambdaType) {
-                foreach (var mp in ((LambdaType)type).parameters)
+            else if (type is LambdaType lambdType) {
+                foreach (var mp in lambdType.parameters)
                     this.visitMethodParameter(mp);
-                ((LambdaType)type).returnType = this.visitType(((LambdaType)type).returnType) ?? ((LambdaType)type).returnType;
+                lambdType.returnType = this.visitType(lambdType.returnType) ?? lambdType.returnType;
             }
             return null;
         }
@@ -64,54 +64,54 @@ namespace One
         
         protected virtual Statement visitStatement(Statement stmt) {
             this.currentStatement = stmt;
-            if (stmt is ReturnStatement) {
-                if (((ReturnStatement)stmt).expression != null)
-                    ((ReturnStatement)stmt).expression = this.visitExpression(((ReturnStatement)stmt).expression) ?? ((ReturnStatement)stmt).expression;
+            if (stmt is ReturnStatement retStat) {
+                if (retStat.expression != null)
+                    retStat.expression = this.visitExpression(retStat.expression) ?? retStat.expression;
             }
-            else if (stmt is ExpressionStatement)
-                ((ExpressionStatement)stmt).expression = this.visitExpression(((ExpressionStatement)stmt).expression) ?? ((ExpressionStatement)stmt).expression;
-            else if (stmt is IfStatement) {
-                ((IfStatement)stmt).condition = this.visitExpression(((IfStatement)stmt).condition) ?? ((IfStatement)stmt).condition;
-                ((IfStatement)stmt).then = this.visitBlock(((IfStatement)stmt).then) ?? ((IfStatement)stmt).then;
-                if (((IfStatement)stmt).else_ != null)
-                    ((IfStatement)stmt).else_ = this.visitBlock(((IfStatement)stmt).else_) ?? ((IfStatement)stmt).else_;
+            else if (stmt is ExpressionStatement exprStat)
+                exprStat.expression = this.visitExpression(exprStat.expression) ?? exprStat.expression;
+            else if (stmt is IfStatement ifStat) {
+                ifStat.condition = this.visitExpression(ifStat.condition) ?? ifStat.condition;
+                ifStat.then = this.visitBlock(ifStat.then) ?? ifStat.then;
+                if (ifStat.else_ != null)
+                    ifStat.else_ = this.visitBlock(ifStat.else_) ?? ifStat.else_;
             }
-            else if (stmt is ThrowStatement)
-                ((ThrowStatement)stmt).expression = this.visitExpression(((ThrowStatement)stmt).expression) ?? ((ThrowStatement)stmt).expression;
-            else if (stmt is VariableDeclaration)
-                return this.visitVariableDeclaration(((VariableDeclaration)stmt));
-            else if (stmt is WhileStatement) {
-                ((WhileStatement)stmt).condition = this.visitExpression(((WhileStatement)stmt).condition) ?? ((WhileStatement)stmt).condition;
-                ((WhileStatement)stmt).body = this.visitBlock(((WhileStatement)stmt).body) ?? ((WhileStatement)stmt).body;
+            else if (stmt is ThrowStatement throwStat)
+                throwStat.expression = this.visitExpression(throwStat.expression) ?? throwStat.expression;
+            else if (stmt is VariableDeclaration varDecl)
+                return this.visitVariableDeclaration(varDecl);
+            else if (stmt is WhileStatement whileStat) {
+                whileStat.condition = this.visitExpression(whileStat.condition) ?? whileStat.condition;
+                whileStat.body = this.visitBlock(whileStat.body) ?? whileStat.body;
             }
-            else if (stmt is DoStatement) {
-                ((DoStatement)stmt).condition = this.visitExpression(((DoStatement)stmt).condition) ?? ((DoStatement)stmt).condition;
-                ((DoStatement)stmt).body = this.visitBlock(((DoStatement)stmt).body) ?? ((DoStatement)stmt).body;
+            else if (stmt is DoStatement doStat) {
+                doStat.condition = this.visitExpression(doStat.condition) ?? doStat.condition;
+                doStat.body = this.visitBlock(doStat.body) ?? doStat.body;
             }
-            else if (stmt is ForStatement) {
-                if (((ForStatement)stmt).itemVar != null)
-                    this.visitVariableWithInitializer(((ForStatement)stmt).itemVar);
-                ((ForStatement)stmt).condition = this.visitExpression(((ForStatement)stmt).condition) ?? ((ForStatement)stmt).condition;
-                ((ForStatement)stmt).incrementor = this.visitExpression(((ForStatement)stmt).incrementor) ?? ((ForStatement)stmt).incrementor;
-                ((ForStatement)stmt).body = this.visitBlock(((ForStatement)stmt).body) ?? ((ForStatement)stmt).body;
+            else if (stmt is ForStatement forStat) {
+                if (forStat.itemVar != null)
+                    this.visitVariableWithInitializer(forStat.itemVar);
+                forStat.condition = this.visitExpression(forStat.condition) ?? forStat.condition;
+                forStat.incrementor = this.visitExpression(forStat.incrementor) ?? forStat.incrementor;
+                forStat.body = this.visitBlock(forStat.body) ?? forStat.body;
             }
-            else if (stmt is ForeachStatement) {
-                this.visitVariable(((ForeachStatement)stmt).itemVar);
-                ((ForeachStatement)stmt).items = this.visitExpression(((ForeachStatement)stmt).items) ?? ((ForeachStatement)stmt).items;
-                ((ForeachStatement)stmt).body = this.visitBlock(((ForeachStatement)stmt).body) ?? ((ForeachStatement)stmt).body;
+            else if (stmt is ForeachStatement forStat2) {
+                this.visitVariable(forStat2.itemVar);
+                forStat2.items = this.visitExpression(forStat2.items) ?? forStat2.items;
+                forStat2.body = this.visitBlock(forStat2.body) ?? forStat2.body;
             }
-            else if (stmt is TryStatement) {
-                ((TryStatement)stmt).tryBody = this.visitBlock(((TryStatement)stmt).tryBody) ?? ((TryStatement)stmt).tryBody;
-                if (((TryStatement)stmt).catchBody != null) {
-                    this.visitVariable(((TryStatement)stmt).catchVar);
-                    ((TryStatement)stmt).catchBody = this.visitBlock(((TryStatement)stmt).catchBody) ?? ((TryStatement)stmt).catchBody;
+            else if (stmt is TryStatement tryStat) {
+                tryStat.tryBody = this.visitBlock(tryStat.tryBody) ?? tryStat.tryBody;
+                if (tryStat.catchBody != null) {
+                    this.visitVariable(tryStat.catchVar);
+                    tryStat.catchBody = this.visitBlock(tryStat.catchBody) ?? tryStat.catchBody;
                 }
-                if (((TryStatement)stmt).finallyBody != null)
-                    ((TryStatement)stmt).finallyBody = this.visitBlock(((TryStatement)stmt).finallyBody) ?? ((TryStatement)stmt).finallyBody;
+                if (tryStat.finallyBody != null)
+                    tryStat.finallyBody = this.visitBlock(tryStat.finallyBody) ?? tryStat.finallyBody;
             }
             else if (stmt is BreakStatement) { }
-            else if (stmt is UnsetStatement)
-                ((UnsetStatement)stmt).expression = this.visitExpression(((UnsetStatement)stmt).expression) ?? ((UnsetStatement)stmt).expression;
+            else if (stmt is UnsetStatement unsetStat)
+                unsetStat.expression = this.visitExpression(unsetStat.expression) ?? unsetStat.expression;
             else if (stmt is ContinueStatement) { }
             else
                 return this.visitUnknownStatement(stmt);
@@ -147,108 +147,108 @@ namespace One
         }
         
         protected virtual Expression visitExpression(Expression expr) {
-            if (expr is BinaryExpression) {
-                ((BinaryExpression)expr).left = this.visitExpression(((BinaryExpression)expr).left) ?? ((BinaryExpression)expr).left;
-                ((BinaryExpression)expr).right = this.visitExpression(((BinaryExpression)expr).right) ?? ((BinaryExpression)expr).right;
+            if (expr is BinaryExpression binExpr) {
+                binExpr.left = this.visitExpression(binExpr.left) ?? binExpr.left;
+                binExpr.right = this.visitExpression(binExpr.right) ?? binExpr.right;
             }
-            else if (expr is NullCoalesceExpression) {
-                ((NullCoalesceExpression)expr).defaultExpr = this.visitExpression(((NullCoalesceExpression)expr).defaultExpr) ?? ((NullCoalesceExpression)expr).defaultExpr;
-                ((NullCoalesceExpression)expr).exprIfNull = this.visitExpression(((NullCoalesceExpression)expr).exprIfNull) ?? ((NullCoalesceExpression)expr).exprIfNull;
+            else if (expr is NullCoalesceExpression nullCoalExpr) {
+                nullCoalExpr.defaultExpr = this.visitExpression(nullCoalExpr.defaultExpr) ?? nullCoalExpr.defaultExpr;
+                nullCoalExpr.exprIfNull = this.visitExpression(nullCoalExpr.exprIfNull) ?? nullCoalExpr.exprIfNull;
             }
-            else if (expr is UnresolvedCallExpression) {
-                ((UnresolvedCallExpression)expr).func = this.visitExpression(((UnresolvedCallExpression)expr).func) ?? ((UnresolvedCallExpression)expr).func;
-                ((UnresolvedCallExpression)expr).typeArgs = ((UnresolvedCallExpression)expr).typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
-                ((UnresolvedCallExpression)expr).args = ((UnresolvedCallExpression)expr).args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+            else if (expr is UnresolvedCallExpression unrCallExpr) {
+                unrCallExpr.func = this.visitExpression(unrCallExpr.func) ?? unrCallExpr.func;
+                unrCallExpr.typeArgs = unrCallExpr.typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
+                unrCallExpr.args = unrCallExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
             }
-            else if (expr is UnresolvedMethodCallExpression) {
-                ((UnresolvedMethodCallExpression)expr).object_ = this.visitExpression(((UnresolvedMethodCallExpression)expr).object_) ?? ((UnresolvedMethodCallExpression)expr).object_;
-                ((UnresolvedMethodCallExpression)expr).typeArgs = ((UnresolvedMethodCallExpression)expr).typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
-                ((UnresolvedMethodCallExpression)expr).args = ((UnresolvedMethodCallExpression)expr).args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+            else if (expr is UnresolvedMethodCallExpression unrMethCallExpr) {
+                unrMethCallExpr.object_ = this.visitExpression(unrMethCallExpr.object_) ?? unrMethCallExpr.object_;
+                unrMethCallExpr.typeArgs = unrMethCallExpr.typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
+                unrMethCallExpr.args = unrMethCallExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
             }
-            else if (expr is ConditionalExpression) {
-                ((ConditionalExpression)expr).condition = this.visitExpression(((ConditionalExpression)expr).condition) ?? ((ConditionalExpression)expr).condition;
-                ((ConditionalExpression)expr).whenTrue = this.visitExpression(((ConditionalExpression)expr).whenTrue) ?? ((ConditionalExpression)expr).whenTrue;
-                ((ConditionalExpression)expr).whenFalse = this.visitExpression(((ConditionalExpression)expr).whenFalse) ?? ((ConditionalExpression)expr).whenFalse;
+            else if (expr is ConditionalExpression condExpr) {
+                condExpr.condition = this.visitExpression(condExpr.condition) ?? condExpr.condition;
+                condExpr.whenTrue = this.visitExpression(condExpr.whenTrue) ?? condExpr.whenTrue;
+                condExpr.whenFalse = this.visitExpression(condExpr.whenFalse) ?? condExpr.whenFalse;
             }
-            else if (expr is Identifier)
-                return this.visitIdentifier(((Identifier)expr));
-            else if (expr is UnresolvedNewExpression) {
-                this.visitType(((UnresolvedNewExpression)expr).cls);
-                ((UnresolvedNewExpression)expr).args = ((UnresolvedNewExpression)expr).args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+            else if (expr is Identifier ident)
+                return this.visitIdentifier(ident);
+            else if (expr is UnresolvedNewExpression unrNewExpr) {
+                this.visitType(unrNewExpr.cls);
+                unrNewExpr.args = unrNewExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
             }
-            else if (expr is NewExpression) {
-                this.visitType(((NewExpression)expr).cls);
-                ((NewExpression)expr).args = ((NewExpression)expr).args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+            else if (expr is NewExpression newExpr) {
+                this.visitType(newExpr.cls);
+                newExpr.args = newExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
             }
-            else if (expr is TemplateString)
-                return this.visitTemplateString(((TemplateString)expr));
-            else if (expr is ParenthesizedExpression)
-                ((ParenthesizedExpression)expr).expression = this.visitExpression(((ParenthesizedExpression)expr).expression) ?? ((ParenthesizedExpression)expr).expression;
-            else if (expr is UnaryExpression)
-                ((UnaryExpression)expr).operand = this.visitExpression(((UnaryExpression)expr).operand) ?? ((UnaryExpression)expr).operand;
-            else if (expr is PropertyAccessExpression)
-                ((PropertyAccessExpression)expr).object_ = this.visitExpression(((PropertyAccessExpression)expr).object_) ?? ((PropertyAccessExpression)expr).object_;
-            else if (expr is ElementAccessExpression) {
-                ((ElementAccessExpression)expr).object_ = this.visitExpression(((ElementAccessExpression)expr).object_) ?? ((ElementAccessExpression)expr).object_;
-                ((ElementAccessExpression)expr).elementExpr = this.visitExpression(((ElementAccessExpression)expr).elementExpr) ?? ((ElementAccessExpression)expr).elementExpr;
+            else if (expr is TemplateString templStr)
+                return this.visitTemplateString(templStr);
+            else if (expr is ParenthesizedExpression parExpr)
+                parExpr.expression = this.visitExpression(parExpr.expression) ?? parExpr.expression;
+            else if (expr is UnaryExpression unaryExpr)
+                unaryExpr.operand = this.visitExpression(unaryExpr.operand) ?? unaryExpr.operand;
+            else if (expr is PropertyAccessExpression propAccExpr)
+                propAccExpr.object_ = this.visitExpression(propAccExpr.object_) ?? propAccExpr.object_;
+            else if (expr is ElementAccessExpression elemAccExpr) {
+                elemAccExpr.object_ = this.visitExpression(elemAccExpr.object_) ?? elemAccExpr.object_;
+                elemAccExpr.elementExpr = this.visitExpression(elemAccExpr.elementExpr) ?? elemAccExpr.elementExpr;
             }
-            else if (expr is ArrayLiteral)
-                ((ArrayLiteral)expr).items = ((ArrayLiteral)expr).items.map((Expression x) => { return this.visitExpression(x) ?? x; });
-            else if (expr is MapLiteral)
-                foreach (var item in ((MapLiteral)expr).items)
+            else if (expr is ArrayLiteral arrayLit)
+                arrayLit.items = arrayLit.items.map((Expression x) => { return this.visitExpression(x) ?? x; });
+            else if (expr is MapLiteral mapLit)
+                foreach (var item in mapLit.items)
                     item.value = this.visitExpression(item.value) ?? item.value;
             else if (expr is StringLiteral) { }
             else if (expr is BooleanLiteral) { }
             else if (expr is NumericLiteral) { }
             else if (expr is NullLiteral) { }
             else if (expr is RegexLiteral) { }
-            else if (expr is CastExpression) {
-                ((CastExpression)expr).newType = this.visitType(((CastExpression)expr).newType) ?? ((CastExpression)expr).newType;
-                ((CastExpression)expr).expression = this.visitExpression(((CastExpression)expr).expression) ?? ((CastExpression)expr).expression;
+            else if (expr is CastExpression castExpr) {
+                castExpr.newType = this.visitType(castExpr.newType) ?? castExpr.newType;
+                castExpr.expression = this.visitExpression(castExpr.expression) ?? castExpr.expression;
             }
-            else if (expr is InstanceOfExpression) {
-                ((InstanceOfExpression)expr).expr = this.visitExpression(((InstanceOfExpression)expr).expr) ?? ((InstanceOfExpression)expr).expr;
-                ((InstanceOfExpression)expr).checkType = this.visitType(((InstanceOfExpression)expr).checkType) ?? ((InstanceOfExpression)expr).checkType;
+            else if (expr is InstanceOfExpression instOfExpr) {
+                instOfExpr.expr = this.visitExpression(instOfExpr.expr) ?? instOfExpr.expr;
+                instOfExpr.checkType = this.visitType(instOfExpr.checkType) ?? instOfExpr.checkType;
             }
-            else if (expr is AwaitExpression)
-                ((AwaitExpression)expr).expr = this.visitExpression(((AwaitExpression)expr).expr) ?? ((AwaitExpression)expr).expr;
-            else if (expr is Lambda)
-                return this.visitLambda(((Lambda)expr));
+            else if (expr is AwaitExpression awaitExpr)
+                awaitExpr.expr = this.visitExpression(awaitExpr.expr) ?? awaitExpr.expr;
+            else if (expr is Lambda lambd)
+                return this.visitLambda(lambd);
             else if (expr is ClassReference) { }
             else if (expr is EnumReference) { }
             else if (expr is ThisReference) { }
             else if (expr is StaticThisReference) { }
-            else if (expr is MethodParameterReference)
-                return this.visitVariableReference(((MethodParameterReference)expr));
-            else if (expr is VariableDeclarationReference)
-                return this.visitVariableReference(((VariableDeclarationReference)expr));
-            else if (expr is ForVariableReference)
-                return this.visitVariableReference(((ForVariableReference)expr));
-            else if (expr is ForeachVariableReference)
-                return this.visitVariableReference(((ForeachVariableReference)expr));
-            else if (expr is CatchVariableReference)
-                return this.visitVariableReference(((CatchVariableReference)expr));
+            else if (expr is MethodParameterReference methParRef)
+                return this.visitVariableReference(methParRef);
+            else if (expr is VariableDeclarationReference varDeclRef)
+                return this.visitVariableReference(varDeclRef);
+            else if (expr is ForVariableReference forVarRef)
+                return this.visitVariableReference(forVarRef);
+            else if (expr is ForeachVariableReference forVarRef2)
+                return this.visitVariableReference(forVarRef2);
+            else if (expr is CatchVariableReference catchVarRef)
+                return this.visitVariableReference(catchVarRef);
             else if (expr is GlobalFunctionReference) { }
             else if (expr is SuperReference) { }
-            else if (expr is InstanceFieldReference)
-                return this.visitVariableReference(((InstanceFieldReference)expr));
-            else if (expr is InstancePropertyReference)
-                return this.visitVariableReference(((InstancePropertyReference)expr));
-            else if (expr is StaticFieldReference)
-                return this.visitVariableReference(((StaticFieldReference)expr));
-            else if (expr is StaticPropertyReference)
-                return this.visitVariableReference(((StaticPropertyReference)expr));
+            else if (expr is InstanceFieldReference instFieldRef)
+                return this.visitVariableReference(instFieldRef);
+            else if (expr is InstancePropertyReference instPropRef)
+                return this.visitVariableReference(instPropRef);
+            else if (expr is StaticFieldReference statFieldRef)
+                return this.visitVariableReference(statFieldRef);
+            else if (expr is StaticPropertyReference statPropRef)
+                return this.visitVariableReference(statPropRef);
             else if (expr is EnumMemberReference) { }
-            else if (expr is StaticMethodCallExpression) {
-                ((StaticMethodCallExpression)expr).typeArgs = ((StaticMethodCallExpression)expr).typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
-                ((StaticMethodCallExpression)expr).args = ((StaticMethodCallExpression)expr).args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+            else if (expr is StaticMethodCallExpression statMethCallExpr) {
+                statMethCallExpr.typeArgs = statMethCallExpr.typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
+                statMethCallExpr.args = statMethCallExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
             }
-            else if (expr is GlobalFunctionCallExpression)
-                ((GlobalFunctionCallExpression)expr).args = ((GlobalFunctionCallExpression)expr).args.map((Expression x) => { return this.visitExpression(x) ?? x; });
-            else if (expr is InstanceMethodCallExpression) {
-                ((InstanceMethodCallExpression)expr).object_ = this.visitExpression(((InstanceMethodCallExpression)expr).object_) ?? ((InstanceMethodCallExpression)expr).object_;
-                ((InstanceMethodCallExpression)expr).typeArgs = ((InstanceMethodCallExpression)expr).typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
-                ((InstanceMethodCallExpression)expr).args = ((InstanceMethodCallExpression)expr).args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+            else if (expr is GlobalFunctionCallExpression globFunctCallExpr)
+                globFunctCallExpr.args = globFunctCallExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+            else if (expr is InstanceMethodCallExpression instMethCallExpr) {
+                instMethCallExpr.object_ = this.visitExpression(instMethCallExpr.object_) ?? instMethCallExpr.object_;
+                instMethCallExpr.typeArgs = instMethCallExpr.typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
+                instMethCallExpr.args = instMethCallExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
             }
             else
                 return this.visitUnknownExpression(expr);

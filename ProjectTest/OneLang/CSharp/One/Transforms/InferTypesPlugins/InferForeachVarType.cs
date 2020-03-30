@@ -10,15 +10,15 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         public override bool handleStatement(Statement stmt) {
-            if (stmt is ForeachStatement) {
-                ((ForeachStatement)stmt).items = this.main.runPluginsOn(((ForeachStatement)stmt).items) ?? ((ForeachStatement)stmt).items;
-                var arrayType = ((ForeachStatement)stmt).items.getType();
+            if (stmt is ForeachStatement forStat) {
+                forStat.items = this.main.runPluginsOn(forStat.items) ?? forStat.items;
+                var arrayType = forStat.items.getType();
                 var found = false;
-                if (arrayType is ClassType || arrayType is InterfaceType) {
+                if (arrayType is ClassType classType || arrayType is InterfaceType) {
                     var intfType = ((IInterfaceType)arrayType);
                     var isArrayType = this.main.currentFile.arrayTypes.some((ClassType x) => { return x.decl == intfType.getDecl(); });
                     if (isArrayType && intfType.typeArguments.length() > 0) {
-                        ((ForeachStatement)stmt).itemVar.type = intfType.typeArguments.get(0);
+                        forStat.itemVar.type = intfType.typeArguments.get(0);
                         found = true;
                     }
                 }
@@ -26,7 +26,7 @@ namespace One.Transforms.InferTypesPlugins
                 if (!found && !(arrayType is AnyType))
                     this.errorMan.throw_($"Expected array as Foreach items variable, but got {arrayType.repr()}");
                 
-                this.main.processBlock(((ForeachStatement)stmt).body);
+                this.main.processBlock(forStat.body);
                 return true;
             }
             return false;

@@ -66,12 +66,12 @@ namespace One.Transforms
             }
             
             Reference ref_ = null;
-            if (symbol is Class && id.text == "this") {
-                var withinStaticMethod = this.currentMethod is Method && ((Method)this.currentMethod).isStatic;
-                ref_ = withinStaticMethod ? ((Reference)new StaticThisReference(((Class)symbol))) : new ThisReference(((Class)symbol));
+            if (symbol is Class class_ && id.text == "this") {
+                var withinStaticMethod = this.currentMethod is Method meth && meth.isStatic;
+                ref_ = withinStaticMethod ? ((Reference)new StaticThisReference(class_)) : new ThisReference(class_);
             }
-            else if (symbol is Class && id.text == "super")
-                ref_ = new SuperReference(((Class)symbol));
+            else if (symbol is Class class2 && id.text == "super")
+                ref_ = new SuperReference(class2);
             else
                 ref_ = symbol.createReference();
             ref_.parentNode = id.parentNode;
@@ -79,29 +79,29 @@ namespace One.Transforms
         }
         
         protected override Statement visitStatement(Statement stmt) {
-            if (stmt is ForStatement) {
+            if (stmt is ForStatement forStat) {
                 this.symbolLookup.pushContext($"For");
-                if (((ForStatement)stmt).itemVar != null)
-                    this.symbolLookup.addSymbol(((ForStatement)stmt).itemVar.name, ((ForStatement)stmt).itemVar);
-                base.visitStatement(((ForStatement)stmt));
+                if (forStat.itemVar != null)
+                    this.symbolLookup.addSymbol(forStat.itemVar.name, forStat.itemVar);
+                base.visitStatement(forStat);
                 this.symbolLookup.popContext();
             }
-            else if (stmt is ForeachStatement) {
+            else if (stmt is ForeachStatement forStat2) {
                 this.symbolLookup.pushContext($"Foreach");
-                this.symbolLookup.addSymbol(((ForeachStatement)stmt).itemVar.name, ((ForeachStatement)stmt).itemVar);
-                base.visitStatement(((ForeachStatement)stmt));
+                this.symbolLookup.addSymbol(forStat2.itemVar.name, forStat2.itemVar);
+                base.visitStatement(forStat2);
                 this.symbolLookup.popContext();
             }
-            else if (stmt is TryStatement) {
+            else if (stmt is TryStatement tryStat) {
                 this.symbolLookup.pushContext($"Try");
-                this.visitBlock(((TryStatement)stmt).tryBody);
-                if (((TryStatement)stmt).catchBody != null) {
-                    this.symbolLookup.addSymbol(((TryStatement)stmt).catchVar.name, ((TryStatement)stmt).catchVar);
-                    this.visitBlock(((TryStatement)stmt).catchBody);
+                this.visitBlock(tryStat.tryBody);
+                if (tryStat.catchBody != null) {
+                    this.symbolLookup.addSymbol(tryStat.catchVar.name, tryStat.catchVar);
+                    this.visitBlock(tryStat.catchBody);
                     this.symbolLookup.popContext();
                 }
-                if (((TryStatement)stmt).finallyBody != null)
-                    this.visitBlock(((TryStatement)stmt).finallyBody);
+                if (tryStat.finallyBody != null)
+                    this.visitBlock(tryStat.finallyBody);
             }
             else
                 return base.visitStatement(stmt);
@@ -131,7 +131,7 @@ namespace One.Transforms
         }
         
         protected override void visitMethodBase(IMethodBase method) {
-            this.symbolLookup.pushContext(method is Method ? $"Method: {((Method)method).name}" : method is Constructor ? "constructor" : "???");
+            this.symbolLookup.pushContext(method is Method meth2 ? $"Method: {meth2.name}" : method is Constructor ? "constructor" : "???");
             
             foreach (var param in method.parameters) {
                 this.symbolLookup.addSymbol(param.name, param);
@@ -149,8 +149,8 @@ namespace One.Transforms
         protected override void visitClass(Class cls) {
             this.symbolLookup.pushContext($"Class: {cls.name}");
             this.symbolLookup.addSymbol("this", cls);
-            if (cls.baseClass is ClassType)
-                this.symbolLookup.addSymbol("super", ((ClassType)cls.baseClass).decl);
+            if (cls.baseClass is ClassType classType)
+                this.symbolLookup.addSymbol("super", classType.decl);
             base.visitClass(cls);
             this.symbolLookup.popContext();
         }
@@ -160,13 +160,13 @@ namespace One.Transforms
             this.symbolLookup.pushContext($"File: {sourceFile.sourcePath}");
             
             foreach (var symbol in sourceFile.availableSymbols.values()) {
-                if (symbol is Class)
-                    this.symbolLookup.addSymbol(((Class)symbol).name, ((Class)symbol));
+                if (symbol is Class class3)
+                    this.symbolLookup.addSymbol(class3.name, class3);
                 else if (symbol is Interface) { }
-                else if (symbol is Enum_)
-                    this.symbolLookup.addSymbol(((Enum_)symbol).name, ((Enum_)symbol));
-                else if (symbol is GlobalFunction)
-                    this.symbolLookup.addSymbol(((GlobalFunction)symbol).name, ((GlobalFunction)symbol));
+                else if (symbol is Enum_ enum_)
+                    this.symbolLookup.addSymbol(enum_.name, enum_);
+                else if (symbol is GlobalFunction globFunct)
+                    this.symbolLookup.addSymbol(globFunct.name, globFunct);
                 else { }
             }
             

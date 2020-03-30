@@ -10,38 +10,38 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         public override bool canTransform(Expression expr) {
-            return expr is BinaryExpression && ((BinaryExpression)expr).operator_ == "||";
+            return expr is BinaryExpression binExpr && binExpr.operator_ == "||";
         }
         
         public override Expression transform(Expression expr) {
-            if (expr is BinaryExpression && ((BinaryExpression)expr).operator_ == "||") {
+            if (expr is BinaryExpression binExpr2 && binExpr2.operator_ == "||") {
                 var litTypes = this.main.currentFile.literalTypes;
                 
-                ((BinaryExpression)expr).left = this.main.runPluginsOn(((BinaryExpression)expr).left) ?? ((BinaryExpression)expr).left;
-                var leftType = ((BinaryExpression)expr).left.getType();
+                binExpr2.left = this.main.runPluginsOn(binExpr2.left) ?? binExpr2.left;
+                var leftType = binExpr2.left.getType();
                 
-                if (((BinaryExpression)expr).right is ArrayLiteral && ((ArrayLiteral)((BinaryExpression)expr).right).items.length() == 0) {
-                    if (leftType is ClassType && ((ClassType)leftType).decl == litTypes.array.decl) {
-                        ((ArrayLiteral)((BinaryExpression)expr).right).setActualType(((ClassType)leftType));
-                        return new NullCoalesceExpression(((BinaryExpression)expr).left, ((ArrayLiteral)((BinaryExpression)expr).right));
+                if (binExpr2.right is ArrayLiteral arrayLit && arrayLit.items.length() == 0) {
+                    if (leftType is ClassType classType && classType.decl == litTypes.array.decl) {
+                        arrayLit.setActualType(classType);
+                        return new NullCoalesceExpression(binExpr2.left, arrayLit);
                     }
                 }
                 
-                if (((BinaryExpression)expr).right is MapLiteral && ((MapLiteral)((BinaryExpression)expr).right).items.length() == 0) {
-                    if (leftType is ClassType && ((ClassType)leftType).decl == litTypes.map.decl) {
-                        ((MapLiteral)((BinaryExpression)expr).right).setActualType(((ClassType)leftType));
-                        return new NullCoalesceExpression(((BinaryExpression)expr).left, ((MapLiteral)((BinaryExpression)expr).right));
+                if (binExpr2.right is MapLiteral mapLit && mapLit.items.length() == 0) {
+                    if (leftType is ClassType classType2 && classType2.decl == litTypes.map.decl) {
+                        mapLit.setActualType(classType2);
+                        return new NullCoalesceExpression(binExpr2.left, mapLit);
                     }
                 }
                 
-                ((BinaryExpression)expr).right = this.main.runPluginsOn(((BinaryExpression)expr).right) ?? ((BinaryExpression)expr).right;
-                var rightType = ((BinaryExpression)expr).right.getType();
+                binExpr2.right = this.main.runPluginsOn(binExpr2.right) ?? binExpr2.right;
+                var rightType = binExpr2.right.getType();
                 
-                if (((BinaryExpression)expr).right is NullLiteral)
+                if (binExpr2.right is NullLiteral)
                     // something-which-can-be-undefined || null
-                    return ((BinaryExpression)expr).left;
+                    return binExpr2.left;
                 else if (Type_.isAssignableTo(rightType, leftType) && !Type_.equals(rightType, this.main.currentFile.literalTypes.boolean))
-                    return new NullCoalesceExpression(((BinaryExpression)expr).left, ((BinaryExpression)expr).right);
+                    return new NullCoalesceExpression(binExpr2.left, binExpr2.right);
             }
             return null;
         }

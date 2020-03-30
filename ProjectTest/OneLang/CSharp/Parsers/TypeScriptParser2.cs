@@ -64,19 +64,19 @@ namespace Parsers
         }
         
         public Expression infixPrehook(Expression left) {
-            if (left is PropertyAccessExpression && this.reader.peekRegex("<[A-Za-z0-9_<>]*?>\\(") != null) {
+            if (left is PropertyAccessExpression propAccExpr && this.reader.peekRegex("<[A-Za-z0-9_<>]*?>\\(") != null) {
                 var typeArgs = this.parseTypeArgs();
                 this.reader.expectToken("(");
                 var args = this.expressionParser.parseCallArguments();
-                return new UnresolvedCallExpression(((PropertyAccessExpression)left), typeArgs, args);
+                return new UnresolvedCallExpression(propAccExpr, typeArgs, args);
             }
             else if (this.reader.readToken("instanceof")) {
                 var type = this.parseType();
                 return new InstanceOfExpression(left, type);
             }
-            else if (left is Identifier && this.reader.readToken("=>")) {
+            else if (left is Identifier ident && this.reader.readToken("=>")) {
                 var block = this.parseLambdaBlock();
-                return new Lambda(new MethodParameter[] { new MethodParameter(((Identifier)left).text, null, null) }, block);
+                return new Lambda(new MethodParameter[] { new MethodParameter(ident.text, null, null) }, block);
             }
             return null;
         }
@@ -209,10 +209,10 @@ namespace Parsers
             }
             else if (this.reader.readToken("new")) {
                 var type = this.parseType();
-                if (type is UnresolvedType) {
+                if (type is UnresolvedType unrType) {
                     this.reader.expectToken("(");
                     var args = this.expressionParser.parseCallArguments();
-                    return new UnresolvedNewExpression(((UnresolvedType)type), args);
+                    return new UnresolvedNewExpression(unrType, args);
                 }
                 else
                     throw new Error($"[TypeScriptParser2] Expected UnresolvedType here!");
@@ -221,7 +221,7 @@ namespace Parsers
                 var newType = this.parseType();
                 this.reader.expectToken(">");
                 var expression = this.parseExpression();
-                return new CastExpression(newType, expression);
+                return new CastExpression(newType, expression, null);
             }
             else if (this.reader.readToken("/")) {
                 var pattern = this.reader.readRegex("((?<![\\\\])[\\\\]/|[^/])+").get(0);
@@ -281,8 +281,8 @@ namespace Parsers
                 return block;
             
             var returnExpr = this.parseExpression();
-            if (returnExpr is ParenthesizedExpression)
-                returnExpr = ((ParenthesizedExpression)returnExpr).expression;
+            if (returnExpr is ParenthesizedExpression parExpr)
+                returnExpr = parExpr.expression;
             return new Block(new ReturnStatement[] { new ReturnStatement(returnExpr) });
         }
         
@@ -407,8 +407,8 @@ namespace Parsers
             else {
                 var expr = this.parseExpression();
                 statement = new ExpressionStatement(expr);
-                var isBinarySet = expr is BinaryExpression && new List<string> { "=", "+=", "-=" }.includes(((BinaryExpression)expr).operator_);
-                var isUnarySet = expr is UnaryExpression && new List<string> { "++", "--" }.includes(((UnaryExpression)expr).operator_);
+                var isBinarySet = expr is BinaryExpression binExpr && new List<string> { "=", "+=", "-=" }.includes(binExpr.operator_);
+                var isUnarySet = expr is UnaryExpression unaryExpr && new List<string> { "++", "--" }.includes(unaryExpr.operator_);
                 if (!(expr is UnresolvedCallExpression || isBinarySet || isUnarySet || expr is AwaitExpression))
                     this.reader.fail("this expression is not allowed as statement");
             }
@@ -521,8 +521,8 @@ namespace Parsers
             else {
                 body = this.expectBlock("method body is missing");
                 var firstStmt = body.statements.length() > 0 ? body.statements.get(0) : null;
-                if (firstStmt is ExpressionStatement && ((ExpressionStatement)firstStmt).expression is UnresolvedCallExpression && ((UnresolvedCallExpression)((ExpressionStatement)firstStmt).expression).func is Identifier && ((Identifier)((UnresolvedCallExpression)((ExpressionStatement)firstStmt).expression).func).text == "super") {
-                    superCallArgs = ((UnresolvedCallExpression)((ExpressionStatement)firstStmt).expression).args;
+                if (firstStmt is ExpressionStatement exprStat && exprStat.expression is UnresolvedCallExpression unrCallExpr && unrCallExpr.func is Identifier ident2 && ident2.text == "super") {
+                    superCallArgs = unrCallExpr.args;
                     body.statements.shift();
                 }
             }

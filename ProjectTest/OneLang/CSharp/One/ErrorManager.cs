@@ -45,18 +45,18 @@ namespace One
             var text = (t != null ? $"[{t.name}] " : "") + msg;
             
             var par = this.currentNode;
-            while (par is Expression)
-                par = ((Expression)par).parentNode;
+            while (par is Expression expr)
+                par = expr.parentNode;
             
             string location = null;
-            if (par is Field)
-                location = $"{((Field)par).parentInterface.parentFile.sourcePath} -> {((Field)par).parentInterface.name}::{((Field)par).name} (field)";
-            else if (par is Property)
-                location = $"{((Property)par).parentClass.parentFile.sourcePath} -> {((Property)par).parentClass.name}::{((Property)par).name} (property)";
-            else if (par is Method)
-                location = $"{((Method)par).parentInterface.parentFile.sourcePath} -> {((Method)par).parentInterface.name}::{((Method)par).name} (method)";
-            else if (par is Constructor)
-                location = $"{((Constructor)par).parentClass.parentFile.sourcePath} -> {((Constructor)par).parentClass.name}::constructor";
+            if (par is Field field)
+                location = $"{field.parentInterface.parentFile.sourcePath} -> {field.parentInterface.name}::{field.name} (field)";
+            else if (par is Property prop)
+                location = $"{prop.parentClass.parentFile.sourcePath} -> {prop.parentClass.name}::{prop.name} (property)";
+            else if (par is Method meth)
+                location = $"{meth.parentInterface.parentFile.sourcePath} -> {meth.parentInterface.name}::{meth.name} (method)";
+            else if (par is Constructor const)
+                location = $"{const.parentClass.parentFile.sourcePath} -> {const.parentClass.name}::constructor";
             else if (par == null) { }
             else if (par is Statement) { }
             else { }
@@ -65,8 +65,8 @@ namespace One
                 location = $"{t.currentFile.sourcePath}";
                 if (t.currentInterface != null) {
                     location += $" -> {t.currentInterface.name}";
-                    if (t.currentMethod is Method)
-                        location += $"::{((Method)t.currentMethod).name}";
+                    if (t.currentMethod is Method meth2)
+                        location += $"::{meth2.name}";
                     else if (t.currentMethod is Constructor)
                         location += $"::constructor";
                     else if (t.currentMethod == null) { }

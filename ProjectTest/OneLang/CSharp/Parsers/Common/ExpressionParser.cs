@@ -269,10 +269,10 @@ namespace Parsers.Common
                 this.addNode(left, leftStart);
             }
             
-            if (left is ParenthesizedExpression && ((ParenthesizedExpression)left).expression is Identifier) {
+            if (left is ParenthesizedExpression parExpr && parExpr.expression is Identifier ident) {
                 var expr = this.parse(0, false);
                 if (expr != null)
-                    return new CastExpression(new UnresolvedType(((Identifier)((ParenthesizedExpression)left).expression).text, new Type_[0]), expr);
+                    return new CastExpression(new UnresolvedType(ident.text, new Type_[0]), expr, null);
             }
             
             return left;

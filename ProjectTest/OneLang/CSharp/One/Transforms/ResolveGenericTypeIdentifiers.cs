@@ -13,8 +13,8 @@ namespace One.Transforms
             base.visitType(type);
             
             //console.log(type && type.constructor.name, JSON.stringify(type));
-            if (type is UnresolvedType && ((this.currentInterface is Class && ((Class)this.currentInterface).typeArguments.includes(((UnresolvedType)type).typeName)) || (this.currentMethod is Method && ((Method)this.currentMethod).typeArguments.includes(((UnresolvedType)type).typeName))))
-                return new GenericsType(((UnresolvedType)type).typeName);
+            if (type is UnresolvedType unrType && ((this.currentInterface is Class class_ && class_.typeArguments.includes(unrType.typeName)) || (this.currentMethod is Method meth && meth.typeArguments.includes(unrType.typeName))))
+                return new GenericsType(unrType.typeName);
             
             return null;
         }

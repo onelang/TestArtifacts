@@ -62,10 +62,10 @@ namespace One.Transforms
         }
         
         protected override void visitMethodBase(IMethodBase method) {
-            if (method is Constructor)
-                ((Constructor)method).parentClass = ((Class)this.currentInterface);
-            else if (method is Method)
-                ((Method)method).parentInterface = this.currentInterface;
+            if (method is Constructor const)
+                const.parentClass = ((Class)this.currentInterface);
+            else if (method is Method meth)
+                meth.parentInterface = this.currentInterface;
             else if (method is GlobalFunction) { }
             else if (method is Lambda) { }
             else { }
