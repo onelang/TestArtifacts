@@ -9,7 +9,7 @@ namespace One.Transforms
                     foreach (var imp in file.imports) {
                         var impPkg = ws.getPackage(imp.exportScope.packageName);
                         var scope = impPkg.getExportedScope(imp.exportScope.scopeName);
-                        imp.imports = imp.importAll ? scope.getAllExports() : imp.imports.map((IImportable x) => { return x is UnresolvedImport unrImp ? scope.getExport(unrImp.name) : x; });
+                        imp.imports = imp.importAll ? scope.getAllExports() : imp.imports.map(x => x is UnresolvedImport unrImp ? scope.getExport(unrImp.name) : x);
                         file.addAvailableSymbols(imp.imports);
                     }
         }

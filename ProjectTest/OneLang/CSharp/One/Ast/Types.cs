@@ -109,16 +109,16 @@ namespace One.Ast
             if (scope == null)
                 scope = new ExportedScope();
             
-            foreach (var cls in file.classes.filter((Class x) => { return x.isExported || exportAll; }))
+            foreach (var cls in file.classes.filter(x => x.isExported || exportAll))
                 scope.addExport(cls.name, cls);
             
-            foreach (var intf in file.interfaces.filter((Interface x) => { return x.isExported || exportAll; }))
+            foreach (var intf in file.interfaces.filter(x => x.isExported || exportAll))
                 scope.addExport(intf.name, intf);
             
-            foreach (var enum_ in file.enums.filter((Enum_ x) => { return x.isExported || exportAll; }))
+            foreach (var enum_ in file.enums.filter(x => x.isExported || exportAll))
                 scope.addExport(enum_.name, enum_);
             
-            foreach (var func in file.funcs.filter((GlobalFunction x) => { return x.isExported || exportAll; }))
+            foreach (var func in file.funcs.filter(x => x.isExported || exportAll))
                 scope.addExport(func.name, func);
             
             return scope;
@@ -337,7 +337,7 @@ namespace One.Ast
             this.methods = methods;
             this.isExported = isExported;
             this.leadingTrivia = leadingTrivia;
-            this.type = new InterfaceType(this, this.typeArguments.map((string x) => { return new GenericsType(x); }));
+            this.type = new InterfaceType(this, this.typeArguments.map(x => new GenericsType(x)));
             this._baseInterfaceCache = null;
         }
         
@@ -382,7 +382,7 @@ namespace One.Ast
             this.thisReferences = new List<ThisReference>();
             this.staticThisReferences = new List<StaticThisReference>();
             this.superReferences = new List<SuperReference>();
-            this.type = new ClassType(this, this.typeArguments.map((string x) => { return new GenericsType(x); }));
+            this.type = new ClassType(this, this.typeArguments.map(x => new GenericsType(x)));
             this._baseInterfaceCache = null;
         }
         

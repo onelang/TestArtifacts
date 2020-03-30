@@ -54,17 +54,17 @@ namespace One.Transforms.InferTypesPlugins.Helpers
             else if (genericType is ClassType classType2 && actualType is ClassType classType3 && classType2.decl == classType3.decl) {
                 if (classType2.typeArguments.length() != classType3.typeArguments.length())
                     throw new Error($"Same class ({classType2.repr()}) used with different number of type arguments ({classType2.typeArguments.length()} <> {classType3.typeArguments.length()})");
-                return classType2.typeArguments.every((Type_ x, int i) => { return this.collectResolutionsFromActualType(x, classType3.typeArguments.get(i)); });
+                return classType2.typeArguments.every((x, i) => this.collectResolutionsFromActualType(x, classType3.typeArguments.get(i)));
             }
             else if (genericType is InterfaceType intType2 && actualType is InterfaceType intType3 && intType2.decl == intType3.decl) {
                 if (intType2.typeArguments.length() != intType3.typeArguments.length())
                     throw new Error($"Same class ({intType2.repr()}) used with different number of type arguments ({intType2.typeArguments.length()} <> {intType3.typeArguments.length()})");
-                return intType2.typeArguments.every((Type_ x, int i) => { return this.collectResolutionsFromActualType(x, intType3.typeArguments.get(i)); });
+                return intType2.typeArguments.every((x, i) => this.collectResolutionsFromActualType(x, intType3.typeArguments.get(i)));
             }
             else if (genericType is LambdaType lambdType && actualType is LambdaType lambdType2) {
                 if (lambdType.parameters.length() != lambdType2.parameters.length())
                     throw new Error($"Generic lambda type has {lambdType.parameters.length()} parameters while the actual type has {lambdType2.parameters.length()}");
-                var paramsOk = lambdType.parameters.every((MethodParameter x, int i) => { return this.collectResolutionsFromActualType(x.type, lambdType2.parameters.get(i).type); });
+                var paramsOk = lambdType.parameters.every((x, i) => this.collectResolutionsFromActualType(x.type, lambdType2.parameters.get(i).type));
                 var resultOk = this.collectResolutionsFromActualType(lambdType.returnType, lambdType2.returnType);
                 return paramsOk && resultOk;
             }
@@ -83,11 +83,11 @@ namespace One.Transforms.InferTypesPlugins.Helpers
                 return resolvedType != null ? resolvedType : genType2;
             }
             else if (type is ClassType classType4)
-                return new ClassType(classType4.decl, classType4.typeArguments.map((Type_ x) => { return this.resolveType(x, mustResolveAllGenerics); }));
+                return new ClassType(classType4.decl, classType4.typeArguments.map(x => this.resolveType(x, mustResolveAllGenerics)));
             else if (type is InterfaceType intType4)
-                return new InterfaceType(intType4.decl, intType4.typeArguments.map((Type_ x) => { return this.resolveType(x, mustResolveAllGenerics); }));
+                return new InterfaceType(intType4.decl, intType4.typeArguments.map(x => this.resolveType(x, mustResolveAllGenerics)));
             else if (type is LambdaType lambdType3)
-                return new LambdaType(lambdType3.parameters.map((MethodParameter x) => { return new MethodParameter(x.name, this.resolveType(x.type, mustResolveAllGenerics), x.initializer); }), this.resolveType(lambdType3.returnType, mustResolveAllGenerics));
+                return new LambdaType(lambdType3.parameters.map(x => new MethodParameter(x.name, this.resolveType(x.type, mustResolveAllGenerics), x.initializer)), this.resolveType(lambdType3.returnType, mustResolveAllGenerics));
             else
                 return type;
         }

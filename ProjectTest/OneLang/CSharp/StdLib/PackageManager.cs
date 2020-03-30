@@ -139,10 +139,10 @@ namespace StdLib
         public async Task loadAllCached() {
             var allPackages = await this.source.getAllCached();
             
-            foreach (var content in allPackages.packages.filter((PackageContent x) => { return x.id.type == PackageType.Interface; }))
+            foreach (var content in allPackages.packages.filter(x => x.id.type == PackageType.Interface))
                 this.interfacesPkgs.push(new InterfacePackage(content));
             
-            foreach (var content in allPackages.packages.filter((PackageContent x) => { return x.id.type == PackageType.Implementation; }))
+            foreach (var content in allPackages.packages.filter(x => x.id.type == PackageType.Implementation))
                 this.implementationPkgs.push(new ImplementationPackage(content));
         }
         
@@ -151,17 +151,17 @@ namespace StdLib
             foreach (var pkg in this.implementationPkgs)
                 foreach (var impl in pkg.implementations)
                     allImpls.push(impl);
-            return allImpls.filter((ImplPkgImplementation x) => { return x.language == langName; });
+            return allImpls.filter(x => x.language == langName);
         }
         
         public string getInterfaceDefinitions() {
-            return this.interfacesPkgs.map((InterfacePackage x) => { return x.definition; }).join("\n");
+            return this.interfacesPkgs.map(x => x.definition).join("\n");
         }
         
         public PackageNativeImpl[] getLangNativeImpls(string langName) {
             var result = new List<PackageNativeImpl>();
             foreach (var pkg in this.implementationPkgs)
-                foreach (var pkgImpl in pkg.implementations.filter((ImplPkgImplementation x) => { return x.language == langName; })) {
+                foreach (var pkgImpl in pkg.implementations.filter(x => x.language == langName)) {
                     var fileNamePaths = new Dictionary<string, string> {};
                     foreach (var fileName in pkgImpl.nativeIncludes ?? new string[0])
                         fileNamePaths.set(fileName, $"native/{fileName}");
@@ -171,7 +171,7 @@ namespace StdLib
                         if (!incDir.endsWith("/"))
                             incDir += "/";
                         var prefix = $"native/{incDir}";
-                        foreach (var fn in Object.keys(pkg.content.files).filter((string x) => { return x.startsWith(prefix); }).map((string x) => { return x.substr(prefix.length()); }))
+                        foreach (var fn in Object.keys(pkg.content.files).filter(x => x.startsWith(prefix)).map(x => x.substr(prefix.length())))
                             fileNamePaths.set(fn, $"{prefix}{fn}");
                     }
                     

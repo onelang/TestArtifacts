@@ -27,7 +27,7 @@ namespace One.Transforms.InferTypesPlugins
             if (returnType == null)
                 throw new Error("Return type cannot be null");
             
-            if (!this.returnTypes.some((Type_ x) => { return Type_.equals(x, returnType); }))
+            if (!this.returnTypes.some(x => Type_.equals(x, returnType)))
                 this.returnTypes.push(returnType);
         }
         
@@ -48,10 +48,10 @@ namespace One.Transforms.InferTypesPlugins
             }
             else if (this.returnTypes.length() == 1)
                 inferredType = this.returnTypes.get(0);
-            else if (declaredType != null && this.returnTypes.every((Type_ x, int i) => { return Type_.isAssignableTo(x, declaredType); }))
+            else if (declaredType != null && this.returnTypes.every((x, i) => Type_.isAssignableTo(x, declaredType)))
                 inferredType = declaredType;
             else {
-                this.errorMan.throw_($"{errorContext} returns different types: {this.returnTypes.map((Type_ x) => { return x.repr(); }).join(", ")}");
+                this.errorMan.throw_($"{errorContext} returns different types: {this.returnTypes.map(x => x.repr()).join(", ")}");
                 inferredType = AnyType.instance;
             }
             

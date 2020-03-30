@@ -5,15 +5,15 @@ namespace One.Transforms
     public class CollectInheritanceInfo {
         public void visitClass(Class cls) {
             var allBaseIIntfs = cls.getAllBaseInterfaces();
-            var intfs = allBaseIIntfs.map((IInterface x) => { return x is Interface int_ ? int_ : null; }).filter((Interface x) => { return x != null; });
-            var clses = allBaseIIntfs.map((IInterface x) => { return x is Class class_ ? class_ : null; }).filter((Class x) => { return x != null && x != cls; });
+            var intfs = allBaseIIntfs.map(x => x is Interface int_ ? int_ : null).filter(x => x != null);
+            var clses = allBaseIIntfs.map(x => x is Class class_ ? class_ : null).filter(x => x != null && x != cls);
             
             foreach (var field in cls.fields)
-                field.interfaceDeclarations = intfs.map((Interface x) => { return x.fields.find((Field f) => { return f.name == field.name; }); }).filter((Field x) => { return x != null; });
+                field.interfaceDeclarations = intfs.map(x => x.fields.find(f => f.name == field.name)).filter(x => x != null);
             
             foreach (var method in cls.methods) {
-                method.interfaceDeclarations = intfs.map((Interface x) => { return x.methods.find((Method m) => { return m.name == method.name; }); }).filter((Method x) => { return x != null; });
-                method.overrides = clses.map((Class x) => { return x.methods.find((Method m) => { return m.name == method.name; }); }).find((Method x) => { return x != null; });
+                method.interfaceDeclarations = intfs.map(x => x.methods.find(m => m.name == method.name)).filter(x => x != null);
+                method.overrides = clses.map(x => x.methods.find(m => m.name == method.name)).find(x => x != null);
                 if (method.overrides != null)
                     method.overrides.overriddenBy.push(method);
             }

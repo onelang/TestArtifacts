@@ -55,8 +55,8 @@ namespace One
                 location = $"{prop.parentClass.parentFile.sourcePath} -> {prop.parentClass.name}::{prop.name} (property)";
             else if (par is Method meth)
                 location = $"{meth.parentInterface.parentFile.sourcePath} -> {meth.parentInterface.name}::{meth.name} (method)";
-            else if (par is Constructor const)
-                location = $"{const.parentClass.parentFile.sourcePath} -> {const.parentClass.name}::constructor";
+            else if (par is Constructor const_)
+                location = $"{const_.parentClass.parentFile.sourcePath} -> {const_.parentClass.name}::constructor";
             else if (par == null) { }
             else if (par is Statement) { }
             else { }

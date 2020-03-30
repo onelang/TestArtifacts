@@ -25,7 +25,7 @@ namespace One
         protected virtual Type_ visitType(Type_ type) {
             if (type is ClassType classType || type is InterfaceType || type is UnresolvedType) {
                 var type2 = ((IHasTypeArguments)type);
-                type2.typeArguments = type2.typeArguments.map((Type_ x) => { return this.visitType(x) ?? x; });
+                type2.typeArguments = type2.typeArguments.map(x => this.visitType(x) ?? x);
             }
             else if (type is LambdaType lambdType) {
                 foreach (var mp in lambdType.parameters)
@@ -119,7 +119,7 @@ namespace One
         }
         
         protected virtual Block visitBlock(Block block) {
-            block.statements = block.statements.map((Statement x) => { return this.visitStatement(x) ?? x; }).ToList();
+            block.statements = block.statements.map(x => this.visitStatement(x) ?? x).ToList();
             return null;
         }
         
@@ -157,13 +157,13 @@ namespace One
             }
             else if (expr is UnresolvedCallExpression unrCallExpr) {
                 unrCallExpr.func = this.visitExpression(unrCallExpr.func) ?? unrCallExpr.func;
-                unrCallExpr.typeArgs = unrCallExpr.typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
-                unrCallExpr.args = unrCallExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+                unrCallExpr.typeArgs = unrCallExpr.typeArgs.map(x => this.visitType(x) ?? x);
+                unrCallExpr.args = unrCallExpr.args.map(x => this.visitExpression(x) ?? x);
             }
             else if (expr is UnresolvedMethodCallExpression unrMethCallExpr) {
                 unrMethCallExpr.object_ = this.visitExpression(unrMethCallExpr.object_) ?? unrMethCallExpr.object_;
-                unrMethCallExpr.typeArgs = unrMethCallExpr.typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
-                unrMethCallExpr.args = unrMethCallExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+                unrMethCallExpr.typeArgs = unrMethCallExpr.typeArgs.map(x => this.visitType(x) ?? x);
+                unrMethCallExpr.args = unrMethCallExpr.args.map(x => this.visitExpression(x) ?? x);
             }
             else if (expr is ConditionalExpression condExpr) {
                 condExpr.condition = this.visitExpression(condExpr.condition) ?? condExpr.condition;
@@ -174,11 +174,11 @@ namespace One
                 return this.visitIdentifier(ident);
             else if (expr is UnresolvedNewExpression unrNewExpr) {
                 this.visitType(unrNewExpr.cls);
-                unrNewExpr.args = unrNewExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+                unrNewExpr.args = unrNewExpr.args.map(x => this.visitExpression(x) ?? x);
             }
             else if (expr is NewExpression newExpr) {
                 this.visitType(newExpr.cls);
-                newExpr.args = newExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+                newExpr.args = newExpr.args.map(x => this.visitExpression(x) ?? x);
             }
             else if (expr is TemplateString templStr)
                 return this.visitTemplateString(templStr);
@@ -193,7 +193,7 @@ namespace One
                 elemAccExpr.elementExpr = this.visitExpression(elemAccExpr.elementExpr) ?? elemAccExpr.elementExpr;
             }
             else if (expr is ArrayLiteral arrayLit)
-                arrayLit.items = arrayLit.items.map((Expression x) => { return this.visitExpression(x) ?? x; });
+                arrayLit.items = arrayLit.items.map(x => this.visitExpression(x) ?? x);
             else if (expr is MapLiteral mapLit)
                 foreach (var item in mapLit.items)
                     item.value = this.visitExpression(item.value) ?? item.value;
@@ -240,15 +240,15 @@ namespace One
                 return this.visitVariableReference(statPropRef);
             else if (expr is EnumMemberReference) { }
             else if (expr is StaticMethodCallExpression statMethCallExpr) {
-                statMethCallExpr.typeArgs = statMethCallExpr.typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
-                statMethCallExpr.args = statMethCallExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+                statMethCallExpr.typeArgs = statMethCallExpr.typeArgs.map(x => this.visitType(x) ?? x);
+                statMethCallExpr.args = statMethCallExpr.args.map(x => this.visitExpression(x) ?? x);
             }
             else if (expr is GlobalFunctionCallExpression globFunctCallExpr)
-                globFunctCallExpr.args = globFunctCallExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+                globFunctCallExpr.args = globFunctCallExpr.args.map(x => this.visitExpression(x) ?? x);
             else if (expr is InstanceMethodCallExpression instMethCallExpr) {
                 instMethCallExpr.object_ = this.visitExpression(instMethCallExpr.object_) ?? instMethCallExpr.object_;
-                instMethCallExpr.typeArgs = instMethCallExpr.typeArgs.map((Type_ x) => { return this.visitType(x) ?? x; });
-                instMethCallExpr.args = instMethCallExpr.args.map((Expression x) => { return this.visitExpression(x) ?? x; });
+                instMethCallExpr.typeArgs = instMethCallExpr.typeArgs.map(x => this.visitType(x) ?? x);
+                instMethCallExpr.args = instMethCallExpr.args.map(x => this.visitExpression(x) ?? x);
             }
             else
                 return this.visitUnknownExpression(expr);
@@ -299,7 +299,7 @@ namespace One
         
         protected virtual void visitInterface(Interface intf) {
             this.currentInterface = intf;
-            intf.baseInterfaces = intf.baseInterfaces.map((Type_ x) => { return this.visitType(x) ?? x; });
+            intf.baseInterfaces = intf.baseInterfaces.map(x => this.visitType(x) ?? x);
             foreach (var field in intf.fields)
                 this.visitField(field);
             foreach (var method in intf.methods)
@@ -313,7 +313,7 @@ namespace One
                 this.visitConstructor(cls.constructor_);
             
             cls.baseClass = this.visitType(cls.baseClass) ?? cls.baseClass;
-            cls.baseInterfaces = cls.baseInterfaces.map((Type_ x) => { return this.visitType(x) ?? x; });
+            cls.baseInterfaces = cls.baseInterfaces.map(x => this.visitType(x) ?? x);
             foreach (var field in cls.fields)
                 this.visitField(field);
             foreach (var prop in cls.properties)

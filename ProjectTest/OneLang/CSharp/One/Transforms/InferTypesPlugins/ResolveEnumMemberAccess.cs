@@ -16,7 +16,7 @@ namespace One.Transforms.InferTypesPlugins
         public override Expression transform(Expression expr) {
             var pa = ((PropertyAccessExpression)expr);
             var enumMemberRef = ((EnumReference)pa.object_);
-            var member = enumMemberRef.decl.values.find((EnumMember x) => { return x.name == pa.propertyName; });
+            var member = enumMemberRef.decl.values.find(x => x.name == pa.propertyName);
             if (member == null) {
                 this.errorMan.throw_($"Enum member was not found: {enumMemberRef.decl.name}::{pa.propertyName}");
                 return null;

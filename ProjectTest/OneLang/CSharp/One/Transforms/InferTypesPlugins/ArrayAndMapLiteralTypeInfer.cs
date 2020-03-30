@@ -13,7 +13,7 @@ namespace One.Transforms.InferTypesPlugins
         protected Type_ inferArrayOrMapItemType(Expression[] items, Type_ expectedType, bool isMap) {
             var itemTypes = new List<Type_>();
             foreach (var item in items) {
-                if (!itemTypes.some((Type_ t) => { return Type_.equals(t, item.getType()); }))
+                if (!itemTypes.some(t => Type_.equals(t, item.getType())))
                     itemTypes.push(item.getType());
             }
             
@@ -33,7 +33,7 @@ namespace One.Transforms.InferTypesPlugins
             else if (itemTypes.length() == 1)
                 itemType = itemTypes.get(0);
             else if (!(expectedType is AnyType)) {
-                this.errorMan.warn($"Could not determine the type of {(isMap ? "a MapLiteral" : "an ArrayLiteral")}! Multiple types were found: {itemTypes.map((Type_ x) => { return x.repr(); }).join(", ")}, using AnyType instead");
+                this.errorMan.warn($"Could not determine the type of {(isMap ? "a MapLiteral" : "an ArrayLiteral")}! Multiple types were found: {itemTypes.map(x => x.repr()).join(", ")}, using AnyType instead");
                 itemType = AnyType.instance;
             }
             return itemType;
@@ -57,7 +57,7 @@ namespace One.Transforms.InferTypesPlugins
                 arrayLit2.setActualType(new ClassType(this.main.currentFile.literalTypes.array.decl, new Type_[] { itemType }));
             }
             else if (expr is MapLiteral mapLit) {
-                var itemType = this.inferArrayOrMapItemType(mapLit.items.map((MapLiteralItem x) => { return x.value; }), mapLit.expectedType, true);
+                var itemType = this.inferArrayOrMapItemType(mapLit.items.map(x => x.value), mapLit.expectedType, true);
                 mapLit.setActualType(new ClassType(this.main.currentFile.literalTypes.map.decl, new Type_[] { itemType }));
             }
             

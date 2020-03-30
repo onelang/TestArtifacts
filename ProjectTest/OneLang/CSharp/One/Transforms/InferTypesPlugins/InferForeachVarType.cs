@@ -16,7 +16,7 @@ namespace One.Transforms.InferTypesPlugins
                 var found = false;
                 if (arrayType is ClassType classType || arrayType is InterfaceType) {
                     var intfType = ((IInterfaceType)arrayType);
-                    var isArrayType = this.main.currentFile.arrayTypes.some((ClassType x) => { return x.decl == intfType.getDecl(); });
+                    var isArrayType = this.main.currentFile.arrayTypes.some(x => x.decl == intfType.getDecl());
                     if (isArrayType && intfType.typeArguments.length() > 0) {
                         forStat.itemVar.type = intfType.typeArguments.get(0);
                         found = true;

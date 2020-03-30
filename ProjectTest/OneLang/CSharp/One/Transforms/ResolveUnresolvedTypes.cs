@@ -35,15 +35,15 @@ namespace One.Transforms
         
         protected override Expression visitExpression(Expression expr) {
             if (expr is UnresolvedNewExpression unrNewExpr) {
-                var classType = this.visitType(unrNewExpr.cls);
-                if (classType is ClassType classType) {
+                var clsType = this.visitType(unrNewExpr.cls);
+                if (clsType is ClassType classType) {
                     var newExpr = new NewExpression(classType, unrNewExpr.args);
                     newExpr.parentNode = unrNewExpr.parentNode;
                     base.visitExpression(newExpr);
                     return newExpr;
                 }
                 else {
-                    this.errorMan.throw_($"Excepted ClassType, but got {classType}");
+                    this.errorMan.throw_($"Excepted ClassType, but got {clsType}");
                     return null;
                 }
             }

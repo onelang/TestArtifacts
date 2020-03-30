@@ -20,11 +20,11 @@ namespace Parsers.Common
                 lines.shift();
             
             var minPadLen = 9999;
-            foreach (var padLen in lines.map((string x) => { return Utils.getPadLen(x); }).filter((int x) => { return x != -1; })) {
+            foreach (var padLen in lines.map(x => Utils.getPadLen(x)).filter(x => x != -1)) {
                 if (padLen < minPadLen)
                     minPadLen = padLen;
             }
-            var newStr = lines.map((string x) => { return x.length() != 0 ? x.substr(minPadLen) : x; }).join("\n");
+            var newStr = lines.map(x => x.length() != 0 ? x.substr(minPadLen) : x).join("\n");
             return newStr;
         }
     }

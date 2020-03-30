@@ -89,7 +89,7 @@ namespace Parsers.Common
         }
         
         public void reconfigure() {
-            this.config.precedenceLevels.find((PrecedenceLevel x) => { return x.name == "propertyAccess"; }).operators = this.config.propertyAccessOps;
+            this.config.precedenceLevels.find(x => x.name == "propertyAccess").operators = this.config.propertyAccessOps;
             
             this.operatorMap = new Dictionary<string, Operator> {};
             
@@ -109,7 +109,7 @@ namespace Parsers.Common
                 }
             }
             
-            this.operators = Object.keys(this.operatorMap).sort((string a, string b) => { return b.length() - a.length(); });
+            this.operators = Object.keys(this.operatorMap).sort((a, b) => b.length() - a.length());
         }
         
         public MapLiteral parseMapLiteral(string keySeparator = ":", string startToken = "{", string endToken = "}") {

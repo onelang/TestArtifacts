@@ -10,11 +10,11 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         protected Reference getStaticRef(Class cls, string memberName) {
-            var field = cls.fields.find((Field x) => { return x.name == memberName; });
+            var field = cls.fields.find(x => x.name == memberName);
             if (field != null && field.isStatic)
                 return new StaticFieldReference(field);
             
-            var prop = cls.properties.find((Property x) => { return x.name == memberName; });
+            var prop = cls.properties.find(x => x.name == memberName);
             if (prop != null && prop.isStatic)
                 return new StaticPropertyReference(prop);
             
@@ -24,11 +24,11 @@ namespace One.Transforms.InferTypesPlugins
         
         protected Reference getInstanceRef(Class cls, string memberName, Expression obj) {
             while (true) {
-                var field = cls.fields.find((Field x) => { return x.name == memberName; });
+                var field = cls.fields.find(x => x.name == memberName);
                 if (field != null && !field.isStatic)
                     return new InstanceFieldReference(obj, field);
                 
-                var prop = cls.properties.find((Property x) => { return x.name == memberName; });
+                var prop = cls.properties.find(x => x.name == memberName);
                 if (prop != null && !prop.isStatic)
                     return new InstancePropertyReference(obj, prop);
                 
@@ -43,7 +43,7 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         protected Reference getInterfaceRef(Interface intf, string memberName, Expression obj) {
-            var field = intf.fields.find((Field x) => { return x.name == memberName; });
+            var field = intf.fields.find(x => x.name == memberName);
             if (field != null && !field.isStatic)
                 return new InstanceFieldReference(obj, field);
             

@@ -653,7 +653,7 @@ namespace Parsers
                 else if (memberName == "get" || memberName == "set") {
                     // property
                     var propName = this.reader.expectIdentifier();
-                    var prop = properties.find((Property x) => { return x.name == propName; });
+                    var prop = properties.find(x => x.name == propName);
                     Type_ propType = null;
                     Block getter = null;
                     Block setter = null;

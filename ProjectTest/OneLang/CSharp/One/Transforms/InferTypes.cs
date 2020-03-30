@@ -81,9 +81,9 @@ namespace One.Transforms
             
             this.errorMan.currentNode = expr;
             
-            var transformers = this.plugins.filter((InferTypesPlugin x) => { return x.canTransform(expr); });
+            var transformers = this.plugins.filter(x => x.canTransform(expr));
             if (transformers.length() > 1)
-                this.errorMan.throw_($"Multiple transformers found: {transformers.map((InferTypesPlugin x) => { return x.name; }).join(", ")}");
+                this.errorMan.throw_($"Multiple transformers found: {transformers.map(x => x.name).join(", ")}");
             if (transformers.length() != 1)
                 return null;
             

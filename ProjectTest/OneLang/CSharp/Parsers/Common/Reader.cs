@@ -195,7 +195,7 @@ namespace Parsers.Common
         public string expectOneOf(string[] tokens) {
             var result = this.readAnyOf(tokens);
             if (result == null)
-                this.fail($"expected one of {tokens.map((string x) => { return $"'{x}'"; }).join(", ")}");
+                this.fail($"expected one of {tokens.map(x => $"'{x}'").join(", ")}");
             return result;
         }
         

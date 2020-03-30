@@ -16,7 +16,7 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         public bool isMapOrArrayType(Type_ type) {
-            return Type_.isAssignableTo(type, this.main.currentFile.literalTypes.map) || this.main.currentFile.arrayTypes.some((ClassType x) => { return Type_.isAssignableTo(type, x); });
+            return Type_.isAssignableTo(type, this.main.currentFile.literalTypes.map) || this.main.currentFile.arrayTypes.some(x => Type_.isAssignableTo(type, x));
         }
         
         public override Expression transform(Expression expr) {

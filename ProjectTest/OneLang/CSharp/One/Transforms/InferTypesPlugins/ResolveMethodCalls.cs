@@ -11,14 +11,14 @@ namespace One.Transforms.InferTypesPlugins
         }
         
         protected Method findMethod(IInterface cls, string methodName, bool isStatic, Expression[] args) {
-            var allBases = cls is Class class_ ? class_.getAllBaseInterfaces().filter((IInterface x) => { return x is Class; }) : cls.getAllBaseInterfaces();
+            var allBases = cls is Class class_ ? class_.getAllBaseInterfaces().filter(x => x is Class) : cls.getAllBaseInterfaces();
             
             var allMethods = new List<Method>();
             foreach (var base_ in allBases)
                 foreach (var method in base_.methods)
                     allMethods.push(method);
             
-            var methods = allMethods.filter((Method m) => { var minLen = m.parameters.filter((MethodParameter p) => { return p.initializer == null; }).length();
+            var methods = allMethods.filter(m => { var minLen = m.parameters.filter(p => p.initializer == null).length();
             var maxLen = m.parameters.length();
             var match = m.name == methodName && m.isStatic == isStatic && minLen <= args.length() && args.length() <= maxLen;
             return match; });
@@ -27,7 +27,7 @@ namespace One.Transforms.InferTypesPlugins
                 throw new Error($"Method '{methodName}' was not found on type '{cls.name}' with {args.length()} arguments");
             else if (methods.length() > 1) {
                 // TODO: actually we should implement proper method shadowing here...
-                var thisMethods = methods.filter((Method x) => { return x.parentInterface == cls; });
+                var thisMethods = methods.filter(x => x.parentInterface == cls);
                 if (thisMethods.length() == 1)
                     return thisMethods.get(0);
                 throw new Error($"Multiple methods found with name '{methodName}' and {args.length()} arguments on type '{cls.name}'");
