@@ -123,6 +123,11 @@ public class Set<T>: IEnumerable<T>
     {
         return items.GetEnumerator();
     }
+
+    internal bool has(T item)
+    {
+        return this.items.Contains(item);
+    }
 }
 
 public class Map<TKey, TValue> {

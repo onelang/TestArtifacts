@@ -1,10 +1,10 @@
-using System.Collections.Generic;
 using One.Ast;
+using System.Collections.Generic;
 
 namespace Utils
 {
     public class TSOverviewGenerator {
-        public static string leading(Statement item) {
+        public static string leading(IHasAttributesAndTrivia item) {
             var result = "";
             if (item.leadingTrivia != null && item.leadingTrivia.length() > 0)
                 result += item.leadingTrivia;
@@ -115,7 +115,7 @@ namespace Utils
             else if (expr is RegexLiteral regexLit)
                 res = $"/{regexLit.pattern}/{(regexLit.global ? "g" : "")}{(regexLit.caseInsensitive ? "g" : "")}";
             else if (expr is Lambda lambd)
-                res = $"({lambd.parameters.map(x => x.name + (x.type != null ? $": {TSOverviewGenerator.type(x.type)}" : "")).join(", ")}) => {{ {TSOverviewGenerator.rawBlock(lambd.body)} }}";
+                res = $"({lambd.parameters.map(x => x.name + (x.type != null ? ": " + TSOverviewGenerator.type(x.type) : "")).join(", ")}) => {{ {TSOverviewGenerator.rawBlock(lambd.body)} }}";
             else if (expr is UnaryExpression unaryExpr && unaryExpr.unaryType == UnaryType.Prefix)
                 res = $"{unaryExpr.operator_}{TSOverviewGenerator.expr(unaryExpr.operand)}";
             else if (expr is UnaryExpression unaryExpr2 && unaryExpr2.unaryType == UnaryType.Postfix)
@@ -218,7 +218,7 @@ namespace Utils
                 return "";
             var name = method is Method meth ? meth.name : method is Constructor ? "constructor" : method is GlobalFunction globFunct ? globFunct.name : "???";
             var typeArgs = method is Method meth2 ? meth2.typeArguments : null;
-            return TSOverviewGenerator.preIf("/* throws */ ", method.throws) + $"{name}{TSOverviewGenerator.typeArgs(typeArgs)}({method.parameters.map(p => TSOverviewGenerator.var(p)).join(", ")})" + (returns is VoidType ? "" : $": {TSOverviewGenerator.type(returns)}") + (method.body != null ? $" {{\n{TSOverviewGenerator.pad(TSOverviewGenerator.rawBlock(method.body))}\n}}" : ";");
+            return TSOverviewGenerator.preIf("/* throws */ ", method.throws) + $"{name}{TSOverviewGenerator.typeArgs(typeArgs)}({method.parameters.map(p => TSOverviewGenerator.leading(p) + TSOverviewGenerator.var(p)).join(", ")})" + (returns is VoidType ? "" : $": {TSOverviewGenerator.type(returns)}") + (method.body != null ? $" {{\n{TSOverviewGenerator.pad(TSOverviewGenerator.rawBlock(method.body))}\n}}" : ";");
         }
         
         public static string method(Method method) {
@@ -255,10 +255,10 @@ namespace Utils
         
         public static string generate(SourceFile sourceFile) {
             var imps = sourceFile.imports.map(imp => (imp.importAll ? $"import * as {imp.importAs}" : $"import {{ {imp.imports.map(x => TSOverviewGenerator.imp(x)).join(", ")} }}") + $" from \"{imp.exportScope.packageName}{TSOverviewGenerator.pre("/", imp.exportScope.scopeName)}\";");
-            var enums = sourceFile.enums.map(enum_ => $"enum {enum_.name} {{ {enum_.values.map(x => x.name).join(", ")} }}");
-            var intfs = sourceFile.interfaces.map(intf => $"interface {intf.name}{TSOverviewGenerator.typeArgs(intf.typeArguments)}" + $"{TSOverviewGenerator.preArr(" extends ", intf.baseInterfaces.map(x => TSOverviewGenerator.type(x)))} {{\n{TSOverviewGenerator.classLike(intf)}\n}}");
-            var classes = sourceFile.classes.map(cls => $"class {cls.name}{TSOverviewGenerator.typeArgs(cls.typeArguments)}" + TSOverviewGenerator.pre(" extends ", cls.baseClass != null ? TSOverviewGenerator.type(cls.baseClass) : null) + TSOverviewGenerator.preArr(" implements ", cls.baseInterfaces.map(x => TSOverviewGenerator.type(x))) + $" {{\n{TSOverviewGenerator.classLike(cls)}\n}}");
-            var funcs = sourceFile.funcs.map(func => $"function {func.name}{TSOverviewGenerator.methodBase(func, func.returns)}");
+            var enums = sourceFile.enums.map(enum_ => $"{TSOverviewGenerator.leading(enum_)}enum {enum_.name} {{ {enum_.values.map(x => x.name).join(", ")} }}");
+            var intfs = sourceFile.interfaces.map(intf => $"{TSOverviewGenerator.leading(intf)}interface {intf.name}{TSOverviewGenerator.typeArgs(intf.typeArguments)}" + $"{TSOverviewGenerator.preArr(" extends ", intf.baseInterfaces.map(x => TSOverviewGenerator.type(x)))} {{\n{TSOverviewGenerator.classLike(intf)}\n}}");
+            var classes = sourceFile.classes.map(cls => $"{TSOverviewGenerator.leading(cls)}class {cls.name}{TSOverviewGenerator.typeArgs(cls.typeArguments)}" + TSOverviewGenerator.pre(" extends ", cls.baseClass != null ? TSOverviewGenerator.type(cls.baseClass) : null) + TSOverviewGenerator.preArr(" implements ", cls.baseInterfaces.map(x => TSOverviewGenerator.type(x))) + $" {{\n{TSOverviewGenerator.classLike(cls)}\n}}");
+            var funcs = sourceFile.funcs.map(func => $"{TSOverviewGenerator.leading(func)}function {func.name}{TSOverviewGenerator.methodBase(func, func.returns)}");
             var main = TSOverviewGenerator.rawBlock(sourceFile.mainBlock);
             var result = $"// export scope: {sourceFile.exportScope.packageName}/{sourceFile.exportScope.scopeName}\n" + new List<string> { imps.join("\n"), enums.join("\n"), intfs.join("\n\n"), classes.join("\n\n"), funcs.join("\n\n"), main }.filter(x => x != "").join("\n\n");
             return result;

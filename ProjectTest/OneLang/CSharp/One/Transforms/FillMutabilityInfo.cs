@@ -20,6 +20,13 @@ namespace One.Transforms
             return null;
         }
         
+        protected override VariableDeclaration visitVariableDeclaration(VariableDeclaration stmt) {
+            base.visitVariableDeclaration(stmt);
+            if (stmt.attributes != null && stmt.attributes.get("mutated") == "true")
+                stmt.mutability.mutated = true;
+            return null;
+        }
+        
         protected override Expression visitExpression(Expression expr) {
             base.visitExpression(expr);
             

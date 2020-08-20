@@ -1,7 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
 using One.Ast;
 using One;
+using System.Collections.Generic;
 
 namespace One.Ast
 {
@@ -342,7 +341,9 @@ namespace One.Ast
         }
         
         public IInterface[] getAllBaseInterfaces() {
-            return this._baseInterfaceCache ?? (this._baseInterfaceCache = AstHelper.collectAllBaseInterfaces(this));
+            if (this._baseInterfaceCache == null)
+                this._baseInterfaceCache = AstHelper.collectAllBaseInterfaces(this);
+            return this._baseInterfaceCache;
         }
     }
     
@@ -391,7 +392,9 @@ namespace One.Ast
         }
         
         public IInterface[] getAllBaseInterfaces() {
-            return this._baseInterfaceCache ?? (this._baseInterfaceCache = AstHelper.collectAllBaseInterfaces(this));
+            if (this._baseInterfaceCache == null)
+                this._baseInterfaceCache = AstHelper.collectAllBaseInterfaces(this);
+            return this._baseInterfaceCache;
         }
     }
     
@@ -453,19 +456,22 @@ namespace One.Ast
         }
     }
     
-    public class MethodParameter : IVariableWithInitializer, IReferencable {
+    public class MethodParameter : IVariableWithInitializer, IReferencable, IHasAttributesAndTrivia {
         public string name { get; set; }
         public Type_ type { get; set; }
         public Expression initializer { get; set; }
+        public string leadingTrivia { get; set; }
         public IMethodBase parentMethod;
+        public Dictionary<string, string> attributes { get; set; }
         public List<MethodParameterReference> references;
         public MutabilityInfo mutability { get; set; }
         
-        public MethodParameter(string name, Type_ type, Expression initializer)
+        public MethodParameter(string name, Type_ type, Expression initializer, string leadingTrivia)
         {
             this.name = name;
             this.type = type;
             this.initializer = initializer;
+            this.leadingTrivia = leadingTrivia;
             this.parentMethod = null;
             this.references = new List<MethodParameterReference>();
         }
@@ -550,15 +556,6 @@ namespace One.Ast
         
         public Reference createReference() {
             return new GlobalFunctionReference(this);
-        }
-    }
-    
-    public class Block {
-        public List<Statement> statements;
-        
-        public Block(Statement[] statements)
-        {
-            this.statements = statements.ToList();
         }
     }
     

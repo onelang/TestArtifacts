@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using One.Ast;
 using One;
 using Utils;
+using System.Collections.Generic;
 
 namespace One
 {
@@ -50,19 +50,19 @@ namespace One
             
             string location = null;
             if (par is Field field)
-                location = $"{field.parentInterface.parentFile.sourcePath} -> {field.parentInterface.name}::{field.name} (field)";
+                location = $"{field.parentInterface.parentFile.sourcePath.path} -> {field.parentInterface.name}::{field.name} (field)";
             else if (par is Property prop)
-                location = $"{prop.parentClass.parentFile.sourcePath} -> {prop.parentClass.name}::{prop.name} (property)";
+                location = $"{prop.parentClass.parentFile.sourcePath.path} -> {prop.parentClass.name}::{prop.name} (property)";
             else if (par is Method meth)
-                location = $"{meth.parentInterface.parentFile.sourcePath} -> {meth.parentInterface.name}::{meth.name} (method)";
+                location = $"{meth.parentInterface.parentFile.sourcePath.path} -> {meth.parentInterface.name}::{meth.name} (method)";
             else if (par is Constructor const_)
-                location = $"{const_.parentClass.parentFile.sourcePath} -> {const_.parentClass.name}::constructor";
+                location = $"{const_.parentClass.parentFile.sourcePath.path} -> {const_.parentClass.name}::constructor";
             else if (par == null) { }
             else if (par is Statement) { }
             else { }
             
             if (location == null && t != null && t.currentFile != null) {
-                location = $"{t.currentFile.sourcePath}";
+                location = $"{t.currentFile.sourcePath.path}";
                 if (t.currentInterface != null) {
                     location += $" -> {t.currentInterface.name}";
                     if (t.currentMethod is Method meth2)

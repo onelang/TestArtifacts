@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using Parsers.Common;
+using System.Collections.Generic;
 
 namespace Parsers.Common
 {
@@ -147,7 +147,8 @@ namespace Parsers.Common
         
         public string readChar() {
             // TODO: should we move wsOffset?
-            return this.input.get(this.offset++);
+            this.offset++;
+            return this.input.get(this.offset - 1);
         }
         
         public bool peekToken(string token) {
@@ -195,7 +196,7 @@ namespace Parsers.Common
         public string expectOneOf(string[] tokens) {
             var result = this.readAnyOf(tokens);
             if (result == null)
-                this.fail($"expected one of {tokens.map(x => $"'{x}'").join(", ")}");
+                this.fail($"expected one of the following tokens: {tokens.join(", ")}");
             return result;
         }
         

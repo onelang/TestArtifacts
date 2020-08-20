@@ -1,6 +1,7 @@
-using System.Collections.Generic;
 using Parsers.Common;
 using One.Ast;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Parsers
 {
@@ -76,7 +77,7 @@ namespace Parsers
             }
             else if (left is Identifier ident && this.reader.readToken("=>")) {
                 var block = this.parseLambdaBlock();
-                return new Lambda(new MethodParameter[] { new MethodParameter(ident.text, null, null) }, block);
+                return new Lambda(new MethodParameter[] { new MethodParameter(ident.text, null, null, null) }, block);
             }
             return null;
         }
@@ -90,7 +91,7 @@ namespace Parsers
                 do {
                     var paramName = this.reader.expectIdentifier();
                     var type = this.reader.readToken(":") ? this.parseType() : null;
-                    params_.push(new MethodParameter(paramName, type, null));
+                    params_.push(new MethodParameter(paramName, type, null, null));
                 } while (this.reader.readToken(","));
                 this.reader.expectToken(")");
             }
@@ -224,9 +225,18 @@ namespace Parsers
                 return new CastExpression(newType, expression, null);
             }
             else if (this.reader.readToken("/")) {
-                var pattern = this.reader.readRegex("((?<![\\\\])[\\\\]/|[^/])+").get(0);
-                //pattern = pattern.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\r/g, "\r").replace(/\\\\/g, "\\");
-                this.reader.expectToken("/");
+                var pattern = "";
+                while (true) {
+                    var chr = this.reader.readChar();
+                    if (chr == "\\") {
+                        var chr2 = this.reader.readChar();
+                        pattern += chr2 == "/" ? "/" : "\\" + chr2;
+                    }
+                    else if (chr == "/")
+                        break;
+                    else
+                        pattern += chr;
+                }
                 var modifiers = this.reader.readModifiers(new string[] { "g", "i" });
                 return new RegexLiteral(pattern, modifiers.includes("i"), modifiers.includes("g"));
             }
@@ -485,7 +495,7 @@ namespace Parsers
             var fields = new List<Field>();
             if (!this.reader.readToken(")")) {
                 do {
-                    this.reader.skipWhitespace();
+                    var leadingTrivia = this.reader.readLeadingTrivia();
                     var paramStart = this.reader.offset;
                     var isPublic = this.reader.readToken("public");
                     if (isPublic && !isConstructor)
@@ -494,13 +504,13 @@ namespace Parsers
                     var paramName = this.reader.expectIdentifier();
                     this.context.push($"arg:{paramName}");
                     var typeAndInit = this.parseTypeAndInit();
-                    var param = new MethodParameter(paramName, typeAndInit.type, typeAndInit.init);
+                    var param = new MethodParameter(paramName, typeAndInit.type, typeAndInit.init, leadingTrivia);
                     params_.push(param);
                     
                     // init should be used as only the constructor's method parameter, but not again as a field initializer too
                     //   (otherwise it would called twice if cloned or cause AST error is just referenced from two separate places)
                     if (isPublic)
-                        fields.push(new Field(paramName, typeAndInit.type, null, Visibility.Public, false, param, null));
+                        fields.push(new Field(paramName, typeAndInit.type, null, Visibility.Public, false, param, param.leadingTrivia));
                     
                     this.nodeManager.addNode(param, paramStart);
                     this.context.pop();
@@ -758,10 +768,10 @@ namespace Parsers
             if (!relPath.startsWith("."))
                 throw new Error($"relPath must start with '.', but got '{relPath}'");
             
-            var curr = currFile.split(new RegExp("\\/"));
+            var curr = currFile.split(new RegExp("/")).ToList();
             curr.pop();
             // filename does not matter
-            foreach (var part in relPath.split(new RegExp("\\/"))) {
+            foreach (var part in relPath.split(new RegExp("/"))) {
                 if (part == "")
                     throw new Error($"relPath should not contain multiple '/' next to each other (relPath='{relPath}')");
                 if (part == ".")
@@ -784,7 +794,7 @@ namespace Parsers
                 // relative
                 return new ExportScopeRef(currScope.packageName, TypeScriptParser2.calculateRelativePath(currScope.scopeName, importFile));
             else {
-                var path = importFile.split(new RegExp("\\/"));
+                var path = importFile.split(new RegExp("/")).ToList();
                 var pkgName = path.shift();
                 return new ExportScopeRef(pkgName, path.length() == 0 ? Package.INDEX : path.join("/"));
             }
@@ -801,7 +811,7 @@ namespace Parsers
             var importStart = this.reader.prevTokenOffset;
             
             string importAllAlias = null;
-            var nameAliases = new Dictionary<string, string> {};
+            var importParts = new List<UnresolvedImport>();
             
             if (this.reader.readToken("*")) {
                 this.reader.expectToken("as");
@@ -814,8 +824,9 @@ namespace Parsers
                         break;
                     
                     var imp = this.reader.expectIdentifier();
-                    var importAs = this.reader.readToken("as") ? this.reader.readIdentifier() : null;
-                    nameAliases.set(imp, importAs);
+                    if (this.reader.readToken("as"))
+                        this.reader.fail("This is not yet supported");
+                    importParts.push(new UnresolvedImport(imp));
                     this.nodeManager.addNode(imp, this.reader.prevTokenOffset);
                 } while (this.reader.readToken(","));
                 this.reader.expectToken("}");
@@ -828,8 +839,8 @@ namespace Parsers
             var importScope = this.exportScope != null ? TypeScriptParser2.calculateImportScope(this.exportScope, moduleName) : null;
             
             var imports = new List<Import>();
-            foreach (var name in Object.keys(nameAliases))
-                imports.push(new Import(importScope, false, new UnresolvedImport[] { new UnresolvedImport(name) }, nameAliases.get(name), leadingTrivia));
+            if (importParts.length() > 0)
+                imports.push(new Import(importScope, false, importParts.ToArray(), null, leadingTrivia));
             
             if (importAllAlias != null)
                 imports.push(new Import(importScope, true, null, importAllAlias, leadingTrivia));

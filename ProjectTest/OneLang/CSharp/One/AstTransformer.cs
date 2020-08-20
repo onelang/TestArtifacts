@@ -1,16 +1,16 @@
-using System.Linq;
 using One.Ast;
 using One;
+using System.Linq;
 
 namespace One
 {
-    public class AstTransformer {
+    public class AstTransformer : ITransformer {
         public ErrorManager errorMan;
         public SourceFile currentFile;
         public IInterface currentInterface;
         public IMethodBase currentMethod;
         public Statement currentStatement;
-        public string name;
+        public string name { get; set; }
         
         public AstTransformer(string name)
         {
@@ -250,6 +250,8 @@ namespace One
                 instMethCallExpr.typeArgs = instMethCallExpr.typeArgs.map(x => this.visitType(x) ?? x);
                 instMethCallExpr.args = instMethCallExpr.args.map(x => this.visitExpression(x) ?? x);
             }
+            else if (expr is LambdaCallExpression lambdCallExpr)
+                lambdCallExpr.args = lambdCallExpr.args.map(x => this.visitExpression(x) ?? x);
             else
                 return this.visitUnknownExpression(expr);
             return null;

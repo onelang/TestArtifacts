@@ -1,6 +1,7 @@
-using System.Collections.Generic;
 using Parsers.Common;
 using One.Ast;
+using Utils;
+using System.Collections.Generic;
 
 namespace Parsers.Common
 {
@@ -109,7 +110,7 @@ namespace Parsers.Common
                 }
             }
             
-            this.operators = Object.keys(this.operatorMap).sort((a, b) => b.length() - a.length());
+            this.operators = ArrayHelper.sortBy(Object.keys(this.operatorMap), x => -x.length());
         }
         
         public MapLiteral parseMapLiteral(string keySeparator = ":", string startToken = "{", string endToken = "}") {

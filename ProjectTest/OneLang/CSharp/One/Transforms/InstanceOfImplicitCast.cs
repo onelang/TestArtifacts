@@ -1,6 +1,7 @@
-using System.Collections.Generic;
 using One;
 using One.Ast;
+using Utils;
+using System.Collections.Generic;
 
 namespace One.Transforms
 {
@@ -30,7 +31,7 @@ namespace One.Transforms
         protected void popContext() {
             var castCount = this.castCounts.pop();
             if (castCount != 0)
-                this.casts.splice(this.casts.length() - castCount, castCount);
+                ArrayHelper.removeLastN(this.casts, castCount);
         }
         
         protected bool equals(Expression expr1, Expression expr2) {

@@ -87,7 +87,7 @@ namespace One.Transforms.InferTypesPlugins.Helpers
             else if (type is InterfaceType intType4)
                 return new InterfaceType(intType4.decl, intType4.typeArguments.map(x => this.resolveType(x, mustResolveAllGenerics)));
             else if (type is LambdaType lambdType3)
-                return new LambdaType(lambdType3.parameters.map(x => new MethodParameter(x.name, this.resolveType(x.type, mustResolveAllGenerics), x.initializer)), this.resolveType(lambdType3.returnType, mustResolveAllGenerics));
+                return new LambdaType(lambdType3.parameters.map(x => new MethodParameter(x.name, this.resolveType(x.type, mustResolveAllGenerics), x.initializer, null)), this.resolveType(lambdType3.returnType, mustResolveAllGenerics));
             else
                 return type;
         }

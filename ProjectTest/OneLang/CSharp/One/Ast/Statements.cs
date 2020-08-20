@@ -1,5 +1,6 @@
-using System.Collections.Generic;
 using One.Ast;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace One.Ast
 {
@@ -205,6 +206,15 @@ namespace One.Ast
             this.finallyBody = finallyBody;
             if (this.catchBody == null && this.finallyBody == null)
                 throw new Error("try without catch and finally is not allowed");
+        }
+    }
+    
+    public class Block {
+        public List<Statement> statements;
+        
+        public Block(Statement[] statements)
+        {
+            this.statements = statements.ToList();
         }
     }
 }

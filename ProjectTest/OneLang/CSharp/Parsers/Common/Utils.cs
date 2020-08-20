@@ -1,4 +1,4 @@
-
+using System.Linq;
 
 namespace Parsers.Common
 {
@@ -12,7 +12,7 @@ namespace Parsers.Common
         }
         
         public static string deindent(string str) {
-            var lines = str.split(new RegExp("\\n"));
+            var lines = str.split(new RegExp("\\n")).ToList();
             if (lines.length() == 1)
                 return str;
             

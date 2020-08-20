@@ -1,17 +1,24 @@
-using System.Threading.Tasks;
 using One.Ast;
 using Parsers;
 using StdLib;
 using One.Transforms;
+using One;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace One
 {
+    public interface CompilerHooks {
+        void afterStage(string stageName);
+    }
+    
     public class Compiler {
         public PackageManager pacMan;
         public Workspace workspace;
         public SourceFile nativeFile;
         public ExportedScope nativeExports;
         public Package projectPkg;
+        public CompilerHooks hooks;
         
         public Compiler()
         {
@@ -20,6 +27,7 @@ namespace One
             this.nativeFile = null;
             this.nativeExports = null;
             this.projectPkg = null;
+            this.hooks = null;
         }
         
         public async Task init(string packagesDir) {
@@ -37,7 +45,7 @@ namespace One
             new FillMutabilityInfo().visitSourceFile(this.nativeFile);
         }
         
-        public void newWorkspace() {
+        public void newWorkspace(string pkgName = "@") {
             this.workspace = new Workspace();
             foreach (var intfPkg in this.pacMan.interfacesPkgs) {
                 var libName = $"{intfPkg.interfaceYaml.vendor}.{intfPkg.interfaceYaml.name}-v{intfPkg.interfaceYaml.version}";
@@ -47,7 +55,7 @@ namespace One
                 this.workspace.addPackage(libPkg);
             }
             
-            this.projectPkg = new Package("@");
+            this.projectPkg = new Package(pkgName);
             this.workspace.addPackage(this.projectPkg);
         }
         
@@ -67,17 +75,32 @@ namespace One
         
         public void processWorkspace() {
             new FillParent().visitPackage(this.projectPkg);
+            if (this.hooks != null)
+                this.hooks.afterStage("FillParent");
+            
             FillAttributesFromTrivia.processPackage(this.projectPkg);
+            if (this.hooks != null)
+                this.hooks.afterStage("FillAttributesFromTrivia");
+            
             ResolveImports.processWorkspace(this.workspace);
-            new ResolveGenericTypeIdentifiers().visitPackage(this.projectPkg);
-            new ConvertToMethodCall().visitPackage(this.projectPkg);
-            new ResolveUnresolvedTypes().visitPackage(this.projectPkg);
-            new ResolveIdentifiers().visitPackage(this.projectPkg);
-            new InstanceOfImplicitCast().visitPackage(this.projectPkg);
-            new DetectMethodCalls().visitPackage(this.projectPkg);
-            new InferTypes().visitPackage(this.projectPkg);
-            new CollectInheritanceInfo().visitPackage(this.projectPkg);
-            new FillMutabilityInfo().visitPackage(this.projectPkg);
+            if (this.hooks != null)
+                this.hooks.afterStage("ResolveImports");
+            
+            var transforms = new List<ITransformer>();
+            transforms.push(new ResolveGenericTypeIdentifiers());
+            transforms.push(new ConvertToMethodCall());
+            transforms.push(new ResolveUnresolvedTypes());
+            transforms.push(new ResolveIdentifiers());
+            transforms.push(new InstanceOfImplicitCast());
+            transforms.push(new DetectMethodCalls());
+            transforms.push(new InferTypes());
+            transforms.push(new CollectInheritanceInfo());
+            transforms.push(new FillMutabilityInfo());
+            foreach (var trans in transforms) {
+                trans.visitPackage(this.projectPkg);
+                if (this.hooks != null)
+                    this.hooks.afterStage(trans.name);
+            }
         }
     }
 }

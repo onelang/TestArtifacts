@@ -1,0 +1,31 @@
+from OneLangStdLib import *
+
+class Utils:
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def get_pad_len(cls, line):
+        i = 0
+        
+        while i < len(line):
+            if line[i] != " ":
+                return i
+            i = i + 1
+        return -1
+    
+    @classmethod
+    def deindent(cls, str):
+        lines = str.split("\\n")
+        if len(lines) == 1:
+            return str
+        
+        if Utils.get_pad_len(lines[0]) == -1:
+            lines.pop(0)
+        
+        min_pad_len = 9999
+        for pad_len in list(filter(lambda x: x != -1, list(map(lambda x: Utils.get_pad_len(x), lines)))):
+            if pad_len < min_pad_len:
+                min_pad_len = pad_len
+        new_str = "\n".join(list(map(lambda x: x[min_pad_len:] if len(x) != 0 else x, lines)))
+        return new_str

@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using One.Ast;
+using System.Collections.Generic;
 
 namespace One.Transforms
 {
@@ -7,7 +7,7 @@ namespace One.Transforms
         public static Dictionary<string, string> processTrivia(string trivia) {
             var result = new Dictionary<string, string> {};
             if (trivia != null && trivia != "") {
-                var regex = new RegExp("(?:\\n|^)\\s*(?:\\/\\/|#|\\/\\*\\*?)\\s*@([a-z0-9_.-]+) ?((?!\\n|\\*\\/|$).+)?");
+                var regex = new RegExp("(?:\\n|^)\\s*(?://|#|/\\*\\*?)\\s*@([a-z0-9_.-]+) ?((?!\\n|\\*/|$).+)?");
                 while (true) {
                     var match = regex.exec(trivia);
                     if (match == null)
@@ -43,6 +43,7 @@ namespace One.Transforms
             if (method == null)
                 return;
             FillAttributesFromTrivia.process(new IMethodBaseWithTrivia[] { method });
+            FillAttributesFromTrivia.process(method.parameters);
             FillAttributesFromTrivia.processBlock(method.body);
         }
         

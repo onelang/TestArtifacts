@@ -6,3 +6,4 @@ obj/
 lastState.txt
 allChanges.txt
 *Regen*
+*.pyc

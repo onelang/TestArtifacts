@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Utils;
 
 namespace StdLib
 {
@@ -56,15 +55,35 @@ namespace StdLib
     public class InterfaceDependency {
         public string name;
         public double minver;
+        
+        public InterfaceDependency(string name, double minver)
+        {
+            this.name = name;
+            this.minver = minver;
+        }
     }
     
     public class InterfaceYaml {
-        public int fileVersion;
+        public double fileVersion;
         public string vendor;
         public string name;
         public double version;
         public string definitionFile;
         public InterfaceDependency[] dependencies;
+        
+        public InterfaceYaml(double fileVersion, string vendor, string name, double version, string definitionFile, InterfaceDependency[] dependencies)
+        {
+            this.fileVersion = fileVersion;
+            this.vendor = vendor;
+            this.name = name;
+            this.version = version;
+            this.definitionFile = definitionFile;
+            this.dependencies = dependencies;
+        }
+        
+        public static InterfaceYaml fromYaml(YamlValue obj) {
+            return new InterfaceYaml(obj.dbl("file-version"), obj.str("vendor"), obj.str("name"), obj.dbl("version"), obj.str("definition-file"), obj.arr("dependencies").map(dep => new InterfaceDependency(dep.str("name"), dep.dbl("minver"))));
+        }
     }
     
     public class InterfacePackage {
@@ -75,15 +94,22 @@ namespace StdLib
         public InterfacePackage(PackageContent content)
         {
             this.content = content;
-            this.interfaceYaml = Yaml.load<InterfaceYaml>(content.files.get("interface.yaml"));
+            this.interfaceYaml = InterfaceYaml.fromYaml(Yaml.load(content.files.get("interface.yaml")));
             this.definition = content.files.get(this.interfaceYaml.definitionFile);
         }
     }
     
     public class ImplPkgImplIntf {
         public string name;
-        public int minver;
-        public int maxver;
+        public double minver;
+        public double maxver;
+        
+        public ImplPkgImplIntf(string name, double minver, double maxver)
+        {
+            this.name = name;
+            this.minver = minver;
+            this.maxver = maxver;
+        }
     }
     
     public class ImplPkgImplementation {
@@ -91,16 +117,39 @@ namespace StdLib
         public string language;
         public string[] nativeIncludes;
         public string nativeIncludeDir;
+        
+        public ImplPkgImplementation(ImplPkgImplIntf interface_, string language, string[] nativeIncludes, string nativeIncludeDir)
+        {
+            this.interface_ = interface_;
+            this.language = language;
+            this.nativeIncludes = nativeIncludes;
+            this.nativeIncludeDir = nativeIncludeDir;
+        }
     }
     
     public class ImplPackageYaml {
-        public int fileVersion;
+        public double fileVersion;
         public string vendor;
         public string name;
         public string description;
         public string version;
         public string[] includes;
-        public ImplPkgImplementation[] implements;
+        public ImplPkgImplementation[] implements_;
+        
+        public ImplPackageYaml(double fileVersion, string vendor, string name, string description, string version, string[] includes, ImplPkgImplementation[] implements_)
+        {
+            this.fileVersion = fileVersion;
+            this.vendor = vendor;
+            this.name = name;
+            this.description = description;
+            this.version = version;
+            this.includes = includes;
+            this.implements_ = implements_;
+        }
+        
+        public static ImplPackageYaml fromYaml(YamlValue obj) {
+            return new ImplPackageYaml(obj.dbl("file-version"), obj.str("vendor"), obj.str("name"), obj.str("description"), obj.str("version"), obj.strArr("includes"), obj.arr("implements").map(impl => new ImplPkgImplementation(new ImplPkgImplIntf(impl.obj("interface").str("name"), impl.obj("interface").dbl("minver"), impl.obj("interface").dbl("maxver")), impl.str("language"), impl.strArr("native-includes"), impl.str("native-include-dir"))));
+        }
     }
     
     public class ImplementationPackage {
@@ -112,13 +161,13 @@ namespace StdLib
         {
             this.content = content;
             this.implementations = new List<ImplPkgImplementation>();
-            this.implementationYaml = Yaml.load<ImplPackageYaml>(content.files.get("package.yaml"));
+            this.implementationYaml = ImplPackageYaml.fromYaml(Yaml.load(content.files.get("package.yaml")));
             this.implementations = new List<ImplPkgImplementation>();
-            foreach (var impl in this.implementationYaml.implements ?? new ImplPkgImplementation[0])
+            foreach (var impl in this.implementationYaml.implements_ ?? new ImplPkgImplementation[0])
                 this.implementations.push(impl);
             foreach (var include in this.implementationYaml.includes ?? new string[0]) {
-                var included = Yaml.load<ImplPackageYaml>(content.files.get(include));
-                foreach (var impl in included.implements)
+                var included = ImplPackageYaml.fromYaml(Yaml.load(content.files.get(include)));
+                foreach (var impl in included.implements_)
                     this.implementations.push(impl);
             }
         }
@@ -163,7 +212,7 @@ namespace StdLib
             foreach (var pkg in this.implementationPkgs)
                 foreach (var pkgImpl in pkg.implementations.filter(x => x.language == langName)) {
                     var fileNamePaths = new Dictionary<string, string> {};
-                    foreach (var fileName in pkgImpl.nativeIncludes ?? new string[0])
+                    foreach (var fileName in pkgImpl.nativeIncludes)
                         fileNamePaths.set(fileName, $"native/{fileName}");
                     
                     var incDir = pkgImpl.nativeIncludeDir;

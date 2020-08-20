@@ -1,10 +1,9 @@
-using System.Collections.Generic;
-using System;
 using One;
 using One.Ast;
 using One.Transforms.InferTypesPlugins;
 using One.Transforms.InferTypesPlugins.Helpers;
-using Utils;
+using System.Collections.Generic;
+using System;
 
 namespace One.Transforms
 {
@@ -88,7 +87,8 @@ namespace One.Transforms
                 return null;
             
             var plugin = transformers.get(0);
-            this.errorMan.lastContextInfo = $"[{++this.contextInfoIdx}] running transform plugin \"{plugin.name}\"";
+            this.contextInfoIdx++;
+            this.errorMan.lastContextInfo = $"[{this.contextInfoIdx}] running transform plugin \"{plugin.name}\"";
             try {
                 var newExpr = plugin.transform(expr);
                 // expression changed, restart the type infering process on the new expression
@@ -108,7 +108,8 @@ namespace One.Transforms
             foreach (var plugin in this.plugins) {
                 if (!plugin.canDetectType(expr))
                     continue;
-                this.errorMan.lastContextInfo = $"[{++this.contextInfoIdx}] running type detection plugin \"{plugin.name}\"";
+                this.contextInfoIdx++;
+                this.errorMan.lastContextInfo = $"[{this.contextInfoIdx}] running type detection plugin \"{plugin.name}\"";
                 this.errorMan.currentNode = expr;
                 try {
                     if (plugin.detectType(expr))
@@ -201,6 +202,12 @@ namespace One.Transforms
         
         public Expression runPluginsOn(Expression expr) {
             return this.visitExpression(expr);
+        }
+        
+        protected override void visitClass(Class cls) {
+            if (cls.attributes.get("external") == "true")
+                return;
+            base.visitClass(cls);
         }
         
         public override void visitPackage(Package pkg) {

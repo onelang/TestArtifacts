@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using One.Transforms.InferTypesPlugins.Helpers;
 using One.Ast;
+using System.Collections.Generic;
 
 namespace One.Transforms.InferTypesPlugins
 {
@@ -13,15 +13,15 @@ namespace One.Transforms.InferTypesPlugins
         protected Method findMethod(IInterface cls, string methodName, bool isStatic, Expression[] args) {
             var allBases = cls is Class class_ ? class_.getAllBaseInterfaces().filter(x => x is Class) : cls.getAllBaseInterfaces();
             
-            var allMethods = new List<Method>();
+            var methods = new List<Method>();
             foreach (var base_ in allBases)
-                foreach (var method in base_.methods)
-                    allMethods.push(method);
-            
-            var methods = allMethods.filter(m => { var minLen = m.parameters.filter(p => p.initializer == null).length();
-            var maxLen = m.parameters.length();
-            var match = m.name == methodName && m.isStatic == isStatic && minLen <= args.length() && args.length() <= maxLen;
-            return match; });
+                foreach (var m in base_.methods) {
+                    var minLen = m.parameters.filter(p => p.initializer == null).length();
+                    var maxLen = m.parameters.length();
+                    var match = m.name == methodName && m.isStatic == isStatic && minLen <= args.length() && args.length() <= maxLen;
+                    if (match)
+                        methods.push(m);
+                }
             
             if (methods.length() == 0)
                 throw new Error($"Method '{methodName}' was not found on type '{cls.name}' with {args.length()} arguments");

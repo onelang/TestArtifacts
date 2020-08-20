@@ -1,7 +1,7 @@
+using StdLib;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using StdLib;
-using Utils;
+using System.Linq;
 
 namespace StdLib
 {
@@ -25,7 +25,10 @@ namespace StdLib
             var packages = new Dictionary<string, PackageContent> {};
             var allFiles = glob.sync($"{this.packagesDir}/**/*", new Dictionary<string, bool> { ["nodir"] = true });
             foreach (var fn in allFiles) {
-                var pathParts = path.relative(this.packagesDir, fn).split(new RegExp("\\/"));
+                if (fn.includes("bundle.json"))
+                    continue;
+                // TODO: hack
+                var pathParts = path.relative(this.packagesDir, fn).split(new RegExp("/")).ToList();
                 // [0]=implementations/interfaces, [1]=package-name, [2:]=path
                 var type = pathParts.shift();
                 var pkgDir = pathParts.shift();
@@ -35,7 +38,7 @@ namespace StdLib
                 var pkgIdStr = $"{type}/{pkgDir}";
                 var pkg = packages.get(pkgIdStr);
                 if (pkg == null) {
-                    var pkgDirParts = pkgDir.split(new RegExp("-"));
+                    var pkgDirParts = pkgDir.split(new RegExp("-")).ToList();
                     var version = pkgDirParts.pop().replace(new RegExp("^v"), "");
                     var pkgType = type == "implementations" ? PackageType.Implementation : PackageType.Interface;
                     var pkgId = new PackageId(pkgType, pkgDirParts.join("-"), version);

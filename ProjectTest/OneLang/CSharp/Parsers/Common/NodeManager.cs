@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using Parsers.Common;
+using System.Collections.Generic;
 
 namespace Parsers.Common
 {
