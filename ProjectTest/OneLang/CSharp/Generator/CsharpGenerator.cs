@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Generator
 {
-    public class CsharpGenerator {
+    public class CsharpGenerator : IGenerator {
         public Set<string> usings;
         public IInterface currentClass;
         public string[] reservedWords;
@@ -17,6 +17,14 @@ namespace Generator
             this.reservedWords = new string[] { "object", "else", "operator", "class", "enum", "void", "string", "implicit", "Type", "Enum", "params", "using", "throw", "ref", "base", "virtual", "interface", "int", "const" };
             this.fieldToMethodHack = new string[] { "length" };
             this.instanceOfIds = new Dictionary<string, int> {};
+        }
+        
+        public string getLangName() {
+            return "CSharp";
+        }
+        
+        public string getExtension() {
+            return "cs";
         }
         
         public string name_(string name) {

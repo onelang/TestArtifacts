@@ -6,6 +6,7 @@ import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Ast.References as refs
 import OneLang.Generator.GeneratedFile as genFile
 import OneLang.Generator.NameUtils as nameUtils
+import OneLang.Generator.IGenerator as iGen
 
 class CsharpGenerator:
     def __init__(self):
@@ -14,6 +15,12 @@ class CsharpGenerator:
         self.reserved_words = ["object", "else", "operator", "class", "enum", "void", "string", "implicit", "Type", "Enum", "params", "using", "throw", "ref", "base", "virtual", "interface", "int", "const"]
         self.field_to_method_hack = ["length"]
         self.instance_of_ids = {}
+    
+    def get_lang_name(self):
+        return "CSharp"
+    
+    def get_extension(self):
+        return "cs"
     
     def name_(self, name):
         if name in self.reserved_words:
