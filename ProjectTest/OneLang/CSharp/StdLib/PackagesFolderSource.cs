@@ -18,17 +18,13 @@ namespace StdLib
         }
         
         public async Task<PackageBundle> getAllCached() {
-            var fs = ((Fs)await Global.import("fs"));
-            var glob = ((Glob)await Global.import("glob"));
-            var path = ((Path)await Global.import("path"));
-            
             var packages = new Dictionary<string, PackageContent> {};
-            var allFiles = glob.sync($"{this.packagesDir}/**/*", new Dictionary<string, bool> { ["nodir"] = true });
+            var allFiles = OneFile.listFiles(this.packagesDir, true);
             foreach (var fn in allFiles) {
-                if (fn.includes("bundle.json"))
+                if (fn == "bundle.json")
                     continue;
                 // TODO: hack
-                var pathParts = path.relative(this.packagesDir, fn).split(new RegExp("/")).ToList();
+                var pathParts = fn.split(new RegExp("/")).ToList();
                 // [0]=implementations/interfaces, [1]=package-name, [2:]=path
                 var type = pathParts.shift();
                 var pkgDir = pathParts.shift();
@@ -45,7 +41,7 @@ namespace StdLib
                     pkg = new PackageContent(pkgId, new Dictionary<string, string> {}, true);
                     packages.set(pkgIdStr, pkg);
                 }
-                pkg.files.set(pathParts.join("/"), fs.readFileSync(fn, "utf-8"));
+                pkg.files.set(pathParts.join("/"), OneFile.readText($"{this.packagesDir}/{fn}"));
             }
             return new PackageBundle(Object.values(packages));
         }

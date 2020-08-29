@@ -451,7 +451,6 @@ class PythonGenerator:
         for import_ in list(filter(lambda x: not x.import_all, source_file.imports)):
             #const relImp = this.calcRelImport(import_.exportScope, sourceFile.exportScope);
             alias = self.calc_import_alias(import_.export_scope)
-            #if (import_.exportScope.scopeName.startsWith("_external/")) continue;
             imports.append(f'''import {self.package.name}.{re.sub("/", ".", import_.export_scope.scope_name)} as {alias}''')
         
         return "\n\n".join(list(filter(lambda x: x != "", ["\n".join(imports), "\n\n".join(enums), "\n\n".join(classes), main])))
@@ -459,6 +458,6 @@ class PythonGenerator:
     def generate(self, pkg):
         self.package = pkg
         result = []
-        for path in list(filter(lambda x: not x.startswith("_external/"), pkg.files.keys())):
+        for path in pkg.files.keys():
             result.append(genFile.GeneratedFile(f'''{pkg.name}/{path}''', self.gen_file(pkg.files.get(path))))
         return result

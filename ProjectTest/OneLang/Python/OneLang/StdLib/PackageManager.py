@@ -1,6 +1,6 @@
 from OneLangStdLib import *
 from enum import Enum
-import OneLang._external.Yaml as yaml
+import OneLang.index as index
 
 class PACKAGE_TYPE(Enum):
     INTERFACE = 1
@@ -52,7 +52,7 @@ class InterfacePackage:
         self.interface_yaml = None
         self.definition = None
         self.content = content
-        self.interface_yaml = InterfaceYaml.from_yaml(yaml.Yaml.load(content.files.get("interface.yaml")))
+        self.interface_yaml = InterfaceYaml.from_yaml(index.OneYaml.load(content.files.get("interface.yaml")))
         self.definition = content.files.get(self.interface_yaml.definition_file)
 
 class ImplPkgImplIntf:
@@ -87,12 +87,12 @@ class ImplementationPackage:
         self.implementation_yaml = None
         self.implementations = []
         self.content = content
-        self.implementation_yaml = ImplPackageYaml.from_yaml(yaml.Yaml.load(content.files.get("package.yaml")))
+        self.implementation_yaml = ImplPackageYaml.from_yaml(index.OneYaml.load(content.files.get("package.yaml")))
         self.implementations = []
         for impl in self.implementation_yaml.implements_ or []:
             self.implementations.append(impl)
         for include in self.implementation_yaml.includes or []:
-            included = ImplPackageYaml.from_yaml(yaml.Yaml.load(content.files.get(include)))
+            included = ImplPackageYaml.from_yaml(index.OneYaml.load(content.files.get(include)))
             for impl in included.implements_:
                 self.implementations.append(impl)
 

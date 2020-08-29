@@ -523,10 +523,8 @@ namespace Generator
                 usingsSet.add(using_);
             
             var usings = new List<string>();
-            foreach (var using_ in usingsSet) {
-                if (using_ != "_external")
-                    usings.push($"using {using_};");
-            }
+            foreach (var using_ in usingsSet)
+                usings.push($"using {using_};");
             
             var result = new List<string> { enums.join("\n"), intfs.join("\n\n"), classes.join("\n\n"), main }.filter(x => x != "").join("\n\n");
             var nl = "\n";
@@ -537,7 +535,7 @@ namespace Generator
         
         public GeneratedFile[] generate(Package pkg) {
             var result = new List<GeneratedFile>();
-            foreach (var path in Object.keys(pkg.files).filter(x => !x.startsWith("_external/")))
+            foreach (var path in Object.keys(pkg.files))
                 result.push(new GeneratedFile(path, this.genFile(pkg.files.get(path))));
             return result.ToArray();
         }

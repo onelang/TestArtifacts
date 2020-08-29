@@ -36,13 +36,6 @@ public static class Global {
     public static int parseInt(string str) {
         return int.Parse(str);
     }
-
-    public static async Task<object> import(string moduleName) {
-        if (moduleName == "fs") return await Task.FromResult(new Fs());
-        else if (moduleName == "glob") return await Task.FromResult(new Glob());
-        else if (moduleName == "path") return await Task.FromResult(new Path());
-        throw new NotImplementedException();
-    }
 }
 
 public static class Math {
@@ -67,30 +60,20 @@ public class YAML {
     }
 }
 
-public class Glob {
-    public string[] sync(string dir, object config) {
-        if (dir.EndsWith(dir)) {
-            var baseDir = dir.Replace("/**/*", "");
-            return Directory.GetFiles(baseDir, "*", SearchOption.AllDirectories).Where(x => x.Replace(baseDir, "").Contains("/")).ToArray();
-        } else {
-            throw new NotImplementedException();
-        }
+public static class OneFile 
+{
+    public static string[] listFiles(string directory, bool recursive) {
+        var skipLen = directory.Length + (directory.EndsWith("/") ? 0 : 1);
+        return Directory.GetFiles(directory, "*", SearchOption.AllDirectories).Select(x => x.Substring(skipLen)).ToArray();
     }
-}
 
-public class Path {
-    public string relative(string dir, string fn) {
-        if (fn.StartsWith(dir))
-            return fn.Substring(dir.Length);
-        throw new NotImplementedException();
-    }
-}
-
-public class Fs {
-    public string readFileSync(string fn, string encoding) {
-        if (encoding != "utf-8")
-            throw new NotImplementedException();
+    public static string readText(string fn) {
         return File.ReadAllText(fn);
+    }
+
+    public static void writeText(string fn, string content) {
+        new DirectoryInfo(Path.GetDirectoryName(fn)).Create();
+        File.WriteAllText(fn, content);
     }
 }
 

@@ -468,8 +468,7 @@ class CsharpGenerator:
         
         usings = []
         for using in usings_set:
-            if using != "_external":
-                usings.append(f'''using {using};''')
+            usings.append(f'''using {using};''')
         
         result = "\n\n".join(list(filter(lambda x: x != "", ["\n".join(enums), "\n\n".join(intfs), "\n\n".join(classes), main])))
         nl = "\n"
@@ -479,6 +478,6 @@ class CsharpGenerator:
     
     def generate(self, pkg):
         result = []
-        for path in list(filter(lambda x: not x.startswith("_external/"), pkg.files.keys())):
+        for path in pkg.files.keys():
             result.append(genFile.GeneratedFile(path, self.gen_file(pkg.files.get(path))))
         return result

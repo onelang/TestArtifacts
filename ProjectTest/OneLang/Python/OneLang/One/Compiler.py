@@ -44,27 +44,36 @@ class Compiler:
         self.workspace = types.Workspace()
         for intf_pkg in self.pac_man.interfaces_pkgs:
             lib_name = f'''{intf_pkg.interface_yaml.vendor}.{intf_pkg.interface_yaml.name}-v{intf_pkg.interface_yaml.version}'''
-            lib_pkg = types.Package(lib_name)
-            file = typeScrPars.TypeScriptParser2.parse_file(intf_pkg.definition, types.SourcePath(lib_pkg, types.Package.index))
-            lib_pkg.add_file(file)
-            self.workspace.add_package(lib_pkg)
+            self.add_interface_package(lib_name, intf_pkg.definition)
         
-        self.project_pkg = types.Package(pkg_name)
+        self.project_pkg = types.Package(pkg_name, False)
         self.workspace.add_package(self.project_pkg)
     
-    def add_overlay_package(self, pkg_name):
-        js_yaml_pkg = types.Package(pkg_name)
-        js_yaml_pkg.add_file(types.SourceFile([], [], [], [], [], None, types.SourcePath(js_yaml_pkg, types.Package.index), types.ExportScopeRef(pkg_name, types.Package.index)))
-        self.workspace.add_package(js_yaml_pkg)
+    def add_interface_package(self, lib_name, definition_file_content):
+        lib_pkg = types.Package(lib_name, True)
+        file = typeScrPars.TypeScriptParser2.parse_file(definition_file_content, types.SourcePath(lib_pkg, types.Package.index))
+        self.setup_file(file)
+        lib_pkg.add_file(file, True)
+        self.workspace.add_package(lib_pkg)
     
-    def add_project_file(self, fn, content):
-        file = typeScrPars.TypeScriptParser2.parse_file(content, types.SourcePath(self.project_pkg, fn))
+    def setup_file(self, file):
         file.add_available_symbols(self.native_exports.get_all_exports())
         file.literal_types = types.LiteralTypes((file.available_symbols.get("TsBoolean")).type, (file.available_symbols.get("TsNumber")).type, (file.available_symbols.get("TsString")).type, (file.available_symbols.get("RegExp")).type, (file.available_symbols.get("TsArray")).type, (file.available_symbols.get("TsMap")).type, (file.available_symbols.get("Error")).type, (file.available_symbols.get("Promise")).type)
         file.array_types = [(file.available_symbols.get("TsArray")).type, (file.available_symbols.get("IterableIterator")).type, (file.available_symbols.get("RegExpExecArray")).type, (file.available_symbols.get("TsString")).type, (file.available_symbols.get("Set")).type]
+    
+    def add_project_file(self, fn, content):
+        file = typeScrPars.TypeScriptParser2.parse_file(content, types.SourcePath(self.project_pkg, fn))
+        self.setup_file(file)
         self.project_pkg.add_file(file)
     
     def process_workspace(self):
+        for pkg in list(filter(lambda x: x.definition_only, self.workspace.packages.values())):
+            # sets method's parentInterface property
+            fillPar.FillParent().visit_package(pkg)
+            fillAttrFromTriv.FillAttributesFromTrivia.process_package(pkg)
+            resGenTypeIdents.ResolveGenericTypeIdentifiers().visit_package(pkg)
+            resUnrTypes.ResolveUnresolvedTypes().visit_package(pkg)
+        
         fillPar.FillParent().visit_package(self.project_pkg)
         if self.hooks != None:
             self.hooks.after_stage("FillParent")

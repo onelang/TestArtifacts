@@ -94,7 +94,7 @@ namespace StdLib
         public InterfacePackage(PackageContent content)
         {
             this.content = content;
-            this.interfaceYaml = InterfaceYaml.fromYaml(Yaml.load(content.files.get("interface.yaml")));
+            this.interfaceYaml = InterfaceYaml.fromYaml(OneYaml.load(content.files.get("interface.yaml")));
             this.definition = content.files.get(this.interfaceYaml.definitionFile);
         }
     }
@@ -161,12 +161,12 @@ namespace StdLib
         {
             this.content = content;
             this.implementations = new List<ImplPkgImplementation>();
-            this.implementationYaml = ImplPackageYaml.fromYaml(Yaml.load(content.files.get("package.yaml")));
+            this.implementationYaml = ImplPackageYaml.fromYaml(OneYaml.load(content.files.get("package.yaml")));
             this.implementations = new List<ImplPkgImplementation>();
             foreach (var impl in this.implementationYaml.implements_ ?? new ImplPkgImplementation[0])
                 this.implementations.push(impl);
             foreach (var include in this.implementationYaml.includes ?? new string[0]) {
-                var included = ImplPackageYaml.fromYaml(Yaml.load(content.files.get(include)));
+                var included = ImplPackageYaml.fromYaml(OneYaml.load(content.files.get(include)));
                 foreach (var impl in included.implements_)
                     this.implementations.push(impl);
             }

@@ -1,7 +1,7 @@
 from OneLangStdLib import *
 import re
 import OneLang.StdLib.PackageManager as packMan
-import OneLang._external.Native as nat
+import OneLang.index as index
 
 class PackagesFolderSource:
     def __init__(self, packages_dir = "packages"):
@@ -11,19 +11,13 @@ class PackagesFolderSource:
         raise Error("Method not implemented.")
     
     def get_all_cached(self):
-        fs = import_("fs")
-        glob = import_("glob")
-        path = import_("path")
-        
         packages = {}
-        all_files = glob.sync(f'''{self.packages_dir}/**/*''', {
-            "nodir": True
-        })
+        all_files = index.OneFile.list_files(self.packages_dir, True)
         for fn in all_files:
-            if "bundle.json" in fn:
+            if fn == "bundle.json":
                 continue
             # TODO: hack
-            path_parts = path.relative(self.packages_dir, fn).split("/")
+            path_parts = fn.split("/")
             # [0]=implementations/interfaces, [1]=package-name, [2:]=path
             type = path_parts.pop(0)
             pkg_dir = path_parts.pop(0)
@@ -39,5 +33,5 @@ class PackagesFolderSource:
                 pkg_id = packMan.PackageId(pkg_type, "-".join(pkg_dir_parts), version)
                 pkg = packMan.PackageContent(pkg_id, {}, True)
                 packages[pkg_id_str] = pkg
-            pkg.files["/".join(path_parts)] = fs.read_file_sync(fn, "utf-8")
+            pkg.files["/".join(path_parts)] = index.OneFile.read_text(f'''{self.packages_dir}/{fn}''')
         return packMan.PackageBundle(packages.values())

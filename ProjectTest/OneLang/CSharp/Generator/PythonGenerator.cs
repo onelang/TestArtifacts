@@ -487,7 +487,6 @@ namespace Generator
             foreach (var import_ in sourceFile.imports.filter(x => !x.importAll)) {
                 //const relImp = this.calcRelImport(import_.exportScope, sourceFile.exportScope);
                 var alias = this.calcImportAlias(import_.exportScope);
-                //if (import_.exportScope.scopeName.startsWith("_external/")) continue;
                 imports.push($"import {this.package.name}.{import_.exportScope.scopeName.replace(new RegExp("/"), ".")} as {alias}");
             }
             
@@ -497,7 +496,7 @@ namespace Generator
         public GeneratedFile[] generate(Package pkg) {
             this.package = pkg;
             var result = new List<GeneratedFile>();
-            foreach (var path in Object.keys(pkg.files).filter(x => !x.startsWith("_external/")))
+            foreach (var path in Object.keys(pkg.files))
                 result.push(new GeneratedFile($"{pkg.name}/{path}", this.genFile(pkg.files.get(path))));
             return result.ToArray();
         }

@@ -93,13 +93,15 @@ namespace One.Ast
     
     public class Package {
         public string name;
+        public bool definitionOnly;
         public static string INDEX = "index";
         public Dictionary<string, SourceFile> files;
         public Dictionary<string, ExportedScope> exportedScopes;
         
-        public Package(string name)
+        public Package(string name, bool definitionOnly)
         {
             this.name = name;
+            this.definitionOnly = definitionOnly;
             this.files = new Dictionary<string, SourceFile> {};
             this.exportedScopes = new Dictionary<string, ExportedScope> {};
         }
@@ -422,6 +424,7 @@ namespace One.Ast
             this.isStatic = isStatic;
             this.constructorParam = constructorParam;
             this.leadingTrivia = leadingTrivia;
+            this.parentInterface = null;
             this.staticReferences = new List<StaticFieldReference>();
             this.instanceReferences = new List<InstanceFieldReference>();
             this.interfaceDeclarations = null;
@@ -451,6 +454,7 @@ namespace One.Ast
             this.visibility = visibility;
             this.isStatic = isStatic;
             this.leadingTrivia = leadingTrivia;
+            this.parentClass = null;
             this.staticReferences = new List<StaticPropertyReference>();
             this.instanceReferences = new List<InstancePropertyReference>();
         }
@@ -496,6 +500,7 @@ namespace One.Ast
             this.body = body;
             this.superCallArgs = superCallArgs;
             this.leadingTrivia = leadingTrivia;
+            this.parentClass = null;
         }
     }
     
@@ -527,6 +532,8 @@ namespace One.Ast
             this.returns = returns;
             this.async = async;
             this.leadingTrivia = leadingTrivia;
+            this.parentInterface = null;
+            this.interfaceDeclarations = null;
             this.overrides = null;
             this.overriddenBy = new List<Method>();
         }

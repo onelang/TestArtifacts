@@ -25,7 +25,7 @@ public class YamlValue {
     }
 }
 
-public class Yaml {
+public class OneYaml {
     public static YamlValue load(string content)
     {
         var yaml = new YamlStream();

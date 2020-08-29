@@ -222,7 +222,7 @@ class TSOverviewGenerator:
     
     @classmethod
     def method(cls, method):
-        return "" if method == None else f'''{("static " if method.is_static else "")}{("@mutates " if "mutates" in method.attributes else "")}{TSOverviewGenerator.method_base(method, method.returns)}'''
+        return "" if method == None else ("static " if method.is_static else "") + ("@mutates " if method.attributes != None and "mutates" in method.attributes else "") + TSOverviewGenerator.method_base(method, method.returns)
     
     @classmethod
     def class_like(cls, cls_):

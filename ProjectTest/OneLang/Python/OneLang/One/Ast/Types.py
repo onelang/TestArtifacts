@@ -41,8 +41,9 @@ class Package:
     def static_init(cls):
         cls.index = "index"
     
-    def __init__(self, name):
+    def __init__(self, name, definition_only):
         self.name = name
+        self.definition_only = definition_only
         self.files = {}
         self.exported_scopes = {}
     

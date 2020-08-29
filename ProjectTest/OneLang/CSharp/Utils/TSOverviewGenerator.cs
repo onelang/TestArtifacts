@@ -222,7 +222,7 @@ namespace Utils
         }
         
         public static string method(Method method) {
-            return method == null ? "" : $"{(method.isStatic ? "static " : "")}{(method.attributes.hasKey("mutates") ? "@mutates " : "")}{TSOverviewGenerator.methodBase(method, method.returns)}";
+            return method == null ? "" : (method.isStatic ? "static " : "") + (method.attributes != null && method.attributes.hasKey("mutates") ? "@mutates " : "") + TSOverviewGenerator.methodBase(method, method.returns);
         }
         
         public static string classLike(IInterface cls) {

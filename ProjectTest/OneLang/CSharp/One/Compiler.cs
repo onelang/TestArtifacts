@@ -49,31 +49,42 @@ namespace One
             this.workspace = new Workspace();
             foreach (var intfPkg in this.pacMan.interfacesPkgs) {
                 var libName = $"{intfPkg.interfaceYaml.vendor}.{intfPkg.interfaceYaml.name}-v{intfPkg.interfaceYaml.version}";
-                var libPkg = new Package(libName);
-                var file = TypeScriptParser2.parseFile(intfPkg.definition, new SourcePath(libPkg, Package.INDEX));
-                libPkg.addFile(file);
-                this.workspace.addPackage(libPkg);
+                this.addInterfacePackage(libName, intfPkg.definition);
             }
             
-            this.projectPkg = new Package(pkgName);
+            this.projectPkg = new Package(pkgName, false);
             this.workspace.addPackage(this.projectPkg);
         }
         
-        public void addOverlayPackage(string pkgName) {
-            var jsYamlPkg = new Package(pkgName);
-            jsYamlPkg.addFile(new SourceFile(new Import[0], new Interface[0], new Class[0], new Enum_[0], new GlobalFunction[0], null, new SourcePath(jsYamlPkg, Package.INDEX), new ExportScopeRef(pkgName, Package.INDEX)));
-            this.workspace.addPackage(jsYamlPkg);
+        public void addInterfacePackage(string libName, string definitionFileContent) {
+            var libPkg = new Package(libName, true);
+            var file = TypeScriptParser2.parseFile(definitionFileContent, new SourcePath(libPkg, Package.INDEX));
+            this.setupFile(file);
+            libPkg.addFile(file, true);
+            this.workspace.addPackage(libPkg);
+        }
+        
+        public void setupFile(SourceFile file) {
+            file.addAvailableSymbols(this.nativeExports.getAllExports());
+            file.literalTypes = new LiteralTypes((((Class)file.availableSymbols.get("TsBoolean"))).type, (((Class)file.availableSymbols.get("TsNumber"))).type, (((Class)file.availableSymbols.get("TsString"))).type, (((Class)file.availableSymbols.get("RegExp"))).type, (((Class)file.availableSymbols.get("TsArray"))).type, (((Class)file.availableSymbols.get("TsMap"))).type, (((Class)file.availableSymbols.get("Error"))).type, (((Class)file.availableSymbols.get("Promise"))).type);
+            file.arrayTypes = new ClassType[] { (((Class)file.availableSymbols.get("TsArray"))).type, (((Class)file.availableSymbols.get("IterableIterator"))).type, (((Class)file.availableSymbols.get("RegExpExecArray"))).type, (((Class)file.availableSymbols.get("TsString"))).type, (((Class)file.availableSymbols.get("Set"))).type };
         }
         
         public void addProjectFile(string fn, string content) {
             var file = TypeScriptParser2.parseFile(content, new SourcePath(this.projectPkg, fn));
-            file.addAvailableSymbols(this.nativeExports.getAllExports());
-            file.literalTypes = new LiteralTypes((((Class)file.availableSymbols.get("TsBoolean"))).type, (((Class)file.availableSymbols.get("TsNumber"))).type, (((Class)file.availableSymbols.get("TsString"))).type, (((Class)file.availableSymbols.get("RegExp"))).type, (((Class)file.availableSymbols.get("TsArray"))).type, (((Class)file.availableSymbols.get("TsMap"))).type, (((Class)file.availableSymbols.get("Error"))).type, (((Class)file.availableSymbols.get("Promise"))).type);
-            file.arrayTypes = new ClassType[] { (((Class)file.availableSymbols.get("TsArray"))).type, (((Class)file.availableSymbols.get("IterableIterator"))).type, (((Class)file.availableSymbols.get("RegExpExecArray"))).type, (((Class)file.availableSymbols.get("TsString"))).type, (((Class)file.availableSymbols.get("Set"))).type };
+            this.setupFile(file);
             this.projectPkg.addFile(file);
         }
         
         public void processWorkspace() {
+            foreach (var pkg in Object.values(this.workspace.packages).filter(x => x.definitionOnly)) {
+                // sets method's parentInterface property
+                new FillParent().visitPackage(pkg);
+                FillAttributesFromTrivia.processPackage(pkg);
+                new ResolveGenericTypeIdentifiers().visitPackage(pkg);
+                new ResolveUnresolvedTypes().visitPackage(pkg);
+            }
+            
             new FillParent().visitPackage(this.projectPkg);
             if (this.hooks != null)
                 this.hooks.afterStage("FillParent");
