@@ -243,6 +243,10 @@ namespace One.Ast
             this.packageName = packageName;
             this.scopeName = scopeName;
         }
+        
+        public string getId() {
+            return $"{this.packageName}.{this.scopeName}";
+        }
     }
     
     public class Import : IHasAttributesAndTrivia, ISourceFileMember {

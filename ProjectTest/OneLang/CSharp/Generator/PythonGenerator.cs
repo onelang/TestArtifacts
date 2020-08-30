@@ -11,6 +11,7 @@ namespace Generator
         public Package package;
         public SourceFile currentFile;
         public Set<string> imports;
+        public Set<string> importAllScopes;
         public IInterface currentClass;
         public string[] reservedWords;
         public string[] fieldToMethodHack;
@@ -68,11 +69,18 @@ namespace Generator
             return this.splitName(name).join("_");
         }
         
+        public string calcImportedName(ExportScopeRef exportScope, string name) {
+            if (this.importAllScopes.has(exportScope.getId()))
+                return name;
+            else
+                return this.calcImportAlias(exportScope) + "." + name;
+        }
+        
         public string enumName(Enum_ enum_, bool isDecl = false) {
             var name = this.name_(enum_.name).toUpperCase();
             if (isDecl || enum_.parentFile.exportScope == null || enum_.parentFile == this.currentFile)
                 return name;
-            return this.calcImportAlias(enum_.parentFile.exportScope) + "." + name;
+            return this.calcImportedName(enum_.parentFile.exportScope, name);
         }
         
         public string enumMemberName(string name) {
@@ -82,7 +90,7 @@ namespace Generator
         public string clsName(IInterface cls, bool isDecl = false) {
             if (isDecl || cls.parentFile.exportScope == null || cls.parentFile == this.currentFile)
                 return cls.name;
-            return this.calcImportAlias(cls.parentFile.exportScope) + "." + cls.name;
+            return this.calcImportedName(cls.parentFile.exportScope, cls.name);
         }
         
         public string leading(Statement item) {
@@ -461,11 +469,26 @@ namespace Generator
         public string genFile(SourceFile sourceFile) {
             this.currentFile = sourceFile;
             this.imports = new Set<string>();
+            this.importAllScopes = new Set<string>();
             this.imports.add("from OneLangStdLib import *");
             // TODO: do not add this globally, just for nativeResolver methods
                    
             if (sourceFile.enums.length() > 0)
                 this.imports.add("from enum import Enum");
+            
+            foreach (var import_ in sourceFile.imports.filter(x => !x.importAll)) {
+                if (import_.attributes.get("python-ignore") == "true")
+                    continue;
+                
+                if (import_.attributes.hasKey("python-import-all")) {
+                    this.imports.add($"from {import_.attributes.get("python-import-all")} import *");
+                    this.importAllScopes.add(import_.exportScope.getId());
+                }
+                else {
+                    var alias = this.calcImportAlias(import_.exportScope);
+                    this.imports.add($"import {this.package.name}.{import_.exportScope.scopeName.replace(new RegExp("/"), ".")} as {alias}");
+                }
+            }
             
             var enums = new List<string>();
             foreach (var enum_ in sourceFile.enums) {
@@ -482,15 +505,8 @@ namespace Generator
             var main = sourceFile.mainBlock.statements.length() > 0 ? this.block(sourceFile.mainBlock) : "";
             
             var imports = new List<string>();
-            foreach (var import_ in this.imports)
-                imports.push(import_);
-            foreach (var import_ in sourceFile.imports.filter(x => !x.importAll)) {
-                if (import_.attributes.get("python-ignore") == "true")
-                    continue;
-                
-                var alias = this.calcImportAlias(import_.exportScope);
-                imports.push($"import {this.package.name}.{import_.exportScope.scopeName.replace(new RegExp("/"), ".")} as {alias}");
-            }
+            foreach (var imp in this.imports)
+                imports.push(imp);
             
             return new List<string> { imports.join("\n"), enums.join("\n\n"), classes.join("\n\n"), main }.filter(x => x != "").join("\n\n");
         }

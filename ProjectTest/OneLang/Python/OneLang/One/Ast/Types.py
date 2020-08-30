@@ -1,11 +1,11 @@
 from OneLangStdLib import *
 from enum import Enum
-import OneLangStdLib as one
 import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Ast.Expressions as exprs
 import OneLang.One.Ast.References as refs
 import OneLang.One.Ast.AstHelper as astHelp
 import OneLang.One.Ast.Statements as stats
+import OneLangStdLib as one
 
 class VISIBILITY(Enum):
     PUBLIC = 1
@@ -135,6 +135,9 @@ class ExportScopeRef:
     def __init__(self, package_name, scope_name):
         self.package_name = package_name
         self.scope_name = scope_name
+    
+    def get_id(self):
+        return f'''{self.package_name}.{self.scope_name}'''
 
 class Import:
     def __init__(self, export_scope, import_all, imports, import_as, leading_trivia):

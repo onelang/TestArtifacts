@@ -1,5 +1,4 @@
 from OneLangStdLib import *
-import re
 import OneLang.Parsers.Common.Reader as read
 import OneLang.Parsers.Common.ExpressionParser as exprPars
 import OneLang.Parsers.Common.NodeManager as nodeMan
@@ -8,6 +7,7 @@ import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Ast.Expressions as exprs
 import OneLang.One.Ast.Statements as stats
 import OneLang.One.Ast.Types as types
+import re
 
 class TypeAndInit:
     def __init__(self, type, init):

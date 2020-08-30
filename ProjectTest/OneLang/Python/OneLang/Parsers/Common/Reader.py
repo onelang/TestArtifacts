@@ -1,6 +1,6 @@
 from OneLangStdLib import *
-import re
 import OneLang.Parsers.Common.Utils as utils
+import re
 
 class Cursor:
     def __init__(self, offset, line, column, line_start, line_end):

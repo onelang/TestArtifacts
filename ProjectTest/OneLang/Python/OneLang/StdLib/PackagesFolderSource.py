@@ -1,7 +1,7 @@
 from OneLangStdLib import *
-import re
-import OneLang.StdLib.PackageManager as packMan
 from OneFile import *
+import OneLang.StdLib.PackageManager as packMan
+import re
 
 class PackagesFolderSource:
     def __init__(self, packages_dir = "packages"):

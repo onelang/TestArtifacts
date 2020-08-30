@@ -1,8 +1,8 @@
 from OneLangStdLib import *
-import re
 from OneFile import *
 import OneLang.Generator.IGenerator as iGen
 import OneLang.One.Compiler as comp
+import re
 
 class SelfTestRunner:
     def __init__(self, base_dir):

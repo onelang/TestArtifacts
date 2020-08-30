@@ -1,5 +1,4 @@
 from OneLangStdLib import *
-import re
 import OneLang.One.Ast.Expressions as exprs
 import OneLang.One.Ast.Statements as stats
 import OneLang.One.Ast.Types as types
@@ -11,6 +10,7 @@ import OneLang.Generator.IGeneratorPlugin as iGenPlug
 import OneLang.Generator.PythonPlugins.JsToPython as jsToPyth
 import OneLang.Generator.NameUtils as nameUtils
 import OneLang.One.Ast.Interfaces as ints
+import re
 
 class PythonGenerator:
     def __init__(self):
@@ -18,6 +18,7 @@ class PythonGenerator:
         self.package = None
         self.current_file = None
         self.imports = None
+        self.import_all_scopes = None
         self.current_class = None
         self.reserved_words = ["from", "async", "global", "lambda", "cls", "import", "pass"]
         self.field_to_method_hack = []
@@ -64,11 +65,17 @@ class PythonGenerator:
             name += "()"
         return "_".join(self.split_name(name))
     
+    def calc_imported_name(self, export_scope, name):
+        if self.import_all_scopes.has(export_scope.get_id()):
+            return name
+        else:
+            return self.calc_import_alias(export_scope) + "." + name
+    
     def enum_name(self, enum_, is_decl = False):
         name = self.name_(enum_.name).upper()
         if is_decl or enum_.parent_file.export_scope == None or enum_.parent_file == self.current_file:
             return name
-        return self.calc_import_alias(enum_.parent_file.export_scope) + "." + name
+        return self.calc_imported_name(enum_.parent_file.export_scope, name)
     
     def enum_member_name(self, name):
         return self.name_(name).upper()
@@ -76,7 +83,7 @@ class PythonGenerator:
     def cls_name(self, cls_, is_decl = False):
         if is_decl or cls_.parent_file.export_scope == None or cls_.parent_file == self.current_file:
             return cls_.name
-        return self.calc_import_alias(cls_.parent_file.export_scope) + "." + cls_.name
+        return self.calc_imported_name(cls_.parent_file.export_scope, cls_.name)
     
     def leading(self, item):
         result = ""
@@ -424,11 +431,23 @@ class PythonGenerator:
     def gen_file(self, source_file):
         self.current_file = source_file
         self.imports = Set()
+        self.import_all_scopes = Set()
         self.imports.add("from OneLangStdLib import *")
         # TODO: do not add this globally, just for nativeResolver methods
                
         if len(source_file.enums) > 0:
             self.imports.add("from enum import Enum")
+        
+        for import_ in list(filter(lambda x: not x.import_all, source_file.imports)):
+            if import_.attributes.get("python-ignore") == "true":
+                continue
+            
+            if "python-import-all" in import_.attributes:
+                self.imports.add(f'''from {import_.attributes.get("python-import-all")} import *''')
+                self.import_all_scopes.add(import_.export_scope.get_id())
+            else:
+                alias = self.calc_import_alias(import_.export_scope)
+                self.imports.add(f'''import {self.package.name}.{re.sub("/", ".", import_.export_scope.scope_name)} as {alias}''')
         
         enums = []
         for enum_ in source_file.enums:
@@ -447,14 +466,8 @@ class PythonGenerator:
         main = self.block(source_file.main_block) if len(source_file.main_block.statements) > 0 else ""
         
         imports = []
-        for import_ in self.imports:
-            imports.append(import_)
-        for import_ in list(filter(lambda x: not x.import_all, source_file.imports)):
-            if import_.attributes.get("python-ignore") == "true":
-                continue
-            
-            alias = self.calc_import_alias(import_.export_scope)
-            imports.append(f'''import {self.package.name}.{re.sub("/", ".", import_.export_scope.scope_name)} as {alias}''')
+        for imp in self.imports:
+            imports.append(imp)
         
         return "\n\n".join(list(filter(lambda x: x != "", ["\n".join(imports), "\n\n".join(enums), "\n\n".join(classes), main])))
     
