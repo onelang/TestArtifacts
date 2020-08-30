@@ -7,6 +7,7 @@ import OneLang.One.Ast.References as refs
 import OneLang.Generator.GeneratedFile as genFile
 import OneLang.Generator.NameUtils as nameUtils
 import OneLang.Generator.IGenerator as iGen
+import OneLang.One.Ast.Interfaces as ints
 
 class CsharpGenerator:
     def __init__(self):

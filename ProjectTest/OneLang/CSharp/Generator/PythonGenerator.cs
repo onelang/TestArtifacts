@@ -485,7 +485,9 @@ namespace Generator
             foreach (var import_ in this.imports)
                 imports.push(import_);
             foreach (var import_ in sourceFile.imports.filter(x => !x.importAll)) {
-                //const relImp = this.calcRelImport(import_.exportScope, sourceFile.exportScope);
+                if (import_.attributes.get("python-ignore") == "true")
+                    continue;
+                
                 var alias = this.calcImportAlias(import_.exportScope);
                 imports.push($"import {this.package.name}.{import_.exportScope.scopeName.replace(new RegExp("/"), ".")} as {alias}");
             }

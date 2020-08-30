@@ -1,5 +1,4 @@
 using One.Ast;
-using One;
 using System.Collections.Generic;
 
 namespace One.Ast
@@ -144,12 +143,10 @@ namespace One.Ast
     
     public class Workspace {
         public Dictionary<string, Package> packages;
-        public ErrorManager errorManager;
         
         public Workspace()
         {
             this.packages = new Dictionary<string, Package> {};
-            this.errorManager = new ErrorManager();
         }
         
         public void addPackage(Package pkg) {

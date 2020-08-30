@@ -3,7 +3,6 @@ from enum import Enum
 import OneLangStdLib as one
 import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Ast.Expressions as exprs
-import OneLang.One.ErrorManager as errorMan
 import OneLang.One.Ast.References as refs
 import OneLang.One.Ast.AstHelper as astHelp
 import OneLang.One.Ast.Statements as stats
@@ -83,7 +82,6 @@ class Package:
 class Workspace:
     def __init__(self):
         self.packages = {}
-        self.error_manager = errorMan.ErrorManager()
     
     def add_package(self, pkg):
         self.packages[pkg.name] = pkg

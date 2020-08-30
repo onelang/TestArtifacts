@@ -1,6 +1,6 @@
 from OneLangStdLib import *
 import OneLangStdLib as one
-import OneLang.One.Ast.Types as types
+import OneLang.One.Ast.Interfaces as ints
 
 class Type:
     def __init__(self):

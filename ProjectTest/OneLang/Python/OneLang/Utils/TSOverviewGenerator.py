@@ -4,6 +4,7 @@ import OneLang.One.Ast.Statements as stats
 import OneLang.One.Ast.Types as types
 import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Ast.References as refs
+import OneLang.One.Ast.Interfaces as ints
 
 class TSOverviewGenerator:
     def __init__(self):

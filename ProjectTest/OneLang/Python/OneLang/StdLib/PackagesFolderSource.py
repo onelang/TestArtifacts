@@ -1,7 +1,7 @@
 from OneLangStdLib import *
 import re
 import OneLang.StdLib.PackageManager as packMan
-import OneLang.index as index
+from OneFile import *
 
 class PackagesFolderSource:
     def __init__(self, packages_dir = "packages"):
@@ -12,7 +12,7 @@ class PackagesFolderSource:
     
     def get_all_cached(self):
         packages = {}
-        all_files = index.OneFile.list_files(self.packages_dir, True)
+        all_files = OneFile.list_files(self.packages_dir, True)
         for fn in all_files:
             if fn == "bundle.json":
                 continue
@@ -33,5 +33,5 @@ class PackagesFolderSource:
                 pkg_id = packMan.PackageId(pkg_type, "-".join(pkg_dir_parts), version)
                 pkg = packMan.PackageContent(pkg_id, {}, True)
                 packages[pkg_id_str] = pkg
-            pkg.files["/".join(path_parts)] = index.OneFile.read_text(f'''{self.packages_dir}/{fn}''')
+            pkg.files["/".join(path_parts)] = OneFile.read_text(f'''{self.packages_dir}/{fn}''')
         return packMan.PackageBundle(packages.values())

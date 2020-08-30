@@ -1,4 +1,3 @@
-import glob
 import os.path
 import re
 import math
@@ -8,25 +7,6 @@ def static_init(cls):
     if getattr(cls, "static_init", None):
         cls.static_init()
     return cls
-
-class Fs:
-    @staticmethod
-    def read_file_sync(fn, encoding):
-        with open(fn, "rt") as f: return f.read()
-
-class Glob:
-    def sync(self, dir, config):
-        files = glob.glob(dir, recursive=True)
-        if "nodir" in config:
-            return list(filter(os.path.isfile, files))
-        return files
-
-class Path:
-    @staticmethod
-    def relative(dir, fn):
-        if fn.startswith(dir):
-            return fn[len(dir):]
-        raise "not implemented"
 
 class Object:
     @staticmethod
@@ -54,15 +34,6 @@ class RegExp:
 
 def parseInt(str):
     return int(str)
-
-def import_(name):
-    if name == "fs":
-        return Fs()
-    elif name == "glob":
-        return Glob()
-    elif name == "path":
-        return Path()
-    raise f"import not found: {name}"
 
 def find(predicate, items):
     for item in items:
@@ -104,6 +75,10 @@ class Error(BaseException):
         self.msg = msg
 
 class Console:
+    @staticmethod
+    def log(msg):
+        print(msg)
+
     @staticmethod
     def error(msg):
         print(f"\033[91m{msg}\033[0m")

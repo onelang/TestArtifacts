@@ -2,10 +2,6 @@ using One.Ast;
 
 namespace One.Ast
 {
-    public interface IType {
-        string repr();
-    }
-    
     public interface IHasTypeArguments {
         Type_[] typeArguments { get; set; }
     }

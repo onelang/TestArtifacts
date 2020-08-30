@@ -6,14 +6,6 @@ namespace One.Ast
     public enum TypeRestriction { NoRestriction, ShouldNotHaveType, MustBeGeneric, ShouldNotBeGeneric }
     public enum UnaryType { Postfix, Prefix }
     
-    public interface IExpression {
-        void setActualType(Type_ actualType, bool allowVoid, bool allowGeneric);
-        
-        void setExpectedType(Type_ type, bool allowVoid);
-        
-        Type_ getType();
-    }
-    
     public interface IMethodCallExpression : IExpression {
         Method method { get; set; }
         Type_[] typeArgs { get; set; }

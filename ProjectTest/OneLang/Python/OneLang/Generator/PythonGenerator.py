@@ -10,6 +10,7 @@ import OneLang.Utils.TSOverviewGenerator as tSOvervGen
 import OneLang.Generator.IGeneratorPlugin as iGenPlug
 import OneLang.Generator.PythonPlugins.JsToPython as jsToPyth
 import OneLang.Generator.NameUtils as nameUtils
+import OneLang.One.Ast.Interfaces as ints
 
 class PythonGenerator:
     def __init__(self):
@@ -449,7 +450,9 @@ class PythonGenerator:
         for import_ in self.imports:
             imports.append(import_)
         for import_ in list(filter(lambda x: not x.import_all, source_file.imports)):
-            #const relImp = this.calcRelImport(import_.exportScope, sourceFile.exportScope);
+            if import_.attributes.get("python-ignore") == "true":
+                continue
+            
             alias = self.calc_import_alias(import_.export_scope)
             imports.append(f'''import {self.package.name}.{re.sub("/", ".", import_.export_scope.scope_name)} as {alias}''')
         

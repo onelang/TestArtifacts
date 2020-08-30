@@ -6,6 +6,7 @@ import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.Generator.PythonGenerator as pythGen
 import OneLang.One.Ast.Types as types
 import OneLang.One.Ast.References as refs
+import OneLang.One.Ast.Interfaces as ints
 
 class JsToPython:
     def __init__(self, main):

@@ -1,7 +1,7 @@
 from OneLangStdLib import *
 from enum import Enum
 import OneLang.One.Ast.AstTypes as astTypes
-import OneLang.One.Ast.Types as types
+import OneLang.One.Ast.Interfaces as ints
 
 class TYPE_RESTRICTION(Enum):
     NO_RESTRICTION = 1

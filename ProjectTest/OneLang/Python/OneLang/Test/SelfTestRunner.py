@@ -1,6 +1,6 @@
 from OneLangStdLib import *
 import re
-import OneLang.index as index
+from OneFile import *
 import OneLang.Generator.IGenerator as iGen
 import OneLang.One.Compiler as comp
 
@@ -12,12 +12,12 @@ class SelfTestRunner:
         console.log("[-] SelfTestRunner :: START")
         compiler = comp.Compiler()
         compiler.init(f'''{self.base_dir}packages/''')
-        compiler.setup_native_resolver(index.OneFile.read_text(f'''{self.base_dir}langs/NativeResolvers/typescript.ts'''))
+        compiler.setup_native_resolver(OneFile.read_text(f'''{self.base_dir}langs/NativeResolvers/typescript.ts'''))
         compiler.new_workspace()
         
         proj_dir = f'''{self.base_dir}src/'''
-        for file in list(filter(lambda x: x.endswith(".ts"), index.OneFile.list_files(proj_dir, True))):
-            compiler.add_project_file(file, index.OneFile.read_text(f'''{proj_dir}/{file}'''))
+        for file in list(filter(lambda x: x.endswith(".ts"), OneFile.list_files(proj_dir, True))):
+            compiler.add_project_file(file, OneFile.read_text(f'''{proj_dir}/{file}'''))
         
         compiler.process_workspace()
         generated = generator.generate(compiler.project_pkg)
@@ -27,12 +27,14 @@ class SelfTestRunner:
         
         all_match = True
         for gen_file in generated:
-            ts_gen_path = f'''{self.base_dir}test/artifacts/ProjectTest/OneLang/{lang_name}/{re.sub("\\.ts$", ext, gen_file.path)}'''
-            re_gen_path = f'''{self.base_dir}test/artifacts/ProjectTest/OneLang/{lang_name}_Regen_{lang_name}/{re.sub("\\.ts$", ext, gen_file.path)}'''
-            ts_gen_content = index.OneFile.read_text(ts_gen_path)
+            fn = re.sub("\\.ts$", ext, gen_file.path)
+            proj_base = f'''{self.base_dir}test/artifacts/ProjectTest/OneLang'''
+            ts_gen_path = f'''{proj_base}/{lang_name}/{fn}'''
+            re_gen_path = f'''{proj_base}/{lang_name}_Regen_{lang_name}/{fn}'''
+            ts_gen_content = OneFile.read_text(ts_gen_path)
             re_gen_content = gen_file.content
             
-            index.OneFile.write_text(re_gen_path, gen_file.content)
+            OneFile.write_text(re_gen_path, gen_file.content)
             
             if ts_gen_content != re_gen_content:
                 console.error(f'''Content does not match: {gen_file.path}''')
