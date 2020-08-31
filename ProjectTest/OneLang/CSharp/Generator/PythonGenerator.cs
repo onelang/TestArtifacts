@@ -88,6 +88,9 @@ namespace Generator
         }
         
         public string clsName(IInterface cls, bool isDecl = false) {
+            // TODO: hack
+            if (cls.name == "Set")
+                return "dict";
             if (isDecl || cls.parentFile.exportScope == null || cls.parentFile == this.currentFile)
                 return cls.name;
             return this.calcImportedName(cls.parentFile.exportScope, cls.name);
@@ -153,8 +156,13 @@ namespace Generator
             }
             
             var res = "UNKNOWN-EXPR";
-            if (expr is NewExpression newExpr)
-                res = $"{this.clsName(newExpr.cls.decl)}{this.callParams(newExpr.args)}";
+            if (expr is NewExpression newExpr) {
+                // TODO: hack
+                if (newExpr.cls.decl.name == "Set")
+                    res = newExpr.args.length() == 0 ? "dict()" : $"dict.fromkeys{this.callParams(newExpr.args)}";
+                else
+                    res = $"{this.clsName(newExpr.cls.decl)}{this.callParams(newExpr.args)}";
+            }
             else if (expr is UnresolvedNewExpression unrNewExpr)
                 res = $"/* TODO: UnresolvedNewExpression */ {unrNewExpr.cls.typeName}({unrNewExpr.args.map(x => this.expr(x)).join(", ")})";
             else if (expr is Identifier ident)

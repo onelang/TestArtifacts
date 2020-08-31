@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace One
 {
-    public interface CompilerHooks {
+    public interface ICompilerHooks {
         void afterStage(string stageName);
     }
     
@@ -18,7 +18,7 @@ namespace One
         public SourceFile nativeFile;
         public ExportedScope nativeExports;
         public Package projectPkg;
-        public CompilerHooks hooks;
+        public ICompilerHooks hooks;
         
         public Compiler()
         {

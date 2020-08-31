@@ -681,10 +681,10 @@ class TypeScriptParser2:
         if not rel_path.startswith("."):
             raise Error(f'''relPath must start with \'.\', but got \'{rel_path}\'''')
         
-        curr = curr_file.split("/")
+        curr = re.split("/", curr_file)
         curr.pop()
         # filename does not matter
-        for part in rel_path.split("/"):
+        for part in re.split("/", rel_path):
             if part == "":
                 raise Error(f'''relPath should not contain multiple \'/\' next to each other (relPath=\'{rel_path}\')''')
             if part == ".":
@@ -705,7 +705,7 @@ class TypeScriptParser2:
             # relative
             return types.ExportScopeRef(curr_scope.package_name, TypeScriptParser2.calculate_relative_path(curr_scope.scope_name, import_file))
         else:
-            path = import_file.split("/")
+            path = re.split("/", import_file)
             pkg_name = path.pop(0)
             return types.ExportScopeRef(pkg_name, types.Package.index if len(path) == 0 else "/".join(path))
     

@@ -21,7 +21,7 @@ class ClassReference(Reference):
         super().__init__()
         decl.class_references.append(self)
     
-    def set_actual_type(self, type, allow_void, allow_generic):
+    def set_actual_type(self, type, allow_void = False, allow_generic = False):
         raise Error("ClassReference cannot have a type!")
 
 class GlobalFunctionReference(Reference):
@@ -30,7 +30,7 @@ class GlobalFunctionReference(Reference):
         super().__init__()
         decl.references.append(self)
     
-    def set_actual_type(self, type, allow_void, allow_generic):
+    def set_actual_type(self, type, allow_void = False, allow_generic = False):
         raise Error("GlobalFunctionReference cannot have a type!")
     
     def get_method_base(self):
@@ -42,7 +42,7 @@ class MethodParameterReference(VariableReference):
         super().__init__()
         decl.references.append(self)
     
-    def set_actual_type(self, type, allow_void, allow_generic):
+    def set_actual_type(self, type, allow_void = False, allow_generic = False):
         super().set_actual_type(type, False, ArrayHelper.some(lambda x: astTypes.Type.is_generic(x.type), self.decl.parent_method.parameters) if isinstance(self.decl.parent_method, types.Lambda) else len(self.decl.parent_method.parent_class.type_arguments) > 0 if isinstance(self.decl.parent_method, types.Constructor) else len(self.decl.parent_method.type_arguments) > 0 or len(self.decl.parent_method.parent_interface.type_arguments) > 0 if isinstance(self.decl.parent_method, types.Method) else False)
     
     def get_variable(self):
@@ -54,7 +54,7 @@ class EnumReference(Reference):
         super().__init__()
         decl.references.append(self)
     
-    def set_actual_type(self, type, allow_void, allow_generic):
+    def set_actual_type(self, type, allow_void = False, allow_generic = False):
         raise Error("EnumReference cannot have a type!")
 
 class EnumMemberReference(Reference):
@@ -63,7 +63,7 @@ class EnumMemberReference(Reference):
         super().__init__()
         decl.references.append(self)
     
-    def set_actual_type(self, type, allow_void, allow_generic):
+    def set_actual_type(self, type, allow_void = False, allow_generic = False):
         if not (isinstance(type, astTypes.EnumType)):
             raise Error("Expected EnumType!")
         super().set_actual_type(type)
@@ -74,7 +74,7 @@ class StaticThisReference(Reference):
         super().__init__()
         cls_.static_this_references.append(self)
     
-    def set_actual_type(self, type, allow_void, allow_generic):
+    def set_actual_type(self, type, allow_void = False, allow_generic = False):
         raise Error("StaticThisReference cannot have a type!")
 
 class ThisReference(Reference):
@@ -83,7 +83,7 @@ class ThisReference(Reference):
         super().__init__()
         cls_.this_references.append(self)
     
-    def set_actual_type(self, type, allow_void, allow_generic):
+    def set_actual_type(self, type, allow_void = False, allow_generic = False):
         if not (isinstance(type, astTypes.ClassType)):
             raise Error("Expected ClassType!")
         super().set_actual_type(type, False, len(self.cls_.type_arguments) > 0)
@@ -94,7 +94,7 @@ class SuperReference(Reference):
         super().__init__()
         cls_.super_references.append(self)
     
-    def set_actual_type(self, type, allow_void, allow_generic):
+    def set_actual_type(self, type, allow_void = False, allow_generic = False):
         if not (isinstance(type, astTypes.ClassType)):
             raise Error("Expected ClassType!")
         super().set_actual_type(type, False, len(self.cls_.type_arguments) > 0)
@@ -141,7 +141,7 @@ class StaticFieldReference(VariableReference):
         super().__init__()
         decl.static_references.append(self)
     
-    def set_actual_type(self, type, allow_void, allow_generic):
+    def set_actual_type(self, type, allow_void = False, allow_generic = False):
         if astTypes.Type.is_generic(type):
             raise Error("StaticField's type cannot be Generic")
         super().set_actual_type(type)
@@ -155,7 +155,7 @@ class StaticPropertyReference(VariableReference):
         super().__init__()
         decl.static_references.append(self)
     
-    def set_actual_type(self, type, allow_void, allow_generic):
+    def set_actual_type(self, type, allow_void = False, allow_generic = False):
         if astTypes.Type.is_generic(type):
             raise Error("StaticProperty's type cannot be Generic")
         super().set_actual_type(type)

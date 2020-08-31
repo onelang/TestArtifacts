@@ -9,6 +9,6 @@ class OneFile:
         with open(fn, 'w') as f: f.write(content)
 
     def list_files(dir, recursive):
-        files = glob.glob(dir + "**/*", recursive=recursive)
+        files = sorted(glob.glob(dir + "**/*", recursive=recursive))
         files = [x[len(dir):] for x in files if os.path.isfile(x)]
         return files

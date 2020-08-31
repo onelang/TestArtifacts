@@ -1,4 +1,5 @@
 from OneLangStdLib import *
+import re
 
 class Utils:
     def __init__(self):
@@ -16,7 +17,7 @@ class Utils:
     
     @classmethod
     def deindent(cls, str):
-        lines = str.split("\\n")
+        lines = re.split("\\n", str)
         if len(lines) == 1:
             return str
         

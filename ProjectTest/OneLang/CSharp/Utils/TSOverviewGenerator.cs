@@ -89,7 +89,7 @@ namespace Utils
             else if (expr is LambdaCallExpression lambdCallExpr)
                 res = $"{TSOverviewGenerator.expr(lambdCallExpr.method)}({(previewOnly ? "..." : lambdCallExpr.args.map(x => TSOverviewGenerator.expr(x)).join(", "))})";
             else if (expr is BooleanLiteral boolLit)
-                res = $"{boolLit.boolValue}";
+                res = $"{(boolLit.boolValue ? "true" : "false")}";
             else if (expr is StringLiteral strLit)
                 res = $"{JSON.stringify(strLit.stringValue)}";
             else if (expr is NumericLiteral numLit)

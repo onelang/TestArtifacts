@@ -8,12 +8,12 @@ class AstHelper:
     
     @classmethod
     def collect_all_base_interfaces(cls, intf):
-        result = Set()
+        result = dict()
         to_be_processed = [intf]
         
         while len(to_be_processed) > 0:
             curr = to_be_processed.pop()
-            result.add(curr)
+            result[curr] = None
             
             if isinstance(curr, types.Class) and curr.base_class != None:
                 to_be_processed.append((curr.base_class).decl)
@@ -21,4 +21,4 @@ class AstHelper:
             for base_intf in curr.base_interfaces:
                 to_be_processed.append((base_intf).decl)
         
-        return Array.from_(result.values())
+        return Array.from_(result.keys())

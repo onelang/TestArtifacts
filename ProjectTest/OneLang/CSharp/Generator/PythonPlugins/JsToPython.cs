@@ -50,8 +50,11 @@ namespace Generator.PythonPlugins
                 if (method.name == "split") {
                     if (args.get(0) is RegexLiteral) {
                         var pattern = (((RegexLiteral)args.get(0))).pattern;
-                        if (!pattern.startsWith("^"))
-                            return $"{objR}.split({JSON.stringify(pattern)})";
+                        if (!pattern.startsWith("^")) {
+                            //return `${objR}.split(${JSON.stringify(pattern)})`;
+                            this.main.imports.add("import re");
+                            return $"re.split({JSON.stringify(pattern)}, {objR})";
+                        }
                     }
                     
                     return $"{argsR.get(0)}.split({objR})";
@@ -105,6 +108,16 @@ namespace Generator.PythonPlugins
                     return $"{argsR.get(0)}.keys()";
                 else if (method.name == "values")
                     return $"{argsR.get(0)}.values()";
+            }
+            else if (cls.name == "Set") {
+                var objR = this.main.expr(obj);
+                var argsR = args.map(x => this.main.expr(x));
+                if (method.name == "values")
+                    return $"{objR}.keys()";
+                else if (method.name == "has")
+                    return $"{argsR.get(0)} in {objR}";
+                else if (method.name == "add")
+                    return $"{objR}[{argsR.get(0)}] = None";
             }
             else if (cls.name == "ArrayHelper") {
                 var argsR = args.map(x => this.main.expr(x));

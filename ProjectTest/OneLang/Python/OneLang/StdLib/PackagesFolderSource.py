@@ -17,7 +17,7 @@ class PackagesFolderSource:
             if fn == "bundle.json":
                 continue
             # TODO: hack
-            path_parts = fn.split("/")
+            path_parts = re.split("/", fn)
             # [0]=implementations/interfaces, [1]=package-name, [2:]=path
             type = path_parts.pop(0)
             pkg_dir = path_parts.pop(0)
@@ -27,7 +27,7 @@ class PackagesFolderSource:
             pkg_id_str = f'''{type}/{pkg_dir}'''
             pkg = packages.get(pkg_id_str)
             if pkg == None:
-                pkg_dir_parts = pkg_dir.split("-")
+                pkg_dir_parts = re.split("-", pkg_dir)
                 version = re.sub("^v", "", pkg_dir_parts.pop())
                 pkg_type = packMan.PACKAGE_TYPE.IMPLEMENTATION if type == "implementations" else packMan.PACKAGE_TYPE.INTERFACE
                 pkg_id = packMan.PackageId(pkg_type, "-".join(pkg_dir_parts), version)

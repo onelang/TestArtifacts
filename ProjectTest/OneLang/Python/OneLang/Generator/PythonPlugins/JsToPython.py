@@ -10,7 +10,7 @@ import OneLang.One.Ast.Interfaces as ints
 
 class JsToPython:
     def __init__(self, main):
-        self.unhandled_methods = Set()
+        self.unhandled_methods = dict()
         self.main = main
     
     def convert_method(self, cls_, obj, method, args):
@@ -50,12 +50,14 @@ class JsToPython:
                 if isinstance(args[0], exprs.RegexLiteral):
                     pattern = (args[0]).pattern
                     if not pattern.startswith("^"):
-                        return f'''{obj_r}.split({JSON.stringify(pattern)})'''
+                        #return `${objR}.split(${JSON.stringify(pattern)})`;
+                        self.main.imports["import re"] = None
+                        return f'''re.split({JSON.stringify(pattern)}, {obj_r})'''
                 
                 return f'''{args_r[0]}.split({obj_r})'''
             elif method.name == "replace":
                 if isinstance(args[0], exprs.RegexLiteral):
-                    self.main.imports.add("import re")
+                    self.main.imports["import re"] = None
                     return f'''re.sub({JSON.stringify((args[0]).pattern)}, {args_r[1]}, {obj_r})'''
                 
                 return f'''{args_r[0]}.replace({obj_r}, {args_r[1]})'''
@@ -98,6 +100,15 @@ class JsToPython:
                 return f'''{args_r[0]}.keys()'''
             elif method.name == "values":
                 return f'''{args_r[0]}.values()'''
+        elif cls_.name == "Set":
+            obj_r = self.main.expr(obj)
+            args_r = list(map(lambda x: self.main.expr(x), args))
+            if method.name == "values":
+                return f'''{obj_r}.keys()'''
+            elif method.name == "has":
+                return f'''{args_r[0]} in {obj_r}'''
+            elif method.name == "add":
+                return f'''{obj_r}[{args_r[0]}] = None'''
         elif cls_.name == "ArrayHelper":
             args_r = list(map(lambda x: self.main.expr(x), args))
             if method.name == "sortBy":
@@ -112,9 +123,9 @@ class JsToPython:
             return None
         
         method_name = f'''{cls_.name}.{method.name}'''
-        if not self.unhandled_methods.has(method_name):
+        if not method_name in self.unhandled_methods:
             console.error(f'''Method was not handled: {cls_.name}.{method.name}''')
-            self.unhandled_methods.add(method_name)
+            self.unhandled_methods[method_name] = None
         #debugger;
         return None
     

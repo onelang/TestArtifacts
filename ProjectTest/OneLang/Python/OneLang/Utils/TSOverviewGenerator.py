@@ -5,6 +5,7 @@ import OneLang.One.Ast.Types as types
 import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Ast.References as refs
 import OneLang.One.Ast.Interfaces as ints
+import re
 
 class TSOverviewGenerator:
     def __init__(self):
@@ -90,7 +91,7 @@ class TSOverviewGenerator:
         elif isinstance(expr, exprs.LambdaCallExpression):
             res = f'''{TSOverviewGenerator.expr(expr.method)}({("..." if preview_only else ", ".join(list(map(lambda x: TSOverviewGenerator.expr(x), expr.args))))})'''
         elif isinstance(expr, exprs.BooleanLiteral):
-            res = f'''{expr.bool_value}'''
+            res = f'''{("true" if expr.bool_value else "false")}'''
         elif isinstance(expr, exprs.StringLiteral):
             res = f'''{JSON.stringify(expr.string_value)}'''
         elif isinstance(expr, exprs.NumericLiteral):
@@ -237,7 +238,7 @@ class TSOverviewGenerator:
     
     @classmethod
     def pad(cls, str):
-        return "\n".join(list(map(lambda x: f'''    {x}''', str.split("\\n"))))
+        return "\n".join(list(map(lambda x: f'''    {x}''', re.split("\\n", str))))
     
     @classmethod
     def imp(cls, imp):

@@ -66,7 +66,7 @@ class PythonGenerator:
         return "_".join(self.split_name(name))
     
     def calc_imported_name(self, export_scope, name):
-        if self.import_all_scopes.has(export_scope.get_id()):
+        if export_scope.get_id() in self.import_all_scopes:
             return name
         else:
             return self.calc_import_alias(export_scope) + "." + name
@@ -81,6 +81,9 @@ class PythonGenerator:
         return self.name_(name).upper()
     
     def cls_name(self, cls_, is_decl = False):
+        # TODO: hack
+        if cls_.name == "Set":
+            return "dict"
         if is_decl or cls_.parent_file.export_scope == None or cls_.parent_file == self.current_file:
             return cls_.name
         return self.calc_imported_name(cls_.parent_file.export_scope, cls_.name)
@@ -137,7 +140,11 @@ class PythonGenerator:
         
         res = "UNKNOWN-EXPR"
         if isinstance(expr, exprs.NewExpression):
-            res = f'''{self.cls_name(expr.cls_.decl)}{self.call_params(expr.args)}'''
+            # TODO: hack
+            if expr.cls_.decl.name == "Set":
+                res = "dict()" if len(expr.args) == 0 else f'''dict.fromkeys{self.call_params(expr.args)}'''
+            else:
+                res = f'''{self.cls_name(expr.cls_.decl)}{self.call_params(expr.args)}'''
         elif isinstance(expr, exprs.UnresolvedNewExpression):
             res = f'''/* TODO: UnresolvedNewExpression */ {expr.cls_.type_name}({", ".join(list(map(lambda x: self.expr(x), expr.args)))})'''
         elif isinstance(expr, exprs.Identifier):
@@ -155,7 +162,7 @@ class PythonGenerator:
             parent = self.cls_name(expr.method.parent_interface)
             res = f'''{parent}.{self.method_call(expr)}'''
         elif isinstance(expr, exprs.GlobalFunctionCallExpression):
-            self.imports.add("from OneLangStdLib import *")
+            self.imports["from OneLangStdLib import *"] = None
             res = f'''{self.name_(expr.func.name)}{self.expr_call(expr.args)}'''
         elif isinstance(expr, exprs.LambdaCallExpression):
             res = f'''{self.expr(expr.method)}({", ".join(list(map(lambda x: self.expr(x), expr.args)))})'''
@@ -358,7 +365,7 @@ class PythonGenerator:
         static_fields = list(filter(lambda x: x.is_static, cls_.fields))
         
         if len(static_fields) > 0:
-            self.imports.add("import OneLangStdLib as one")
+            self.imports["import OneLangStdLib as one"] = None
             class_attributes.append("@one.static_init")
             field_inits = list(map(lambda f: f'''cls.{self.vis(f.visibility)}{cls_.name.replace(self.var(f, f), "cls")}''', static_fields))
             res_list.append(f'''@classmethod\ndef static_init(cls):\n''' + self.pad("\n".join(field_inits)))
@@ -398,11 +405,11 @@ class PythonGenerator:
         return "".join(list(map(lambda x: f'''{x}\n''', class_attributes))) + cls_hdr + self.pad("\n\n".join(res_list2) if len(res_list2) > 0 else "pass")
     
     def pad(self, str):
-        return "" if str == "" else "\n".join(list(map(lambda x: f'''    {x}''', str.split("\\n"))))
+        return "" if str == "" else "\n".join(list(map(lambda x: f'''    {x}''', re.split("\\n", str))))
     
     def calc_rel_import(self, target_path, from_path):
-        target_parts = target_path.scope_name.split("/")
-        from_parts = from_path.scope_name.split("/")
+        target_parts = re.split("/", target_path.scope_name)
+        from_parts = re.split("/", from_path.scope_name)
         
         same_level = 0
         while same_level < len(target_parts) and same_level < len(from_parts) and target_parts[same_level] == from_parts[same_level]:
@@ -424,30 +431,30 @@ class PythonGenerator:
         return result
     
     def calc_import_alias(self, target_path):
-        parts = target_path.scope_name.split("/")
+        parts = re.split("/", target_path.scope_name)
         filename = parts[len(parts) - 1]
         return nameUtils.NameUtils.short_name(filename)
     
     def gen_file(self, source_file):
         self.current_file = source_file
-        self.imports = Set()
-        self.import_all_scopes = Set()
-        self.imports.add("from OneLangStdLib import *")
+        self.imports = dict()
+        self.import_all_scopes = dict()
+        self.imports["from OneLangStdLib import *"] = None
         # TODO: do not add this globally, just for nativeResolver methods
                
         if len(source_file.enums) > 0:
-            self.imports.add("from enum import Enum")
+            self.imports["from enum import Enum"] = None
         
         for import_ in list(filter(lambda x: not x.import_all, source_file.imports)):
             if import_.attributes.get("python-ignore") == "true":
                 continue
             
             if "python-import-all" in import_.attributes:
-                self.imports.add(f'''from {import_.attributes.get("python-import-all")} import *''')
-                self.import_all_scopes.add(import_.export_scope.get_id())
+                self.imports[f'''from {import_.attributes.get("python-import-all")} import *'''] = None
+                self.import_all_scopes[import_.export_scope.get_id()] = None
             else:
                 alias = self.calc_import_alias(import_.export_scope)
-                self.imports.add(f'''import {self.package.name}.{re.sub("/", ".", import_.export_scope.scope_name)} as {alias}''')
+                self.imports[f'''import {self.package.name}.{re.sub("/", ".", import_.export_scope.scope_name)} as {alias}'''] = None
         
         enums = []
         for enum_ in source_file.enums:

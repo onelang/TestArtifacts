@@ -49,7 +49,7 @@ class Map:
         self.data[key] = value
 
     def get(self, key):
-        return self.data[key]
+        return self.data.get(key)
     
     def has(self, key):
         return key in self.data

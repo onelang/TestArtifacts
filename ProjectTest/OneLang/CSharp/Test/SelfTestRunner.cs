@@ -1,9 +1,36 @@
 using Generator;
 using One;
+using Test;
 using System.Threading.Tasks;
 
 namespace Test
 {
+    public class CompilerHooks : ICompilerHooks {
+        public int stage = 0;
+        public Compiler compiler;
+        public string baseDir;
+        
+        public CompilerHooks(Compiler compiler, string baseDir)
+        {
+            this.compiler = compiler;
+            this.baseDir = baseDir;
+        }
+        
+        public void afterStage(string stageName) {
+            var state = new PackageStateCapture(this.compiler.projectPkg);
+            var stageFn = $"{this.baseDir}/test/artifacts/ProjectTest/OneLang/stages/{this.stage}_{stageName}.txt";
+            this.stage++;
+            var stageSummary = state.getSummary();
+            var expected = OneFile.readText(stageFn);
+            if (stageSummary != expected) {
+                OneFile.writeText(stageFn + "_diff.txt", stageSummary);
+                throw new Error($"Stage result differs from expected: {stageName} -> {stageFn}");
+            }
+            else
+                console.log($"[+] Stage passed: {stageName}");
+        }
+    }
+    
     public class SelfTestRunner {
         public string baseDir;
         
@@ -17,11 +44,13 @@ namespace Test
             var compiler = new Compiler();
             await compiler.init($"{this.baseDir}packages/");
             compiler.setupNativeResolver(OneFile.readText($"{this.baseDir}langs/NativeResolvers/typescript.ts"));
-            compiler.newWorkspace();
+            compiler.newWorkspace("OneLang");
             
             var projDir = $"{this.baseDir}src/";
             foreach (var file in OneFile.listFiles(projDir, true).filter(x => x.endsWith(".ts")))
                 compiler.addProjectFile(file, OneFile.readText($"{projDir}/{file}"));
+            
+            compiler.hooks = new CompilerHooks(compiler, this.baseDir);
             
             compiler.processWorkspace();
             var generated = generator.generate(compiler.projectPkg);

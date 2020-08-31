@@ -101,10 +101,8 @@ class InferTypes(astTrans.AstTransformer):
                 new_expr.parent_node = expr.parent_node
             return new_expr
         except Exception as e:
-            if isinstance(e, Error):
-                self.error_man.current_node = expr
-                self.error_man.throw(f'''Error while running type transformation phase: {e}''')
-            return None
+            self.error_man.current_node = expr
+            self.error_man.throw(f'''Error while running type transformation phase: {e}''')
     
     def detect_type(self, expr):
         for plugin in self.plugins:

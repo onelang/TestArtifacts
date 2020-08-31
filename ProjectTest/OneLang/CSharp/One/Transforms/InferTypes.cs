@@ -96,11 +96,8 @@ namespace One.Transforms
                     newExpr.parentNode = expr.parentNode;
                 return newExpr;
             } catch (Exception e)  {
-                if (e is Error) {
-                    this.errorMan.currentNode = expr;
-                    this.errorMan.throw_($"Error while running type transformation phase: {e}");
-                }
-                return null;
+                this.errorMan.currentNode = expr;
+                this.errorMan.throw_($"Error while running type transformation phase: {e}");
             }
         }
         

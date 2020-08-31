@@ -8,6 +8,7 @@ import OneLang.Generator.GeneratedFile as genFile
 import OneLang.Generator.NameUtils as nameUtils
 import OneLang.Generator.IGenerator as iGen
 import OneLang.One.Ast.Interfaces as ints
+import re
 
 class CsharpGenerator:
     def __init__(self):
@@ -28,7 +29,7 @@ class CsharpGenerator:
             name += "_"
         if name in self.field_to_method_hack:
             name += "()"
-        name_parts = name.split("-")
+        name_parts = re.split("-", name)
         i = 1
         
         while i < len(name_parts):
@@ -71,18 +72,18 @@ class CsharpGenerator:
                 return "int"
             elif t.decl.name == "TsArray":
                 if mutates:
-                    self.usings.add("System.Collections.Generic")
+                    self.usings["System.Collections.Generic"] = None
                     return f'''List<{self.type(t.type_arguments[0])}>'''
                 else:
                     return f'''{self.type(t.type_arguments[0])}[]'''
             elif t.decl.name == "Promise":
-                self.usings.add("System.Threading.Tasks")
+                self.usings["System.Threading.Tasks"] = None
                 return "Task" if isinstance(t.type_arguments[0], astTypes.VoidType) else f'''Task{type_args}'''
             elif t.decl.name == "Object":
-                self.usings.add("System")
+                self.usings["System"] = None
                 return f'''object'''
             elif t.decl.name == "TsMap":
-                self.usings.add("System.Collections.Generic")
+                self.usings["System.Collections.Generic"] = None
                 return f'''Dictionary<string, {self.type(t.type_arguments[0])}>'''
             return self.name_(t.decl.name) + type_args
         elif isinstance(t, astTypes.InterfaceType):
@@ -102,7 +103,7 @@ class CsharpGenerator:
             param_types = list(map(lambda x: self.type(x.type), t.parameters))
             if is_func:
                 param_types.append(self.type(t.return_type))
-            self.usings.add("System")
+            self.usings["System"] = None
             return f'''{("Func" if is_func else "Action")}<{", ".join(param_types)}>'''
         elif t == None:
             return "/* TODO */ object"
@@ -121,7 +122,7 @@ class CsharpGenerator:
             type = attr.attributes.get("csharp-type")
         elif isinstance(v.type, astTypes.ClassType) and v.type.decl.name == "TsArray":
             if v.mutability.mutated:
-                self.usings.add("System.Collections.Generic")
+                self.usings["System.Collections.Generic"] = None
                 type = f'''List<{self.type(v.type.type_arguments[0])}>'''
             else:
                 type = f'''{self.type(v.type.type_arguments[0])}[]'''
@@ -150,7 +151,7 @@ class CsharpGenerator:
             if currently_mutable and not should_be_mutable:
                 return f'''{self.expr(arg)}.ToArray()'''
             elif not currently_mutable and should_be_mutable:
-                self.usings.add("System.Linq")
+                self.usings["System.Linq"] = None
                 return f'''{self.expr(arg)}.ToList()'''
         return self.expr(arg)
     
@@ -373,7 +374,7 @@ class CsharpGenerator:
         elif isinstance(stmt, stats.TryStatement):
             res = "try" + self.block(stmt.try_body, False)
             if stmt.catch_body != None:
-                self.usings.add("System")
+                self.usings["System"] = None
                 res += f''' catch (Exception {self.name_(stmt.catch_var.name)}) {self.block(stmt.catch_body, False)}'''
             if stmt.finally_body != None:
                 res += "finally" + self.block(stmt.finally_body)
@@ -444,17 +445,17 @@ class CsharpGenerator:
         return self.pad("\n\n".join(list(filter(lambda x: x != "", res_list))))
     
     def pad(self, str):
-        return "\n".join(list(map(lambda x: f'''    {x}''', str.split("\\n"))))
+        return "\n".join(list(map(lambda x: f'''    {x}''', re.split("\\n", str))))
     
     def path_to_ns(self, path):
         # Generator/ExprLang/ExprLangAst.ts -> Generator.ExprLang
-        parts = path.split("/")
+        parts = re.split("/", path)
         parts.pop()
         return ".".join(parts)
     
     def gen_file(self, source_file):
         self.instance_of_ids = {}
-        self.usings = Set()
+        self.usings = dict()
         enums = list(map(lambda enum_: f'''public enum {self.name_(enum_.name)} {{ {", ".join(list(map(lambda x: self.name_(x.name), enum_.values)))} }}''', source_file.enums))
         
         intfs = list(map(lambda intf: f'''public interface {self.name_(intf.name)}{self.type_args(intf.type_arguments)}''' + f'''{self.pre_arr(" : ", list(map(lambda x: self.type(x), intf.base_interfaces)))} {{\n{self.class_like(intf)}\n}}''', source_file.interfaces))
@@ -470,9 +471,9 @@ class CsharpGenerator:
         
         main = f'''public class Program\n{{\n    static void Main(string[] args)\n    {{\n{self.pad(self.raw_block(source_file.main_block))}\n    }}\n}}''' if len(source_file.main_block.statements) > 0 else ""
         
-        usings_set = Set(list(filter(lambda x: x != "", list(map(lambda x: self.path_to_ns(x.export_scope.scope_name), source_file.imports)))))
+        usings_set = dict.fromkeys(list(filter(lambda x: x != "", list(map(lambda x: self.path_to_ns(x.export_scope.scope_name), source_file.imports)))))
         for using in self.usings:
-            usings_set.add(using)
+            usings_set[using] = None
         
         usings = []
         for using in usings_set:
