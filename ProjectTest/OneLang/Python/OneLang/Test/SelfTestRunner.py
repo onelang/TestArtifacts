@@ -51,13 +51,12 @@ class SelfTestRunner:
             fn = re.sub("\\.ts$", ext, gen_file.path)
             proj_base = f'''{self.base_dir}test/artifacts/ProjectTest/OneLang'''
             ts_gen_path = f'''{proj_base}/{lang_name}/{fn}'''
-            re_gen_path = f'''{proj_base}/{lang_name}_Regen_{lang_name}/{fn}'''
+            re_gen_path = f'''{proj_base}/{lang_name}_Regen/{fn}'''
             ts_gen_content = OneFile.read_text(ts_gen_path)
             re_gen_content = gen_file.content
             
-            OneFile.write_text(re_gen_path, gen_file.content)
-            
             if ts_gen_content != re_gen_content:
+                OneFile.write_text(re_gen_path, gen_file.content)
                 console.error(f'''Content does not match: {gen_file.path}''')
                 all_match = False
         

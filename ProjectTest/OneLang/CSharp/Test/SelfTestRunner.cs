@@ -63,13 +63,12 @@ namespace Test
                 var fn = genFile.path.replace(new RegExp("\\.ts$"), ext);
                 var projBase = $"{this.baseDir}test/artifacts/ProjectTest/OneLang";
                 var tsGenPath = $"{projBase}/{langName}/{fn}";
-                var reGenPath = $"{projBase}/{langName}_Regen_{langName}/{fn}";
+                var reGenPath = $"{projBase}/{langName}_Regen/{fn}";
                 var tsGenContent = OneFile.readText(tsGenPath);
                 var reGenContent = genFile.content;
                 
-                OneFile.writeText(reGenPath, genFile.content);
-                
                 if (tsGenContent != reGenContent) {
+                    OneFile.writeText(reGenPath, genFile.content);
                     console.error($"Content does not match: {genFile.path}");
                     allMatch = false;
                 }
