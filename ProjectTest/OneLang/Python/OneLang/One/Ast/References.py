@@ -3,6 +3,7 @@ import OneLang.One.Ast.Types as types
 import OneLang.One.Ast.Statements as stats
 import OneLang.One.Ast.Expressions as exprs
 import OneLang.One.Ast.AstTypes as astTypes
+import OneLang.One.Ast.Interfaces as ints
 
 class Reference(exprs.Expression):
     def __init__(self):
@@ -43,7 +44,7 @@ class MethodParameterReference(VariableReference):
         decl.references.append(self)
     
     def set_actual_type(self, type, allow_void = False, allow_generic = False):
-        super().set_actual_type(type, False, ArrayHelper.some(lambda x: astTypes.Type.is_generic(x.type), self.decl.parent_method.parameters) if isinstance(self.decl.parent_method, types.Lambda) else len(self.decl.parent_method.parent_class.type_arguments) > 0 if isinstance(self.decl.parent_method, types.Constructor) else len(self.decl.parent_method.type_arguments) > 0 or len(self.decl.parent_method.parent_interface.type_arguments) > 0 if isinstance(self.decl.parent_method, types.Method) else False)
+        super().set_actual_type(type, False, ArrayHelper.some(lambda x: astTypes.TypeHelper.is_generic(x.type), self.decl.parent_method.parameters) if isinstance(self.decl.parent_method, types.Lambda) else len(self.decl.parent_method.parent_class.type_arguments) > 0 if isinstance(self.decl.parent_method, types.Constructor) else len(self.decl.parent_method.type_arguments) > 0 or len(self.decl.parent_method.parent_interface.type_arguments) > 0 if isinstance(self.decl.parent_method, types.Method) else False)
     
     def get_variable(self):
         return self.decl
@@ -142,7 +143,7 @@ class StaticFieldReference(VariableReference):
         decl.static_references.append(self)
     
     def set_actual_type(self, type, allow_void = False, allow_generic = False):
-        if astTypes.Type.is_generic(type):
+        if astTypes.TypeHelper.is_generic(type):
             raise Error("StaticField's type cannot be Generic")
         super().set_actual_type(type)
     
@@ -156,7 +157,7 @@ class StaticPropertyReference(VariableReference):
         decl.static_references.append(self)
     
     def set_actual_type(self, type, allow_void = False, allow_generic = False):
-        if astTypes.Type.is_generic(type):
+        if astTypes.TypeHelper.is_generic(type):
             raise Error("StaticProperty's type cannot be Generic")
         super().set_actual_type(type)
     

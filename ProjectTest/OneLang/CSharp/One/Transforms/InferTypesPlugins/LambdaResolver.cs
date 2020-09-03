@@ -21,7 +21,7 @@ namespace One.Transforms.InferTypesPlugins
                     for (int i = 0; i < declParams.length(); i++) {
                         if (lambda.parameters.get(i).type == null)
                             lambda.parameters.get(i).type = declParams.get(i).type;
-                        else if (!Type_.isAssignableTo(lambda.parameters.get(i).type, declParams.get(i).type))
+                        else if (!TypeHelper.isAssignableTo(lambda.parameters.get(i).type, declParams.get(i).type))
                             this.errorMan.throw_($"Parameter type {lambda.parameters.get(i).type.repr()} cannot be assigned to {declParams.get(i).type.repr()}.");
                     }
             }

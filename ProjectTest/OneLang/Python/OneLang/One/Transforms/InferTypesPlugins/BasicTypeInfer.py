@@ -70,7 +70,7 @@ class BasicTypeInfer(inferTypesPlug.InferTypesPlugin):
             right_type = expr.right.get_type()
             is_eq_or_neq = expr.operator == "==" or expr.operator == "!="
             if expr.operator == "=":
-                if astTypes.Type.is_assignable_to(right_type, left_type):
+                if astTypes.TypeHelper.is_assignable_to(right_type, left_type):
                     expr.set_actual_type(left_type, False, True)
                 else:
                     raise Error(f'''Right-side expression ({right_type.repr()}) is not assignable to left-side ({left_type.repr()}).''')
@@ -104,21 +104,21 @@ class BasicTypeInfer(inferTypesPlug.InferTypesPlugin):
             true_type = expr.when_true.get_type()
             false_type = expr.when_false.get_type()
             if expr.expected_type != None:
-                if not astTypes.Type.is_assignable_to(true_type, expr.expected_type):
+                if not astTypes.TypeHelper.is_assignable_to(true_type, expr.expected_type):
                     raise Error(f'''Conditional expression expects {expr.expected_type.repr()} but got {true_type.repr()} as true branch''')
-                if not astTypes.Type.is_assignable_to(false_type, expr.expected_type):
+                if not astTypes.TypeHelper.is_assignable_to(false_type, expr.expected_type):
                     raise Error(f'''Conditional expression expects {expr.expected_type.repr()} but got {false_type.repr()} as false branch''')
                 expr.set_actual_type(expr.expected_type)
-            elif astTypes.Type.is_assignable_to(true_type, false_type):
+            elif astTypes.TypeHelper.is_assignable_to(true_type, false_type):
                 expr.set_actual_type(false_type)
-            elif astTypes.Type.is_assignable_to(false_type, true_type):
+            elif astTypes.TypeHelper.is_assignable_to(false_type, true_type):
                 expr.set_actual_type(true_type)
             else:
                 raise Error(f'''Different types in the whenTrue ({true_type.repr()}) and whenFalse ({false_type.repr()}) expressions of a conditional expression''')
         elif isinstance(expr, exprs.NullCoalesceExpression):
             default_type = expr.default_expr.get_type()
             if_null_type = expr.expr_if_null.get_type()
-            if not astTypes.Type.is_assignable_to(if_null_type, default_type):
+            if not astTypes.TypeHelper.is_assignable_to(if_null_type, default_type):
                 self.error_man.throw(f'''Null-coalescing operator tried to assign incompatible type "{if_null_type.repr()}" to "{default_type.repr()}"''')
             else:
                 expr.set_actual_type(default_type)

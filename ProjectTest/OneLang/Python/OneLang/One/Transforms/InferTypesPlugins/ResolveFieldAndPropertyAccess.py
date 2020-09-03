@@ -93,7 +93,7 @@ class ResolveFieldAndPropertyAccess(inferTypesPlug.InferTypesPlugin):
     def detect_type(self, expr):
         if isinstance(expr, refs.InstanceFieldReference):
             actual_type = genRes.GenericsResolver.from_object(expr.object).resolve_type(expr.field.type, True)
-            expr.set_actual_type(actual_type, False, astTypes.Type.is_generic(expr.object.actual_type))
+            expr.set_actual_type(actual_type, False, astTypes.TypeHelper.is_generic(expr.object.actual_type))
             return True
         elif isinstance(expr, refs.InstancePropertyReference):
             actual_type = genRes.GenericsResolver.from_object(expr.object).resolve_type(expr.property.type, True)

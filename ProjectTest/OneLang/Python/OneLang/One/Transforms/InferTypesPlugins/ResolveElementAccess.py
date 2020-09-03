@@ -1,8 +1,9 @@
 from OneLangStdLib import *
 import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin as inferTypesPlug
 import OneLang.One.Ast.Expressions as exprs
-import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Transforms.InferTypesPlugins.ResolveMethodCalls as resMethCalls
+import OneLang.One.Ast.Interfaces as ints
+import OneLang.One.Ast.AstTypes as astTypes
 
 class ResolveElementAccess(inferTypesPlug.InferTypesPlugin):
     def __init__(self):
@@ -13,7 +14,7 @@ class ResolveElementAccess(inferTypesPlug.InferTypesPlugin):
         return isinstance(expr, exprs.ElementAccessExpression) or is_set
     
     def is_map_or_array_type(self, type):
-        return astTypes.Type.is_assignable_to(type, self.main.current_file.literal_types.map) or ArrayHelper.some(lambda x: astTypes.Type.is_assignable_to(type, x), self.main.current_file.array_types)
+        return astTypes.TypeHelper.is_assignable_to(type, self.main.current_file.literal_types.map) or ArrayHelper.some(lambda x: astTypes.TypeHelper.is_assignable_to(type, x), self.main.current_file.array_types)
     
     def transform(self, expr):
         if isinstance(expr, exprs.BinaryExpression) and isinstance(expr.left, exprs.ElementAccessExpression):

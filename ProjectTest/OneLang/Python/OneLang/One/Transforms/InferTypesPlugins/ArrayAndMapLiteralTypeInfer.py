@@ -2,6 +2,7 @@ from OneLangStdLib import *
 import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin as inferTypesPlug
 import OneLang.One.Ast.Expressions as exprs
 import OneLang.One.Ast.AstTypes as astTypes
+import OneLang.One.Ast.Interfaces as ints
 
 class ArrayAndMapLiteralTypeInfer(inferTypesPlug.InferTypesPlugin):
     def __init__(self):
@@ -10,7 +11,7 @@ class ArrayAndMapLiteralTypeInfer(inferTypesPlug.InferTypesPlugin):
     def infer_array_or_map_item_type(self, items, expected_type, is_map):
         item_types = []
         for item in items:
-            if not ArrayHelper.some(lambda t: astTypes.Type.equals(t, item.get_type()), item_types):
+            if not ArrayHelper.some(lambda t: astTypes.TypeHelper.equals(t, item.get_type()), item_types):
                 item_types.append(item.get_type())
         
         literal_type = self.main.current_file.literal_types.map if is_map else self.main.current_file.literal_types.array

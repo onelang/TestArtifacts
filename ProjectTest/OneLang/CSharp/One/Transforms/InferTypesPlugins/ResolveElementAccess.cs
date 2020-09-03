@@ -15,20 +15,20 @@ namespace One.Transforms.InferTypesPlugins
             return expr is ElementAccessExpression || isSet;
         }
         
-        public bool isMapOrArrayType(Type_ type) {
-            return Type_.isAssignableTo(type, this.main.currentFile.literalTypes.map) || this.main.currentFile.arrayTypes.some(x => Type_.isAssignableTo(type, x));
+        public bool isMapOrArrayType(IType type) {
+            return TypeHelper.isAssignableTo(type, this.main.currentFile.literalTypes.map) || this.main.currentFile.arrayTypes.some(x => TypeHelper.isAssignableTo(type, x));
         }
         
         public override Expression transform(Expression expr) {
             if (expr is BinaryExpression binExpr2 && binExpr2.left is ElementAccessExpression elemAccExpr) {
                 elemAccExpr.object_ = this.main.runPluginsOn(elemAccExpr.object_);
                 if (this.isMapOrArrayType(elemAccExpr.object_.getType()))
-                    return new UnresolvedMethodCallExpression(elemAccExpr.object_, "set", new Type_[0], new Expression[] { elemAccExpr.elementExpr, binExpr2.right });
+                    return new UnresolvedMethodCallExpression(elemAccExpr.object_, "set", new IType[0], new Expression[] { elemAccExpr.elementExpr, binExpr2.right });
             }
             else if (expr is ElementAccessExpression elemAccExpr2) {
                 elemAccExpr2.object_ = this.main.runPluginsOn(elemAccExpr2.object_);
                 if (this.isMapOrArrayType(elemAccExpr2.object_.getType()))
-                    return new UnresolvedMethodCallExpression(elemAccExpr2.object_, "get", new Type_[0], new Expression[] { elemAccExpr2.elementExpr });
+                    return new UnresolvedMethodCallExpression(elemAccExpr2.object_, "get", new IType[0], new Expression[] { elemAccExpr2.elementExpr });
                 else if (elemAccExpr2.elementExpr is StringLiteral strLit)
                     return new PropertyAccessExpression(elemAccExpr2.object_, strLit.stringValue);
             }

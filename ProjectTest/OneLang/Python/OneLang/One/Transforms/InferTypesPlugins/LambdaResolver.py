@@ -23,7 +23,7 @@ class LambdaResolver(inferTypesPlug.InferTypesPlugin):
                 while i < len(decl_params):
                     if lambda_.parameters[i].type == None:
                         lambda_.parameters[i].type = decl_params[i].type
-                    elif not astTypes.Type.is_assignable_to(lambda_.parameters[i].type, decl_params[i].type):
+                    elif not astTypes.TypeHelper.is_assignable_to(lambda_.parameters[i].type, decl_params[i].type):
                         self.error_man.throw(f'''Parameter type {lambda_.parameters[i].type.repr()} cannot be assigned to {decl_params[i].type.repr()}.''')
                     i = i + 1
         else:

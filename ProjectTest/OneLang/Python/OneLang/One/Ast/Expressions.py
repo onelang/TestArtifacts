@@ -35,11 +35,11 @@ class Expression:
         
         self.type_check(actual_type, allow_void)
         
-        if self.expected_type != None and not astTypes.Type.is_assignable_to(actual_type, self.expected_type):
+        if self.expected_type != None and not astTypes.TypeHelper.is_assignable_to(actual_type, self.expected_type):
             raise Error(f'''Actual type ({actual_type.repr()}) is not assignable to the declared type ({self.expected_type.repr()})!''')
         
         # TODO: decide if this check needed or not
-        #if (!allowGeneric && Type.isGeneric(actualType))
+        #if (!allowGeneric && TypeHelper.isGeneric(actualType))
         #    throw new Error(`Actual type cannot be generic (${actualType.repr()})!`);
         
         self.actual_type = actual_type

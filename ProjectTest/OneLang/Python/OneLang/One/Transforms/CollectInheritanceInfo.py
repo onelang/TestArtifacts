@@ -5,6 +5,8 @@ import OneLang.One.ITransform as iTrans
 class CollectInheritanceInfo:
     def __init__(self):
         self.name = "CollectInheritanceInfo"
+        # C# fix
+        self.name = "CollectInheritanceInfo"
     
     def visit_class(self, cls_):
         all_base_iintfs = cls_.get_all_base_interfaces()

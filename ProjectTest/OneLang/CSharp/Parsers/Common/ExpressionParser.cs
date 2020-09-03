@@ -53,8 +53,8 @@ namespace Parsers.Common
         public Dictionary<string, Operator> operatorMap;
         public string[] operators;
         public int prefixPrecedence;
-        public Type_ stringLiteralType;
-        public Type_ numericLiteralType;
+        public IType stringLiteralType;
+        public IType numericLiteralType;
         public Reader reader;
         public IExpressionParserHooks hooks;
         public NodeManager nodeManager;
@@ -253,7 +253,7 @@ namespace Parsers.Common
                 }
                 else if (op.text == "(") {
                     var args = this.parseCallArguments();
-                    left = new UnresolvedCallExpression(left, new Type_[0], args);
+                    left = new UnresolvedCallExpression(left, new IType[0], args);
                 }
                 else if (op.text == "[") {
                     var elementExpr = this.parse();
@@ -273,7 +273,7 @@ namespace Parsers.Common
             if (left is ParenthesizedExpression parExpr && parExpr.expression is Identifier ident) {
                 var expr = this.parse(0, false);
                 if (expr != null)
-                    return new CastExpression(new UnresolvedType(ident.text, new Type_[0]), expr, null);
+                    return new CastExpression(new UnresolvedType(ident.text, new IType[0]), expr, null);
             }
             
             return left;

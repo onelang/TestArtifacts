@@ -8,13 +8,13 @@ namespace One.Transforms.InferTypesPlugins
     public class ReturnTypeInferer {
         public bool returnsNull = false;
         public bool throws = false;
-        public List<Type_> returnTypes;
+        public List<IType> returnTypes;
         public ErrorManager errorMan;
         
         public ReturnTypeInferer(ErrorManager errorMan)
         {
             this.errorMan = errorMan;
-            this.returnTypes = new List<Type_>();
+            this.returnTypes = new List<IType>();
         }
         
         public void addReturn(Expression returnValue) {
@@ -27,12 +27,12 @@ namespace One.Transforms.InferTypesPlugins
             if (returnType == null)
                 throw new Error("Return type cannot be null");
             
-            if (!this.returnTypes.some(x => Type_.equals(x, returnType)))
+            if (!this.returnTypes.some(x => TypeHelper.equals(x, returnType)))
                 this.returnTypes.push(returnType);
         }
         
-        public Type_ finish(Type_ declaredType, string errorContext, ClassType asyncType) {
-            Type_ inferredType = null;
+        public IType finish(IType declaredType, string errorContext, ClassType asyncType) {
+            IType inferredType = null;
             
             if (this.returnTypes.length() == 0) {
                 if (this.throws)
@@ -48,7 +48,7 @@ namespace One.Transforms.InferTypesPlugins
             }
             else if (this.returnTypes.length() == 1)
                 inferredType = this.returnTypes.get(0);
-            else if (declaredType != null && this.returnTypes.every((x, i) => Type_.isAssignableTo(x, declaredType)))
+            else if (declaredType != null && this.returnTypes.every((x, i) => TypeHelper.isAssignableTo(x, declaredType)))
                 inferredType = declaredType;
             else {
                 this.errorMan.throw_($"{errorContext} returns different types: {this.returnTypes.map(x => x.repr()).join(", ")}");
@@ -59,7 +59,7 @@ namespace One.Transforms.InferTypesPlugins
             if (checkType != null && asyncType != null && checkType is ClassType classType && classType.decl == asyncType.decl)
                 checkType = classType.typeArguments.get(0);
             
-            if (checkType != null && !Type_.isAssignableTo(inferredType, checkType))
+            if (checkType != null && !TypeHelper.isAssignableTo(inferredType, checkType))
                 this.errorMan.throw_($"{errorContext} returns different type ({inferredType.repr()}) than expected {checkType.repr()}");
             
             this.returnTypes = null;
@@ -86,7 +86,7 @@ namespace One.Transforms.InferTypesPlugins
             this.returnTypeInfer.push(new ReturnTypeInferer(this.errorMan));
         }
         
-        public Type_ finish(Type_ declaredType, string errorContext, ClassType asyncType) {
+        public IType finish(IType declaredType, string errorContext, ClassType asyncType) {
             return this.returnTypeInfer.pop().finish(declaredType, errorContext, asyncType);
         }
         

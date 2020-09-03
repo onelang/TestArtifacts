@@ -15,7 +15,7 @@ namespace One.Transforms
             expr = base.visitExpression(expr) ?? expr;
             
             if (expr is BinaryExpression binExpr && binExpr.operator_ == "in")
-                expr = new UnresolvedCallExpression(new PropertyAccessExpression(binExpr.right, "hasKey"), new Type_[0], new Expression[] { binExpr.left });
+                expr = new UnresolvedCallExpression(new PropertyAccessExpression(binExpr.right, "hasKey"), new IType[0], new Expression[] { binExpr.left });
             
             expr.parentNode = origExpr.parentNode;
             return expr;

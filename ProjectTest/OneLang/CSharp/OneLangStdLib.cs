@@ -64,7 +64,7 @@ public static class OneFile
 {
     public static string[] listFiles(string directory, bool recursive) {
         var skipLen = directory.Length + (directory.EndsWith("/") ? 0 : 1);
-        return Directory.GetFiles(directory, "*", SearchOption.AllDirectories).Select(x => x.Substring(skipLen)).ToArray();
+        return Directory.GetFiles(directory, "*", SearchOption.AllDirectories).Select(x => x.Substring(skipLen)).OrderBy(x => x).ToArray();
     }
 
     public static string readText(string fn) {

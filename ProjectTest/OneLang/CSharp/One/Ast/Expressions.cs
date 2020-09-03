@@ -8,14 +8,14 @@ namespace One.Ast
     
     public interface IMethodCallExpression : IExpression {
         Method method { get; set; }
-        Type_[] typeArgs { get; set; }
+        IType[] typeArgs { get; set; }
         Expression[] args { get; set; }
     }
     
     public class Expression : IAstNode, IExpression {
         public IAstNode parentNode;
-        public Type_ expectedType;
-        public Type_ actualType;
+        public IType expectedType;
+        public IType actualType;
         
         public Expression()
         {
@@ -24,7 +24,7 @@ namespace One.Ast
             this.actualType = null;
         }
         
-        protected void typeCheck(Type_ type, bool allowVoid) {
+        protected void typeCheck(IType type, bool allowVoid) {
             if (type == null)
                 throw new Error("New type cannot be null!");
             
@@ -35,23 +35,23 @@ namespace One.Ast
                 throw new Error("Expression's type cannot be UnresolvedType!");
         }
         
-        public virtual void setActualType(Type_ actualType, bool allowVoid = false, bool allowGeneric = false) {
+        public virtual void setActualType(IType actualType, bool allowVoid = false, bool allowGeneric = false) {
             if (this.actualType != null)
                 throw new Error($"Expression already has actual type (current type = {this.actualType.repr()}, new type = {actualType.repr()})");
             
             this.typeCheck(actualType, allowVoid);
             
-            if (this.expectedType != null && !Type_.isAssignableTo(actualType, this.expectedType))
+            if (this.expectedType != null && !TypeHelper.isAssignableTo(actualType, this.expectedType))
                 throw new Error($"Actual type ({actualType.repr()}) is not assignable to the declared type ({this.expectedType.repr()})!");
             
             // TODO: decide if this check needed or not
-            //if (!allowGeneric && Type.isGeneric(actualType))
+            //if (!allowGeneric && TypeHelper.isGeneric(actualType))
             //    throw new Error(`Actual type cannot be generic (${actualType.repr()})!`);
             
             this.actualType = actualType;
         }
         
-        public void setExpectedType(Type_ type, bool allowVoid = false) {
+        public void setExpectedType(IType type, bool allowVoid = false) {
             if (this.actualType != null)
                 throw new Error("Cannot set expected type after actual type was already set!");
             
@@ -63,7 +63,7 @@ namespace One.Ast
             this.expectedType = type;
         }
         
-        public Type_ getType() {
+        public IType getType() {
             return this.actualType ?? this.expectedType;
         }
     }
@@ -249,11 +249,11 @@ namespace One.Ast
     }
     
     public class CastExpression : Expression {
-        public Type_ newType;
+        public IType newType;
         public Expression expression;
         public InstanceOfExpression instanceOfCast;
         
-        public CastExpression(Type_ newType, Expression expression, InstanceOfExpression instanceOfCast): base()
+        public CastExpression(IType newType, Expression expression, InstanceOfExpression instanceOfCast): base()
         {
             this.newType = newType;
             this.expression = expression;
@@ -307,10 +307,10 @@ namespace One.Ast
     
     public class UnresolvedCallExpression : Expression {
         public Expression func;
-        public Type_[] typeArgs;
+        public IType[] typeArgs;
         public Expression[] args;
         
-        public UnresolvedCallExpression(Expression func, Type_[] typeArgs, Expression[] args): base()
+        public UnresolvedCallExpression(Expression func, IType[] typeArgs, Expression[] args): base()
         {
             this.func = func;
             this.typeArgs = typeArgs;
@@ -321,10 +321,10 @@ namespace One.Ast
     public class UnresolvedMethodCallExpression : Expression {
         public Expression object_;
         public string methodName;
-        public Type_[] typeArgs;
+        public IType[] typeArgs;
         public Expression[] args;
         
-        public UnresolvedMethodCallExpression(Expression object_, string methodName, Type_[] typeArgs, Expression[] args): base()
+        public UnresolvedMethodCallExpression(Expression object_, string methodName, IType[] typeArgs, Expression[] args): base()
         {
             this.object_ = object_;
             this.methodName = methodName;
@@ -335,11 +335,11 @@ namespace One.Ast
     
     public class StaticMethodCallExpression : Expression, IMethodCallExpression {
         public Method method { get; set; }
-        public Type_[] typeArgs { get; set; }
+        public IType[] typeArgs { get; set; }
         public Expression[] args { get; set; }
         public bool isThisCall;
         
-        public StaticMethodCallExpression(Method method, Type_[] typeArgs, Expression[] args, bool isThisCall): base()
+        public StaticMethodCallExpression(Method method, IType[] typeArgs, Expression[] args, bool isThisCall): base()
         {
             this.method = method;
             this.typeArgs = typeArgs;
@@ -351,10 +351,10 @@ namespace One.Ast
     public class InstanceMethodCallExpression : Expression, IMethodCallExpression {
         public Expression object_;
         public Method method { get; set; }
-        public Type_[] typeArgs { get; set; }
+        public IType[] typeArgs { get; set; }
         public Expression[] args { get; set; }
         
-        public InstanceMethodCallExpression(Expression object_, Method method, Type_[] typeArgs, Expression[] args): base()
+        public InstanceMethodCallExpression(Expression object_, Method method, IType[] typeArgs, Expression[] args): base()
         {
             this.object_ = object_;
             this.method = method;
@@ -396,11 +396,11 @@ namespace One.Ast
     
     public class InstanceOfExpression : Expression {
         public Expression expr;
-        public Type_ checkType;
+        public IType checkType;
         public List<CastExpression> implicitCasts;
         public string alias;
         
-        public InstanceOfExpression(Expression expr, Type_ checkType): base()
+        public InstanceOfExpression(Expression expr, IType checkType): base()
         {
             this.expr = expr;
             this.checkType = checkType;

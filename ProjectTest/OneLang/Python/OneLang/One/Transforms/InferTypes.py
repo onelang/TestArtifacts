@@ -103,6 +103,7 @@ class InferTypes(astTrans.AstTransformer):
         except Exception as e:
             self.error_man.current_node = expr
             self.error_man.throw(f'''Error while running type transformation phase: {e}''')
+            return None
     
     def detect_type(self, expr):
         for plugin in self.plugins:

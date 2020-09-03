@@ -98,6 +98,7 @@ namespace One.Transforms
             } catch (Exception e)  {
                 this.errorMan.currentNode = expr;
                 this.errorMan.throw_($"Error while running type transformation phase: {e}");
+                return null;
             }
         }
         

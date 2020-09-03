@@ -2,6 +2,7 @@ from OneLangStdLib import *
 import OneLang.One.AstTransformer as astTrans
 import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Ast.Types as types
+import OneLang.One.Ast.Interfaces as ints
 
 class ResolveGenericTypeIdentifiers(astTrans.AstTransformer):
     def __init__(self):

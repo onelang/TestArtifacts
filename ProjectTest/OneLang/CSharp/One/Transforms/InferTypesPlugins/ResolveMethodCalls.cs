@@ -52,7 +52,7 @@ namespace One.Transforms.InferTypesPlugins
                 return;
             }
             
-            expr.setActualType(genericsResolver.resolveType(expr.method.returns, true), true, expr is InstanceMethodCallExpression instMethCallExpr && Type_.isGeneric(instMethCallExpr.object_.getType()));
+            expr.setActualType(genericsResolver.resolveType(expr.method.returns, true), true, expr is InstanceMethodCallExpression instMethCallExpr && TypeHelper.isGeneric(instMethCallExpr.object_.getType()));
         }
         
         protected Expression transformMethodCall(UnresolvedMethodCallExpression expr) {

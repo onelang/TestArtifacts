@@ -2,6 +2,7 @@ from OneLangStdLib import *
 import OneLang.One.Ast.Expressions as exprs
 import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Ast.Types as types
+import OneLang.One.Ast.Interfaces as ints
 
 class GenericsResolver:
     def __init__(self):
@@ -15,7 +16,7 @@ class GenericsResolver:
     
     def add_resolution(self, type_var_name, actual_type):
         prev_res = self.resolution_map.get(type_var_name)
-        if prev_res != None and not astTypes.Type.equals(prev_res, actual_type):
+        if prev_res != None and not astTypes.TypeHelper.equals(prev_res, actual_type):
             raise Error(f'''Resolving \'{type_var_name}\' is ambiguous, {prev_res.repr()} <> {actual_type.repr()}''')
         self.resolution_map.set(type_var_name, actual_type)
     
@@ -42,7 +43,7 @@ class GenericsResolver:
             raise Error(f'''Expected ClassType or InterfaceType, got {(actual_type.repr() if actual_type != None else "<null>")}''')
     
     def collect_resolutions_from_actual_type(self, generic_type, actual_type):
-        if not astTypes.Type.is_generic(generic_type):
+        if not astTypes.TypeHelper.is_generic(generic_type):
             return True
         if isinstance(generic_type, astTypes.GenericsType):
             self.add_resolution(generic_type.type_var_name, actual_type)

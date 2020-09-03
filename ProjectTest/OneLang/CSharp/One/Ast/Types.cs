@@ -11,7 +11,7 @@ namespace One.Ast
     
     public interface IVariable {
         string name { get; set; }
-        Type_ type { get; set; }
+        IType type { get; set; }
         MutabilityInfo mutability { get; set; }
     }
     
@@ -36,7 +36,7 @@ namespace One.Ast
     public interface IInterface {
         string name { get; set; }
         string[] typeArguments { get; set; }
-        Type_[] baseInterfaces { get; set; }
+        IType[] baseInterfaces { get; set; }
         Field[] fields { get; set; }
         Method[] methods { get; set; }
         string leadingTrivia { get; set; }
@@ -320,7 +320,7 @@ namespace One.Ast
     public class Interface : IHasAttributesAndTrivia, IInterface, IImportable, ISourceFileMember {
         public string name { get; set; }
         public string[] typeArguments { get; set; }
-        public Type_[] baseInterfaces { get; set; }
+        public IType[] baseInterfaces { get; set; }
         public Field[] fields { get; set; }
         public Method[] methods { get; set; }
         public bool isExported { get; set; }
@@ -330,7 +330,7 @@ namespace One.Ast
         public InterfaceType type;
         public IInterface[] _baseInterfaceCache;
         
-        public Interface(string name, string[] typeArguments, Type_[] baseInterfaces, Field[] fields, Method[] methods, bool isExported, string leadingTrivia)
+        public Interface(string name, string[] typeArguments, IType[] baseInterfaces, Field[] fields, Method[] methods, bool isExported, string leadingTrivia)
         {
             this.name = name;
             this.typeArguments = typeArguments;
@@ -353,8 +353,8 @@ namespace One.Ast
     public class Class : IHasAttributesAndTrivia, IInterface, IImportable, ISourceFileMember, IReferencable {
         public string name { get; set; }
         public string[] typeArguments { get; set; }
-        public Type_ baseClass;
-        public Type_[] baseInterfaces { get; set; }
+        public IType baseClass;
+        public IType[] baseInterfaces { get; set; }
         public Field[] fields { get; set; }
         public Property[] properties;
         public Constructor constructor_;
@@ -370,7 +370,7 @@ namespace One.Ast
         public ClassType type;
         public IInterface[] _baseInterfaceCache;
         
-        public Class(string name, string[] typeArguments, Type_ baseClass, Type_[] baseInterfaces, Field[] fields, Property[] properties, Constructor constructor_, Method[] methods, bool isExported, string leadingTrivia)
+        public Class(string name, string[] typeArguments, IType baseClass, IType[] baseInterfaces, Field[] fields, Property[] properties, Constructor constructor_, Method[] methods, bool isExported, string leadingTrivia)
         {
             this.name = name;
             this.typeArguments = typeArguments;
@@ -403,7 +403,7 @@ namespace One.Ast
     
     public class Field : IVariableWithInitializer, IHasAttributesAndTrivia, IClassMember, IAstNode {
         public string name { get; set; }
-        public Type_ type { get; set; }
+        public IType type { get; set; }
         public Expression initializer { get; set; }
         public Visibility visibility { get; set; }
         public bool isStatic { get; set; }
@@ -416,7 +416,7 @@ namespace One.Ast
         public Field[] interfaceDeclarations;
         public MutabilityInfo mutability { get; set; }
         
-        public Field(string name, Type_ type, Expression initializer, Visibility visibility, bool isStatic, MethodParameter constructorParam, string leadingTrivia)
+        public Field(string name, IType type, Expression initializer, Visibility visibility, bool isStatic, MethodParameter constructorParam, string leadingTrivia)
         {
             this.name = name;
             this.type = type;
@@ -434,7 +434,7 @@ namespace One.Ast
     
     public class Property : IVariable, IHasAttributesAndTrivia, IClassMember, IAstNode {
         public string name { get; set; }
-        public Type_ type { get; set; }
+        public IType type { get; set; }
         public Block getter;
         public Block setter;
         public Visibility visibility { get; set; }
@@ -446,7 +446,7 @@ namespace One.Ast
         public List<InstancePropertyReference> instanceReferences;
         public MutabilityInfo mutability { get; set; }
         
-        public Property(string name, Type_ type, Block getter, Block setter, Visibility visibility, bool isStatic, string leadingTrivia)
+        public Property(string name, IType type, Block getter, Block setter, Visibility visibility, bool isStatic, string leadingTrivia)
         {
             this.name = name;
             this.type = type;
@@ -463,7 +463,7 @@ namespace One.Ast
     
     public class MethodParameter : IVariableWithInitializer, IReferencable, IHasAttributesAndTrivia {
         public string name { get; set; }
-        public Type_ type { get; set; }
+        public IType type { get; set; }
         public Expression initializer { get; set; }
         public string leadingTrivia { get; set; }
         public IMethodBase parentMethod;
@@ -471,7 +471,7 @@ namespace One.Ast
         public List<MethodParameterReference> references;
         public MutabilityInfo mutability { get; set; }
         
-        public MethodParameter(string name, Type_ type, Expression initializer, string leadingTrivia)
+        public MethodParameter(string name, IType type, Expression initializer, string leadingTrivia)
         {
             this.name = name;
             this.type = type;
@@ -512,7 +512,7 @@ namespace One.Ast
         public Block body { get; set; }
         public Visibility visibility { get; set; }
         public bool isStatic { get; set; }
-        public Type_ returns;
+        public IType returns;
         public bool async;
         public string leadingTrivia { get; set; }
         public IInterface parentInterface;
@@ -522,7 +522,7 @@ namespace One.Ast
         public List<Method> overriddenBy;
         public bool throws { get; set; }
         
-        public Method(string name, string[] typeArguments, MethodParameter[] parameters, Block body, Visibility visibility, bool isStatic, Type_ returns, bool async, string leadingTrivia)
+        public Method(string name, string[] typeArguments, MethodParameter[] parameters, Block body, Visibility visibility, bool isStatic, IType returns, bool async, string leadingTrivia)
         {
             this.name = name;
             this.typeArguments = typeArguments;
@@ -544,14 +544,14 @@ namespace One.Ast
         public string name { get; set; }
         public MethodParameter[] parameters { get; set; }
         public Block body { get; set; }
-        public Type_ returns;
+        public IType returns;
         public bool isExported { get; set; }
         public string leadingTrivia { get; set; }
         public Dictionary<string, string> attributes { get; set; }
         public bool throws { get; set; }
         public List<GlobalFunctionReference> references;
         
-        public GlobalFunction(string name, MethodParameter[] parameters, Block body, Type_ returns, bool isExported, string leadingTrivia)
+        public GlobalFunction(string name, MethodParameter[] parameters, Block body, IType returns, bool isExported, string leadingTrivia)
         {
             this.name = name;
             this.parameters = parameters;
@@ -570,7 +570,7 @@ namespace One.Ast
     public class Lambda : Expression, IMethodBase {
         public MethodParameter[] parameters { get; set; }
         public Block body { get; set; }
-        public Type_ returns;
+        public IType returns;
         public bool throws { get; set; }
         
         public Lambda(MethodParameter[] parameters, Block body): base()

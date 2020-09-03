@@ -1,8 +1,8 @@
 from OneLangStdLib import *
 import OneLang.One.Ast.Types as types
 import OneLang.One.Ast.Expressions as exprs
-import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Ast.References as refs
+import OneLang.One.Ast.Interfaces as ints
 
 class Statement:
     def __init__(self):

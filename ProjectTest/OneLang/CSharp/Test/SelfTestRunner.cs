@@ -72,6 +72,8 @@ namespace Test
                     console.error($"Content does not match: {genFile.path}");
                     allMatch = false;
                 }
+                else
+                    console.log($"[+] Content matches: {genFile.path}");
             }
             
             console.log(allMatch ? "[+} SUCCESS! All generated files are the same" : "[!] FAIL! Not all files are the same");

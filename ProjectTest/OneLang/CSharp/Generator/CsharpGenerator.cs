@@ -64,11 +64,11 @@ namespace Generator
             return args != null && args.length() > 0 ? $"<{args.join(", ")}>" : "";
         }
         
-        public string typeArgs2(Type_[] args) {
+        public string typeArgs2(IType[] args) {
             return this.typeArgs(args.map(x => this.type(x)));
         }
         
-        public string type(Type_ t, bool mutates = true) {
+        public string type(IType t, bool mutates = true) {
             if (t is ClassType classType) {
                 var typeArgs = this.typeArgs(classType.typeArguments.map(x => this.type(x)));
                 if (classType.decl.name == "TsString")
@@ -125,7 +125,7 @@ namespace Generator
                 return "/* MISSING */";
         }
         
-        public bool isTsArray(Type_ type) {
+        public bool isTsArray(IType type) {
             return type is ClassType classType2 && classType2.decl.name == "TsArray";
         }
         
@@ -154,7 +154,7 @@ namespace Generator
             return this.varWoInit(v, attrs) + (v.initializer != null ? $" = {this.expr(v.initializer)}" : "");
         }
         
-        public string exprCall(Type_[] typeArgs, Expression[] args) {
+        public string exprCall(IType[] typeArgs, Expression[] args) {
             return this.typeArgs2(typeArgs) + $"({args.map(x => this.expr(x)).join(", ")})";
         }
         
@@ -201,7 +201,7 @@ namespace Generator
             return this.name_(expr.method.name) + this.typeArgs2(expr.typeArgs) + this.callParams(expr.args, expr.method.parameters);
         }
         
-        public string inferExprNameForType(Type_ type) {
+        public string inferExprNameForType(IType type) {
             if (type is ClassType classType4 && classType4.typeArguments.every((x, _) => x is ClassType)) {
                 var fullName = classType4.typeArguments.map(x => (((ClassType)x)).decl.name).join("") + classType4.decl.name;
                 return NameUtils.shortName(fullName);
@@ -228,7 +228,7 @@ namespace Generator
             else if (expr is StaticMethodCallExpression statMethCallExpr)
                 res = $"{this.name_(statMethCallExpr.method.parentInterface.name)}.{this.methodCall(statMethCallExpr)}";
             else if (expr is GlobalFunctionCallExpression globFunctCallExpr)
-                res = $"Global.{this.name_(globFunctCallExpr.func.name)}{this.exprCall(new Type_[0], globFunctCallExpr.args)}";
+                res = $"Global.{this.name_(globFunctCallExpr.func.name)}{this.exprCall(new IType[0], globFunctCallExpr.args)}";
             else if (expr is LambdaCallExpression lambdCallExpr)
                 res = $"{this.expr(lambdCallExpr.method)}({lambdCallExpr.args.map(x => this.expr(x)).join(", ")})";
             else if (expr is BooleanLiteral boolLit)
@@ -516,7 +516,7 @@ namespace Generator
             
             var classes = new List<string>();
             foreach (var cls in sourceFile.classes) {
-                var baseClasses = new List<Type_>();
+                var baseClasses = new List<IType>();
                 if (cls.baseClass != null)
                     baseClasses.push(cls.baseClass);
                 foreach (var intf in cls.baseInterfaces)

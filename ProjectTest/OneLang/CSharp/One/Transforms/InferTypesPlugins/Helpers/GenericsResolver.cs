@@ -3,11 +3,11 @@ using One.Ast;
 namespace One.Transforms.InferTypesPlugins.Helpers
 {
     public class GenericsResolver {
-        public Map<string, Type_> resolutionMap;
+        public Map<string, IType> resolutionMap;
         
         public GenericsResolver()
         {
-            this.resolutionMap = new Map<string, Type_>();
+            this.resolutionMap = new Map<string, IType>();
         }
         
         public static GenericsResolver fromObject(Expression object_) {
@@ -16,9 +16,9 @@ namespace One.Transforms.InferTypesPlugins.Helpers
             return resolver;
         }
         
-        public void addResolution(string typeVarName, Type_ actualType) {
+        public void addResolution(string typeVarName, IType actualType) {
             var prevRes = this.resolutionMap.get(typeVarName);
-            if (prevRes != null && !Type_.equals(prevRes, actualType))
+            if (prevRes != null && !TypeHelper.equals(prevRes, actualType))
                 throw new Error($"Resolving '{typeVarName}' is ambiguous, {prevRes.repr()} <> {actualType.repr()}");
             this.resolutionMap.set(typeVarName, actualType);
         }
@@ -44,8 +44,8 @@ namespace One.Transforms.InferTypesPlugins.Helpers
                 throw new Error($"Expected ClassType or InterfaceType, got {(actualType != null ? actualType.repr() : "<null>")}");
         }
         
-        public bool collectResolutionsFromActualType(Type_ genericType, Type_ actualType) {
-            if (!Type_.isGeneric(genericType))
+        public bool collectResolutionsFromActualType(IType genericType, IType actualType) {
+            if (!TypeHelper.isGeneric(genericType))
                 return true;
             if (genericType is GenericsType genType) {
                 this.addResolution(genType.typeVarName, actualType);
@@ -75,7 +75,7 @@ namespace One.Transforms.InferTypesPlugins.Helpers
             return false;
         }
         
-        public Type_ resolveType(Type_ type, bool mustResolveAllGenerics) {
+        public IType resolveType(IType type, bool mustResolveAllGenerics) {
             if (type is GenericsType genType2) {
                 var resolvedType = this.resolutionMap.get(genType2.typeVarName);
                 if (resolvedType == null && mustResolveAllGenerics)

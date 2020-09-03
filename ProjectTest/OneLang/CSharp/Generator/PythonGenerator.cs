@@ -25,7 +25,7 @@ namespace Generator
             this.plugins.push(new JsToPython(this));
         }
         
-        public string type(Type_ type) {
+        public string type(IType type) {
             if (type is ClassType classType) {
                 if (classType.decl.name == "TsString")
                     return "str";
@@ -117,7 +117,7 @@ namespace Generator
             return value != null ? $"{prefix}{value}" : "";
         }
         
-        public bool isTsArray(Type_ type) {
+        public bool isTsArray(IType type) {
             return type is ClassType classType2 && classType2.decl.name == "TsArray";
         }
         

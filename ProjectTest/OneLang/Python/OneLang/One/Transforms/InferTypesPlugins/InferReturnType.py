@@ -5,6 +5,7 @@ import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Ast.Statements as stats
 import OneLang.One.ErrorManager as errorMan
 import OneLang.One.Ast.Expressions as exprs
+import OneLang.One.Ast.Interfaces as ints
 
 class ReturnTypeInferer:
     def __init__(self, error_man):
@@ -22,7 +23,7 @@ class ReturnTypeInferer:
         if return_type == None:
             raise Error("Return type cannot be null")
         
-        if not ArrayHelper.some(lambda x: astTypes.Type.equals(x, return_type), self.return_types):
+        if not ArrayHelper.some(lambda x: astTypes.TypeHelper.equals(x, return_type), self.return_types):
             self.return_types.append(return_type)
     
     def finish(self, declared_type, error_context, async_type):
@@ -40,7 +41,7 @@ class ReturnTypeInferer:
                 inferred_type = astTypes.VoidType.instance
         elif len(self.return_types) == 1:
             inferred_type = self.return_types[0]
-        elif declared_type != None and ArrayHelper.every(lambda x, i: astTypes.Type.is_assignable_to(x, declared_type), self.return_types):
+        elif declared_type != None and ArrayHelper.every(lambda x, i: astTypes.TypeHelper.is_assignable_to(x, declared_type), self.return_types):
             inferred_type = declared_type
         else:
             self.error_man.throw(f'''{error_context} returns different types: {", ".join(list(map(lambda x: x.repr(), self.return_types)))}''')
@@ -50,7 +51,7 @@ class ReturnTypeInferer:
         if check_type != None and async_type != None and isinstance(check_type, astTypes.ClassType) and check_type.decl == async_type.decl:
             check_type = check_type.type_arguments[0]
         
-        if check_type != None and not astTypes.Type.is_assignable_to(inferred_type, check_type):
+        if check_type != None and not astTypes.TypeHelper.is_assignable_to(inferred_type, check_type):
             self.error_man.throw(f'''{error_context} returns different type ({inferred_type.repr()}) than expected {check_type.repr()}''')
         
         self.return_types = None

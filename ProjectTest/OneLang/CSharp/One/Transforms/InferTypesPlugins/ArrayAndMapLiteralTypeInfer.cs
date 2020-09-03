@@ -10,16 +10,16 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        protected Type_ inferArrayOrMapItemType(Expression[] items, Type_ expectedType, bool isMap) {
-            var itemTypes = new List<Type_>();
+        protected IType inferArrayOrMapItemType(Expression[] items, IType expectedType, bool isMap) {
+            var itemTypes = new List<IType>();
             foreach (var item in items) {
-                if (!itemTypes.some(t => Type_.equals(t, item.getType())))
+                if (!itemTypes.some(t => TypeHelper.equals(t, item.getType())))
                     itemTypes.push(item.getType());
             }
             
             var literalType = isMap ? this.main.currentFile.literalTypes.map : this.main.currentFile.literalTypes.array;
             
-            Type_ itemType = null;
+            IType itemType = null;
             if (itemTypes.length() == 0) {
                 if (expectedType == null) {
                     this.errorMan.warn($"Could not determine the type of an empty {(isMap ? "MapLiteral" : "ArrayLiteral")}, using AnyType instead");
@@ -54,11 +54,11 @@ namespace One.Transforms.InferTypesPlugins
             
             if (expr is ArrayLiteral arrayLit2) {
                 var itemType = this.inferArrayOrMapItemType(arrayLit2.items, arrayLit2.expectedType, false);
-                arrayLit2.setActualType(new ClassType(this.main.currentFile.literalTypes.array.decl, new Type_[] { itemType }));
+                arrayLit2.setActualType(new ClassType(this.main.currentFile.literalTypes.array.decl, new IType[] { itemType }));
             }
             else if (expr is MapLiteral mapLit) {
                 var itemType = this.inferArrayOrMapItemType(mapLit.items.map(x => x.value), mapLit.expectedType, true);
-                mapLit.setActualType(new ClassType(this.main.currentFile.literalTypes.map.decl, new Type_[] { itemType }));
+                mapLit.setActualType(new ClassType(this.main.currentFile.literalTypes.map.decl, new IType[] { itemType }));
             }
             
             return true;

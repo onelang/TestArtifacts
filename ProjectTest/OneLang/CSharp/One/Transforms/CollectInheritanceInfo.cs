@@ -6,6 +6,12 @@ namespace One.Transforms
     public class CollectInheritanceInfo : ITransformer {
         public string name { get; set; }
         
+        public CollectInheritanceInfo()
+        {
+            // C# fix
+            this.name = "CollectInheritanceInfo";
+        }
+        
         public void visitClass(Class cls) {
             var allBaseIIntfs = cls.getAllBaseInterfaces();
             var intfs = allBaseIIntfs.map(x => x is Interface int_ ? int_ : null).filter(x => x != null);

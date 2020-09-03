@@ -50,7 +50,7 @@ class ResolveMethodCalls(inferTypesPlug.InferTypesPlugin):
             self.error_man.throw(f'''Method ({expr.method.parent_interface.name}::{expr.method.name}) return type was not specified or infered before the call.''')
             return
         
-        expr.set_actual_type(generics_resolver.resolve_type(expr.method.returns, True), True, isinstance(expr, exprs.InstanceMethodCallExpression) and astTypes.Type.is_generic(expr.object.get_type()))
+        expr.set_actual_type(generics_resolver.resolve_type(expr.method.returns, True), True, isinstance(expr, exprs.InstanceMethodCallExpression) and astTypes.TypeHelper.is_generic(expr.object.get_type()))
     
     def transform_method_call(self, expr):
         if isinstance(expr.object, refs.ClassReference) or isinstance(expr.object, refs.StaticThisReference):

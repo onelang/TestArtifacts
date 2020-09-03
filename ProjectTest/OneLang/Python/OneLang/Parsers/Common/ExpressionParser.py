@@ -4,6 +4,7 @@ import OneLang.Parsers.Common.NodeManager as nodeMan
 import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Ast.Expressions as exprs
 import OneLang.Utils.ArrayHelper as arrayHelp
+import OneLang.One.Ast.Interfaces as ints
 
 class Operator:
     def __init__(self, text, precedence, is_binary, is_right_assoc, is_postfix):

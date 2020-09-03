@@ -33,6 +33,6 @@ class TypeScriptNullCoalesce(inferTypesPlug.InferTypesPlugin):
             if isinstance(expr.right, exprs.NullLiteral):
                 # something-which-can-be-undefined || null
                 return expr.left
-            elif astTypes.Type.is_assignable_to(right_type, left_type) and not astTypes.Type.equals(right_type, self.main.current_file.literal_types.boolean):
+            elif astTypes.TypeHelper.is_assignable_to(right_type, left_type) and not astTypes.TypeHelper.equals(right_type, self.main.current_file.literal_types.boolean):
                 return exprs.NullCoalesceExpression(expr.left, expr.right)
         return None

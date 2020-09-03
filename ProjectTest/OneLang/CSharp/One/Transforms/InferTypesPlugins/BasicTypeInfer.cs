@@ -73,7 +73,7 @@ namespace One.Transforms.InferTypesPlugins
                 var rightType = binExpr.right.getType();
                 var isEqOrNeq = binExpr.operator_ == "==" || binExpr.operator_ == "!=";
                 if (binExpr.operator_ == "=") {
-                    if (Type_.isAssignableTo(rightType, leftType))
+                    if (TypeHelper.isAssignableTo(rightType, leftType))
                         binExpr.setActualType(leftType, false, true);
                     else
                         throw new Error($"Right-side expression ({rightType.repr()}) is not assignable to left-side ({leftType.repr()}).");
@@ -108,15 +108,15 @@ namespace One.Transforms.InferTypesPlugins
                 var trueType = condExpr.whenTrue.getType();
                 var falseType = condExpr.whenFalse.getType();
                 if (condExpr.expectedType != null) {
-                    if (!Type_.isAssignableTo(trueType, condExpr.expectedType))
+                    if (!TypeHelper.isAssignableTo(trueType, condExpr.expectedType))
                         throw new Error($"Conditional expression expects {condExpr.expectedType.repr()} but got {trueType.repr()} as true branch");
-                    if (!Type_.isAssignableTo(falseType, condExpr.expectedType))
+                    if (!TypeHelper.isAssignableTo(falseType, condExpr.expectedType))
                         throw new Error($"Conditional expression expects {condExpr.expectedType.repr()} but got {falseType.repr()} as false branch");
                     condExpr.setActualType(condExpr.expectedType);
                 }
-                else if (Type_.isAssignableTo(trueType, falseType))
+                else if (TypeHelper.isAssignableTo(trueType, falseType))
                     condExpr.setActualType(falseType);
-                else if (Type_.isAssignableTo(falseType, trueType))
+                else if (TypeHelper.isAssignableTo(falseType, trueType))
                     condExpr.setActualType(trueType);
                 else
                     throw new Error($"Different types in the whenTrue ({trueType.repr()}) and whenFalse ({falseType.repr()}) expressions of a conditional expression");
@@ -124,7 +124,7 @@ namespace One.Transforms.InferTypesPlugins
             else if (expr is NullCoalesceExpression nullCoalExpr) {
                 var defaultType = nullCoalExpr.defaultExpr.getType();
                 var ifNullType = nullCoalExpr.exprIfNull.getType();
-                if (!Type_.isAssignableTo(ifNullType, defaultType))
+                if (!TypeHelper.isAssignableTo(ifNullType, defaultType))
                     this.errorMan.throw_($"Null-coalescing operator tried to assign incompatible type \"{ifNullType.repr()}\" to \"{defaultType.repr()}\"");
                 else
                     nullCoalExpr.setActualType(defaultType);

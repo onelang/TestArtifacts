@@ -59,6 +59,8 @@ class SelfTestRunner:
                 OneFile.write_text(re_gen_path, gen_file.content)
                 console.error(f'''Content does not match: {gen_file.path}''')
                 all_match = False
+            else:
+                console.log(f'''[+] Content matches: {gen_file.path}''')
         
         console.log("[+} SUCCESS! All generated files are the same" if all_match else "[!] FAIL! Not all files are the same")
         console.log("[-] SelfTestRunner :: DONE")

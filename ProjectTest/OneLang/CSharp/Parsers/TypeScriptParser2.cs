@@ -6,10 +6,10 @@ using System.Linq;
 namespace Parsers
 {
     public class TypeAndInit {
-        public Type_ type;
+        public IType type;
         public Expression init;
         
-        public TypeAndInit(Type_ type, Expression init)
+        public TypeAndInit(IType type, Expression init)
         {
             this.type = type;
             this.init = init;
@@ -20,10 +20,10 @@ namespace Parsers
         public MethodParameter[] params_;
         public Field[] fields;
         public Block body;
-        public Type_ returns;
+        public IType returns;
         public Expression[] superCallArgs;
         
-        public MethodSignature(MethodParameter[] params_, Field[] fields, Block body, Type_ returns, Expression[] superCallArgs)
+        public MethodSignature(MethodParameter[] params_, Field[] fields, Block body, IType returns, Expression[] superCallArgs)
         {
             this.params_ = params_;
             this.fields = fields;
@@ -55,8 +55,8 @@ namespace Parsers
         
         public ExpressionParser createExpressionParser(Reader reader, NodeManager nodeManager = null) {
             var expressionParser = new ExpressionParser(reader, this, nodeManager);
-            expressionParser.stringLiteralType = new UnresolvedType("TsString", new Type_[0]);
-            expressionParser.numericLiteralType = new UnresolvedType("TsNumber", new Type_[0]);
+            expressionParser.stringLiteralType = new UnresolvedType("TsString", new IType[0]);
+            expressionParser.numericLiteralType = new UnresolvedType("TsNumber", new IType[0]);
             return expressionParser;
         }
         
@@ -98,7 +98,7 @@ namespace Parsers
             return params_.ToArray();
         }
         
-        public Type_ parseType() {
+        public IType parseType() {
             if (this.reader.readToken("{")) {
                 this.reader.expectToken("[");
                 this.reader.readIdentifier();
@@ -109,7 +109,7 @@ namespace Parsers
                 var mapValueType = this.parseType();
                 this.reader.readToken(";");
                 this.reader.expectToken("}");
-                return new UnresolvedType("TsMap", new Type_[] { mapValueType });
+                return new UnresolvedType("TsMap", new IType[] { mapValueType });
             }
             
             if (this.reader.peekToken("(")) {
@@ -122,13 +122,13 @@ namespace Parsers
             var typeName = this.reader.expectIdentifier();
             var startPos = this.reader.prevTokenOffset;
             
-            Type_ type;
+            IType type;
             if (typeName == "string")
-                type = new UnresolvedType("TsString", new Type_[0]);
+                type = new UnresolvedType("TsString", new IType[0]);
             else if (typeName == "boolean")
-                type = new UnresolvedType("TsBoolean", new Type_[0]);
+                type = new UnresolvedType("TsBoolean", new IType[0]);
             else if (typeName == "number")
-                type = new UnresolvedType("TsNumber", new Type_[0]);
+                type = new UnresolvedType("TsNumber", new IType[0]);
             else if (typeName == "any")
                 type = AnyType.instance;
             else if (typeName == "void")
@@ -141,7 +141,7 @@ namespace Parsers
             this.nodeManager.addNode(type, startPos);
             
             while (this.reader.readToken("[]")) {
-                type = new UnresolvedType("TsArray", new Type_[] { type });
+                type = new UnresolvedType("TsArray", new IType[] { type });
                 this.nodeManager.addNode(type, startPos);
             }
             
@@ -261,7 +261,7 @@ namespace Parsers
                 else
                     this.reader.fail("unexpected typeof comparison");
                 
-                return new InstanceOfExpression(expr, new UnresolvedType(tsType, new Type_[0]));
+                return new InstanceOfExpression(expr, new UnresolvedType(tsType, new IType[0]));
             }
             else if (this.reader.peekRegex("\\([A-Za-z0-9_]+\\s*[:,]|\\(\\)") != null) {
                 var params_ = this.parseLambdaParams();
@@ -461,8 +461,8 @@ namespace Parsers
             return block;
         }
         
-        public Type_[] parseTypeArgs() {
-            var typeArguments = new List<Type_>();
+        public IType[] parseTypeArgs() {
+            var typeArguments = new List<IType>();
             if (this.reader.readToken("<")) {
                 do {
                     var generics = this.parseType();
@@ -519,7 +519,7 @@ namespace Parsers
                 this.reader.expectToken(")");
             }
             
-            Type_ returns = null;
+            IType returns = null;
             if (!isConstructor)
                 // in case of constructor, "returns" won't be used
                 returns = this.reader.readToken(":") ? this.parseType() : this.missingReturnTypeIsVoid ? VoidType.instance : null;
@@ -554,7 +554,7 @@ namespace Parsers
             
             var intfTypeArgs = this.parseGenericsArgs();
             
-            var baseInterfaces = new List<Type_>();
+            var baseInterfaces = new List<IType>();
             if (this.reader.readToken("extends"))
                 do
                     baseInterfaces.push(this.parseType()); while (this.reader.readToken(","));
@@ -619,7 +619,7 @@ namespace Parsers
             var typeArgs = this.parseGenericsArgs();
             var baseClass = this.reader.readToken("extends") ? this.parseSpecifiedType() : null;
             
-            var baseInterfaces = new List<Type_>();
+            var baseInterfaces = new List<IType>();
             if (this.reader.readToken("implements"))
                 do
                     baseInterfaces.push(this.parseSpecifiedType()); while (this.reader.readToken(","));
@@ -664,7 +664,7 @@ namespace Parsers
                     // property
                     var propName = this.reader.expectIdentifier();
                     var prop = properties.find(x => x.name == propName);
-                    Type_ propType = null;
+                    IType propType = null;
                     Block getter = null;
                     Block setter = null;
                     

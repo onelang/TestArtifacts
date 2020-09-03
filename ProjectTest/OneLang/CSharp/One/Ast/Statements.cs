@@ -69,12 +69,12 @@ namespace One.Ast
     
     public class VariableDeclaration : Statement, IVariableWithInitializer, IReferencable {
         public string name { get; set; }
-        public Type_ type { get; set; }
+        public IType type { get; set; }
         public Expression initializer { get; set; }
         public List<VariableDeclarationReference> references;
         public MutabilityInfo mutability { get; set; }
         
-        public VariableDeclaration(string name, Type_ type, Expression initializer): base()
+        public VariableDeclaration(string name, IType type, Expression initializer): base()
         {
             this.name = name;
             this.type = type;
@@ -111,7 +111,7 @@ namespace One.Ast
     
     public class ForeachVariable : IVariable, IReferencable {
         public string name { get; set; }
-        public Type_ type { get; set; }
+        public IType type { get; set; }
         public List<ForeachVariableReference> references;
         public MutabilityInfo mutability { get; set; }
         
@@ -141,12 +141,12 @@ namespace One.Ast
     
     public class ForVariable : IVariableWithInitializer, IReferencable {
         public string name { get; set; }
-        public Type_ type { get; set; }
+        public IType type { get; set; }
         public Expression initializer { get; set; }
         public List<ForVariableReference> references;
         public MutabilityInfo mutability { get; set; }
         
-        public ForVariable(string name, Type_ type, Expression initializer)
+        public ForVariable(string name, IType type, Expression initializer)
         {
             this.name = name;
             this.type = type;
@@ -176,11 +176,11 @@ namespace One.Ast
     
     public class CatchVariable : IVariable, IReferencable {
         public string name { get; set; }
-        public Type_ type { get; set; }
+        public IType type { get; set; }
         public List<CatchVariableReference> references;
         public MutabilityInfo mutability { get; set; }
         
-        public CatchVariable(string name, Type_ type)
+        public CatchVariable(string name, IType type)
         {
             this.name = name;
             this.type = type;

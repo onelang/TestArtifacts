@@ -22,7 +22,7 @@ namespace One
             this.currentStatement = null;
         }
         
-        protected virtual Type_ visitType(Type_ type) {
+        protected virtual IType visitType(IType type) {
             if (type is ClassType classType || type is InterfaceType || type is UnresolvedType) {
                 var type2 = ((IHasTypeArguments)type);
                 type2.typeArguments = type2.typeArguments.map(x => this.visitType(x) ?? x);

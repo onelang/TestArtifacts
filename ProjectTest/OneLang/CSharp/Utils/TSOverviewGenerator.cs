@@ -29,7 +29,7 @@ namespace Utils
             return args != null && args.length() > 0 ? $"<{args.join(", ")}>" : "";
         }
         
-        public static string type(Type_ t, bool raw = false) {
+        public static string type(IType t, bool raw = false) {
             var repr = t == null ? "???" : t.repr();
             if (repr == "U:UNKNOWN") { }
             return (raw ? "" : "{T}") + repr;
@@ -213,7 +213,7 @@ namespace Utils
             return block.statements.map(stmt => TSOverviewGenerator.stmt(stmt)).join("\n");
         }
         
-        public static string methodBase(IMethodBase method, Type_ returns) {
+        public static string methodBase(IMethodBase method, IType returns) {
             if (method == null)
                 return "";
             var name = method is Method meth ? meth.name : method is Constructor ? "constructor" : method is GlobalFunction globFunct ? globFunct.name : "???";

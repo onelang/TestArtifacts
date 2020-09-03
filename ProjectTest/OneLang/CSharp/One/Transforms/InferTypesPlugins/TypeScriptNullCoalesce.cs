@@ -40,7 +40,7 @@ namespace One.Transforms.InferTypesPlugins
                 if (binExpr2.right is NullLiteral)
                     // something-which-can-be-undefined || null
                     return binExpr2.left;
-                else if (Type_.isAssignableTo(rightType, leftType) && !Type_.equals(rightType, this.main.currentFile.literalTypes.boolean))
+                else if (TypeHelper.isAssignableTo(rightType, leftType) && !TypeHelper.equals(rightType, this.main.currentFile.literalTypes.boolean))
                     return new NullCoalesceExpression(binExpr2.left, binExpr2.right);
             }
             return null;

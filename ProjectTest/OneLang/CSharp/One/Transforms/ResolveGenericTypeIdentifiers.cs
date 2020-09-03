@@ -9,7 +9,7 @@ namespace One.Transforms
             
         }
         
-        protected override Type_ visitType(Type_ type) {
+        protected override IType visitType(IType type) {
             base.visitType(type);
             
             //console.log(type && type.constructor.name, JSON.stringify(type));

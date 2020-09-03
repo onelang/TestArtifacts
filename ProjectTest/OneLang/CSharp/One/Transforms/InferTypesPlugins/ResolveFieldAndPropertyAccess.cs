@@ -102,7 +102,7 @@ namespace One.Transforms.InferTypesPlugins
         public override bool detectType(Expression expr) {
             if (expr is InstanceFieldReference instFieldRef2) {
                 var actualType = GenericsResolver.fromObject(instFieldRef2.object_).resolveType(instFieldRef2.field.type, true);
-                instFieldRef2.setActualType(actualType, false, Type_.isGeneric(instFieldRef2.object_.actualType));
+                instFieldRef2.setActualType(actualType, false, TypeHelper.isGeneric(instFieldRef2.object_.actualType));
                 return true;
             }
             else if (expr is InstancePropertyReference instPropRef) {
