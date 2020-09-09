@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Test
 {
     public class CompilerHooks : ICompilerHooks {
-        public int stage = 0;
+        public int stage = 0; 
         public Compiler compiler;
         public string baseDir;
         
