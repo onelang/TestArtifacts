@@ -6,6 +6,7 @@ class OneFile:
         with open(fn, 'r') as f: return f.read()
     
     def write_text(fn, content):
+        os.makedirs(os.path.dirname(fn), exist_ok=True)
         with open(fn, 'w') as f: f.write(content)
 
     def list_files(dir, recursive):
