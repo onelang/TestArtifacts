@@ -64,3 +64,4 @@ class SelfTestRunner:
         
         console.log("[+} SUCCESS! All generated files are the same" if all_match else "[!] FAIL! Not all files are the same")
         console.log("[-] SelfTestRunner :: DONE")
+        return all_match

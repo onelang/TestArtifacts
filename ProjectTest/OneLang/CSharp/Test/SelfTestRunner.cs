@@ -39,7 +39,7 @@ namespace Test
             this.baseDir = baseDir;
         }
         
-        public async Task runTest(IGenerator generator) {
+        public async Task<bool> runTest(IGenerator generator) {
             console.log("[-] SelfTestRunner :: START");
             var compiler = new Compiler();
             await compiler.init($"{this.baseDir}packages/");
@@ -78,6 +78,7 @@ namespace Test
             
             console.log(allMatch ? "[+} SUCCESS! All generated files are the same" : "[!] FAIL! Not all files are the same");
             console.log("[-] SelfTestRunner :: DONE");
+            return allMatch;
         }
     }
 }

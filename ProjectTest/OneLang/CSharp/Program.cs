@@ -11,7 +11,7 @@ namespace CSharp
     {
         static async Task Main(string[] args)
         {
-            await new SelfTestRunner("../../../../../").runTest(new CsharpGenerator());
+            Environment.ExitCode = await new SelfTestRunner("../../../../../").runTest(new CsharpGenerator()) ? 0 : 1;
         }
     }
 }
