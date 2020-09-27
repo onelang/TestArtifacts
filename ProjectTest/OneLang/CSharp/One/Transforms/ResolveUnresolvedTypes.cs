@@ -9,9 +9,13 @@ namespace One.Transforms
             
         }
         
-        protected override IType visitType(IType type) {
+        protected override IType visitType(IType type)
+        {
             base.visitType(type);
             if (type is UnresolvedType unrType) {
+                if (this.currentInterface != null && this.currentInterface.typeArguments.includes(unrType.typeName))
+                    return new GenericsType(unrType.typeName);
+                
                 var symbol = this.currentFile.availableSymbols.get(unrType.typeName);
                 if (symbol == null) {
                     this.errorMan.throw_($"Unresolved type '{unrType.typeName}' was not found in available symbols");
@@ -33,7 +37,8 @@ namespace One.Transforms
                 return null;
         }
         
-        protected override Expression visitExpression(Expression expr) {
+        protected override Expression visitExpression(Expression expr)
+        {
             if (expr is UnresolvedNewExpression unrNewExpr) {
                 var clsType = this.visitType(unrNewExpr.cls);
                 if (clsType is ClassType classType) {

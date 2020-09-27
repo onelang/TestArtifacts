@@ -124,7 +124,7 @@ class JsToPython:
         
         method_name = f'''{cls_.name}.{method.name}'''
         if not method_name in self.unhandled_methods:
-            console.error(f'''Method was not handled: {cls_.name}.{method.name}''')
+            console.error(f'''[JsToPython] Method was not handled: {cls_.name}.{method.name}''')
             self.unhandled_methods[method_name] = None
         #debugger;
         return None

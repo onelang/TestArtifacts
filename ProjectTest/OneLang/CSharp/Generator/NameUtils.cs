@@ -3,7 +3,8 @@ using System.Collections.Generic;
 namespace Generator
 {
     public class NameUtils {
-        public static string shortName(string fullName) {
+        public static string shortName(string fullName)
+        {
             var nameParts = new List<string>();
             var partStartIdx = 0;
             for (int i = 1; i < fullName.length(); i++) {

@@ -3,7 +3,8 @@ using System.Linq;
 namespace Parsers.Common
 {
     public class Utils {
-        public static int getPadLen(string line) {
+        public static int getPadLen(string line)
+        {
             for (int i = 0; i < line.length(); i++) {
                 if (line.get(i) != " ")
                     return i;
@@ -11,7 +12,8 @@ namespace Parsers.Common
             return -1;
         }
         
-        public static string deindent(string str) {
+        public static string deindent(string str)
+        {
             var lines = str.split(new RegExp("\\n")).ToList();
             if (lines.length() == 1)
                 return str;

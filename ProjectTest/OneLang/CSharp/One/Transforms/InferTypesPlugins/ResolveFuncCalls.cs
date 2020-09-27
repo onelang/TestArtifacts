@@ -9,11 +9,13 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        public override bool canTransform(Expression expr) {
+        public override bool canTransform(Expression expr)
+        {
             return expr is UnresolvedCallExpression;
         }
         
-        public override Expression transform(Expression expr) {
+        public override Expression transform(Expression expr)
+        {
             var callExpr = ((UnresolvedCallExpression)expr);
             if (callExpr.func is GlobalFunctionReference globFunctRef) {
                 var newExpr = new GlobalFunctionCallExpression(globFunctRef.decl, callExpr.args);

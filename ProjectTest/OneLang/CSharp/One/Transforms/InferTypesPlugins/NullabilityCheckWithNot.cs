@@ -9,11 +9,13 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        public override bool canTransform(Expression expr) {
+        public override bool canTransform(Expression expr)
+        {
             return expr is UnaryExpression unaryExpr ? unaryExpr.operator_ == "!" : false;
         }
         
-        public override Expression transform(Expression expr) {
+        public override Expression transform(Expression expr)
+        {
             var unaryExpr = ((UnaryExpression)expr);
             if (unaryExpr.operator_ == "!") {
                 this.main.processExpression(expr);

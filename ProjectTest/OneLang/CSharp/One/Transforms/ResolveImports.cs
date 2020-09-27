@@ -3,7 +3,8 @@ using One.Ast;
 namespace One.Transforms
 {
     public class ResolveImports {
-        public static void processWorkspace(Workspace ws) {
+        public static void processWorkspace(Workspace ws)
+        {
             foreach (var pkg in Object.values(ws.packages))
                 foreach (var file in Object.values(pkg.files))
                     foreach (var imp in file.imports) {

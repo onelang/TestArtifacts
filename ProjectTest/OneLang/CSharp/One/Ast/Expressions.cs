@@ -24,7 +24,8 @@ namespace One.Ast
             this.actualType = null;
         }
         
-        protected void typeCheck(IType type, bool allowVoid) {
+        protected void typeCheck(IType type, bool allowVoid)
+        {
             if (type == null)
                 throw new Error("New type cannot be null!");
             
@@ -35,7 +36,8 @@ namespace One.Ast
                 throw new Error("Expression's type cannot be UnresolvedType!");
         }
         
-        public virtual void setActualType(IType actualType, bool allowVoid = false, bool allowGeneric = false) {
+        public virtual void setActualType(IType actualType, bool allowVoid = false, bool allowGeneric = false)
+        {
             if (this.actualType != null)
                 throw new Error($"Expression already has actual type (current type = {this.actualType.repr()}, new type = {actualType.repr()})");
             
@@ -51,7 +53,8 @@ namespace One.Ast
             this.actualType = actualType;
         }
         
-        public void setExpectedType(IType type, bool allowVoid = false) {
+        public void setExpectedType(IType type, bool allowVoid = false)
+        {
             if (this.actualType != null)
                 throw new Error("Cannot set expected type after actual type was already set!");
             
@@ -63,7 +66,8 @@ namespace One.Ast
             this.expectedType = type;
         }
         
-        public IType getType() {
+        public IType getType()
+        {
             return this.actualType ?? this.expectedType;
         }
     }
@@ -142,11 +146,13 @@ namespace One.Ast
             this.expression = expression;
         }
         
-        public static TemplateStringPart Literal(string literalText) {
+        public static TemplateStringPart Literal(string literalText)
+        {
             return new TemplateStringPart(true, literalText, null);
         }
         
-        public static TemplateStringPart Expression(Expression expr) {
+        public static TemplateStringPart Expression(Expression expr)
+        {
             return new TemplateStringPart(false, null, expr);
         }
     }

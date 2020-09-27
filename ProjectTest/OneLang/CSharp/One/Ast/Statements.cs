@@ -8,6 +8,11 @@ namespace One.Ast
         public string leadingTrivia { get; set; }
         public Dictionary<string, string> attributes { get; set; }
         public Block parentBlock;
+        
+        public Statement()
+        {
+            
+        }
     }
     
     public class IfStatement : Statement {
@@ -82,7 +87,8 @@ namespace One.Ast
             this.references = new List<VariableDeclarationReference>();
         }
         
-        public Reference createReference() {
+        public Reference createReference()
+        {
             return new VariableDeclarationReference(this);
         }
     }
@@ -121,7 +127,8 @@ namespace One.Ast
             this.references = new List<ForeachVariableReference>();
         }
         
-        public Reference createReference() {
+        public Reference createReference()
+        {
             return new ForeachVariableReference(this);
         }
     }
@@ -154,7 +161,8 @@ namespace One.Ast
             this.references = new List<ForVariableReference>();
         }
         
-        public Reference createReference() {
+        public Reference createReference()
+        {
             return new ForVariableReference(this);
         }
     }
@@ -187,7 +195,8 @@ namespace One.Ast
             this.references = new List<CatchVariableReference>();
         }
         
-        public Reference createReference() {
+        public Reference createReference()
+        {
             return new CatchVariableReference(this);
         }
     }

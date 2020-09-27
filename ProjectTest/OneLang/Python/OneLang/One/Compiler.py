@@ -17,6 +17,7 @@ import OneLang.One.Transforms.CollectInheritanceInfo as collInhInfo
 import OneLang.One.Transforms.FillMutabilityInfo as fillMutInfo
 import OneLang.One.AstTransformer as astTrans
 import OneLang.One.ITransform as iTrans
+import OneLang.One.Transforms.LambdaCaptureCollector as lambdCaptColl
 
 class Compiler:
     def __init__(self):
@@ -96,6 +97,7 @@ class Compiler:
         transforms.append(inferTypes.InferTypes())
         transforms.append(collInhInfo.CollectInheritanceInfo())
         transforms.append(fillMutInfo.FillMutabilityInfo())
+        transforms.append(lambdCaptColl.LambdaCaptureCollector())
         for trans in transforms:
             trans.visit_package(self.project_pkg)
             if self.hooks != None:

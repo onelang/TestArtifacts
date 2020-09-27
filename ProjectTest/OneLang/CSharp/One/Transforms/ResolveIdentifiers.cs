@@ -6,7 +6,7 @@ namespace One.Transforms
 {
     public class SymbolLookup {
         public ErrorManager errorMan;
-        public List<List<string>> levelSymbols;
+        public List<List<string>> levelStack;
         public List<string> levelNames;
         public List<string> currLevel;
         public Map<string, IReferencable> symbols;
@@ -14,37 +14,41 @@ namespace One.Transforms
         public SymbolLookup()
         {
             this.errorMan = new ErrorManager();
-            this.levelSymbols = new List<List<string>>();
+            this.levelStack = new List<List<string>>();
             this.levelNames = new List<string>();
             this.symbols = new Map<string, IReferencable>();
         }
         
-        public void throw_(string msg) {
+        public void throw_(string msg)
+        {
             this.errorMan.throw_($"{msg} (context: {this.levelNames.join(" > ")})");
         }
         
-        public void pushContext(string name) {
+        public void pushContext(string name)
+        {
+            this.levelStack.push(this.currLevel);
             this.levelNames.push(name);
             this.currLevel = new List<string>();
-            this.levelSymbols.push(this.currLevel);
         }
         
-        public void addSymbol(string name, IReferencable ref_) {
+        public void addSymbol(string name, IReferencable ref_)
+        {
             if (this.symbols.has(name))
                 this.throw_($"Symbol shadowing: {name}");
             this.symbols.set(name, ref_);
             this.currLevel.push(name);
         }
         
-        public void popContext() {
+        public void popContext()
+        {
             foreach (var name in this.currLevel)
                 this.symbols.delete(name);
-            this.levelSymbols.pop();
             this.levelNames.pop();
-            this.currLevel = this.levelSymbols.length() == 0 ? null : this.levelSymbols.get(this.levelSymbols.length() - 1);
+            this.currLevel = this.levelStack.length() > 0 ? this.levelStack.pop() : null;
         }
         
-        public IReferencable getSymbol(string name) {
+        public IReferencable getSymbol(string name)
+        {
             return this.symbols.get(name);
         }
     }
@@ -57,7 +61,8 @@ namespace One.Transforms
             this.symbolLookup = new SymbolLookup();
         }
         
-        protected override Expression visitIdentifier(Identifier id) {
+        protected override Expression visitIdentifier(Identifier id)
+        {
             base.visitIdentifier(id);
             var symbol = this.symbolLookup.getSymbol(id.text);
             if (symbol == null) {
@@ -78,7 +83,8 @@ namespace One.Transforms
             return ref_;
         }
         
-        protected override Statement visitStatement(Statement stmt) {
+        protected override Statement visitStatement(Statement stmt)
+        {
             if (stmt is ForStatement forStat) {
                 this.symbolLookup.pushContext($"For");
                 if (forStat.itemVar != null)
@@ -108,7 +114,8 @@ namespace One.Transforms
             return null;
         }
         
-        protected override Lambda visitLambda(Lambda lambda) {
+        protected override Lambda visitLambda(Lambda lambda)
+        {
             this.symbolLookup.pushContext($"Lambda");
             foreach (var param in lambda.parameters)
                 this.symbolLookup.addSymbol(param.name, param);
@@ -118,19 +125,22 @@ namespace One.Transforms
             return null;
         }
         
-        protected override Block visitBlock(Block block) {
+        protected override Block visitBlock(Block block)
+        {
             this.symbolLookup.pushContext("block");
             base.visitBlock(block);
             this.symbolLookup.popContext();
             return null;
         }
         
-        protected override VariableDeclaration visitVariableDeclaration(VariableDeclaration stmt) {
+        protected override VariableDeclaration visitVariableDeclaration(VariableDeclaration stmt)
+        {
             this.symbolLookup.addSymbol(stmt.name, stmt);
             return base.visitVariableDeclaration(stmt);
         }
         
-        protected override void visitMethodBase(IMethodBase method) {
+        protected override void visitMethodBase(IMethodBase method)
+        {
             this.symbolLookup.pushContext(method is Method meth2 ? $"Method: {meth2.name}" : method is Constructor ? "constructor" : "???");
             
             foreach (var param in method.parameters) {
@@ -146,7 +156,8 @@ namespace One.Transforms
             this.symbolLookup.popContext();
         }
         
-        protected override void visitClass(Class cls) {
+        protected override void visitClass(Class cls)
+        {
             this.symbolLookup.pushContext($"Class: {cls.name}");
             this.symbolLookup.addSymbol("this", cls);
             if (cls.baseClass is ClassType classType)
@@ -155,9 +166,10 @@ namespace One.Transforms
             this.symbolLookup.popContext();
         }
         
-        public override void visitSourceFile(SourceFile sourceFile) {
+        public override void visitSourceFile(SourceFile sourceFile)
+        {
             this.errorMan.resetContext(this);
-            this.symbolLookup.pushContext($"File: {sourceFile.sourcePath}");
+            this.symbolLookup.pushContext($"File: {sourceFile.sourcePath.toString()}");
             
             foreach (var symbol in sourceFile.availableSymbols.values()) {
                 if (symbol is Class class3)

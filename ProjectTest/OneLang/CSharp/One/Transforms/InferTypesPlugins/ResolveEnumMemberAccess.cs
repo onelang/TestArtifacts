@@ -9,11 +9,13 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        public override bool canTransform(Expression expr) {
+        public override bool canTransform(Expression expr)
+        {
             return expr is PropertyAccessExpression propAccExpr && propAccExpr.object_ is EnumReference;
         }
         
-        public override Expression transform(Expression expr) {
+        public override Expression transform(Expression expr)
+        {
             var pa = ((PropertyAccessExpression)expr);
             var enumMemberRef = ((EnumReference)pa.object_);
             var member = enumMemberRef.decl.values.find(x => x.name == pa.propertyName);
@@ -24,11 +26,13 @@ namespace One.Transforms.InferTypesPlugins
             return new EnumMemberReference(member);
         }
         
-        public override bool canDetectType(Expression expr) {
+        public override bool canDetectType(Expression expr)
+        {
             return expr is EnumMemberReference;
         }
         
-        public override bool detectType(Expression expr) {
+        public override bool detectType(Expression expr)
+        {
             expr.setActualType((((EnumMemberReference)expr)).decl.parentEnum.type);
             return true;
         }

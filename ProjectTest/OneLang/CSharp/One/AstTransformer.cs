@@ -22,7 +22,8 @@ namespace One
             this.currentStatement = null;
         }
         
-        protected virtual IType visitType(IType type) {
+        protected virtual IType visitType(IType type)
+        {
             if (type is ClassType classType || type is InterfaceType || type is UnresolvedType) {
                 var type2 = ((IHasTypeArguments)type);
                 type2.typeArguments = type2.typeArguments.map(x => this.visitType(x) ?? x);
@@ -35,34 +36,40 @@ namespace One
             return null;
         }
         
-        protected virtual Expression visitIdentifier(Identifier id) {
+        protected virtual Expression visitIdentifier(Identifier id)
+        {
             return null;
         }
         
-        protected virtual IVariable visitVariable(IVariable variable) {
+        protected virtual IVariable visitVariable(IVariable variable)
+        {
             if (variable.type != null)
                 variable.type = this.visitType(variable.type) ?? variable.type;
             return null;
         }
         
-        protected virtual IVariableWithInitializer visitVariableWithInitializer(IVariableWithInitializer variable) {
+        protected virtual IVariableWithInitializer visitVariableWithInitializer(IVariableWithInitializer variable)
+        {
             this.visitVariable(variable);
             if (variable.initializer != null)
                 variable.initializer = this.visitExpression(variable.initializer) ?? variable.initializer;
             return null;
         }
         
-        protected virtual VariableDeclaration visitVariableDeclaration(VariableDeclaration stmt) {
+        protected virtual VariableDeclaration visitVariableDeclaration(VariableDeclaration stmt)
+        {
             this.visitVariableWithInitializer(stmt);
             return null;
         }
         
-        protected Statement visitUnknownStatement(Statement stmt) {
+        protected Statement visitUnknownStatement(Statement stmt)
+        {
             this.errorMan.throw_($"Unknown statement type");
             return null;
         }
         
-        protected virtual Statement visitStatement(Statement stmt) {
+        protected virtual Statement visitStatement(Statement stmt)
+        {
             this.currentStatement = stmt;
             if (stmt is ReturnStatement retStat) {
                 if (retStat.expression != null)
@@ -118,12 +125,14 @@ namespace One
             return null;
         }
         
-        protected virtual Block visitBlock(Block block) {
+        protected virtual Block visitBlock(Block block)
+        {
             block.statements = block.statements.map(x => this.visitStatement(x) ?? x).ToList();
             return null;
         }
         
-        protected TemplateString visitTemplateString(TemplateString expr) {
+        protected TemplateString visitTemplateString(TemplateString expr)
+        {
             for (int i = 0; i < expr.parts.length(); i++) {
                 var part = expr.parts.get(i);
                 if (!part.isLiteral)
@@ -132,21 +141,25 @@ namespace One
             return null;
         }
         
-        protected Expression visitUnknownExpression(Expression expr) {
+        protected Expression visitUnknownExpression(Expression expr)
+        {
             this.errorMan.throw_($"Unknown expression type");
             return null;
         }
         
-        protected virtual Lambda visitLambda(Lambda lambda) {
+        protected virtual Lambda visitLambda(Lambda lambda)
+        {
             this.visitMethodBase(lambda);
             return null;
         }
         
-        protected virtual VariableReference visitVariableReference(VariableReference varRef) {
+        protected virtual VariableReference visitVariableReference(VariableReference varRef)
+        {
             return null;
         }
         
-        protected virtual Expression visitExpression(Expression expr) {
+        protected virtual Expression visitExpression(Expression expr)
+        {
             if (expr is BinaryExpression binExpr) {
                 binExpr.left = this.visitExpression(binExpr.left) ?? binExpr.left;
                 binExpr.right = this.visitExpression(binExpr.right) ?? binExpr.right;
@@ -230,10 +243,14 @@ namespace One
                 return this.visitVariableReference(catchVarRef);
             else if (expr is GlobalFunctionReference) { }
             else if (expr is SuperReference) { }
-            else if (expr is InstanceFieldReference instFieldRef)
+            else if (expr is InstanceFieldReference instFieldRef) {
+                instFieldRef.object_ = this.visitExpression(instFieldRef.object_) ?? instFieldRef.object_;
                 return this.visitVariableReference(instFieldRef);
-            else if (expr is InstancePropertyReference instPropRef)
+            }
+            else if (expr is InstancePropertyReference instPropRef) {
+                instPropRef.object_ = this.visitExpression(instPropRef.object_) ?? instPropRef.object_;
                 return this.visitVariableReference(instPropRef);
+            }
             else if (expr is StaticFieldReference statFieldRef)
                 return this.visitVariableReference(statFieldRef);
             else if (expr is StaticPropertyReference statPropRef)
@@ -257,11 +274,13 @@ namespace One
             return null;
         }
         
-        protected void visitMethodParameter(MethodParameter methodParameter) {
+        protected void visitMethodParameter(MethodParameter methodParameter)
+        {
             this.visitVariableWithInitializer(methodParameter);
         }
         
-        protected virtual void visitMethodBase(IMethodBase method) {
+        protected virtual void visitMethodBase(IMethodBase method)
+        {
             foreach (var item in method.parameters)
                 this.visitMethodParameter(item);
             
@@ -269,29 +288,34 @@ namespace One
                 method.body = this.visitBlock(method.body) ?? method.body;
         }
         
-        protected void visitMethod(Method method) {
+        protected void visitMethod(Method method)
+        {
             this.currentMethod = method;
             this.visitMethodBase(method);
             method.returns = this.visitType(method.returns) ?? method.returns;
             this.currentMethod = null;
         }
         
-        protected void visitGlobalFunction(GlobalFunction func) {
+        protected virtual void visitGlobalFunction(GlobalFunction func)
+        {
             this.visitMethodBase(func);
             func.returns = this.visitType(func.returns) ?? func.returns;
         }
         
-        protected void visitConstructor(Constructor constructor) {
+        protected void visitConstructor(Constructor constructor)
+        {
             this.currentMethod = constructor;
             this.visitMethodBase(constructor);
             this.currentMethod = null;
         }
         
-        protected virtual void visitField(Field field) {
+        protected virtual void visitField(Field field)
+        {
             this.visitVariableWithInitializer(field);
         }
         
-        protected virtual void visitProperty(Property prop) {
+        protected virtual void visitProperty(Property prop)
+        {
             this.visitVariable(prop);
             if (prop.getter != null)
                 prop.getter = this.visitBlock(prop.getter) ?? prop.getter;
@@ -299,7 +323,8 @@ namespace One
                 prop.setter = this.visitBlock(prop.setter) ?? prop.setter;
         }
         
-        protected virtual void visitInterface(Interface intf) {
+        protected virtual void visitInterface(Interface intf)
+        {
             this.currentInterface = intf;
             intf.baseInterfaces = intf.baseInterfaces.map(x => this.visitType(x) ?? x);
             foreach (var field in intf.fields)
@@ -309,7 +334,8 @@ namespace One
             this.currentInterface = null;
         }
         
-        protected virtual void visitClass(Class cls) {
+        protected virtual void visitClass(Class cls)
+        {
             this.currentInterface = cls;
             if (cls.constructor_ != null)
                 this.visitConstructor(cls.constructor_);
@@ -325,16 +351,19 @@ namespace One
             this.currentInterface = null;
         }
         
-        protected virtual void visitEnum(Enum_ enum_) {
+        protected virtual void visitEnum(Enum_ enum_)
+        {
             foreach (var value in enum_.values)
                 this.visitEnumMember(value);
         }
         
-        protected void visitEnumMember(EnumMember enumMember) {
+        protected void visitEnumMember(EnumMember enumMember)
+        {
             
         }
         
-        public virtual void visitSourceFile(SourceFile sourceFile) {
+        public virtual void visitSourceFile(SourceFile sourceFile)
+        {
             this.errorMan.resetContext(this);
             this.currentFile = sourceFile;
             foreach (var enum_ in sourceFile.enums)
@@ -349,7 +378,8 @@ namespace One
             this.currentFile = null;
         }
         
-        public virtual void visitPackage(Package pkg) {
+        public virtual void visitPackage(Package pkg)
+        {
             foreach (var file in Object.values(pkg.files))
                 this.visitSourceFile(file);
         }

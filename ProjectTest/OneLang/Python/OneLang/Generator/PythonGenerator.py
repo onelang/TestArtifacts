@@ -10,6 +10,7 @@ import OneLang.Generator.IGeneratorPlugin as iGenPlug
 import OneLang.Generator.PythonPlugins.JsToPython as jsToPyth
 import OneLang.Generator.NameUtils as nameUtils
 import OneLang.One.Ast.Interfaces as ints
+import OneLang.Generator.IGenerator as iGen
 import re
 
 class PythonGenerator:
@@ -24,6 +25,12 @@ class PythonGenerator:
         self.field_to_method_hack = []
         self.plugins = []
         self.plugins.append(jsToPyth.JsToPython(self))
+    
+    def get_lang_name(self):
+        return "Python"
+    
+    def get_extension(self):
+        return "py"
     
     def type(self, type):
         if isinstance(type, astTypes.ClassType):

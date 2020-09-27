@@ -17,7 +17,8 @@ namespace One.Transforms.InferTypesPlugins
             this.returnTypes = new List<IType>();
         }
         
-        public void addReturn(Expression returnValue) {
+        public void addReturn(Expression returnValue)
+        {
             if (returnValue is NullLiteral) {
                 this.returnsNull = true;
                 return;
@@ -31,7 +32,8 @@ namespace One.Transforms.InferTypesPlugins
                 this.returnTypes.push(returnType);
         }
         
-        public IType finish(IType declaredType, string errorContext, ClassType asyncType) {
+        public IType finish(IType declaredType, string errorContext, ClassType asyncType)
+        {
             IType inferredType = null;
             
             if (this.returnTypes.length() == 0) {
@@ -82,15 +84,18 @@ namespace One.Transforms.InferTypesPlugins
             this.returnTypeInfer = new List<ReturnTypeInferer>();
         }
         
-        public void start() {
+        public void start()
+        {
             this.returnTypeInfer.push(new ReturnTypeInferer(this.errorMan));
         }
         
-        public IType finish(IType declaredType, string errorContext, ClassType asyncType) {
+        public IType finish(IType declaredType, string errorContext, ClassType asyncType)
+        {
             return this.returnTypeInfer.pop().finish(declaredType, errorContext, asyncType);
         }
         
-        public override bool handleStatement(Statement stmt) {
+        public override bool handleStatement(Statement stmt)
+        {
             if (stmt is ReturnStatement retStat && retStat.expression != null) {
                 this.main.processStatement(retStat);
                 if (this.returnTypeInfer.length() != 0)
@@ -106,7 +111,8 @@ namespace One.Transforms.InferTypesPlugins
                 return false;
         }
         
-        public override bool handleLambda(Lambda lambda) {
+        public override bool handleLambda(Lambda lambda)
+        {
             this.start();
             this.main.processLambda(lambda);
             lambda.returns = this.finish(lambda.returns, "Lambda", null);
@@ -114,7 +120,8 @@ namespace One.Transforms.InferTypesPlugins
             return true;
         }
         
-        public override bool handleMethod(IMethodBase method) {
+        public override bool handleMethod(IMethodBase method)
+        {
             if (method is Method meth && meth.body != null) {
                 this.start();
                 this.main.processMethodBase(meth);
@@ -125,7 +132,8 @@ namespace One.Transforms.InferTypesPlugins
                 return false;
         }
         
-        public override bool handleProperty(Property prop) {
+        public override bool handleProperty(Property prop)
+        {
             this.main.processVariable(prop);
             
             if (prop.getter != null) {

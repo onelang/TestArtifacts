@@ -50,6 +50,10 @@ namespace One.Ast
         bool isExported { get; set; }
     }
     
+    public interface IResolvedImportable : IImportable {
+        SourceFile parentFile { get; set; }
+    }
+    
     public interface IMethodBase : IAstNode {
         MethodParameter[] parameters { get; set; }
         Block body { get; set; }
@@ -74,18 +78,21 @@ namespace One.Ast
             this.exports = new Map<string, IImportable>();
         }
         
-        public IImportable getExport(string name) {
+        public IImportable getExport(string name)
+        {
             var exp = this.exports.get(name);
             if (exp == null)
                 throw new Error($"Export {name} was not found in exported symbols.");
             return exp;
         }
         
-        public void addExport(string name, IImportable value) {
+        public void addExport(string name, IImportable value)
+        {
             this.exports.set(name, value);
         }
         
-        public IImportable[] getAllExports() {
+        public IImportable[] getAllExports()
+        {
             return Array.from(this.exports.values());
         }
     }
@@ -105,7 +112,8 @@ namespace One.Ast
             this.exportedScopes = new Dictionary<string, ExportedScope> {};
         }
         
-        public static ExportedScope collectExportsFromFile(SourceFile file, bool exportAll, ExportedScope scope = null) {
+        public static ExportedScope collectExportsFromFile(SourceFile file, bool exportAll, ExportedScope scope = null)
+        {
             if (scope == null)
                 scope = new ExportedScope();
             
@@ -124,7 +132,8 @@ namespace One.Ast
             return scope;
         }
         
-        public void addFile(SourceFile file, bool exportAll = false) {
+        public void addFile(SourceFile file, bool exportAll = false)
+        {
             if (file.sourcePath.pkg != this || file.exportScope.packageName != this.name)
                 throw new Error("This file belongs to another package!");
             
@@ -133,7 +142,8 @@ namespace One.Ast
             this.exportedScopes.set(scopeName, Package.collectExportsFromFile(file, exportAll, this.exportedScopes.get(scopeName)));
         }
         
-        public ExportedScope getExportedScope(string name) {
+        public ExportedScope getExportedScope(string name)
+        {
             var scope = this.exportedScopes.get(name);
             if (scope == null)
                 throw new Error($"Scope \"{name}\" was not found in package \"{this.name}\"");
@@ -149,11 +159,13 @@ namespace One.Ast
             this.packages = new Dictionary<string, Package> {};
         }
         
-        public void addPackage(Package pkg) {
+        public void addPackage(Package pkg)
+        {
             this.packages.set(pkg.name, pkg);
         }
         
-        public Package getPackage(string name) {
+        public Package getPackage(string name)
+        {
             var pkg = this.packages.get(name);
             if (pkg == null)
                 throw new Error($"Package was not found: \"{name}\"");
@@ -171,7 +183,8 @@ namespace One.Ast
             this.path = path;
         }
         
-        public string toString() {
+        public string toString()
+        {
             return $"{this.pkg.name}/{this.path}";
         }
     }
@@ -228,7 +241,8 @@ namespace One.Ast
             this.addAvailableSymbols(fileScope.getAllExports());
         }
         
-        public void addAvailableSymbols(IImportable[] items) {
+        public void addAvailableSymbols(IImportable[] items)
+        {
             foreach (var item in items)
                 this.availableSymbols.set(item.name, item);
         }
@@ -244,7 +258,8 @@ namespace One.Ast
             this.scopeName = scopeName;
         }
         
-        public string getId() {
+        public string getId()
+        {
             return $"{this.packageName}.{this.scopeName}";
         }
     }
@@ -270,7 +285,7 @@ namespace One.Ast
         }
     }
     
-    public class Enum_ : IHasAttributesAndTrivia, IImportable, ISourceFileMember, IReferencable {
+    public class Enum_ : IHasAttributesAndTrivia, IResolvedImportable, ISourceFileMember, IReferencable {
         public string name { get; set; }
         public EnumMember[] values;
         public bool isExported { get; set; }
@@ -290,7 +305,8 @@ namespace One.Ast
             this.type = new EnumType(this);
         }
         
-        public Reference createReference() {
+        public Reference createReference()
+        {
             return new EnumReference(this);
         }
     }
@@ -317,7 +333,7 @@ namespace One.Ast
         }
     }
     
-    public class Interface : IHasAttributesAndTrivia, IInterface, IImportable, ISourceFileMember {
+    public class Interface : IHasAttributesAndTrivia, IInterface, IResolvedImportable, ISourceFileMember {
         public string name { get; set; }
         public string[] typeArguments { get; set; }
         public IType[] baseInterfaces { get; set; }
@@ -343,14 +359,15 @@ namespace One.Ast
             this._baseInterfaceCache = null;
         }
         
-        public IInterface[] getAllBaseInterfaces() {
+        public IInterface[] getAllBaseInterfaces()
+        {
             if (this._baseInterfaceCache == null)
                 this._baseInterfaceCache = AstHelper.collectAllBaseInterfaces(this);
             return this._baseInterfaceCache;
         }
     }
     
-    public class Class : IHasAttributesAndTrivia, IInterface, IImportable, ISourceFileMember, IReferencable {
+    public class Class : IHasAttributesAndTrivia, IInterface, IResolvedImportable, ISourceFileMember, IReferencable {
         public string name { get; set; }
         public string[] typeArguments { get; set; }
         public IType baseClass;
@@ -390,11 +407,13 @@ namespace One.Ast
             this._baseInterfaceCache = null;
         }
         
-        public Reference createReference() {
+        public Reference createReference()
+        {
             return new ClassReference(this);
         }
         
-        public IInterface[] getAllBaseInterfaces() {
+        public IInterface[] getAllBaseInterfaces()
+        {
             if (this._baseInterfaceCache == null)
                 this._baseInterfaceCache = AstHelper.collectAllBaseInterfaces(this);
             return this._baseInterfaceCache;
@@ -481,12 +500,13 @@ namespace One.Ast
             this.references = new List<MethodParameterReference>();
         }
         
-        public Reference createReference() {
+        public Reference createReference()
+        {
             return new MethodParameterReference(this);
         }
     }
     
-    public class Constructor : IMethodBaseWithTrivia, IHasAttributesAndTrivia {
+    public class Constructor : IMethodBaseWithTrivia {
         public MethodParameter[] parameters { get; set; }
         public Block body { get; set; }
         public Expression[] superCallArgs;
@@ -505,7 +525,7 @@ namespace One.Ast
         }
     }
     
-    public class Method : IMethodBaseWithTrivia, IHasAttributesAndTrivia, IClassMember {
+    public class Method : IMethodBaseWithTrivia, IClassMember {
         public string name;
         public string[] typeArguments;
         public MethodParameter[] parameters { get; set; }
@@ -540,13 +560,14 @@ namespace One.Ast
         }
     }
     
-    public class GlobalFunction : IMethodBaseWithTrivia, IImportable, IHasAttributesAndTrivia, IReferencable, IMethodBase {
+    public class GlobalFunction : IMethodBaseWithTrivia, IResolvedImportable, IReferencable {
         public string name { get; set; }
         public MethodParameter[] parameters { get; set; }
         public Block body { get; set; }
         public IType returns;
         public bool isExported { get; set; }
         public string leadingTrivia { get; set; }
+        public SourceFile parentFile { get; set; }
         public Dictionary<string, string> attributes { get; set; }
         public bool throws { get; set; }
         public List<GlobalFunctionReference> references;
@@ -562,7 +583,8 @@ namespace One.Ast
             this.references = new List<GlobalFunctionReference>();
         }
         
-        public Reference createReference() {
+        public Reference createReference()
+        {
             return new GlobalFunctionReference(this);
         }
     }
@@ -572,12 +594,14 @@ namespace One.Ast
         public Block body { get; set; }
         public IType returns;
         public bool throws { get; set; }
+        public List<IVariable> captures;
         
         public Lambda(MethodParameter[] parameters, Block body): base()
         {
             this.parameters = parameters;
             this.body = body;
             this.returns = null;
+            this.captures = null;
         }
     }
 }

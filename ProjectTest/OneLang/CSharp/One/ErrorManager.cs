@@ -35,11 +35,13 @@ namespace One
             this.errors = new List<CompilationError>();
         }
         
-        public void resetContext(AstTransformer transformer = null) {
+        public void resetContext(AstTransformer transformer = null)
+        {
             this.transformer = transformer;
         }
         
-        public void log(LogType type, string msg) {
+        public void log(LogType type, string msg)
+        {
             var t = this.transformer;
             
             var text = (t != null ? $"[{t.name}] " : "") + msg;
@@ -98,15 +100,18 @@ namespace One
                 this.errors.push(new CompilationError(msg, type == LogType.Warning, t != null ? t.name : null, this.currentNode));
         }
         
-        public void info(string msg) {
+        public void info(string msg)
+        {
             this.log(LogType.Info, msg);
         }
         
-        public void warn(string msg) {
+        public void warn(string msg)
+        {
             this.log(LogType.Warning, msg);
         }
         
-        public void throw_(string msg) {
+        public void throw_(string msg)
+        {
             this.log(LogType.Error, msg);
         }
     }

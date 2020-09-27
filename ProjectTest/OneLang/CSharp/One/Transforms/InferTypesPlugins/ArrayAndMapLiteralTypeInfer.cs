@@ -10,7 +10,8 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        protected IType inferArrayOrMapItemType(Expression[] items, IType expectedType, bool isMap) {
+        protected IType inferArrayOrMapItemType(Expression[] items, IType expectedType, bool isMap)
+        {
             var itemTypes = new List<IType>();
             foreach (var item in items) {
                 if (!itemTypes.some(t => TypeHelper.equals(t, item.getType())))
@@ -39,11 +40,13 @@ namespace One.Transforms.InferTypesPlugins
             return itemType;
         }
         
-        public override bool canDetectType(Expression expr) {
+        public override bool canDetectType(Expression expr)
+        {
             return expr is ArrayLiteral arrayLit || expr is MapLiteral;
         }
         
-        public override bool detectType(Expression expr) {
+        public override bool detectType(Expression expr)
+        {
             // make this work: `<{ [name: string]: SomeObject }> {}`
             if (expr.parentNode is CastExpression castExpr)
                 expr.setExpectedType(castExpr.newType);

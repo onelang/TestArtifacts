@@ -9,7 +9,8 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        protected void setupLambdaParameterTypes(Lambda lambda) {
+        protected void setupLambdaParameterTypes(Lambda lambda)
+        {
             if (lambda.expectedType == null)
                 return;
             
@@ -29,19 +30,23 @@ namespace One.Transforms.InferTypesPlugins
                 this.errorMan.throw_("Expected LambdaType as Lambda's type!");
         }
         
-        protected void processReturnExpr(Expression returnExpr) {
+        protected void processReturnExpr(Expression returnExpr)
+        {
             
         }
         
-        protected void visitLambda(Lambda lambda) {
+        protected void visitLambda(Lambda lambda)
+        {
             this.setupLambdaParameterTypes(lambda);
         }
         
-        public override bool canTransform(Expression expr) {
+        public override bool canTransform(Expression expr)
+        {
             return expr is Lambda;
         }
         
-        public override Expression transform(Expression expr) {
+        public override Expression transform(Expression expr)
+        {
             this.visitLambda(((Lambda)expr));
             // does not transform actually
             return null;

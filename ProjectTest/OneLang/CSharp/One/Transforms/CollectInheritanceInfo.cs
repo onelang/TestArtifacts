@@ -12,7 +12,8 @@ namespace One.Transforms
             this.name = "CollectInheritanceInfo";
         }
         
-        public void visitClass(Class cls) {
+        public void visitClass(Class cls)
+        {
             var allBaseIIntfs = cls.getAllBaseInterfaces();
             var intfs = allBaseIIntfs.map(x => x is Interface int_ ? int_ : null).filter(x => x != null);
             var clses = allBaseIIntfs.map(x => x is Class class_ ? class_ : null).filter(x => x != null && x != cls);
@@ -28,7 +29,8 @@ namespace One.Transforms
             }
         }
         
-        public void visitPackage(Package pkg) {
+        public void visitPackage(Package pkg)
+        {
             foreach (var file in Object.values(pkg.files))
                 foreach (var cls in file.classes)
                     this.visitClass(cls);

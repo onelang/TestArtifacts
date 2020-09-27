@@ -15,7 +15,8 @@ namespace One.Ast
     }
     
     public class VariableReference : Reference {
-        public virtual IVariable getVariable() {
+        public virtual IVariable getVariable()
+        {
             throw new Error("Abstract method");
         }
     }
@@ -29,7 +30,8 @@ namespace One.Ast
             decl.classReferences.push(this);
         }
         
-        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false) {
+        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false)
+        {
             throw new Error("ClassReference cannot have a type!");
         }
     }
@@ -43,11 +45,13 @@ namespace One.Ast
             decl.references.push(this);
         }
         
-        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false) {
+        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false)
+        {
             throw new Error("GlobalFunctionReference cannot have a type!");
         }
         
-        public IMethodBase getMethodBase() {
+        public IMethodBase getMethodBase()
+        {
             return this.decl;
         }
     }
@@ -61,11 +65,13 @@ namespace One.Ast
             decl.references.push(this);
         }
         
-        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false) {
+        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false)
+        {
             base.setActualType(type, false, this.decl.parentMethod is Lambda lambd ? lambd.parameters.some(x => TypeHelper.isGeneric(x.type)) : this.decl.parentMethod is Constructor const_ ? const_.parentClass.typeArguments.length() > 0 : this.decl.parentMethod is Method meth ? meth.typeArguments.length() > 0 || meth.parentInterface.typeArguments.length() > 0 : false);
         }
         
-        public override IVariable getVariable() {
+        public override IVariable getVariable()
+        {
             return this.decl;
         }
     }
@@ -79,7 +85,8 @@ namespace One.Ast
             decl.references.push(this);
         }
         
-        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false) {
+        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false)
+        {
             throw new Error("EnumReference cannot have a type!");
         }
     }
@@ -93,7 +100,8 @@ namespace One.Ast
             decl.references.push(this);
         }
         
-        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false) {
+        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false)
+        {
             if (!(type is EnumType))
                 throw new Error("Expected EnumType!");
             base.setActualType(type);
@@ -109,7 +117,8 @@ namespace One.Ast
             cls.staticThisReferences.push(this);
         }
         
-        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false) {
+        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false)
+        {
             throw new Error("StaticThisReference cannot have a type!");
         }
     }
@@ -123,7 +132,8 @@ namespace One.Ast
             cls.thisReferences.push(this);
         }
         
-        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false) {
+        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false)
+        {
             if (!(type is ClassType))
                 throw new Error("Expected ClassType!");
             base.setActualType(type, false, this.cls.typeArguments.length() > 0);
@@ -139,7 +149,8 @@ namespace One.Ast
             cls.superReferences.push(this);
         }
         
-        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false) {
+        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false)
+        {
             if (!(type is ClassType))
                 throw new Error("Expected ClassType!");
             base.setActualType(type, false, this.cls.typeArguments.length() > 0);
@@ -155,7 +166,8 @@ namespace One.Ast
             decl.references.push(this);
         }
         
-        public override IVariable getVariable() {
+        public override IVariable getVariable()
+        {
             return this.decl;
         }
     }
@@ -169,7 +181,8 @@ namespace One.Ast
             decl.references.push(this);
         }
         
-        public override IVariable getVariable() {
+        public override IVariable getVariable()
+        {
             return this.decl;
         }
     }
@@ -183,7 +196,8 @@ namespace One.Ast
             decl.references.push(this);
         }
         
-        public override IVariable getVariable() {
+        public override IVariable getVariable()
+        {
             return this.decl;
         }
     }
@@ -197,7 +211,8 @@ namespace One.Ast
             decl.references.push(this);
         }
         
-        public override IVariable getVariable() {
+        public override IVariable getVariable()
+        {
             return this.decl;
         }
     }
@@ -211,13 +226,15 @@ namespace One.Ast
             decl.staticReferences.push(this);
         }
         
-        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false) {
+        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false)
+        {
             if (TypeHelper.isGeneric(type))
                 throw new Error("StaticField's type cannot be Generic");
             base.setActualType(type);
         }
         
-        public override IVariable getVariable() {
+        public override IVariable getVariable()
+        {
             return this.decl;
         }
     }
@@ -231,13 +248,15 @@ namespace One.Ast
             decl.staticReferences.push(this);
         }
         
-        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false) {
+        public override void setActualType(IType type, bool allowVoid = false, bool allowGeneric = false)
+        {
             if (TypeHelper.isGeneric(type))
                 throw new Error("StaticProperty's type cannot be Generic");
             base.setActualType(type);
         }
         
-        public override IVariable getVariable() {
+        public override IVariable getVariable()
+        {
             return this.decl;
         }
     }
@@ -253,7 +272,8 @@ namespace One.Ast
             field.instanceReferences.push(this);
         }
         
-        public override IVariable getVariable() {
+        public override IVariable getVariable()
+        {
             return this.field;
         }
     }
@@ -269,7 +289,8 @@ namespace One.Ast
             property.instanceReferences.push(this);
         }
         
-        public override IVariable getVariable() {
+        public override IVariable getVariable()
+        {
             return this.property;
         }
     }

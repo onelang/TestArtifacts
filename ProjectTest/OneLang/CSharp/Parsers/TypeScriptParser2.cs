@@ -53,18 +53,21 @@ namespace Parsers
             this.exportScope = this.path != null ? new ExportScopeRef(this.path.pkg.name, this.path.path != null ? this.path.path.replace(new RegExp(".ts$"), "") : null) : null;
         }
         
-        public ExpressionParser createExpressionParser(Reader reader, NodeManager nodeManager = null) {
+        public ExpressionParser createExpressionParser(Reader reader, NodeManager nodeManager = null)
+        {
             var expressionParser = new ExpressionParser(reader, this, nodeManager);
             expressionParser.stringLiteralType = new UnresolvedType("TsString", new IType[0]);
             expressionParser.numericLiteralType = new UnresolvedType("TsNumber", new IType[0]);
             return expressionParser;
         }
         
-        public void errorCallback(ParseError error) {
+        public void errorCallback(ParseError error)
+        {
             throw new Error($"[TypeScriptParser] {error.message} at {error.cursor.line}:{error.cursor.column} (context: {this.context.join("/")})\n{this.reader.linePreview(error.cursor)}");
         }
         
-        public Expression infixPrehook(Expression left) {
+        public Expression infixPrehook(Expression left)
+        {
             if (left is PropertyAccessExpression propAccExpr && this.reader.peekRegex("<[A-Za-z0-9_<>]*?>\\(") != null) {
                 var typeArgs = this.parseTypeArgs();
                 this.reader.expectToken("(");
@@ -82,7 +85,8 @@ namespace Parsers
             return null;
         }
         
-        public MethodParameter[] parseLambdaParams() {
+        public MethodParameter[] parseLambdaParams()
+        {
             if (!this.reader.readToken("("))
                 return null;
             
@@ -98,7 +102,8 @@ namespace Parsers
             return params_.ToArray();
         }
         
-        public IType parseType() {
+        public IType parseType()
+        {
             if (this.reader.readToken("{")) {
                 this.reader.expectToken("[");
                 this.reader.readIdentifier();
@@ -148,11 +153,13 @@ namespace Parsers
             return type;
         }
         
-        public Expression parseExpression() {
+        public Expression parseExpression()
+        {
             return this.expressionParser.parse();
         }
         
-        public Expression unaryPrehook() {
+        public Expression unaryPrehook()
+        {
             if (this.reader.readToken("null"))
                 return new NullLiteral();
             else if (this.reader.readToken("true"))
@@ -285,7 +292,8 @@ namespace Parsers
             return null;
         }
         
-        public Block parseLambdaBlock() {
+        public Block parseLambdaBlock()
+        {
             var block = this.parseBlock();
             if (block != null)
                 return block;
@@ -296,7 +304,8 @@ namespace Parsers
             return new Block(new ReturnStatement[] { new ReturnStatement(returnExpr) });
         }
         
-        public TypeAndInit parseTypeAndInit() {
+        public TypeAndInit parseTypeAndInit()
+        {
             var type = this.reader.readToken(":") ? this.parseType() : null;
             var init = this.reader.readToken("=") ? this.parseExpression() : null;
             
@@ -306,7 +315,8 @@ namespace Parsers
             return new TypeAndInit(type, init);
         }
         
-        public Block expectBlockOrStatement() {
+        public Block expectBlockOrStatement()
+        {
             var block = this.parseBlock();
             if (block != null)
                 return block;
@@ -318,7 +328,8 @@ namespace Parsers
             return new Block(stmts.ToArray());
         }
         
-        public Statement expectStatement() {
+        public Statement expectStatement()
+        {
             Statement statement = null;
             
             var leadingTrivia = this.reader.readLeadingTrivia();
@@ -436,7 +447,8 @@ namespace Parsers
             return statement;
         }
         
-        public Block parseBlock() {
+        public Block parseBlock()
+        {
             if (!this.reader.readToken("{"))
                 return null;
             var startPos = this.reader.prevTokenOffset;
@@ -454,14 +466,16 @@ namespace Parsers
             return block;
         }
         
-        public Block expectBlock(string errorMsg = null) {
+        public Block expectBlock(string errorMsg = null)
+        {
             var block = this.parseBlock();
             if (block == null)
                 this.reader.fail(errorMsg ?? "expected block here");
             return block;
         }
         
-        public IType[] parseTypeArgs() {
+        public IType[] parseTypeArgs()
+        {
             var typeArguments = new List<IType>();
             if (this.reader.readToken("<")) {
                 do {
@@ -473,7 +487,8 @@ namespace Parsers
             return typeArguments.ToArray();
         }
         
-        public string[] parseGenericsArgs() {
+        public string[] parseGenericsArgs()
+        {
             var typeArguments = new List<string>();
             if (this.reader.readToken("<")) {
                 do {
@@ -485,12 +500,14 @@ namespace Parsers
             return typeArguments.ToArray();
         }
         
-        public ExpressionStatement parseExprStmtFromString(string expression) {
+        public ExpressionStatement parseExprStmtFromString(string expression)
+        {
             var expr = this.createExpressionParser(new Reader(expression)).parse();
             return new ExpressionStatement(expr);
         }
         
-        public MethodSignature parseMethodSignature(bool isConstructor, bool declarationOnly) {
+        public MethodSignature parseMethodSignature(bool isConstructor, bool declarationOnly)
+        {
             var params_ = new List<MethodParameter>();
             var fields = new List<Field>();
             if (!this.reader.readToken(")")) {
@@ -540,11 +557,13 @@ namespace Parsers
             return new MethodSignature(params_.ToArray(), fields.ToArray(), body, returns, superCallArgs);
         }
         
-        public string parseIdentifierOrString() {
+        public string parseIdentifierOrString()
+        {
             return this.reader.readString() ?? this.reader.expectIdentifier();
         }
         
-        public Interface parseInterface(string leadingTrivia, bool isExported) {
+        public Interface parseInterface(string leadingTrivia, bool isExported)
+        {
             if (!this.reader.readToken("interface"))
                 return null;
             var intfStart = this.reader.prevTokenOffset;
@@ -601,13 +620,15 @@ namespace Parsers
             return intf;
         }
         
-        public UnresolvedType parseSpecifiedType() {
+        public UnresolvedType parseSpecifiedType()
+        {
             var typeName = this.reader.readIdentifier();
             var typeArgs = this.parseTypeArgs();
             return new UnresolvedType(typeName, typeArgs);
         }
         
-        public Class parseClass(string leadingTrivia, bool isExported, bool declarationOnly) {
+        public Class parseClass(string leadingTrivia, bool isExported, bool declarationOnly)
+        {
             var clsModifiers = this.reader.readModifiers(new string[] { "abstract" });
             if (!this.reader.readToken("class"))
                 return null;
@@ -731,7 +752,8 @@ namespace Parsers
             return cls;
         }
         
-        public Enum_ parseEnum(string leadingTrivia, bool isExported) {
+        public Enum_ parseEnum(string leadingTrivia, bool isExported)
+        {
             if (!this.reader.readToken("enum"))
                 return null;
             var enumStart = this.reader.prevTokenOffset;
@@ -764,7 +786,8 @@ namespace Parsers
             return enumObj;
         }
         
-        public static string calculateRelativePath(string currFile, string relPath) {
+        public static string calculateRelativePath(string currFile, string relPath)
+        {
             if (!relPath.startsWith("."))
                 throw new Error($"relPath must start with '.', but got '{relPath}'");
             
@@ -789,7 +812,8 @@ namespace Parsers
             return curr.join("/");
         }
         
-        public static ExportScopeRef calculateImportScope(ExportScopeRef currScope, string importFile) {
+        public static ExportScopeRef calculateImportScope(ExportScopeRef currScope, string importFile)
+        {
             if (importFile.startsWith("."))
                 // relative
                 return new ExportScopeRef(currScope.packageName, TypeScriptParser2.calculateRelativePath(currScope.scopeName, importFile));
@@ -800,12 +824,14 @@ namespace Parsers
             }
         }
         
-        public string readIdentifier() {
+        public string readIdentifier()
+        {
             var rawId = this.reader.readIdentifier();
             return rawId.replace(new RegExp("_+$"), "");
         }
         
-        public Import[] parseImport(string leadingTrivia) {
+        public Import[] parseImport(string leadingTrivia)
+        {
             if (!this.reader.readToken("import"))
                 return null;
             var importStart = this.reader.prevTokenOffset;
@@ -848,7 +874,8 @@ namespace Parsers
             return imports.ToArray();
         }
         
-        public SourceFile parseSourceFile() {
+        public SourceFile parseSourceFile()
+        {
             var imports = new List<Import>();
             var enums = new List<Enum_>();
             var intfs = new List<Interface>();
@@ -918,11 +945,13 @@ namespace Parsers
             return new SourceFile(imports.ToArray(), intfs.ToArray(), classes.ToArray(), enums.ToArray(), funcs.ToArray(), new Block(stmts.ToArray()), this.path, this.exportScope);
         }
         
-        public SourceFile parse() {
+        public SourceFile parse()
+        {
             return this.parseSourceFile();
         }
         
-        public static SourceFile parseFile(string source, SourcePath path = null) {
+        public static SourceFile parseFile(string source, SourcePath path = null)
+        {
             return new TypeScriptParser2(source, path).parseSourceFile();
         }
     }

@@ -10,16 +10,19 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        public override bool canTransform(Expression expr) {
+        public override bool canTransform(Expression expr)
+        {
             var isSet = expr is BinaryExpression binExpr && binExpr.left is ElementAccessExpression && binExpr.operator_ == "=";
             return expr is ElementAccessExpression || isSet;
         }
         
-        public bool isMapOrArrayType(IType type) {
+        public bool isMapOrArrayType(IType type)
+        {
             return TypeHelper.isAssignableTo(type, this.main.currentFile.literalTypes.map) || this.main.currentFile.arrayTypes.some(x => TypeHelper.isAssignableTo(type, x));
         }
         
-        public override Expression transform(Expression expr) {
+        public override Expression transform(Expression expr)
+        {
             if (expr is BinaryExpression binExpr2 && binExpr2.left is ElementAccessExpression elemAccExpr) {
                 elemAccExpr.object_ = this.main.runPluginsOn(elemAccExpr.object_);
                 if (this.isMapOrArrayType(elemAccExpr.object_.getType()))

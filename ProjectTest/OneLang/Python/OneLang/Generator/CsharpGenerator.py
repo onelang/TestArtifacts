@@ -440,7 +440,7 @@ class CsharpGenerator:
             if isinstance(cls_, types.Class) and method.body == None:
                 continue
             # declaration only
-            methods.append(("" if isinstance(method.parent_interface, types.Interface) else self.vis(method.visibility) + " ") + self.pre_if("static ", method.is_static) + self.pre_if("virtual ", method.overrides == None and len(method.overridden_by) > 0) + self.pre_if("override ", method.overrides != None) + self.pre_if("async ", method.async_) + self.pre_if("/* throws */ ", method.throws) + f'''{self.type(method.returns, False)} ''' + self.name_(method.name) + self.type_args(method.type_arguments) + f'''({", ".join(list(map(lambda p: self.var(p, None), method.parameters)))})''' + (f''' {{\n{self.pad(self.stmts(method.body.statements))}\n}}''' if method.body != None else ";"))
+            methods.append(("" if isinstance(method.parent_interface, types.Interface) else self.vis(method.visibility) + " ") + self.pre_if("static ", method.is_static) + self.pre_if("virtual ", method.overrides == None and len(method.overridden_by) > 0) + self.pre_if("override ", method.overrides != None) + self.pre_if("async ", method.async_) + self.pre_if("/* throws */ ", method.throws) + f'''{self.type(method.returns, False)} ''' + self.name_(method.name) + self.type_args(method.type_arguments) + f'''({", ".join(list(map(lambda p: self.var(p, None), method.parameters)))})''' + (f'''\n{{\n{self.pad(self.stmts(method.body.statements))}\n}}''' if method.body != None else ";"))
         res_list.append("\n\n".join(methods))
         return self.pad("\n\n".join(list(filter(lambda x: x != "", res_list))))
     
@@ -472,11 +472,11 @@ class CsharpGenerator:
         main = f'''public class Program\n{{\n    static void Main(string[] args)\n    {{\n{self.pad(self.raw_block(source_file.main_block))}\n    }}\n}}''' if len(source_file.main_block.statements) > 0 else ""
         
         usings_set = dict.fromkeys(list(filter(lambda x: x != "", list(map(lambda x: self.path_to_ns(x.export_scope.scope_name), source_file.imports)))))
-        for using in self.usings:
+        for using in self.usings.keys():
             usings_set[using] = None
         
         usings = []
-        for using in usings_set:
+        for using in usings_set.keys():
             usings.append(f'''using {using};''')
         
         result = "\n\n".join(list(filter(lambda x: x != "", ["\n".join(enums), "\n\n".join(intfs), "\n\n".join(classes), main])))

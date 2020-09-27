@@ -13,11 +13,13 @@ namespace StdLib
             this.packagesDir = packagesDir;
         }
         
-        public Task<PackageBundle> getPackageBundle(PackageId[] ids, bool cachedOnly) {
+        public Task<PackageBundle> getPackageBundle(PackageId[] ids, bool cachedOnly)
+        {
             throw new Error("Method not implemented.");
         }
         
-        public async Task<PackageBundle> getAllCached() {
+        public async Task<PackageBundle> getAllCached()
+        {
             var packages = new Dictionary<string, PackageContent> {};
             var allFiles = OneFile.listFiles(this.packagesDir, true);
             foreach (var fn in allFiles) {

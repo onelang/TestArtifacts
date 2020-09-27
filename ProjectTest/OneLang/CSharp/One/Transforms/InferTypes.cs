@@ -32,37 +32,45 @@ namespace One.Transforms
             this.addPlugin(new ResolveElementAccess());
         }
         
-        public void processLambda(Lambda lambda) {
+        public void processLambda(Lambda lambda)
+        {
             base.visitLambda(lambda);
         }
         
-        public void processMethodBase(IMethodBase method) {
+        public void processMethodBase(IMethodBase method)
+        {
             base.visitMethodBase(method);
         }
         
-        public void processBlock(Block block) {
+        public void processBlock(Block block)
+        {
             base.visitBlock(block);
         }
         
-        public void processVariable(IVariable variable) {
+        public void processVariable(IVariable variable)
+        {
             base.visitVariable(variable);
         }
         
-        public void processStatement(Statement stmt) {
+        public void processStatement(Statement stmt)
+        {
             base.visitStatement(stmt);
         }
         
-        public void processExpression(Expression expr) {
+        public void processExpression(Expression expr)
+        {
             base.visitExpression(expr);
         }
         
-        public void addPlugin(InferTypesPlugin plugin) {
+        public void addPlugin(InferTypesPlugin plugin)
+        {
             plugin.main = this;
             plugin.errorMan = this.errorMan;
             this.plugins.push(plugin);
         }
         
-        protected override IVariableWithInitializer visitVariableWithInitializer(IVariableWithInitializer variable) {
+        protected override IVariableWithInitializer visitVariableWithInitializer(IVariableWithInitializer variable)
+        {
             if (variable.type != null && variable.initializer != null)
                 variable.initializer.setExpectedType(variable.type);
             
@@ -74,7 +82,8 @@ namespace One.Transforms
             return null;
         }
         
-        protected Expression runTransformRound(Expression expr) {
+        protected Expression runTransformRound(Expression expr)
+        {
             if (expr.actualType != null)
                 return null;
             
@@ -102,7 +111,8 @@ namespace One.Transforms
             }
         }
         
-        protected bool detectType(Expression expr) {
+        protected bool detectType(Expression expr)
+        {
             foreach (var plugin in this.plugins) {
                 if (!plugin.canDetectType(expr))
                     continue;
@@ -119,7 +129,8 @@ namespace One.Transforms
             return false;
         }
         
-        protected override Expression visitExpression(Expression expr) {
+        protected override Expression visitExpression(Expression expr)
+        {
             Expression transformedExpr = null;
             while (true) {
                 var newExpr = this.runTransformRound(transformedExpr ?? expr);
@@ -145,7 +156,8 @@ namespace One.Transforms
             return expr2;
         }
         
-        protected override Statement visitStatement(Statement stmt) {
+        protected override Statement visitStatement(Statement stmt)
+        {
             this.currentStatement = stmt;
             
             foreach (var plugin in this.plugins) {
@@ -156,13 +168,15 @@ namespace One.Transforms
             return base.visitStatement(stmt);
         }
         
-        protected override void visitField(Field field) {
+        protected override void visitField(Field field)
+        {
             if (this.stage != InferTypesStage.Fields)
                 return;
             base.visitField(field);
         }
         
-        protected override void visitProperty(Property prop) {
+        protected override void visitProperty(Property prop)
+        {
             if (this.stage != InferTypesStage.Properties)
                 return;
             
@@ -174,7 +188,8 @@ namespace One.Transforms
             base.visitProperty(prop);
         }
         
-        protected override void visitMethodBase(IMethodBase method) {
+        protected override void visitMethodBase(IMethodBase method)
+        {
             if (this.stage != InferTypesStage.Methods)
                 return;
             
@@ -186,7 +201,8 @@ namespace One.Transforms
             base.visitMethodBase(method);
         }
         
-        protected override Lambda visitLambda(Lambda lambda) {
+        protected override Lambda visitLambda(Lambda lambda)
+        {
             if (lambda.actualType != null)
                 return null;
             
@@ -198,17 +214,20 @@ namespace One.Transforms
             return base.visitLambda(lambda);
         }
         
-        public Expression runPluginsOn(Expression expr) {
+        public Expression runPluginsOn(Expression expr)
+        {
             return this.visitExpression(expr);
         }
         
-        protected override void visitClass(Class cls) {
+        protected override void visitClass(Class cls)
+        {
             if (cls.attributes.get("external") == "true")
                 return;
             base.visitClass(cls);
         }
         
-        public override void visitPackage(Package pkg) {
+        public override void visitPackage(Package pkg)
+        {
             foreach (var stage in new List<InferTypesStage> { InferTypesStage.Fields, InferTypesStage.Properties, InferTypesStage.Methods }) {
                 this.stage = stage;
                 base.visitPackage(pkg);

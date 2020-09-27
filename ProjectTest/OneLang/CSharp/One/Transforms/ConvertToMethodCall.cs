@@ -9,7 +9,8 @@ namespace One.Transforms
             
         }
         
-        protected override Expression visitExpression(Expression expr) {
+        protected override Expression visitExpression(Expression expr)
+        {
             var origExpr = expr;
             
             expr = base.visitExpression(expr) ?? expr;

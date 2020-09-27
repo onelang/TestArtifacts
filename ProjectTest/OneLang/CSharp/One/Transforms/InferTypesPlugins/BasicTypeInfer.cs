@@ -10,11 +10,13 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        public override bool canDetectType(Expression expr) {
+        public override bool canDetectType(Expression expr)
+        {
             return true;
         }
         
-        public override bool detectType(Expression expr) {
+        public override bool detectType(Expression expr)
+        {
             var litTypes = this.main.currentFile.literalTypes;
             
             if (expr is CastExpression castExpr)

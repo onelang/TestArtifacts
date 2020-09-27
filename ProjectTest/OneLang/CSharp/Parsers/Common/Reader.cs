@@ -87,12 +87,14 @@ namespace Parsers.Common
             this.cursorSearch = new CursorPositionSearch(input);
         }
         
-        public string linePreview(Cursor cursor) {
+        public string linePreview(Cursor cursor)
+        {
             var line = this.input.substring(cursor.lineStart, cursor.lineEnd - 1);
             return $"{line}\n{" ".repeat(cursor.column - 1)}^^^";
         }
         
-        public void fail(string message, int offset = -1) {
+        public void fail(string message, int offset = -1)
+        {
             var error = new ParseError(message, this.cursorSearch.getCursorForOffset(offset == -1 ? this.offset : offset), this);
             this.errors.push(error);
             
@@ -102,7 +104,8 @@ namespace Parsers.Common
                 throw new Error($"{message} at {error.cursor.line}:{error.cursor.column}\n{this.linePreview(error.cursor)}");
         }
         
-        public void skipWhitespace(bool includeInTrivia = false) {
+        public void skipWhitespace(bool includeInTrivia = false)
+        {
             for (; this.offset < this.input.length(); this.offset++) {
                 var c = this.input.get(this.offset);
                 
@@ -117,7 +120,8 @@ namespace Parsers.Common
                 this.wsOffset = this.offset;
         }
         
-        public bool skipUntil(string token) {
+        public bool skipUntil(string token)
+        {
             var index = this.input.indexOf(token, this.offset);
             if (index == -1)
                 return false;
@@ -127,17 +131,20 @@ namespace Parsers.Common
             return true;
         }
         
-        public void skipLine() {
+        public void skipLine()
+        {
             if (!this.skipUntil("\n"))
                 this.offset = this.input.length();
         }
         
-        public bool isAlphaNum(string c) {
+        public bool isAlphaNum(string c)
+        {
             var n = c.charCodeAt(0);
             return (97 <= n && n <= 122) || (65 <= n && n <= 90) || (48 <= n && n <= 57) || n == 95;
         }
         
-        public bool readExactly(string what) {
+        public bool readExactly(string what)
+        {
             if (this.input.startsWith(what, this.offset)) {
                 this.wsOffset = this.offset = this.offset + what.length();
                 return true;
@@ -145,13 +152,15 @@ namespace Parsers.Common
             return false;
         }
         
-        public string readChar() {
+        public string readChar()
+        {
             // TODO: should we move wsOffset?
             this.offset++;
             return this.input.get(this.offset - 1);
         }
         
-        public bool peekToken(string token) {
+        public bool peekToken(string token)
+        {
             this.skipWhitespaceAndComment();
             
             if (this.input.startsWith(token, this.offset)) {
@@ -164,7 +173,8 @@ namespace Parsers.Common
                 return false;
         }
         
-        public bool readToken(string token) {
+        public bool readToken(string token)
+        {
             if (this.peekToken(token)) {
                 this.prevTokenOffset = this.offset;
                 this.wsOffset = this.offset = this.offset + token.length();
@@ -173,7 +183,8 @@ namespace Parsers.Common
             return false;
         }
         
-        public string readAnyOf(string[] tokens) {
+        public string readAnyOf(string[] tokens)
+        {
             foreach (var token in tokens) {
                 if (this.readToken(token))
                     return token;
@@ -181,26 +192,30 @@ namespace Parsers.Common
             return null;
         }
         
-        public void expectToken(string token, string errorMsg = null) {
+        public void expectToken(string token, string errorMsg = null)
+        {
             if (!this.readToken(token))
                 this.fail(errorMsg ?? $"expected token '{token}'");
         }
         
-        public string expectString(string errorMsg = null) {
+        public string expectString(string errorMsg = null)
+        {
             var result = this.readString();
             if (result == null)
                 this.fail(errorMsg ?? $"expected string");
             return result;
         }
         
-        public string expectOneOf(string[] tokens) {
+        public string expectOneOf(string[] tokens)
+        {
             var result = this.readAnyOf(tokens);
             if (result == null)
                 this.fail($"expected one of the following tokens: {tokens.join(", ")}");
             return result;
         }
         
-        public static string[] matchFromIndex(string pattern, string input, int offset) {
+        public static string[] matchFromIndex(string pattern, string input, int offset)
+        {
             var regex = new RegExp(pattern, "gy");
             regex.lastIndex = offset;
             var matches = regex.exec(input);
@@ -214,12 +229,14 @@ namespace Parsers.Common
             }
         }
         
-        public string[] peekRegex(string pattern) {
+        public string[] peekRegex(string pattern)
+        {
             var matches = Reader.matchFromIndex(pattern, this.input, this.offset);
             return matches;
         }
         
-        public string[] readRegex(string pattern) {
+        public string[] readRegex(string pattern)
+        {
             var matches = Reader.matchFromIndex(pattern, this.input, this.offset);
             if (matches != null) {
                 this.prevTokenOffset = this.offset;
@@ -228,7 +245,8 @@ namespace Parsers.Common
             return matches;
         }
         
-        public void skipWhitespaceAndComment() {
+        public void skipWhitespaceAndComment()
+        {
             if (this.commentDisabled)
                 return;
             
@@ -247,7 +265,8 @@ namespace Parsers.Common
             this.moveWsOffset = true;
         }
         
-        public string readLeadingTrivia() {
+        public string readLeadingTrivia()
+        {
             this.skipWhitespaceAndComment();
             var thisLineStart = this.input.lastIndexOf("\n", this.offset);
             if (thisLineStart <= this.wsOffset)
@@ -259,7 +278,8 @@ namespace Parsers.Common
             return result;
         }
         
-        public string readIdentifier() {
+        public string readIdentifier()
+        {
             this.skipWhitespace();
             var idMatch = this.readRegex(this.identifierRegex);
             if (idMatch == null)
@@ -268,7 +288,8 @@ namespace Parsers.Common
             return idMatch.get(0);
         }
         
-        public string readNumber() {
+        public string readNumber()
+        {
             this.skipWhitespace();
             var numMatch = this.readRegex(this.numberRegex);
             if (numMatch == null)
@@ -280,7 +301,8 @@ namespace Parsers.Common
             return numMatch.get(0);
         }
         
-        public string readString() {
+        public string readString()
+        {
             this.skipWhitespace();
             
             var sepChar = this.input.get(this.offset);
@@ -316,14 +338,16 @@ namespace Parsers.Common
             return str;
         }
         
-        public string expectIdentifier(string errorMsg = null) {
+        public string expectIdentifier(string errorMsg = null)
+        {
             var id = this.readIdentifier();
             if (id == null)
                 this.fail(errorMsg ?? "expected identifier");
             return id;
         }
         
-        public string[] readModifiers(string[] modifiers) {
+        public string[] readModifiers(string[] modifiers)
+        {
             var result = new List<string>();
             while (true) {
                 var success = false;
@@ -355,7 +379,8 @@ namespace Parsers.Common
             this.lineOffsets.push(input.length());
         }
         
-        public int getLineIdxForOffset(int offset) {
+        public int getLineIdxForOffset(int offset)
+        {
             var low = 0;
             var high = this.lineOffsets.length() - 1;
             
@@ -373,7 +398,8 @@ namespace Parsers.Common
             return low - 1;
         }
         
-        public Cursor getCursorForOffset(int offset) {
+        public Cursor getCursorForOffset(int offset)
+        {
             var lineIdx = this.getLineIdxForOffset(offset);
             var lineStart = this.lineOffsets.get(lineIdx);
             var lineEnd = this.lineOffsets.get(lineIdx + 1);

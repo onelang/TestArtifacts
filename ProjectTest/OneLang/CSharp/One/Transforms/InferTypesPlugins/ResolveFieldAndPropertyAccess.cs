@@ -9,7 +9,8 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        protected Reference getStaticRef(Class cls, string memberName) {
+        protected Reference getStaticRef(Class cls, string memberName)
+        {
             var field = cls.fields.find(x => x.name == memberName);
             if (field != null && field.isStatic)
                 return new StaticFieldReference(field);
@@ -22,7 +23,8 @@ namespace One.Transforms.InferTypesPlugins
             return null;
         }
         
-        protected Reference getInstanceRef(Class cls, string memberName, Expression obj) {
+        protected Reference getInstanceRef(Class cls, string memberName, Expression obj)
+        {
             while (true) {
                 var field = cls.fields.find(x => x.name == memberName);
                 if (field != null && !field.isStatic)
@@ -42,7 +44,8 @@ namespace One.Transforms.InferTypesPlugins
             return null;
         }
         
-        protected Reference getInterfaceRef(Interface intf, string memberName, Expression obj) {
+        protected Reference getInterfaceRef(Interface intf, string memberName, Expression obj)
+        {
             var field = intf.fields.find(x => x.name == memberName);
             if (field != null && !field.isStatic)
                 return new InstanceFieldReference(obj, field);
@@ -55,7 +58,8 @@ namespace One.Transforms.InferTypesPlugins
             return null;
         }
         
-        protected Expression transformPA(PropertyAccessExpression expr) {
+        protected Expression transformPA(PropertyAccessExpression expr)
+        {
             if (expr.object_ is ClassReference classRef)
                 return this.getStaticRef(classRef.decl, expr.propertyName);
             
@@ -87,19 +91,23 @@ namespace One.Transforms.InferTypesPlugins
             return expr;
         }
         
-        public override bool canTransform(Expression expr) {
+        public override bool canTransform(Expression expr)
+        {
             return expr is PropertyAccessExpression propAccExpr && !(propAccExpr.object_ is EnumReference) && !(propAccExpr.parentNode is UnresolvedCallExpression unrCallExpr && unrCallExpr.func == propAccExpr) && !(propAccExpr.actualType is AnyType);
         }
         
-        public override Expression transform(Expression expr) {
+        public override Expression transform(Expression expr)
+        {
             return this.transformPA(((PropertyAccessExpression)expr));
         }
         
-        public override bool canDetectType(Expression expr) {
+        public override bool canDetectType(Expression expr)
+        {
             return expr is InstanceFieldReference instFieldRef || expr is InstancePropertyReference || expr is StaticFieldReference || expr is StaticPropertyReference;
         }
         
-        public override bool detectType(Expression expr) {
+        public override bool detectType(Expression expr)
+        {
             if (expr is InstanceFieldReference instFieldRef2) {
                 var actualType = GenericsResolver.fromObject(instFieldRef2.object_).resolveType(instFieldRef2.field.type, true);
                 instFieldRef2.setActualType(actualType, false, TypeHelper.isGeneric(instFieldRef2.object_.actualType));

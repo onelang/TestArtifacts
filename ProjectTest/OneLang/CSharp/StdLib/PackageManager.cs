@@ -81,7 +81,8 @@ namespace StdLib
             this.dependencies = dependencies;
         }
         
-        public static InterfaceYaml fromYaml(YamlValue obj) {
+        public static InterfaceYaml fromYaml(YamlValue obj)
+        {
             return new InterfaceYaml(obj.dbl("file-version"), obj.str("vendor"), obj.str("name"), obj.dbl("version"), obj.str("definition-file"), obj.arr("dependencies").map(dep => new InterfaceDependency(dep.str("name"), dep.dbl("minver"))));
         }
     }
@@ -147,7 +148,8 @@ namespace StdLib
             this.implements_ = implements_;
         }
         
-        public static ImplPackageYaml fromYaml(YamlValue obj) {
+        public static ImplPackageYaml fromYaml(YamlValue obj)
+        {
             return new ImplPackageYaml(obj.dbl("file-version"), obj.str("vendor"), obj.str("name"), obj.str("description"), obj.str("version"), obj.strArr("includes"), obj.arr("implements").map(impl => new ImplPkgImplementation(new ImplPkgImplIntf(impl.obj("interface").str("name"), impl.obj("interface").dbl("minver"), impl.obj("interface").dbl("maxver")), impl.str("language"), impl.strArr("native-includes"), impl.str("native-include-dir"))));
         }
     }
@@ -185,7 +187,8 @@ namespace StdLib
             this.implementationPkgs = new List<ImplementationPackage>();
         }
         
-        public async Task loadAllCached() {
+        public async Task loadAllCached()
+        {
             var allPackages = await this.source.getAllCached();
             
             foreach (var content in allPackages.packages.filter(x => x.id.type == PackageType.Interface))
@@ -195,7 +198,8 @@ namespace StdLib
                 this.implementationPkgs.push(new ImplementationPackage(content));
         }
         
-        public ImplPkgImplementation[] getLangImpls(string langName) {
+        public ImplPkgImplementation[] getLangImpls(string langName)
+        {
             var allImpls = new List<ImplPkgImplementation>();
             foreach (var pkg in this.implementationPkgs)
                 foreach (var impl in pkg.implementations)
@@ -203,11 +207,13 @@ namespace StdLib
             return allImpls.filter(x => x.language == langName);
         }
         
-        public string getInterfaceDefinitions() {
+        public string getInterfaceDefinitions()
+        {
             return this.interfacesPkgs.map(x => x.definition).join("\n");
         }
         
-        public PackageNativeImpl[] getLangNativeImpls(string langName) {
+        public PackageNativeImpl[] getLangNativeImpls(string langName)
+        {
             var result = new List<PackageNativeImpl>();
             foreach (var pkg in this.implementationPkgs)
                 foreach (var pkgImpl in pkg.implementations.filter(x => x.language == langName)) {

@@ -9,7 +9,8 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        public override bool handleStatement(Statement stmt) {
+        public override bool handleStatement(Statement stmt)
+        {
             if (stmt is ForeachStatement forStat) {
                 forStat.items = this.main.runPluginsOn(forStat.items) ?? forStat.items;
                 var arrayType = forStat.items.getType();

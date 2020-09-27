@@ -9,11 +9,13 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        public override bool canTransform(Expression expr) {
+        public override bool canTransform(Expression expr)
+        {
             return expr is BinaryExpression binExpr && binExpr.operator_ == "||";
         }
         
-        public override Expression transform(Expression expr) {
+        public override Expression transform(Expression expr)
+        {
             if (expr is BinaryExpression binExpr2 && binExpr2.operator_ == "||") {
                 var litTypes = this.main.currentFile.literalTypes;
                 

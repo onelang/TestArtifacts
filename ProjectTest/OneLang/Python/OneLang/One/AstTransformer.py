@@ -209,8 +209,10 @@ class AstTransformer:
         elif isinstance(expr, refs.SuperReference):
             pass
         elif isinstance(expr, refs.InstanceFieldReference):
+            expr.object = self.visit_expression(expr.object) or expr.object
             return self.visit_variable_reference(expr)
         elif isinstance(expr, refs.InstancePropertyReference):
+            expr.object = self.visit_expression(expr.object) or expr.object
             return self.visit_variable_reference(expr)
         elif isinstance(expr, refs.StaticFieldReference):
             return self.visit_variable_reference(expr)

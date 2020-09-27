@@ -73,7 +73,8 @@ namespace Parsers.Common
             this.reconfigure();
         }
         
-        public static ExpressionParserConfig defaultConfig() {
+        public static ExpressionParserConfig defaultConfig()
+        {
             var config = new ExpressionParserConfig();
             config.unary = new string[] { "++", "--", "!", "not", "+", "-", "~" };
             config.precedenceLevels = new PrecedenceLevel[] { new PrecedenceLevel("assignment", new string[] { "=", "+=", "-=", "*=", "/=", "<<=", ">>=" }, true), new PrecedenceLevel("conditional", new string[] { "?" }, false), new PrecedenceLevel("or", new string[] { "||", "or" }, true), new PrecedenceLevel("and", new string[] { "&&", "and" }, true), new PrecedenceLevel("comparison", new string[] { ">=", "!=", "===", "!==", "==", "<=", ">", "<" }, true), new PrecedenceLevel("sum", new string[] { "+", "-" }, true), new PrecedenceLevel("product", new string[] { "*", "/", "%" }, true), new PrecedenceLevel("bitwise", new string[] { "|", "&", "^" }, true), new PrecedenceLevel("exponent", new string[] { "**" }, true), new PrecedenceLevel("shift", new string[] { "<<", ">>" }, true), new PrecedenceLevel("range", new string[] { "..." }, true), new PrecedenceLevel("in", new string[] { "in" }, true), new PrecedenceLevel("prefix", new string[0], false), new PrecedenceLevel("postfix", new string[] { "++", "--" }, false), new PrecedenceLevel("call", new string[] { "(" }, false), new PrecedenceLevel("propertyAccess", new string[0], false), new PrecedenceLevel("elementAccess", new string[] { "[" }, false) };
@@ -89,7 +90,8 @@ namespace Parsers.Common
             return config;
         }
         
-        public void reconfigure() {
+        public void reconfigure()
+        {
             this.config.precedenceLevels.find(x => x.name == "propertyAccess").operators = this.config.propertyAccessOps;
             
             this.operatorMap = new Dictionary<string, Operator> {};
@@ -113,7 +115,8 @@ namespace Parsers.Common
             this.operators = ArrayHelper.sortBy(Object.keys(this.operatorMap), x => -x.length());
         }
         
-        public MapLiteral parseMapLiteral(string keySeparator = ":", string startToken = "{", string endToken = "}") {
+        public MapLiteral parseMapLiteral(string keySeparator = ":", string startToken = "{", string endToken = "}")
+        {
             if (!this.reader.readToken(startToken))
                 return null;
             
@@ -135,7 +138,8 @@ namespace Parsers.Common
             return new MapLiteral(items.ToArray());
         }
         
-        public ArrayLiteral parseArrayLiteral(string startToken = "[", string endToken = "]") {
+        public ArrayLiteral parseArrayLiteral(string startToken = "[", string endToken = "]")
+        {
             if (!this.reader.readToken(startToken))
                 return null;
             
@@ -151,7 +155,8 @@ namespace Parsers.Common
             return new ArrayLiteral(items.ToArray());
         }
         
-        public Expression parseLeft(bool required = true) {
+        public Expression parseLeft(bool required = true)
+        {
             var result = this.hooks != null ? this.hooks.unaryPrehook() : null;
             if (result != null)
                 return result;
@@ -186,7 +191,8 @@ namespace Parsers.Common
             return null;
         }
         
-        public Operator parseOperator() {
+        public Operator parseOperator()
+        {
             foreach (var opText in this.operators) {
                 if (this.reader.peekToken(opText))
                     return this.operatorMap.get(opText);
@@ -195,7 +201,8 @@ namespace Parsers.Common
             return null;
         }
         
-        public Expression[] parseCallArguments() {
+        public Expression[] parseCallArguments()
+        {
             var args = new List<Expression>();
             
             if (!this.reader.readToken(")")) {
@@ -210,12 +217,14 @@ namespace Parsers.Common
             return args.ToArray();
         }
         
-        public void addNode(object node, int start) {
+        public void addNode(object node, int start)
+        {
             if (this.nodeManager != null)
                 this.nodeManager.addNode(node, start);
         }
         
-        public Expression parse(int precedence = 0, bool required = true) {
+        public Expression parse(int precedence = 0, bool required = true)
+        {
             this.reader.skipWhitespace();
             var leftStart = this.reader.offset;
             var left = this.parseLeft(required);

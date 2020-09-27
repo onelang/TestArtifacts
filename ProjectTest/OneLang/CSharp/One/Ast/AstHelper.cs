@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace One.Ast
 {
     public class AstHelper {
-        public static IInterface[] collectAllBaseInterfaces(IInterface intf) {
+        public static IInterface[] collectAllBaseInterfaces(IInterface intf)
+        {
             var result = new Set<IInterface>();
             var toBeProcessed = new List<IInterface> { intf };
             

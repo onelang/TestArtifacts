@@ -16,7 +16,8 @@ namespace Test
                 this.overviews.set(file.sourcePath.path, TSOverviewGenerator.generate(file));
         }
         
-        public string getSummary() {
+        public string getSummary()
+        {
             return Object.keys(this.overviews).map(file => $"=== {file} ===\n\n{this.overviews.get(file)}").join("\n\n");
         }
     }

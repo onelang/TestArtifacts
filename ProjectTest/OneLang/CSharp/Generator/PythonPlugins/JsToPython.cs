@@ -13,7 +13,8 @@ namespace Generator.PythonPlugins
             this.unhandledMethods = new Set<string>();
         }
         
-        public string convertMethod(Class cls, Expression obj, Method method, Expression[] args) {
+        public string convertMethod(Class cls, Expression obj, Method method, Expression[] args)
+        {
             if (cls.name == "TsArray") {
                 var objR = this.main.expr(obj);
                 var argsR = args.map(x => this.main.expr(x));
@@ -136,14 +137,15 @@ namespace Generator.PythonPlugins
             
             var methodName = $"{cls.name}.{method.name}";
             if (!this.unhandledMethods.has(methodName)) {
-                console.error($"Method was not handled: {cls.name}.{method.name}");
+                console.error($"[JsToPython] Method was not handled: {cls.name}.{method.name}");
                 this.unhandledMethods.add(methodName);
             }
             //debugger;
             return null;
         }
         
-        public string expr(IExpression expr) {
+        public string expr(IExpression expr)
+        {
             if (expr is InstanceMethodCallExpression instMethCallExpr && instMethCallExpr.object_.actualType is ClassType classType)
                 return this.convertMethod(classType.decl, instMethCallExpr.object_, instMethCallExpr.method, instMethCallExpr.args);
             else if (expr is InstancePropertyReference instPropRef && instPropRef.object_.actualType is ClassType) {
@@ -161,7 +163,8 @@ namespace Generator.PythonPlugins
             return null;
         }
         
-        public string stmt(Statement stmt) {
+        public string stmt(Statement stmt)
+        {
             return null;
         }
     }

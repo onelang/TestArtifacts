@@ -17,11 +17,13 @@ namespace One.Ast
     }
     
     public class TypeHelper {
-        public static string argsRepr(IType[] args) {
+        public static string argsRepr(IType[] args)
+        {
             return args.length() == 0 ? "" : $"<{args.map(x => x.repr()).join(", ")}>";
         }
         
-        public static bool isGeneric(IType type) {
+        public static bool isGeneric(IType type)
+        {
             if (type is GenericsType)
                 return true;
             else if (type is ClassType classType)
@@ -34,7 +36,8 @@ namespace One.Ast
                 return false;
         }
         
-        public static bool equals(IType type1, IType type2) {
+        public static bool equals(IType type1, IType type2)
+        {
             if (type1 == null || type2 == null)
                 throw new Error("Type is missing!");
             if (type1 is VoidType && type2 is VoidType)
@@ -54,7 +57,8 @@ namespace One.Ast
             return false;
         }
         
-        public static bool isAssignableTo(IType toBeAssigned, IType whereTo) {
+        public static bool isAssignableTo(IType toBeAssigned, IType whereTo)
+        {
             // AnyType can assigned to any type except to void
             if (toBeAssigned is AnyType && !(whereTo is VoidType))
                 return true;
@@ -93,7 +97,8 @@ namespace One.Ast
             VoidType.instance = new VoidType();
         }
         
-        public string repr() {
+        public string repr()
+        {
             return "Void";
         }
     }
@@ -106,7 +111,8 @@ namespace One.Ast
             AnyType.instance = new AnyType();
         }
         
-        public string repr() {
+        public string repr()
+        {
             return "Any";
         }
     }
@@ -119,7 +125,8 @@ namespace One.Ast
             NullType.instance = new NullType();
         }
         
-        public string repr() {
+        public string repr()
+        {
             return "Null";
         }
     }
@@ -132,7 +139,8 @@ namespace One.Ast
             this.typeVarName = typeVarName;
         }
         
-        public string repr() {
+        public string repr()
+        {
             return $"G:{this.typeVarName}";
         }
     }
@@ -145,7 +153,8 @@ namespace One.Ast
             this.decl = decl;
         }
         
-        public string repr() {
+        public string repr()
+        {
             return $"E:{this.decl.name}";
         }
     }
@@ -160,11 +169,13 @@ namespace One.Ast
             this.typeArguments = typeArguments;
         }
         
-        public IInterface getDecl() {
+        public IInterface getDecl()
+        {
             return this.decl;
         }
         
-        public string repr() {
+        public string repr()
+        {
             return $"I:{this.decl.name}{TypeHelper.argsRepr(this.typeArguments)}";
         }
     }
@@ -179,11 +190,13 @@ namespace One.Ast
             this.typeArguments = typeArguments;
         }
         
-        public IInterface getDecl() {
+        public IInterface getDecl()
+        {
             return this.decl;
         }
         
-        public string repr() {
+        public string repr()
+        {
             return $"C:{this.decl.name}{TypeHelper.argsRepr(this.typeArguments)}";
         }
     }
@@ -198,7 +211,8 @@ namespace One.Ast
             this.typeArguments = typeArguments;
         }
         
-        public string repr() {
+        public string repr()
+        {
             return $"X:{this.typeName}{TypeHelper.argsRepr(this.typeArguments)}";
         }
     }
@@ -213,7 +227,8 @@ namespace One.Ast
             this.returnType = returnType;
         }
         
-        public string repr() {
+        public string repr()
+        {
             return $"L:({this.parameters.map(x => x.type.repr()).join(", ")})=>{this.returnType.repr()}";
         }
     }

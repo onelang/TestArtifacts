@@ -19,15 +19,18 @@ namespace Generator
             this.instanceOfIds = new Dictionary<string, int> {};
         }
         
-        public string getLangName() {
+        public string getLangName()
+        {
             return "CSharp";
         }
         
-        public string getExtension() {
+        public string getExtension()
+        {
             return "cs";
         }
         
-        public string name_(string name) {
+        public string name_(string name)
+        {
             if (this.reservedWords.includes(name))
                 name += "_";
             if (this.fieldToMethodHack.includes(name))
@@ -39,7 +42,8 @@ namespace Generator
             return name;
         }
         
-        public string leading(Statement item) {
+        public string leading(Statement item)
+        {
             var result = "";
             if (item.leadingTrivia != null && item.leadingTrivia.length() > 0)
                 result += item.leadingTrivia;
@@ -48,27 +52,33 @@ namespace Generator
             return result;
         }
         
-        public string preArr(string prefix, string[] value) {
+        public string preArr(string prefix, string[] value)
+        {
             return value.length() > 0 ? $"{prefix}{value.join(", ")}" : "";
         }
         
-        public string preIf(string prefix, bool condition) {
+        public string preIf(string prefix, bool condition)
+        {
             return condition ? prefix : "";
         }
         
-        public string pre(string prefix, string value) {
+        public string pre(string prefix, string value)
+        {
             return value != null ? $"{prefix}{value}" : "";
         }
         
-        public string typeArgs(string[] args) {
+        public string typeArgs(string[] args)
+        {
             return args != null && args.length() > 0 ? $"<{args.join(", ")}>" : "";
         }
         
-        public string typeArgs2(IType[] args) {
+        public string typeArgs2(IType[] args)
+        {
             return this.typeArgs(args.map(x => this.type(x)));
         }
         
-        public string type(IType t, bool mutates = true) {
+        public string type(IType t, bool mutates = true)
+        {
             if (t is ClassType classType) {
                 var typeArgs = this.typeArgs(classType.typeArguments.map(x => this.type(x)));
                 if (classType.decl.name == "TsString")
@@ -125,15 +135,18 @@ namespace Generator
                 return "/* MISSING */";
         }
         
-        public bool isTsArray(IType type) {
+        public bool isTsArray(IType type)
+        {
             return type is ClassType classType2 && classType2.decl.name == "TsArray";
         }
         
-        public string vis(Visibility v) {
+        public string vis(Visibility v)
+        {
             return v == Visibility.Private ? "private" : v == Visibility.Protected ? "protected" : v == Visibility.Public ? "public" : "/* TODO: not set */public";
         }
         
-        public string varWoInit(IVariable v, IHasAttributesAndTrivia attr) {
+        public string varWoInit(IVariable v, IHasAttributesAndTrivia attr)
+        {
             string type;
             if (attr != null && attr.attributes != null && attr.attributes.hasKey("csharp-type"))
                 type = attr.attributes.get("csharp-type");
@@ -150,15 +163,18 @@ namespace Generator
             return $"{type} {this.name_(v.name)}";
         }
         
-        public string var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs) {
+        public string var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs)
+        {
             return this.varWoInit(v, attrs) + (v.initializer != null ? $" = {this.expr(v.initializer)}" : "");
         }
         
-        public string exprCall(IType[] typeArgs, Expression[] args) {
+        public string exprCall(IType[] typeArgs, Expression[] args)
+        {
             return this.typeArgs2(typeArgs) + $"({args.map(x => this.expr(x)).join(", ")})";
         }
         
-        public string mutateArg(Expression arg, bool shouldBeMutable) {
+        public string mutateArg(Expression arg, bool shouldBeMutable)
+        {
             if (this.isTsArray(arg.actualType)) {
                 if (arg is ArrayLiteral arrayLit && !shouldBeMutable) {
                     var itemType = (((ClassType)arrayLit.actualType)).typeArguments.get(0);
@@ -181,7 +197,8 @@ namespace Generator
             return this.expr(arg);
         }
         
-        public string mutatedExpr(Expression expr, Expression toWhere) {
+        public string mutatedExpr(Expression expr, Expression toWhere)
+        {
             if (toWhere is VariableReference varRef2) {
                 var v = varRef2.getVariable();
                 if (this.isTsArray(v.type))
@@ -190,18 +207,21 @@ namespace Generator
             return this.expr(expr);
         }
         
-        public string callParams(Expression[] args, MethodParameter[] params_) {
+        public string callParams(Expression[] args, MethodParameter[] params_)
+        {
             var argReprs = new List<string>();
             for (int i = 0; i < args.length(); i++)
                 argReprs.push(this.isTsArray(params_.get(i).type) ? this.mutateArg(args.get(i), params_.get(i).mutability.mutated) : this.expr(args.get(i)));
             return $"({argReprs.join(", ")})";
         }
         
-        public string methodCall(IMethodCallExpression expr) {
+        public string methodCall(IMethodCallExpression expr)
+        {
             return this.name_(expr.method.name) + this.typeArgs2(expr.typeArgs) + this.callParams(expr.args, expr.method.parameters);
         }
         
-        public string inferExprNameForType(IType type) {
+        public string inferExprNameForType(IType type)
+        {
             if (type is ClassType classType4 && classType4.typeArguments.every((x, _) => x is ClassType)) {
                 var fullName = classType4.typeArguments.map(x => (((ClassType)x)).decl.name).join("") + classType4.decl.name;
                 return NameUtils.shortName(fullName);
@@ -209,7 +229,8 @@ namespace Generator
             return null;
         }
         
-        public string expr(IExpression expr) {
+        public string expr(IExpression expr)
+        {
             var res = "UNKNOWN-EXPR";
             if (expr is NewExpression newExpr)
                 res = $"new {this.type(newExpr.cls)}{this.callParams(newExpr.args, newExpr.cls.decl.constructor_ != null ? newExpr.cls.decl.constructor_.parameters : new MethodParameter[0])}";
@@ -372,12 +393,14 @@ namespace Generator
             return res;
         }
         
-        public string block(Block block, bool allowOneLiner = true) {
+        public string block(Block block, bool allowOneLiner = true)
+        {
             var stmtLen = block.statements.length();
             return stmtLen == 0 ? " { }" : allowOneLiner && stmtLen == 1 && !(block.statements.get(0) is IfStatement) ? $"\n{this.pad(this.rawBlock(block))}" : $" {{\n{this.pad(this.rawBlock(block))}\n}}";
         }
         
-        public string stmt(Statement stmt) {
+        public string stmt(Statement stmt)
+        {
             var res = "UNKNOWN-STATEMENT";
             if (stmt.attributes != null && stmt.attributes.hasKey("csharp"))
                 res = stmt.attributes.get("csharp");
@@ -427,15 +450,18 @@ namespace Generator
             return this.leading(stmt) + res;
         }
         
-        public string stmts(Statement[] stmts) {
+        public string stmts(Statement[] stmts)
+        {
             return stmts.map(stmt => this.stmt(stmt)).join("\n");
         }
         
-        public string rawBlock(Block block) {
+        public string rawBlock(Block block)
+        {
             return this.stmts(block.statements.ToArray());
         }
         
-        public string classLike(IInterface cls) {
+        public string classLike(IInterface cls)
+        {
             this.currentClass = cls;
             var resList = new List<string>();
             
@@ -490,24 +516,27 @@ namespace Generator
                 if (cls is Class && method.body == null)
                     continue;
                 // declaration only
-                methods.push((method.parentInterface is Interface ? "" : this.vis(method.visibility) + " ") + this.preIf("static ", method.isStatic) + this.preIf("virtual ", method.overrides == null && method.overriddenBy.length() > 0) + this.preIf("override ", method.overrides != null) + this.preIf("async ", method.async) + this.preIf("/* throws */ ", method.throws) + $"{this.type(method.returns, false)} " + this.name_(method.name) + this.typeArgs(method.typeArguments) + $"({method.parameters.map(p => this.var(p, null)).join(", ")})" + (method.body != null ? $" {{\n{this.pad(this.stmts(method.body.statements.ToArray()))}\n}}" : ";"));
+                methods.push((method.parentInterface is Interface ? "" : this.vis(method.visibility) + " ") + this.preIf("static ", method.isStatic) + this.preIf("virtual ", method.overrides == null && method.overriddenBy.length() > 0) + this.preIf("override ", method.overrides != null) + this.preIf("async ", method.async) + this.preIf("/* throws */ ", method.throws) + $"{this.type(method.returns, false)} " + this.name_(method.name) + this.typeArgs(method.typeArguments) + $"({method.parameters.map(p => this.var(p, null)).join(", ")})" + (method.body != null ? $"\n{{\n{this.pad(this.stmts(method.body.statements.ToArray()))}\n}}" : ";"));
             }
             resList.push(methods.join("\n\n"));
             return this.pad(resList.filter(x => x != "").join("\n\n"));
         }
         
-        public string pad(string str) {
+        public string pad(string str)
+        {
             return str.split(new RegExp("\\n")).map(x => $"    {x}").join("\n");
         }
         
-        public string pathToNs(string path) {
+        public string pathToNs(string path)
+        {
             // Generator/ExprLang/ExprLangAst.ts -> Generator.ExprLang
             var parts = path.split(new RegExp("/")).ToList();
             parts.pop();
             return parts.join(".");
         }
         
-        public string genFile(SourceFile sourceFile) {
+        public string genFile(SourceFile sourceFile)
+        {
             this.instanceOfIds = new Dictionary<string, int> {};
             this.usings = new Set<string>();
             var enums = sourceFile.enums.map(enum_ => $"public enum {this.name_(enum_.name)} {{ {enum_.values.map(x => this.name_(x.name)).join(", ")} }}");
@@ -527,11 +556,11 @@ namespace Generator
             var main = sourceFile.mainBlock.statements.length() > 0 ? $"public class Program\n{{\n    static void Main(string[] args)\n    {{\n{this.pad(this.rawBlock(sourceFile.mainBlock))}\n    }}\n}}" : "";
             
             var usingsSet = new Set<string>(sourceFile.imports.map(x => this.pathToNs(x.exportScope.scopeName)).filter(x => x != ""));
-            foreach (var using_ in this.usings)
+            foreach (var using_ in this.usings.values())
                 usingsSet.add(using_);
             
             var usings = new List<string>();
-            foreach (var using_ in usingsSet)
+            foreach (var using_ in usingsSet.values())
                 usings.push($"using {using_};");
             
             var result = new List<string> { enums.join("\n"), intfs.join("\n\n"), classes.join("\n\n"), main }.filter(x => x != "").join("\n\n");
@@ -541,7 +570,8 @@ namespace Generator
             return result;
         }
         
-        public GeneratedFile[] generate(Package pkg) {
+        public GeneratedFile[] generate(Package pkg)
+        {
             var result = new List<GeneratedFile>();
             foreach (var path in Object.keys(pkg.files))
                 result.push(new GeneratedFile(path, this.genFile(pkg.files.get(path))));

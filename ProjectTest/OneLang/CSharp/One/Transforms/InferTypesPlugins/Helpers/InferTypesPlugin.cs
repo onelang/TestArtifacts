@@ -15,35 +15,43 @@ namespace One.Transforms.InferTypesPlugins.Helpers
             this.errorMan = null;
         }
         
-        public virtual bool canTransform(Expression expr) {
+        public virtual bool canTransform(Expression expr)
+        {
             return false;
         }
         
-        public virtual bool canDetectType(Expression expr) {
+        public virtual bool canDetectType(Expression expr)
+        {
             return false;
         }
         
-        public virtual Expression transform(Expression expr) {
+        public virtual Expression transform(Expression expr)
+        {
             return null;
         }
         
-        public virtual bool detectType(Expression expr) {
+        public virtual bool detectType(Expression expr)
+        {
             return false;
         }
         
-        public virtual bool handleProperty(Property prop) {
+        public virtual bool handleProperty(Property prop)
+        {
             return false;
         }
         
-        public virtual bool handleLambda(Lambda lambda) {
+        public virtual bool handleLambda(Lambda lambda)
+        {
             return false;
         }
         
-        public virtual bool handleMethod(IMethodBase method) {
+        public virtual bool handleMethod(IMethodBase method)
+        {
             return false;
         }
         
-        public virtual bool handleStatement(Statement stmt) {
+        public virtual bool handleStatement(Statement stmt)
+        {
             return false;
         }
     }

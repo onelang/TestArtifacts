@@ -15,7 +15,8 @@ namespace One.Transforms
             this.castCounts = new List<int>();
         }
         
-        protected void addCast(InstanceOfExpression cast) {
+        protected void addCast(InstanceOfExpression cast)
+        {
             if (this.castCounts.length() > 0) {
                 cast.implicitCasts = new List<CastExpression>();
                 this.casts.push(cast);
@@ -24,17 +25,20 @@ namespace One.Transforms
             }
         }
         
-        protected void pushContext() {
+        protected void pushContext()
+        {
             this.castCounts.push(0);
         }
         
-        protected void popContext() {
+        protected void popContext()
+        {
             var castCount = this.castCounts.pop();
             if (castCount != 0)
                 ArrayHelper.removeLastN(this.casts, castCount);
         }
         
-        protected bool equals(Expression expr1, Expression expr2) {
+        protected bool equals(Expression expr1, Expression expr2)
+        {
             // implicit casts don't matter when checking equality...
             while (expr1 is CastExpression castExpr && castExpr.instanceOfCast != null)
                 expr1 = castExpr.expression;
@@ -59,7 +63,8 @@ namespace One.Transforms
             return false;
         }
         
-        protected override Expression visitExpression(Expression expr) {
+        protected override Expression visitExpression(Expression expr)
+        {
             Expression result = null;
             if (expr is InstanceOfExpression instOfExpr) {
                 this.visitExpression(instOfExpr.expr);
@@ -92,7 +97,8 @@ namespace One.Transforms
             return result;
         }
         
-        protected override Statement visitStatement(Statement stmt) {
+        protected override Statement visitStatement(Statement stmt)
+        {
             this.currentStatement = stmt;
             
             if (stmt is IfStatement ifStat) {

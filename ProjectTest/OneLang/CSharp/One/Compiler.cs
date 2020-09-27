@@ -30,12 +30,14 @@ namespace One
             this.hooks = null;
         }
         
-        public async Task init(string packagesDir) {
+        public async Task init(string packagesDir)
+        {
             this.pacMan = new PackageManager(new PackagesFolderSource(packagesDir));
             await this.pacMan.loadAllCached();
         }
         
-        public void setupNativeResolver(string content) {
+        public void setupNativeResolver(string content)
+        {
             this.nativeFile = TypeScriptParser2.parseFile(content);
             this.nativeExports = Package.collectExportsFromFile(this.nativeFile, true);
             new FillParent().visitSourceFile(this.nativeFile);
@@ -45,7 +47,8 @@ namespace One
             new FillMutabilityInfo().visitSourceFile(this.nativeFile);
         }
         
-        public void newWorkspace(string pkgName = "@") {
+        public void newWorkspace(string pkgName = "@")
+        {
             this.workspace = new Workspace();
             foreach (var intfPkg in this.pacMan.interfacesPkgs) {
                 var libName = $"{intfPkg.interfaceYaml.vendor}.{intfPkg.interfaceYaml.name}-v{intfPkg.interfaceYaml.version}";
@@ -56,7 +59,8 @@ namespace One
             this.workspace.addPackage(this.projectPkg);
         }
         
-        public void addInterfacePackage(string libName, string definitionFileContent) {
+        public void addInterfacePackage(string libName, string definitionFileContent)
+        {
             var libPkg = new Package(libName, true);
             var file = TypeScriptParser2.parseFile(definitionFileContent, new SourcePath(libPkg, Package.INDEX));
             this.setupFile(file);
@@ -64,19 +68,22 @@ namespace One
             this.workspace.addPackage(libPkg);
         }
         
-        public void setupFile(SourceFile file) {
+        public void setupFile(SourceFile file)
+        {
             file.addAvailableSymbols(this.nativeExports.getAllExports());
             file.literalTypes = new LiteralTypes((((Class)file.availableSymbols.get("TsBoolean"))).type, (((Class)file.availableSymbols.get("TsNumber"))).type, (((Class)file.availableSymbols.get("TsString"))).type, (((Class)file.availableSymbols.get("RegExp"))).type, (((Class)file.availableSymbols.get("TsArray"))).type, (((Class)file.availableSymbols.get("TsMap"))).type, (((Class)file.availableSymbols.get("Error"))).type, (((Class)file.availableSymbols.get("Promise"))).type);
             file.arrayTypes = new ClassType[] { (((Class)file.availableSymbols.get("TsArray"))).type, (((Class)file.availableSymbols.get("IterableIterator"))).type, (((Class)file.availableSymbols.get("RegExpExecArray"))).type, (((Class)file.availableSymbols.get("TsString"))).type, (((Class)file.availableSymbols.get("Set"))).type };
         }
         
-        public void addProjectFile(string fn, string content) {
+        public void addProjectFile(string fn, string content)
+        {
             var file = TypeScriptParser2.parseFile(content, new SourcePath(this.projectPkg, fn));
             this.setupFile(file);
             this.projectPkg.addFile(file);
         }
         
-        public void processWorkspace() {
+        public void processWorkspace()
+        {
             foreach (var pkg in Object.values(this.workspace.packages).filter(x => x.definitionOnly)) {
                 // sets method's parentInterface property
                 new FillParent().visitPackage(pkg);
@@ -107,6 +114,7 @@ namespace One
             transforms.push(new InferTypes());
             transforms.push(new CollectInheritanceInfo());
             transforms.push(new FillMutabilityInfo());
+            transforms.push(new LambdaCaptureCollector());
             foreach (var trans in transforms) {
                 trans.visitPackage(this.projectPkg);
                 if (this.hooks != null)

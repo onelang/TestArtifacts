@@ -10,7 +10,8 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        protected Method findMethod(IInterface cls, string methodName, bool isStatic, Expression[] args) {
+        protected Method findMethod(IInterface cls, string methodName, bool isStatic, Expression[] args)
+        {
             var allBases = cls is Class class_ ? class_.getAllBaseInterfaces().filter(x => x is Class) : cls.getAllBaseInterfaces();
             
             var methods = new List<Method>();
@@ -35,7 +36,8 @@ namespace One.Transforms.InferTypesPlugins
             return methods.get(0);
         }
         
-        protected void resolveReturnType(IMethodCallExpression expr, GenericsResolver genericsResolver) {
+        protected void resolveReturnType(IMethodCallExpression expr, GenericsResolver genericsResolver)
+        {
             genericsResolver.collectFromMethodCall(expr);
             
             for (int i = 0; i < expr.args.length(); i++) {
@@ -55,7 +57,8 @@ namespace One.Transforms.InferTypesPlugins
             expr.setActualType(genericsResolver.resolveType(expr.method.returns, true), true, expr is InstanceMethodCallExpression instMethCallExpr && TypeHelper.isGeneric(instMethCallExpr.object_.getType()));
         }
         
-        protected Expression transformMethodCall(UnresolvedMethodCallExpression expr) {
+        protected Expression transformMethodCall(UnresolvedMethodCallExpression expr)
+        {
             if (expr.object_ is ClassReference classRef || expr.object_ is StaticThisReference) {
                 var cls = expr.object_ is ClassReference classRef2 ? classRef2.decl : expr.object_ is StaticThisReference statThisRef ? statThisRef.cls : null;
                 var method = this.findMethod(cls, expr.methodName, true, expr.args);
@@ -83,11 +86,13 @@ namespace One.Transforms.InferTypesPlugins
             }
         }
         
-        public override bool canTransform(Expression expr) {
+        public override bool canTransform(Expression expr)
+        {
             return expr is UnresolvedMethodCallExpression unrMethCallExpr && !(unrMethCallExpr.actualType is AnyType);
         }
         
-        public override Expression transform(Expression expr) {
+        public override Expression transform(Expression expr)
+        {
             return this.transformMethodCall(((UnresolvedMethodCallExpression)expr));
         }
     }

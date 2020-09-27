@@ -38,6 +38,10 @@ class FillParent(astTrans.AstTransformer):
         cls_.parent_file = self.current_file
         super().visit_class(cls_)
     
+    def visit_global_function(self, func):
+        func.parent_file = self.current_file
+        super().visit_global_function(func)
+    
     def visit_field(self, field):
         field.parent_interface = self.current_interface
         

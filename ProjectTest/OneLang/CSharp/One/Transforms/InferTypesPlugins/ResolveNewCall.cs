@@ -9,11 +9,13 @@ namespace One.Transforms.InferTypesPlugins
             
         }
         
-        public override bool canTransform(Expression expr) {
+        public override bool canTransform(Expression expr)
+        {
             return expr is NewExpression;
         }
         
-        public override Expression transform(Expression expr) {
+        public override Expression transform(Expression expr)
+        {
             var newExpr = ((NewExpression)expr);
             for (int i = 0; i < newExpr.args.length(); i++) {
                 newExpr.args.get(i).setExpectedType(newExpr.cls.decl.constructor_.parameters.get(i).type);

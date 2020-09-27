@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Test
 {
     public class CompilerHooks : ICompilerHooks {
-        public int stage = 0; 
+        public int stage = 0;
         public Compiler compiler;
         public string baseDir;
         
@@ -16,7 +16,8 @@ namespace Test
             this.baseDir = baseDir;
         }
         
-        public void afterStage(string stageName) {
+        public void afterStage(string stageName)
+        {
             var state = new PackageStateCapture(this.compiler.projectPkg);
             var stageFn = $"{this.baseDir}/test/artifacts/ProjectTest/OneLang/stages/{this.stage}_{stageName}.txt";
             this.stage++;
@@ -39,7 +40,8 @@ namespace Test
             this.baseDir = baseDir;
         }
         
-        public async Task<bool> runTest(IGenerator generator) {
+        public async Task<bool> runTest(IGenerator generator)
+        {
             console.log("[-] SelfTestRunner :: START");
             var compiler = new Compiler();
             await compiler.init($"{this.baseDir}packages/");

@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace Utils
 {
     public class TSOverviewGenerator {
-        public static string leading(IHasAttributesAndTrivia item) {
+        public static string leading(IHasAttributesAndTrivia item)
+        {
             var result = "";
             if (item.leadingTrivia != null && item.leadingTrivia.length() > 0)
                 result += item.leadingTrivia;
@@ -13,29 +14,35 @@ namespace Utils
             return result;
         }
         
-        public static string preArr(string prefix, string[] value) {
+        public static string preArr(string prefix, string[] value)
+        {
             return value.length() > 0 ? $"{prefix}{value.join(", ")}" : "";
         }
         
-        public static string preIf(string prefix, bool condition) {
+        public static string preIf(string prefix, bool condition)
+        {
             return condition ? prefix : "";
         }
         
-        public static string pre(string prefix, string value) {
+        public static string pre(string prefix, string value)
+        {
             return value != null ? $"{prefix}{value}" : "";
         }
         
-        public static string typeArgs(string[] args) {
+        public static string typeArgs(string[] args)
+        {
             return args != null && args.length() > 0 ? $"<{args.join(", ")}>" : "";
         }
         
-        public static string type(IType t, bool raw = false) {
+        public static string type(IType t, bool raw = false)
+        {
             var repr = t == null ? "???" : t.repr();
             if (repr == "U:UNKNOWN") { }
             return (raw ? "" : "{T}") + repr;
         }
         
-        public static string var(IVariable v) {
+        public static string var(IVariable v)
+        {
             var result = "";
             var isProp = v is Property;
             if (v is Field field || v is Property) {
@@ -58,7 +65,8 @@ namespace Utils
             return result;
         }
         
-        public static string expr(IExpression expr, bool previewOnly = false) {
+        public static string expr(IExpression expr, bool previewOnly = false)
+        {
             var res = "UNKNOWN-EXPR";
             if (expr is NewExpression newExpr)
                 res = $"new {TSOverviewGenerator.type(newExpr.cls)}({(previewOnly ? "..." : newExpr.args.map(x => TSOverviewGenerator.expr(x)).join(", "))})";
@@ -115,7 +123,7 @@ namespace Utils
             else if (expr is RegexLiteral regexLit)
                 res = $"/{regexLit.pattern}/{(regexLit.global ? "g" : "")}{(regexLit.caseInsensitive ? "g" : "")}";
             else if (expr is Lambda lambd)
-                res = $"({lambd.parameters.map(x => x.name + (x.type != null ? ": " + TSOverviewGenerator.type(x.type) : "")).join(", ")}) => {{ {TSOverviewGenerator.rawBlock(lambd.body)} }}";
+                res = $"({lambd.parameters.map(x => x.name + (x.type != null ? ": " + TSOverviewGenerator.type(x.type) : "")).join(", ")})" + (lambd.captures != null && lambd.captures.length() > 0 ? $" @captures({lambd.captures.map(x => x.name).join(", ")})" : "") + $" => {{ {TSOverviewGenerator.rawBlock(lambd.body)} }}";
             else if (expr is UnaryExpression unaryExpr && unaryExpr.unaryType == UnaryType.Prefix)
                 res = $"{unaryExpr.operator_}{TSOverviewGenerator.expr(unaryExpr.operand)}";
             else if (expr is UnaryExpression unaryExpr2 && unaryExpr2.unaryType == UnaryType.Postfix)
@@ -166,14 +174,16 @@ namespace Utils
             return res;
         }
         
-        public static string block(Block block, bool previewOnly = false, bool allowOneLiner = true) {
+        public static string block(Block block, bool previewOnly = false, bool allowOneLiner = true)
+        {
             if (previewOnly)
                 return " { ... }";
             var stmtLen = block.statements.length();
             return stmtLen == 0 ? " { }" : allowOneLiner && stmtLen == 1 ? $"\n{TSOverviewGenerator.pad(TSOverviewGenerator.rawBlock(block))}" : $" {{\n{TSOverviewGenerator.pad(TSOverviewGenerator.rawBlock(block))}\n}}";
         }
         
-        public static string stmt(Statement stmt, bool previewOnly = false) {
+        public static string stmt(Statement stmt, bool previewOnly = false)
+        {
             var res = "UNKNOWN-STATEMENT";
             if (stmt is BreakStatement)
                 res = "break;";
@@ -209,11 +219,13 @@ namespace Utils
             return previewOnly ? res : TSOverviewGenerator.leading(stmt) + res;
         }
         
-        public static string rawBlock(Block block) {
+        public static string rawBlock(Block block)
+        {
             return block.statements.map(stmt => TSOverviewGenerator.stmt(stmt)).join("\n");
         }
         
-        public static string methodBase(IMethodBase method, IType returns) {
+        public static string methodBase(IMethodBase method, IType returns)
+        {
             if (method == null)
                 return "";
             var name = method is Method meth ? meth.name : method is Constructor ? "constructor" : method is GlobalFunction globFunct ? globFunct.name : "???";
@@ -221,11 +233,13 @@ namespace Utils
             return TSOverviewGenerator.preIf("/* throws */ ", method.throws) + $"{name}{TSOverviewGenerator.typeArgs(typeArgs)}({method.parameters.map(p => TSOverviewGenerator.leading(p) + TSOverviewGenerator.var(p)).join(", ")})" + (returns is VoidType ? "" : $": {TSOverviewGenerator.type(returns)}") + (method.body != null ? $" {{\n{TSOverviewGenerator.pad(TSOverviewGenerator.rawBlock(method.body))}\n}}" : ";");
         }
         
-        public static string method(Method method) {
+        public static string method(Method method)
+        {
             return method == null ? "" : (method.isStatic ? "static " : "") + (method.attributes != null && method.attributes.hasKey("mutates") ? "@mutates " : "") + TSOverviewGenerator.methodBase(method, method.returns);
         }
         
-        public static string classLike(IInterface cls) {
+        public static string classLike(IInterface cls)
+        {
             var resList = new List<string>();
             resList.push(cls.fields.map(field => TSOverviewGenerator.var(field) + ";").join("\n"));
             if (cls is Class class_) {
@@ -236,15 +250,18 @@ namespace Utils
             return TSOverviewGenerator.pad(resList.filter(x => x != "").join("\n\n"));
         }
         
-        public static string pad(string str) {
+        public static string pad(string str)
+        {
             return str.split(new RegExp("\\n")).map(x => $"    {x}").join("\n");
         }
         
-        public static string imp(IImportable imp) {
+        public static string imp(IImportable imp)
+        {
             return "" + (imp is UnresolvedImport ? "X" : imp is Class ? "C" : imp is Interface ? "I" : imp is Enum_ ? "E" : "???") + $":{imp.name}";
         }
         
-        public static string nodeRepr(IAstNode node) {
+        public static string nodeRepr(IAstNode node)
+        {
             if (node is Statement stat)
                 return TSOverviewGenerator.stmt(stat, true);
             else if (node is Expression expr)
@@ -253,7 +270,8 @@ namespace Utils
                 return "/* TODO: missing */";
         }
         
-        public static string generate(SourceFile sourceFile) {
+        public static string generate(SourceFile sourceFile)
+        {
             var imps = sourceFile.imports.map(imp => (imp.importAll ? $"import * as {imp.importAs}" : $"import {{ {imp.imports.map(x => TSOverviewGenerator.imp(x)).join(", ")} }}") + $" from \"{imp.exportScope.packageName}{TSOverviewGenerator.pre("/", imp.exportScope.scopeName)}\";");
             var enums = sourceFile.enums.map(enum_ => $"{TSOverviewGenerator.leading(enum_)}enum {enum_.name} {{ {enum_.values.map(x => x.name).join(", ")} }}");
             var intfs = sourceFile.interfaces.map(intf => $"{TSOverviewGenerator.leading(intf)}interface {intf.name}{TSOverviewGenerator.typeArgs(intf.typeArguments)}" + $"{TSOverviewGenerator.preArr(" extends ", intf.baseInterfaces.map(x => TSOverviewGenerator.type(x)))} {{\n{TSOverviewGenerator.classLike(intf)}\n}}");

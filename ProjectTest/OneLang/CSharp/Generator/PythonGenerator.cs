@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Generator
 {
-    public class PythonGenerator {
+    public class PythonGenerator : IGenerator {
         public int tmplStrLevel = 0;
         public Package package;
         public SourceFile currentFile;
@@ -25,7 +25,18 @@ namespace Generator
             this.plugins.push(new JsToPython(this));
         }
         
-        public string type(IType type) {
+        public string getLangName()
+        {
+            return "Python";
+        }
+        
+        public string getExtension()
+        {
+            return "py";
+        }
+        
+        public string type(IType type)
+        {
             if (type is ClassType classType) {
                 if (classType.decl.name == "TsString")
                     return "str";
@@ -40,7 +51,8 @@ namespace Generator
                 return "NOT-HANDLED-TYPE";
         }
         
-        public string[] splitName(string name) {
+        public string[] splitName(string name)
+        {
             var nameParts = new List<string>();
             var partStartIdx = 0;
             for (int i = 1; i < name.length(); i++) {
@@ -61,7 +73,8 @@ namespace Generator
             return nameParts.ToArray();
         }
         
-        public string name_(string name) {
+        public string name_(string name)
+        {
             if (this.reservedWords.includes(name))
                 name += "_";
             if (this.fieldToMethodHack.includes(name))
@@ -69,25 +82,29 @@ namespace Generator
             return this.splitName(name).join("_");
         }
         
-        public string calcImportedName(ExportScopeRef exportScope, string name) {
+        public string calcImportedName(ExportScopeRef exportScope, string name)
+        {
             if (this.importAllScopes.has(exportScope.getId()))
                 return name;
             else
                 return this.calcImportAlias(exportScope) + "." + name;
         }
         
-        public string enumName(Enum_ enum_, bool isDecl = false) {
+        public string enumName(Enum_ enum_, bool isDecl = false)
+        {
             var name = this.name_(enum_.name).toUpperCase();
             if (isDecl || enum_.parentFile.exportScope == null || enum_.parentFile == this.currentFile)
                 return name;
             return this.calcImportedName(enum_.parentFile.exportScope, name);
         }
         
-        public string enumMemberName(string name) {
+        public string enumMemberName(string name)
+        {
             return this.name_(name).toUpperCase();
         }
         
-        public string clsName(IInterface cls, bool isDecl = false) {
+        public string clsName(IInterface cls, bool isDecl = false)
+        {
             // TODO: hack
             if (cls.name == "Set")
                 return "dict";
@@ -96,7 +113,8 @@ namespace Generator
             return this.calcImportedName(cls.parentFile.exportScope, cls.name);
         }
         
-        public string leading(Statement item) {
+        public string leading(Statement item)
+        {
             var result = "";
             if (item.leadingTrivia != null && item.leadingTrivia.length() > 0)
                 result += item.leadingTrivia.replace(new RegExp("//"), "#");
@@ -105,50 +123,61 @@ namespace Generator
             return result;
         }
         
-        public string preArr(string prefix, string[] value) {
+        public string preArr(string prefix, string[] value)
+        {
             return value.length() > 0 ? $"{prefix}{value.join(", ")}" : "";
         }
         
-        public string preIf(string prefix, bool condition) {
+        public string preIf(string prefix, bool condition)
+        {
             return condition ? prefix : "";
         }
         
-        public string pre(string prefix, string value) {
+        public string pre(string prefix, string value)
+        {
             return value != null ? $"{prefix}{value}" : "";
         }
         
-        public bool isTsArray(IType type) {
+        public bool isTsArray(IType type)
+        {
             return type is ClassType classType2 && classType2.decl.name == "TsArray";
         }
         
-        public string vis(Visibility v) {
+        public string vis(Visibility v)
+        {
             return v == Visibility.Private ? "__" : v == Visibility.Protected ? "_" : v == Visibility.Public ? "" : "/* TODO: not set */public";
         }
         
-        public string varWoInit(IVariable v, IHasAttributesAndTrivia attr) {
+        public string varWoInit(IVariable v, IHasAttributesAndTrivia attr)
+        {
             return this.name_(v.name);
         }
         
-        public string var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs) {
+        public string var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs)
+        {
             return $"{this.varWoInit(v, attrs)}{(v.initializer != null ? $" = {this.expr(v.initializer)}" : "")}";
         }
         
-        public string exprCall(Expression[] args) {
+        public string exprCall(Expression[] args)
+        {
             return $"({args.map(x => this.expr(x)).join(", ")})";
         }
         
-        public string callParams(Expression[] args) {
+        public string callParams(Expression[] args)
+        {
             var argReprs = new List<string>();
             for (int i = 0; i < args.length(); i++)
                 argReprs.push(this.expr(args.get(i)));
             return $"({argReprs.join(", ")})";
         }
         
-        public string methodCall(IMethodCallExpression expr) {
+        public string methodCall(IMethodCallExpression expr)
+        {
             return this.name_(expr.method.name) + this.callParams(expr.args);
         }
         
-        public string expr(IExpression expr) {
+        public string expr(IExpression expr)
+        {
             foreach (var plugin in this.plugins) {
                 var result = plugin.expr(expr);
                 if (result != null)
@@ -326,7 +355,8 @@ namespace Generator
             return res;
         }
         
-        public string stmtDefault(Statement stmt) {
+        public string stmtDefault(Statement stmt)
+        {
             var nl = "\n";
             if (stmt is BreakStatement)
                 return "break";
@@ -360,7 +390,8 @@ namespace Generator
                 return "UNKNOWN-STATEMENT";
         }
         
-        public string stmt(Statement stmt) {
+        public string stmt(Statement stmt)
+        {
             string res = null;
             
             if (stmt.attributes != null && stmt.attributes.hasKey("python"))
@@ -379,19 +410,23 @@ namespace Generator
             return this.leading(stmt) + res;
         }
         
-        public string stmts(Statement[] stmts, bool skipPass = false) {
+        public string stmts(Statement[] stmts, bool skipPass = false)
+        {
             return this.pad(stmts.length() == 0 && !skipPass ? "pass" : stmts.map(stmt => this.stmt(stmt)).join("\n"));
         }
         
-        public string block(Block block, bool skipPass = false) {
+        public string block(Block block, bool skipPass = false)
+        {
             return this.stmts(block.statements.ToArray(), skipPass);
         }
         
-        public string pass(string str) {
+        public string pass(string str)
+        {
             return str == "" ? "pass" : str;
         }
         
-        public string cls(Class cls) {
+        public string cls(Class cls)
+        {
             if (cls.attributes.get("external") == "true")
                 return "";
             this.currentClass = cls;
@@ -446,11 +481,13 @@ namespace Generator
             return classAttributes.map(x => $"{x}\n").join("") + clsHdr + this.pad(resList2.length() > 0 ? resList2.join("\n\n") : "pass");
         }
         
-        public string pad(string str) {
+        public string pad(string str)
+        {
             return str == "" ? "" : str.split(new RegExp("\\n")).map(x => $"    {x}").join("\n");
         }
         
-        public string calcRelImport(ExportScopeRef targetPath, ExportScopeRef fromPath) {
+        public string calcRelImport(ExportScopeRef targetPath, ExportScopeRef fromPath)
+        {
             var targetParts = targetPath.scopeName.split(new RegExp("/"));
             var fromParts = fromPath.scopeName.split(new RegExp("/"));
             
@@ -468,13 +505,15 @@ namespace Generator
             return result;
         }
         
-        public string calcImportAlias(ExportScopeRef targetPath) {
+        public string calcImportAlias(ExportScopeRef targetPath)
+        {
             var parts = targetPath.scopeName.split(new RegExp("/"));
             var filename = parts.get(parts.length() - 1);
             return NameUtils.shortName(filename);
         }
         
-        public string genFile(SourceFile sourceFile) {
+        public string genFile(SourceFile sourceFile)
+        {
             this.currentFile = sourceFile;
             this.imports = new Set<string>();
             this.importAllScopes = new Set<string>();
@@ -519,7 +558,8 @@ namespace Generator
             return new List<string> { imports.join("\n"), enums.join("\n\n"), classes.join("\n\n"), main }.filter(x => x != "").join("\n\n");
         }
         
-        public GeneratedFile[] generate(Package pkg) {
+        public GeneratedFile[] generate(Package pkg)
+        {
             this.package = pkg;
             var result = new List<GeneratedFile>();
             foreach (var path in Object.keys(pkg.files))

@@ -12,6 +12,9 @@ class ResolveUnresolvedTypes(astTrans.AstTransformer):
     def visit_type(self, type):
         super().visit_type(type)
         if isinstance(type, astTypes.UnresolvedType):
+            if self.current_interface != None and type.type_name in self.current_interface.type_arguments:
+                return astTypes.GenericsType(type.type_name)
+            
             symbol = self.current_file.available_symbols.get(type.type_name)
             if symbol == None:
                 self.error_man.throw(f'''Unresolved type \'{type.type_name}\' was not found in available symbols''')

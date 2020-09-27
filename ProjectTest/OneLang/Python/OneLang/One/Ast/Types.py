@@ -306,6 +306,7 @@ class GlobalFunction:
         self.returns = returns
         self.is_exported = is_exported
         self.leading_trivia = leading_trivia
+        self.parent_file = None
         self.attributes = None
         self.throws = None
         self.references = []
@@ -319,4 +320,5 @@ class Lambda(exprs.Expression):
         self.body = body
         self.returns = None
         self.throws = None
+        self.captures = None
         super().__init__()

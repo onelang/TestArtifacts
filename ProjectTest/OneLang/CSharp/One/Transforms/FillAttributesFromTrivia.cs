@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace One.Transforms
 {
     public class FillAttributesFromTrivia {
-        public static Dictionary<string, string> processTrivia(string trivia) {
+        public static Dictionary<string, string> processTrivia(string trivia)
+        {
             var result = new Dictionary<string, string> {};
             if (trivia != null && trivia != "") {
                 var regex = new RegExp("(?:\\n|^)\\s*(?://|#|/\\*\\*?)\\s*@([a-z0-9_.-]+) ?((?!\\n|\\*/|$).+)?");
@@ -18,12 +19,14 @@ namespace One.Transforms
             return result;
         }
         
-        private static void process(IHasAttributesAndTrivia[] items) {
+        private static void process(IHasAttributesAndTrivia[] items)
+        {
             foreach (var item in items)
                 item.attributes = FillAttributesFromTrivia.processTrivia(item.leadingTrivia);
         }
         
-        private static void processBlock(Block block) {
+        private static void processBlock(Block block)
+        {
             if (block == null)
                 return;
             FillAttributesFromTrivia.process(block.statements.ToArray());
@@ -39,7 +42,8 @@ namespace One.Transforms
             }
         }
         
-        private static void processMethod(IMethodBaseWithTrivia method) {
+        private static void processMethod(IMethodBaseWithTrivia method)
+        {
             if (method == null)
                 return;
             FillAttributesFromTrivia.process(new IMethodBaseWithTrivia[] { method });
@@ -47,7 +51,8 @@ namespace One.Transforms
             FillAttributesFromTrivia.processBlock(method.body);
         }
         
-        public static void processFile(SourceFile file) {
+        public static void processFile(SourceFile file)
+        {
             FillAttributesFromTrivia.process(file.imports);
             FillAttributesFromTrivia.process(file.enums);
             FillAttributesFromTrivia.process(file.interfaces);
@@ -71,7 +76,8 @@ namespace One.Transforms
             }
         }
         
-        public static void processPackage(Package pkg) {
+        public static void processPackage(Package pkg)
+        {
             foreach (var file in Object.values(pkg.files))
                 FillAttributesFromTrivia.processFile(file);
         }

@@ -13,7 +13,8 @@ namespace Parsers.Common
             this.nodes = new List<object>();
         }
         
-        public void addNode(object node, int start) {
+        public void addNode(object node, int start)
+        {
             this.nodes.push(node);
         }
     }

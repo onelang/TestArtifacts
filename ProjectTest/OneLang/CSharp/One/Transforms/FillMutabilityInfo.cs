@@ -9,25 +9,29 @@ namespace One.Transforms
             
         }
         
-        protected IVariable getVar(VariableReference varRef) {
+        protected IVariable getVar(VariableReference varRef)
+        {
             var v = varRef.getVariable();
             v.mutability = v.mutability ?? new MutabilityInfo();
             return v;
         }
         
-        protected override VariableReference visitVariableReference(VariableReference varRef) {
+        protected override VariableReference visitVariableReference(VariableReference varRef)
+        {
             this.getVar(varRef).mutability.unused = false;
             return null;
         }
         
-        protected override VariableDeclaration visitVariableDeclaration(VariableDeclaration stmt) {
+        protected override VariableDeclaration visitVariableDeclaration(VariableDeclaration stmt)
+        {
             base.visitVariableDeclaration(stmt);
             if (stmt.attributes != null && stmt.attributes.get("mutated") == "true")
                 stmt.mutability.mutated = true;
             return null;
         }
         
-        protected override Expression visitExpression(Expression expr) {
+        protected override Expression visitExpression(Expression expr)
+        {
             base.visitExpression(expr);
             
             if (expr is BinaryExpression binExpr && binExpr.left is VariableReference varRef && binExpr.operator_ == "=")
@@ -37,7 +41,8 @@ namespace One.Transforms
             return null;
         }
         
-        protected override IVariable visitVariable(IVariable variable) {
+        protected override IVariable visitVariable(IVariable variable)
+        {
             variable.mutability = variable.mutability ?? new MutabilityInfo();
             return null;
         }

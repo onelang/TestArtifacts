@@ -11,11 +11,13 @@ namespace StdLib
             this.bundle = bundle;
         }
         
-        public Task<PackageBundle> getPackageBundle(PackageId[] ids, bool cachedOnly) {
+        public Task<PackageBundle> getPackageBundle(PackageId[] ids, bool cachedOnly)
+        {
             throw new Error("Method not implemented.");
         }
         
-        public async Task<PackageBundle> getAllCached() {
+        public async Task<PackageBundle> getAllCached()
+        {
             return await Promise.resolve(this.bundle);
         }
     }

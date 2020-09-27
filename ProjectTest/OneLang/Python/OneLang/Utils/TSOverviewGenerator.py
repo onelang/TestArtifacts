@@ -117,7 +117,7 @@ class TSOverviewGenerator:
         elif isinstance(expr, exprs.RegexLiteral):
             res = f'''/{expr.pattern}/{("g" if expr.global_ else "")}{("g" if expr.case_insensitive else "")}'''
         elif isinstance(expr, types.Lambda):
-            res = f'''({", ".join(list(map(lambda x: x.name + (": " + TSOverviewGenerator.type(x.type) if x.type != None else ""), expr.parameters)))}) => {{ {TSOverviewGenerator.raw_block(expr.body)} }}'''
+            res = f'''({", ".join(list(map(lambda x: x.name + (": " + TSOverviewGenerator.type(x.type) if x.type != None else ""), expr.parameters)))})''' + (f''' @captures({", ".join(list(map(lambda x: x.name, expr.captures)))})''' if expr.captures != None and len(expr.captures) > 0 else "") + f''' => {{ {TSOverviewGenerator.raw_block(expr.body)} }}'''
         elif isinstance(expr, exprs.UnaryExpression) and expr.unary_type == exprs.UNARY_TYPE.PREFIX:
             res = f'''{expr.operator}{TSOverviewGenerator.expr(expr.operand)}'''
         elif isinstance(expr, exprs.UnaryExpression) and expr.unary_type == exprs.UNARY_TYPE.POSTFIX:

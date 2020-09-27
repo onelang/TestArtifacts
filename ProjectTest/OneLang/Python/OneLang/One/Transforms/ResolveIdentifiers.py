@@ -10,7 +10,7 @@ import OneLang.One.Ast.AstTypes as astTypes
 class SymbolLookup:
     def __init__(self):
         self.error_man = errorMan.ErrorManager()
-        self.level_symbols = []
+        self.level_stack = []
         self.level_names = []
         self.curr_level = None
         self.symbols = Map()
@@ -19,9 +19,9 @@ class SymbolLookup:
         self.error_man.throw(f'''{msg} (context: {" > ".join(self.level_names)})''')
     
     def push_context(self, name):
+        self.level_stack.append(self.curr_level)
         self.level_names.append(name)
         self.curr_level = []
-        self.level_symbols.append(self.curr_level)
     
     def add_symbol(self, name, ref):
         if self.symbols.has(name):
@@ -32,9 +32,8 @@ class SymbolLookup:
     def pop_context(self):
         for name in self.curr_level:
             self.symbols.delete(name)
-        self.level_symbols.pop()
         self.level_names.pop()
-        self.curr_level = None if len(self.level_symbols) == 0 else self.level_symbols[len(self.level_symbols) - 1]
+        self.curr_level = self.level_stack.pop() if len(self.level_stack) > 0 else None
     
     def get_symbol(self, name):
         return self.symbols.get(name)
@@ -131,7 +130,7 @@ class ResolveIdentifiers(astTrans.AstTransformer):
     
     def visit_source_file(self, source_file):
         self.error_man.reset_context(self)
-        self.symbol_lookup.push_context(f'''File: {source_file.source_path}''')
+        self.symbol_lookup.push_context(f'''File: {source_file.source_path.to_string()}''')
         
         for symbol in source_file.available_symbols.values():
             if isinstance(symbol, types.Class):
