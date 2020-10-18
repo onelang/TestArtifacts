@@ -41,21 +41,8 @@ class ErrorManager {
     public $errors;
     public $lastContextInfo;
     
-    function __construct()
-    {
-        $this->transformer = null;
-        $this->currentNode = null;
-        $this->errors = array();
-    }
-    
-    function resetContext($transformer = null) {
-        $this->transformer = $transformer;
-    }
-    
-    function log($type, $msg) {
+    function get_location() {
         $t = $this->transformer;
-        
-        $text = ($t !== null ? "[" . $t->name . "] " : "") . $msg;
         
         $par = $this->currentNode;
         while ($par instanceof Expression)
@@ -87,14 +74,41 @@ class ErrorManager {
             }
         }
         
-        if ($this->currentNode !== null)
-            $text .= "\n  Node: " . TSOverviewGenerator::nodeRepr($this->currentNode);
+        return $location;
+    }
+    
+    function get_currentNodeRepr() {
+        return TSOverviewGenerator::$preview->nodeRepr($this->currentNode);
+    }
+    
+    function get_currentStatementRepr() {
+        return $this->transformer->currentStatement === null ? "<null>" : TSOverviewGenerator::$preview->stmt($this->transformer->currentStatement);
+    }
+    
+    function __construct()
+    {
+        $this->transformer = null;
+        $this->currentNode = null;
+        $this->errors = array();
+    }
+    
+    function resetContext($transformer = null) {
+        $this->transformer = $transformer;
+    }
+    
+    function log($type, $msg) {
+        $t = $this->transformer;
+        $text = ($t !== null ? "[" . $t->name . "] " : "") . $msg;
         
+        if ($this->currentNode !== null)
+            $text .= "\n  Node: " . $this->get_currentNodeRepr();
+        
+        $location = $this->get_location();
         if ($location !== null)
             $text .= "\n  Location: " . $location;
         
         if ($t !== null && $t->currentStatement !== null)
-            $text .= "\n  Statement: " . TSOverviewGenerator::stmt($t->currentStatement, true);
+            $text .= "\n  Statement: " . $this->get_currentStatementRepr();
         
         if ($this->lastContextInfo !== null)
             $text .= "\n  Context: " . $this->lastContextInfo;

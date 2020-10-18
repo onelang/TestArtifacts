@@ -90,7 +90,21 @@ use One\Ast\Interfaces\IExpression;
 use One\Ast\Interfaces\IType;
 
 class TSOverviewGenerator {
-    static function leading($item) {
+    public static $preview;
+    public $previewOnly;
+    public $showTypes;
+    
+    static function StaticInit()
+    {
+        TSOverviewGenerator::$preview = new TSOverviewGenerator(true);
+    }
+    
+    function __construct($previewOnly = false, $showTypes = false) {
+        $this->previewOnly = $previewOnly;
+        $this->showTypes = $showTypes;
+    }
+    
+    function leading($item) {
         $result = "";
         if ($item->leadingTrivia !== null && strlen($item->leadingTrivia) > 0)
             $result .= $item->leadingTrivia;
@@ -99,34 +113,34 @@ class TSOverviewGenerator {
         return $result;
     }
     
-    static function preArr($prefix, $value) {
+    function preArr($prefix, $value) {
         return count($value) > 0 ? $prefix . implode(", ", $value) : "";
     }
     
-    static function preIf($prefix, $condition) {
+    function preIf($prefix, $condition) {
         return $condition ? $prefix : "";
     }
     
-    static function pre($prefix, $value) {
+    function pre($prefix, $value) {
         return $value !== null ? $prefix . $value : "";
     }
     
-    static function typeArgs($args) {
+    function typeArgs($args) {
         return $args !== null && count($args) > 0 ? "<" . implode(", ", $args) . ">" : "";
     }
     
-    static function type($t, $raw = false) {
+    function type($t, $raw = false) {
         $repr = $t === null ? "???" : $t->repr();
         if ($repr === "U:UNKNOWN") { }
         return ($raw ? "" : "{T}") . $repr;
     }
     
-    static function var($v) {
+    function var($v) {
         $result = "";
         $isProp = $v instanceof Property;
         if ($v instanceof Field || $v instanceof Property) {
             $m = $v;
-            $result .= TSOverviewGenerator::preIf("static ", $m->isStatic);
+            $result .= $this->preIf("", $m->isStatic);
             $result .= $m->visibility === Visibility::PRIVATE ? "private " : ($m->visibility === Visibility::PROTECTED ? "protected " : ($m->visibility === Visibility::PUBLIC ? "public " : "VISIBILITY-NOT-SET"));
         }
         $result .= ($isProp ? "@prop " : "");
@@ -135,45 +149,45 @@ class TSOverviewGenerator {
             $result .= ($v->mutability->mutated ? "@mutated " : "");
             $result .= ($v->mutability->reassigned ? "@reass " : "");
         }
-        $result .= $v->name . ($isProp ? "()" : "") . ": " . TSOverviewGenerator::type($v->type);
+        $result .= $v->name . ($isProp ? "()" : "") . ": " . $this->type($v->type);
         if ($v instanceof VariableDeclaration || $v instanceof ForVariable || $v instanceof Field || $v instanceof MethodParameter) {
             $init = ($v)->initializer;
             if ($init !== null)
-                $result .= TSOverviewGenerator::pre(" = ", TSOverviewGenerator::expr($init));
+                $result .= $this->pre(" = ", $this->expr($init));
         }
         return $result;
     }
     
-    static function expr($expr, $previewOnly = false) {
+    function expr($expr) {
         $res = "UNKNOWN-EXPR";
         if ($expr instanceof NewExpression)
-            $res = "new " . TSOverviewGenerator::type($expr->cls) . "(" . ($previewOnly ? "..." : implode(", ", array_map(function ($x) { return TSOverviewGenerator::expr($x); }, $expr->args))) . ")";
+            $res = "new " . $this->type($expr->cls) . "(" . ($this->previewOnly ? "..." : implode(", ", array_map(function ($x) { return $this->expr($x); }, $expr->args))) . ")";
         else if ($expr instanceof UnresolvedNewExpression)
-            $res = "new " . TSOverviewGenerator::type($expr->cls) . "(" . ($previewOnly ? "..." : implode(", ", array_map(function ($x) { return TSOverviewGenerator::expr($x); }, $expr->args))) . ")";
+            $res = "new " . $this->type($expr->cls) . "(" . ($this->previewOnly ? "..." : implode(", ", array_map(function ($x) { return $this->expr($x); }, $expr->args))) . ")";
         else if ($expr instanceof Identifier)
             $res = "{ID}" . $expr->text;
         else if ($expr instanceof PropertyAccessExpression)
-            $res = TSOverviewGenerator::expr($expr->object) . ".{PA}" . $expr->propertyName;
+            $res = $this->expr($expr->object) . ".{PA}" . $expr->propertyName;
         else if ($expr instanceof UnresolvedCallExpression) {
-            $typeArgs = count($expr->typeArgs) > 0 ? "<" . implode(", ", array_map(function ($x) { return TSOverviewGenerator::type($x); }, $expr->typeArgs)) . ">" : "";
-            $res = TSOverviewGenerator::expr($expr->func) . $typeArgs . "(" . ($previewOnly ? "..." : implode(", ", array_map(function ($x) { return TSOverviewGenerator::expr($x); }, $expr->args))) . ")";
+            $typeArgs = count($expr->typeArgs) > 0 ? "<" . implode(", ", array_map(function ($x) { return $this->type($x); }, $expr->typeArgs)) . ">" : "";
+            $res = $this->expr($expr->func) . $typeArgs . "(" . ($this->previewOnly ? "..." : implode(", ", array_map(function ($x) { return $this->expr($x); }, $expr->args))) . ")";
         }
         else if ($expr instanceof UnresolvedMethodCallExpression) {
-            $typeArgs = count($expr->typeArgs) > 0 ? "<" . implode(", ", array_map(function ($x) { return TSOverviewGenerator::type($x); }, $expr->typeArgs)) . ">" : "";
-            $res = TSOverviewGenerator::expr($expr->object) . ".{UM}" . $expr->methodName . $typeArgs . "(" . ($previewOnly ? "..." : implode(", ", array_map(function ($x) { return TSOverviewGenerator::expr($x); }, $expr->args))) . ")";
+            $typeArgs = count($expr->typeArgs) > 0 ? "<" . implode(", ", array_map(function ($x) { return $this->type($x); }, $expr->typeArgs)) . ">" : "";
+            $res = $this->expr($expr->object) . ".{UM}" . $expr->methodName . $typeArgs . "(" . ($this->previewOnly ? "..." : implode(", ", array_map(function ($x) { return $this->expr($x); }, $expr->args))) . ")";
         }
         else if ($expr instanceof InstanceMethodCallExpression) {
-            $typeArgs = count($expr->typeArgs) > 0 ? "<" . implode(", ", array_map(function ($x) { return TSOverviewGenerator::type($x); }, $expr->typeArgs)) . ">" : "";
-            $res = TSOverviewGenerator::expr($expr->object) . ".{M}" . $expr->method->name . $typeArgs . "(" . ($previewOnly ? "..." : implode(", ", array_map(function ($x) { return TSOverviewGenerator::expr($x); }, $expr->args))) . ")";
+            $typeArgs = count($expr->typeArgs) > 0 ? "<" . implode(", ", array_map(function ($x) { return $this->type($x); }, $expr->typeArgs)) . ">" : "";
+            $res = $this->expr($expr->object) . ".{M}" . $expr->method->name . $typeArgs . "(" . ($this->previewOnly ? "..." : implode(", ", array_map(function ($x) { return $this->expr($x); }, $expr->args))) . ")";
         }
         else if ($expr instanceof StaticMethodCallExpression) {
-            $typeArgs = count($expr->typeArgs) > 0 ? "<" . implode(", ", array_map(function ($x) { return TSOverviewGenerator::type($x); }, $expr->typeArgs)) . ">" : "";
-            $res = $expr->method->parentInterface->name . ".{M}" . $expr->method->name . $typeArgs . "(" . ($previewOnly ? "..." : implode(", ", array_map(function ($x) { return TSOverviewGenerator::expr($x); }, $expr->args))) . ")";
+            $typeArgs = count($expr->typeArgs) > 0 ? "<" . implode(", ", array_map(function ($x) { return $this->type($x); }, $expr->typeArgs)) . ">" : "";
+            $res = $expr->method->parentInterface->name . ".{M}" . $expr->method->name . $typeArgs . "(" . ($this->previewOnly ? "..." : implode(", ", array_map(function ($x) { return $this->expr($x); }, $expr->args))) . ")";
         }
         else if ($expr instanceof GlobalFunctionCallExpression)
-            $res = $expr->func->name . "(" . ($previewOnly ? "..." : implode(", ", array_map(function ($x) { return TSOverviewGenerator::expr($x); }, $expr->args))) . ")";
+            $res = $expr->func->name . "(" . ($this->previewOnly ? "..." : implode(", ", array_map(function ($x) { return $this->expr($x); }, $expr->args))) . ")";
         else if ($expr instanceof LambdaCallExpression)
-            $res = TSOverviewGenerator::expr($expr->method) . "(" . ($previewOnly ? "..." : implode(", ", array_map(function ($x) { return TSOverviewGenerator::expr($x); }, $expr->args))) . ")";
+            $res = $this->expr($expr->method) . "(" . ($this->previewOnly ? "..." : implode(", ", array_map(function ($x) { return $this->expr($x); }, $expr->args))) . ")";
         else if ($expr instanceof BooleanLiteral)
             $res = ($expr->boolValue ? "true" : "false");
         else if ($expr instanceof StringLiteral)
@@ -183,37 +197,37 @@ class TSOverviewGenerator {
         else if ($expr instanceof CharacterLiteral)
             $res = "'" . $expr->charValue . "'";
         else if ($expr instanceof ElementAccessExpression)
-            $res = "(" . TSOverviewGenerator::expr($expr->object) . ")[" . TSOverviewGenerator::expr($expr->elementExpr) . "]";
+            $res = "(" . $this->expr($expr->object) . ")[" . $this->expr($expr->elementExpr) . "]";
         else if ($expr instanceof TemplateString)
-            $res = "`" . implode("", array_map(function ($x) { return $x->isLiteral ? $x->literalText : "\${" . TSOverviewGenerator::expr($x->expression) . "}"; }, $expr->parts)) . "`";
+            $res = "`" . implode("", array_map(function ($x) { return $x->isLiteral ? $x->literalText : "\${" . $this->expr($x->expression) . "}"; }, $expr->parts)) . "`";
         else if ($expr instanceof BinaryExpression)
-            $res = TSOverviewGenerator::expr($expr->left) . " " . $expr->operator . " " . TSOverviewGenerator::expr($expr->right);
+            $res = $this->expr($expr->left) . " " . $expr->operator . " " . $this->expr($expr->right);
         else if ($expr instanceof ArrayLiteral)
-            $res = "[" . implode(", ", array_map(function ($x) { return TSOverviewGenerator::expr($x); }, $expr->items)) . "]";
+            $res = "[" . implode(", ", array_map(function ($x) { return $this->expr($x); }, $expr->items)) . "]";
         else if ($expr instanceof CastExpression)
-            $res = "<" . TSOverviewGenerator::type($expr->newType) . ">(" . TSOverviewGenerator::expr($expr->expression) . ")";
+            $res = "<" . $this->type($expr->newType) . ">(" . $this->expr($expr->expression) . ")";
         else if ($expr instanceof ConditionalExpression)
-            $res = TSOverviewGenerator::expr($expr->condition) . " ? " . TSOverviewGenerator::expr($expr->whenTrue) . " : " . TSOverviewGenerator::expr($expr->whenFalse);
+            $res = $this->expr($expr->condition) . " ? " . $this->expr($expr->whenTrue) . " : " . $this->expr($expr->whenFalse);
         else if ($expr instanceof InstanceOfExpression)
-            $res = TSOverviewGenerator::expr($expr->expr) . " instanceof " . TSOverviewGenerator::type($expr->checkType);
+            $res = $this->expr($expr->expr) . " instanceof " . $this->type($expr->checkType);
         else if ($expr instanceof ParenthesizedExpression)
-            $res = "(" . TSOverviewGenerator::expr($expr->expression) . ")";
+            $res = "(" . $this->expr($expr->expression) . ")";
         else if ($expr instanceof RegexLiteral)
             $res = "/" . $expr->pattern . "/" . ($expr->global ? "g" : "") . ($expr->caseInsensitive ? "g" : "");
         else if ($expr instanceof Lambda)
-            $res = "(" . implode(", ", array_map(function ($x) { return $x->name . ($x->type !== null ? ": " . TSOverviewGenerator::type($x->type) : ""); }, $expr->parameters)) . ")" . ($expr->captures !== null && count($expr->captures) > 0 ? " @captures(" . implode(", ", array_map(function ($x) { return $x->name; }, $expr->captures)) . ")" : "") . " => { " . TSOverviewGenerator::rawBlock($expr->body) . " }";
+            $res = "(" . implode(", ", array_map(function ($x) { return $x->name . ($x->type !== null ? ": " . $this->type($x->type) : ""); }, $expr->parameters)) . ")" . ($expr->captures !== null && count($expr->captures) > 0 ? " @captures(" . implode(", ", array_map(function ($x) { return $x->name; }, $expr->captures)) . ")" : "") . " => { " . $this->rawBlock($expr->body) . " }";
         else if ($expr instanceof UnaryExpression && $expr->unaryType === UnaryType::PREFIX)
-            $res = $expr->operator . TSOverviewGenerator::expr($expr->operand);
+            $res = $expr->operator . $this->expr($expr->operand);
         else if ($expr instanceof UnaryExpression && $expr->unaryType === UnaryType::POSTFIX)
-            $res = TSOverviewGenerator::expr($expr->operand) . $expr->operator;
+            $res = $this->expr($expr->operand) . $expr->operator;
         else if ($expr instanceof MapLiteral) {
-            $repr = implode(",\n", array_map(function ($item) { return $item->key . ": " . TSOverviewGenerator::expr($item->value); }, $expr->items));
-            $res = "{L:M}" . ($repr === "" ? "{}" : (strpos($repr, "\n") !== false ? "{\n" . TSOverviewGenerator::pad($repr) . "\n}" : "{ " . $repr . " }"));
+            $repr = implode(",\n", array_map(function ($item) { return $item->key . ": " . $this->expr($item->value); }, $expr->items));
+            $res = "{L:M}" . ($repr === "" ? "{}" : (strpos($repr, "\n") !== false ? "{\n" . $this->pad($repr) . "\n}" : "{ " . $repr . " }"));
         }
         else if ($expr instanceof NullLiteral)
             $res = "null";
         else if ($expr instanceof AwaitExpression)
-            $res = "await " . TSOverviewGenerator::expr($expr->expr);
+            $res = "await " . $this->expr($expr->expr);
         else if ($expr instanceof ThisReference)
             $res = "{R}this";
         else if ($expr instanceof StaticThisReference)
@@ -241,112 +255,117 @@ class TSOverviewGenerator {
         else if ($expr instanceof StaticPropertyReference)
             $res = "{R:StPr}" . $expr->decl->parentClass->name . "::" . $expr->decl->name;
         else if ($expr instanceof InstanceFieldReference)
-            $res = TSOverviewGenerator::expr($expr->object) . ".{F}" . $expr->field->name;
+            $res = $this->expr($expr->object) . ".{F}" . $expr->field->name;
         else if ($expr instanceof InstancePropertyReference)
-            $res = TSOverviewGenerator::expr($expr->object) . ".{P}" . $expr->property->name;
+            $res = $this->expr($expr->object) . ".{P}" . $expr->property->name;
         else if ($expr instanceof EnumMemberReference)
             $res = "{E}" . $expr->decl->parentEnum->name . "::" . $expr->decl->name;
         else if ($expr instanceof NullCoalesceExpression)
-            $res = TSOverviewGenerator::expr($expr->defaultExpr) . " ?? " . TSOverviewGenerator::expr($expr->exprIfNull);
+            $res = $this->expr($expr->defaultExpr) . " ?? " . $this->expr($expr->exprIfNull);
         else { }
+        
+        if ($this->showTypes)
+            $res = "<" . $this->type($expr->getType(), true) . ">(" . $res . ")";
+        
         return $res;
     }
     
-    static function block($block, $previewOnly = false, $allowOneLiner = true) {
-        if ($previewOnly)
+    function block($block, $allowOneLiner = true) {
+        if ($this->previewOnly)
             return " { ... }";
         $stmtLen = count($block->statements);
-        return $stmtLen === 0 ? " { }" : ($allowOneLiner && $stmtLen === 1 ? "\n" . TSOverviewGenerator::pad(TSOverviewGenerator::rawBlock($block)) : " {\n" . TSOverviewGenerator::pad(TSOverviewGenerator::rawBlock($block)) . "\n}");
+        return $stmtLen === 0 ? " { }" : ($allowOneLiner && $stmtLen === 1 ? "\n" . $this->pad($this->rawBlock($block)) : " {\n" . $this->pad($this->rawBlock($block)) . "\n}");
     }
     
-    static function stmt($stmt, $previewOnly = false) {
+    function stmt($stmt) {
         $res = "UNKNOWN-STATEMENT";
         if ($stmt instanceof BreakStatement)
             $res = "break;";
         else if ($stmt instanceof ReturnStatement)
-            $res = $stmt->expression === null ? "return;" : "return " . TSOverviewGenerator::expr($stmt->expression) . ";";
+            $res = $stmt->expression === null ? "return;" : "return " . $this->expr($stmt->expression) . ";";
         else if ($stmt instanceof UnsetStatement)
-            $res = "unset " . TSOverviewGenerator::expr($stmt->expression) . ";";
+            $res = "unset " . $this->expr($stmt->expression) . ";";
         else if ($stmt instanceof ThrowStatement)
-            $res = "throw " . TSOverviewGenerator::expr($stmt->expression) . ";";
+            $res = "throw " . $this->expr($stmt->expression) . ";";
         else if ($stmt instanceof ExpressionStatement)
-            $res = TSOverviewGenerator::expr($stmt->expression) . ";";
+            $res = $this->expr($stmt->expression) . ";";
         else if ($stmt instanceof VariableDeclaration)
-            $res = "var " . TSOverviewGenerator::var($stmt) . ";";
+            $res = "var " . $this->var($stmt) . ";";
         else if ($stmt instanceof ForeachStatement)
-            $res = "for (const " . $stmt->itemVar->name . " of " . TSOverviewGenerator::expr($stmt->items) . ")" . TSOverviewGenerator::block($stmt->body, $previewOnly);
+            $res = "for (const " . $stmt->itemVar->name . " of " . $this->expr($stmt->items) . ")" . $this->block($stmt->body);
         else if ($stmt instanceof IfStatement) {
             $elseIf = $stmt->else_ !== null && count($stmt->else_->statements) === 1 && $stmt->else_->statements[0] instanceof IfStatement;
-            $res = "if (" . TSOverviewGenerator::expr($stmt->condition) . ")" . TSOverviewGenerator::block($stmt->then, $previewOnly);
-            if (!$previewOnly)
-                $res .= ($elseIf ? "\nelse " . TSOverviewGenerator::stmt($stmt->else_->statements[0]) : "") . (!$elseIf && $stmt->else_ !== null ? "\nelse" . TSOverviewGenerator::block($stmt->else_) : "");
+            $res = "if (" . $this->expr($stmt->condition) . ")" . $this->block($stmt->then);
+            if (!$this->previewOnly)
+                $res .= ($elseIf ? "\nelse " . $this->stmt($stmt->else_->statements[0]) : "") . (!$elseIf && $stmt->else_ !== null ? "\nelse" . $this->block($stmt->else_) : "");
         }
         else if ($stmt instanceof WhileStatement)
-            $res = "while (" . TSOverviewGenerator::expr($stmt->condition) . ")" . TSOverviewGenerator::block($stmt->body, $previewOnly);
+            $res = "while (" . $this->expr($stmt->condition) . ")" . $this->block($stmt->body);
         else if ($stmt instanceof ForStatement)
-            $res = "for (" . ($stmt->itemVar !== null ? TSOverviewGenerator::var($stmt->itemVar) : "") . "; " . TSOverviewGenerator::expr($stmt->condition) . "; " . TSOverviewGenerator::expr($stmt->incrementor) . ")" . TSOverviewGenerator::block($stmt->body, $previewOnly);
+            $res = "for (" . ($stmt->itemVar !== null ? $this->var($stmt->itemVar) : "") . "; " . $this->expr($stmt->condition) . "; " . $this->expr($stmt->incrementor) . ")" . $this->block($stmt->body);
         else if ($stmt instanceof DoStatement)
-            $res = "do" . TSOverviewGenerator::block($stmt->body, $previewOnly) . " while (" . TSOverviewGenerator::expr($stmt->condition) . ")";
+            $res = "do" . $this->block($stmt->body) . " while (" . $this->expr($stmt->condition) . ")";
         else if ($stmt instanceof TryStatement)
-            $res = "try" . TSOverviewGenerator::block($stmt->tryBody, $previewOnly, false) . ($stmt->catchBody !== null ? " catch (" . $stmt->catchVar->name . ")" . TSOverviewGenerator::block($stmt->catchBody, $previewOnly) : "") . ($stmt->finallyBody !== null ? "finally" . TSOverviewGenerator::block($stmt->finallyBody, $previewOnly) : "");
+            $res = "try" . $this->block($stmt->tryBody, false) . ($stmt->catchBody !== null ? " catch (" . $stmt->catchVar->name . ")" . $this->block($stmt->catchBody) : "") . ($stmt->finallyBody !== null ? "finally" . $this->block($stmt->finallyBody) : "");
         else if ($stmt instanceof ContinueStatement)
             $res = "continue;";
         else { }
-        return $previewOnly ? $res : TSOverviewGenerator::leading($stmt) . $res;
+        return $this->previewOnly ? $res : $this->leading($stmt) . $res;
     }
     
-    static function rawBlock($block) {
-        return implode("\n", array_map(function ($stmt) { return TSOverviewGenerator::stmt($stmt); }, $block->statements));
+    function rawBlock($block) {
+        return implode("\n", array_map(function ($stmt) { return $this->stmt($stmt); }, $block->statements));
     }
     
-    static function methodBase($method, $returns) {
+    function methodBase($method, $returns) {
         if ($method === null)
             return "";
         $name = $method instanceof Method ? $method->name : ($method instanceof Constructor ? "constructor" : ($method instanceof GlobalFunction ? $method->name : "???"));
         $typeArgs = $method instanceof Method ? $method->typeArguments : null;
-        return TSOverviewGenerator::preIf("/* throws */ ", $method->throws) . $name . TSOverviewGenerator::typeArgs($typeArgs) . "(" . implode(", ", array_map(function ($p) { return TSOverviewGenerator::leading($p) . TSOverviewGenerator::var($p); }, $method->parameters)) . ")" . ($returns instanceof VoidType ? "" : ": " . TSOverviewGenerator::type($returns)) . ($method->body !== null ? " {\n" . TSOverviewGenerator::pad(TSOverviewGenerator::rawBlock($method->body)) . "\n}" : ";");
+        return $this->preIf("/* throws */ ", $method->throws) . $name . $this->typeArgs($typeArgs) . "(" . implode(", ", array_map(function ($p) { return $this->leading($p) . $this->var($p); }, $method->parameters)) . ")" . ($returns instanceof VoidType ? "" : ": " . $this->type($returns)) . ($method->body !== null ? " {\n" . $this->pad($this->rawBlock($method->body)) . "\n}" : ";");
     }
     
-    static function method($method) {
-        return $method === null ? "" : ($method->isStatic ? "static " : "") . ($method->attributes !== null && array_key_exists("mutates", $method->attributes) ? "@mutates " : "") . TSOverviewGenerator::methodBase($method, $method->returns);
+    function method($method) {
+        return $method === null ? "" : ($method->isStatic ? "static " : "") . ($method->attributes !== null && array_key_exists("mutates", $method->attributes) ? "@mutates " : "") . $this->methodBase($method, $method->returns);
     }
     
-    static function classLike($cls) {
+    function classLike($cls) {
         $resList = array();
-        $resList[] = implode("\n", array_map(function ($field) { return TSOverviewGenerator::var($field) . ";"; }, $cls->fields));
+        $resList[] = implode("\n", array_map(function ($field) { return $this->var($field) . ";"; }, $cls->fields));
         if ($cls instanceof Class_) {
-            $resList[] = implode("\n", array_map(function ($prop) { return TSOverviewGenerator::var($prop) . ";"; }, $cls->properties));
-            $resList[] = TSOverviewGenerator::methodBase($cls->constructor_, VoidType::$instance);
+            $resList[] = implode("\n", array_map(function ($prop) { return $this->var($prop) . ";"; }, $cls->properties));
+            $resList[] = $this->methodBase($cls->constructor_, VoidType::$instance);
         }
-        $resList[] = implode("\n\n", array_map(function ($method) { return TSOverviewGenerator::method($method); }, $cls->methods));
-        return TSOverviewGenerator::pad(implode("\n\n", array_values(array_filter($resList, function ($x) { return $x !== ""; }))));
+        $resList[] = implode("\n\n", array_map(function ($method) { return $this->method($method); }, $cls->methods));
+        return $this->pad(implode("\n\n", array_values(array_filter($resList, function ($x) { return $x !== ""; }))));
     }
     
-    static function pad($str) {
+    function pad($str) {
         return implode("\n", array_map(function ($x) { return "    " . $x; }, preg_split("/\\n/", $str)));
     }
     
-    static function imp($imp) {
+    function imp($imp) {
         return "" . ($imp instanceof UnresolvedImport ? "X" : ($imp instanceof Class_ ? "C" : ($imp instanceof Interface_ ? "I" : ($imp instanceof Enum ? "E" : "???")))) . ":" . $imp->name;
     }
     
-    static function nodeRepr($node) {
+    function nodeRepr($node) {
         if ($node instanceof Statement)
-            return TSOverviewGenerator::stmt($node, true);
+            return $this->stmt($node);
         else if ($node instanceof Expression)
-            return TSOverviewGenerator::expr($node, true);
+            return $this->expr($node);
         else
             return "/* TODO: missing */";
     }
     
-    static function generate($sourceFile) {
-        $imps = array_map(function ($imp) { return ($imp->importAll ? "import * as " . $imp->importAs : "import { " . implode(", ", array_map(function ($x) { return TSOverviewGenerator::imp($x); }, $imp->imports)) . " }") . " from \"" . $imp->exportScope->packageName . TSOverviewGenerator::pre("/", $imp->exportScope->scopeName) . "\";"; }, $sourceFile->imports);
-        $enums = array_map(function ($enum_) { return TSOverviewGenerator::leading($enum_) . "enum " . $enum_->name . " { " . implode(", ", array_map(function ($x) { return $x->name; }, $enum_->values)) . " }"; }, $sourceFile->enums);
-        $intfs = array_map(function ($intf) { return TSOverviewGenerator::leading($intf) . "interface " . $intf->name . TSOverviewGenerator::typeArgs($intf->typeArguments) . TSOverviewGenerator::preArr(" extends ", array_map(function ($x) { return TSOverviewGenerator::type($x); }, $intf->baseInterfaces)) . " {\n" . TSOverviewGenerator::classLike($intf) . "\n}"; }, $sourceFile->interfaces);
-        $classes = array_map(function ($cls) { return TSOverviewGenerator::leading($cls) . "class " . $cls->name . TSOverviewGenerator::typeArgs($cls->typeArguments) . TSOverviewGenerator::pre(" extends ", $cls->baseClass !== null ? TSOverviewGenerator::type($cls->baseClass) : null) . TSOverviewGenerator::preArr(" implements ", array_map(function ($x) { return TSOverviewGenerator::type($x); }, $cls->baseInterfaces)) . " {\n" . TSOverviewGenerator::classLike($cls) . "\n}"; }, $sourceFile->classes);
-        $funcs = array_map(function ($func) { return TSOverviewGenerator::leading($func) . "function " . $func->name . TSOverviewGenerator::methodBase($func, $func->returns); }, $sourceFile->funcs);
-        $main = TSOverviewGenerator::rawBlock($sourceFile->mainBlock);
+    function generate($sourceFile) {
+        $imps = array_map(function ($imp) { return ($imp->importAll ? "import * as " . $imp->importAs : "import { " . implode(", ", array_map(function ($x) { return $this->imp($x); }, $imp->imports)) . " }") . " from \"" . $imp->exportScope->packageName . $this->pre("/", $imp->exportScope->scopeName) . "\";"; }, $sourceFile->imports);
+        $enums = array_map(function ($enum_) { return $this->leading($enum_) . "enum " . $enum_->name . " { " . implode(", ", array_map(function ($x) { return $x->name; }, $enum_->values)) . " }"; }, $sourceFile->enums);
+        $intfs = array_map(function ($intf) { return $this->leading($intf) . "interface " . $intf->name . $this->typeArgs($intf->typeArguments) . $this->preArr(" extends ", array_map(function ($x) { return $this->type($x); }, $intf->baseInterfaces)) . " {\n" . $this->classLike($intf) . "\n}"; }, $sourceFile->interfaces);
+        $classes = array_map(function ($cls) { return $this->leading($cls) . "class " . $cls->name . $this->typeArgs($cls->typeArguments) . $this->pre(" extends ", $cls->baseClass !== null ? $this->type($cls->baseClass) : null) . $this->preArr(" implements ", array_map(function ($x) { return $this->type($x); }, $cls->baseInterfaces)) . " {\n" . $this->classLike($cls) . "\n}"; }, $sourceFile->classes);
+        $funcs = array_map(function ($func) { return $this->leading($func) . "function " . $func->name . $this->methodBase($func, $func->returns); }, $sourceFile->funcs);
+        $main = $this->rawBlock($sourceFile->mainBlock);
         $result = "// export scope: " . $sourceFile->exportScope->packageName . "/" . $sourceFile->exportScope->scopeName . "\n" . implode("\n\n", array_values(array_filter(array(implode("\n", $imps), implode("\n", $enums), implode("\n\n", $intfs), implode("\n\n", $classes), implode("\n\n", $funcs), $main), function ($x) { return $x !== ""; })));
         return $result;
     }
 }
+TSOverviewGenerator::StaticInit();

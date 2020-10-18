@@ -96,15 +96,15 @@ namespace One.Transforms.InferTypesPlugins
         
         public override bool handleStatement(Statement stmt)
         {
+            if (this.returnTypeInfer.length() == 0)
+                return false;
             if (stmt is ReturnStatement retStat && retStat.expression != null) {
                 this.main.processStatement(retStat);
-                if (this.returnTypeInfer.length() != 0)
-                    this.current.addReturn(retStat.expression);
+                this.current.addReturn(retStat.expression);
                 return true;
             }
             else if (stmt is ThrowStatement) {
-                if (this.returnTypeInfer.length() != 0)
-                    this.current.throws = true;
+                this.current.throws = true;
                 return false;
             }
             else

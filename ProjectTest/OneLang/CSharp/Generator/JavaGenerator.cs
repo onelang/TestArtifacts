@@ -1,32 +1,35 @@
 using One.Ast;
 using Generator;
+using Generator.JavaPlugins;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Generator
 {
-    public class CsharpGenerator : IGenerator {
-        public Set<string> usings;
+    public class JavaGenerator : IGenerator {
+        public Set<string> imports;
         public IInterface currentClass;
         public string[] reservedWords;
         public string[] fieldToMethodHack;
-        public Dictionary<string, int> instanceOfIds;
+        public List<IGeneratorPlugin> plugins;
         
-        public CsharpGenerator()
+        public JavaGenerator()
         {
-            this.reservedWords = new string[] { "object", "else", "operator", "class", "enum", "void", "string", "implicit", "Type", "Enum", "params", "using", "throw", "ref", "base", "virtual", "interface", "int", "const" };
-            this.fieldToMethodHack = new string[] { "length" };
-            this.instanceOfIds = new Dictionary<string, int> {};
+            this.imports = new Set<string>();
+            this.reservedWords = new string[] { "class", "interface", "throws", "package", "throw", "boolean" };
+            this.fieldToMethodHack = new string[0];
+            this.plugins = new List<IGeneratorPlugin>();
+            this.plugins.push(new JsToJava(this));
         }
         
         public string getLangName()
         {
-            return "CSharp";
+            return "Java";
         }
         
         public string getExtension()
         {
-            return "cs";
+            return "java";
         }
         
         public string name_(string name)
@@ -39,6 +42,8 @@ namespace Generator
             for (int i = 1; i < nameParts.length(); i++)
                 nameParts.set(i, nameParts.get(i).get(0).toUpperCase() + nameParts.get(i).substr(1));
             name = nameParts.join("");
+            if (name == "_")
+                name = "unused";
             return name;
         }
         
@@ -77,35 +82,44 @@ namespace Generator
             return this.typeArgs(args.map(x => this.type(x)));
         }
         
-        public string type(IType t, bool mutates = true)
+        public string type(IType t, bool mutates = true, bool isNew = false)
         {
             if (t is ClassType classType) {
                 var typeArgs = this.typeArgs(classType.typeArguments.map(x => this.type(x)));
                 if (classType.decl.name == "TsString")
-                    return "string";
+                    return "String";
                 else if (classType.decl.name == "TsBoolean")
-                    return "bool";
+                    return "Boolean";
                 else if (classType.decl.name == "TsNumber")
-                    return "int";
+                    return "Integer";
                 else if (classType.decl.name == "TsArray") {
+                    var realType = isNew ? "ArrayList" : "List";
                     if (mutates) {
-                        this.usings.add("System.Collections.Generic");
-                        return $"List<{this.type(classType.typeArguments.get(0))}>";
+                        this.imports.add($"java.util.{realType}");
+                        return $"{realType}<{this.type(classType.typeArguments.get(0))}>";
                     }
                     else
                         return $"{this.type(classType.typeArguments.get(0))}[]";
                 }
-                else if (classType.decl.name == "Promise") {
-                    this.usings.add("System.Threading.Tasks");
-                    return classType.typeArguments.get(0) is VoidType ? "Task" : $"Task{typeArgs}";
+                else if (classType.decl.name == "Map") {
+                    var realType = isNew ? "HashMap" : "Map";
+                    this.imports.add($"java.util.{realType}");
+                    return $"{realType}<{this.type(classType.typeArguments.get(0))}, {this.type(classType.typeArguments.get(1))}>";
                 }
-                else if (classType.decl.name == "Object") {
-                    this.usings.add("System");
-                    return $"object";
+                else if (classType.decl.name == "Set") {
+                    var realType = isNew ? "HashSet" : "Set";
+                    this.imports.add($"java.util.{realType}");
+                    return $"{realType}<{this.type(classType.typeArguments.get(0))}>";
                 }
+                else if (classType.decl.name == "Promise")
+                    return classType.typeArguments.get(0) is VoidType ? "void" : $"{this.type(classType.typeArguments.get(0))}";
+                else if (classType.decl.name == "Object")
+                    //this.imports.add("System");
+                    return $"Object";
                 else if (classType.decl.name == "TsMap") {
-                    this.usings.add("System.Collections.Generic");
-                    return $"Dictionary<string, {this.type(classType.typeArguments.get(0))}>";
+                    var realType = isNew ? "HashMap" : "Map";
+                    this.imports.add($"java.util.{realType}");
+                    return $"{realType}<String, {this.type(classType.typeArguments.get(0))}>";
                 }
                 return this.name_(classType.decl.name) + typeArgs;
             }
@@ -116,7 +130,7 @@ namespace Generator
             else if (t is EnumType enumType)
                 return $"{this.name_(enumType.decl.name)}";
             else if (t is AnyType)
-                return $"object";
+                return $"Object";
             else if (t is NullType)
                 return $"null";
             else if (t is GenericsType genType)
@@ -126,8 +140,8 @@ namespace Generator
                 var paramTypes = lambdType.parameters.map(x => this.type(x.type)).ToList();
                 if (isFunc)
                     paramTypes.push(this.type(lambdType.returnType));
-                this.usings.add("System");
-                return $"{(isFunc ? "Func" : "Action")}<{paramTypes.join(", ")}>";
+                this.imports.add("java.util.function." + (isFunc ? "Function" : "Consumer"));
+                return $"{(isFunc ? "Function" : "Consumer")}<{paramTypes.join(", ")}>";
             }
             else if (t == null)
                 return "/* TODO */ object";
@@ -145,14 +159,14 @@ namespace Generator
             return v == Visibility.Private ? "private" : v == Visibility.Protected ? "protected" : v == Visibility.Public ? "public" : "/* TODO: not set */public";
         }
         
-        public string varWoInit(IVariable v, IHasAttributesAndTrivia attr)
+        public string varType(IVariable v, IHasAttributesAndTrivia attr)
         {
             string type;
-            if (attr != null && attr.attributes != null && attr.attributes.hasKey("csharp-type"))
-                type = attr.attributes.get("csharp-type");
+            if (attr != null && attr.attributes != null && attr.attributes.hasKey("java-type"))
+                type = attr.attributes.get("java-type");
             else if (v.type is ClassType classType3 && classType3.decl.name == "TsArray") {
                 if (v.mutability.mutated) {
-                    this.usings.add("System.Collections.Generic");
+                    this.imports.add("java.util.List");
                     type = $"List<{this.type(classType3.typeArguments.get(0))}>";
                 }
                 else
@@ -160,7 +174,12 @@ namespace Generator
             }
             else
                 type = this.type(v.type);
-            return $"{type} {this.name_(v.name)}";
+            return type;
+        }
+        
+        public string varWoInit(IVariable v, IHasAttributesAndTrivia attr)
+        {
+            return $"{this.varType(v, attr)} {this.name_(v.name)}";
         }
         
         public string var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs)
@@ -176,10 +195,9 @@ namespace Generator
         public string mutateArg(Expression arg, bool shouldBeMutable)
         {
             if (this.isTsArray(arg.actualType)) {
-                if (arg is ArrayLiteral arrayLit && !shouldBeMutable) {
-                    var itemType = (((ClassType)arrayLit.actualType)).typeArguments.get(0);
+                var itemType = (((ClassType)arg.actualType)).typeArguments.get(0);
+                if (arg is ArrayLiteral arrayLit && !shouldBeMutable)
                     return arrayLit.items.length() == 0 && !this.isTsArray(itemType) ? $"new {this.type(itemType)}[0]" : $"new {this.type(itemType)}[] {{ {arrayLit.items.map(x => this.expr(x)).join(", ")} }}";
-                }
                 
                 var currentlyMutable = shouldBeMutable;
                 if (arg is VariableReference varRef)
@@ -188,10 +206,10 @@ namespace Generator
                     currentlyMutable = false;
                 
                 if (currentlyMutable && !shouldBeMutable)
-                    return $"{this.expr(arg)}.ToArray()";
+                    return $"{this.expr(arg)}.toArray({this.type(itemType)}[]::new)";
                 else if (!currentlyMutable && shouldBeMutable) {
-                    this.usings.add("System.Linq");
-                    return $"{this.expr(arg)}.ToList()";
+                    this.imports.add("java.util.Arrays");
+                    return $"Arrays.asList({this.expr(arg)})";
                 }
             }
             return this.expr(arg);
@@ -229,11 +247,22 @@ namespace Generator
             return null;
         }
         
+        public bool isSetExpr(VariableReference varRef)
+        {
+            return varRef.parentNode is BinaryExpression binExpr && binExpr.left == varRef && new List<string> { "=", "+=", "-=" }.includes(binExpr.operator_);
+        }
+        
         public string expr(IExpression expr)
         {
+            foreach (var plugin in this.plugins) {
+                var result = plugin.expr(expr);
+                if (result != null)
+                    return result;
+            }
+            
             var res = "UNKNOWN-EXPR";
             if (expr is NewExpression newExpr)
-                res = $"new {this.type(newExpr.cls)}{this.callParams(newExpr.args, newExpr.cls.decl.constructor_ != null ? newExpr.cls.decl.constructor_.parameters : new MethodParameter[0])}";
+                res = $"new {this.type(newExpr.cls, true, true)}{this.callParams(newExpr.args, newExpr.cls.decl.constructor_ != null ? newExpr.cls.decl.constructor_.parameters : new MethodParameter[0])}";
             else if (expr is UnresolvedNewExpression unrNewExpr)
                 res = $"/* TODO: UnresolvedNewExpression */ new {this.type(unrNewExpr.cls)}({unrNewExpr.args.map(x => this.expr(x)).join(", ")})";
             else if (expr is Identifier ident)
@@ -251,7 +280,7 @@ namespace Generator
             else if (expr is GlobalFunctionCallExpression globFunctCallExpr)
                 res = $"Global.{this.name_(globFunctCallExpr.func.name)}{this.exprCall(new IType[0], globFunctCallExpr.args)}";
             else if (expr is LambdaCallExpression lambdCallExpr)
-                res = $"{this.expr(lambdCallExpr.method)}({lambdCallExpr.args.map(x => this.expr(x)).join(", ")})";
+                res = $"{this.expr(lambdCallExpr.method)}.apply({lambdCallExpr.args.map(x => this.expr(x)).join(", ")})";
             else if (expr is BooleanLiteral boolLit)
                 res = $"{(boolLit.boolValue ? "true" : "false")}";
             else if (expr is StringLiteral strLit)
@@ -261,11 +290,10 @@ namespace Generator
             else if (expr is CharacterLiteral charLit)
                 res = $"'{charLit.charValue}'";
             else if (expr is ElementAccessExpression elemAccExpr)
-                res = $"{this.expr(elemAccExpr.object_)}[{this.expr(elemAccExpr.elementExpr)}]";
+                res = $"{this.expr(elemAccExpr.object_)}.get({this.expr(elemAccExpr.elementExpr)})";
             else if (expr is TemplateString templStr) {
                 var parts = new List<string>();
                 foreach (var part in templStr.parts) {
-                    // parts.push(part.literalText.replace(new RegExp("\\n"), $"\\n").replace(new RegExp("\\r"), $"\\r").replace(new RegExp("\\t"), $"\\t").replace(new RegExp("{"), "{{").replace(new RegExp("}"), "}}").replace(new RegExp("\""), $"\\\""));
                     if (part.isLiteral) {
                         var lit = "";
                         for (int i = 0; i < part.literalText.length(); i++) {
@@ -280,10 +308,6 @@ namespace Generator
                                 lit += "\\\\";
                             else if (chr == "\"")
                                 lit += "\\\"";
-                            else if (chr == "{")
-                                lit += "{{";
-                            else if (chr == "}")
-                                lit += "}}";
                             else {
                                 var chrCode = chr.charCodeAt(0);
                                 if (32 <= chrCode && chrCode <= 126)
@@ -292,42 +316,36 @@ namespace Generator
                                     throw new Error($"invalid char in template string (code={chrCode})");
                             }
                         }
-                        parts.push(lit);
+                        parts.push($"\"{lit}\"");
                     }
                     else {
                         var repr = this.expr(part.expression);
-                        parts.push(part.expression is ConditionalExpression ? $"{{({repr})}}" : $"{{{repr}}}");
+                        parts.push(part.expression is ConditionalExpression ? $"({repr})" : repr);
                     }
                 }
-                res = $"$\"{parts.join("")}\"";
+                res = parts.join(" + ");
             }
-            else if (expr is BinaryExpression binExpr)
-                res = $"{this.expr(binExpr.left)} {binExpr.operator_} {this.mutatedExpr(binExpr.right, binExpr.operator_ == "=" ? binExpr.left : null)}";
+            else if (expr is BinaryExpression binExpr2) {
+                var modifies = new List<string> { "=", "+=", "-=" }.includes(binExpr2.operator_);
+                if (modifies && binExpr2.left is InstanceFieldReference instFieldRef && this.useGetterSetter(instFieldRef))
+                    res = $"{this.expr(instFieldRef.object_)}.set{this.ucFirst(instFieldRef.field.name)}({this.mutatedExpr(binExpr2.right, binExpr2.operator_ == "=" ? instFieldRef : null)})";
+                else
+                    res = $"{this.expr(binExpr2.left)} {binExpr2.operator_} {this.mutatedExpr(binExpr2.right, binExpr2.operator_ == "=" ? binExpr2.left : null)}";
+            }
             else if (expr is ArrayLiteral arrayLit2) {
                 if (arrayLit2.items.length() == 0)
-                    res = $"new {this.type(arrayLit2.actualType)}()";
-                else
-                    res = $"new {this.type(arrayLit2.actualType)} {{ {arrayLit2.items.map(x => this.expr(x)).join(", ")} }}";
+                    res = $"new {this.type(arrayLit2.actualType, true, true)}()";
+                else {
+                    this.imports.add($"java.util.List");
+                    res = $"List.of({arrayLit2.items.map(x => this.expr(x)).join(", ")})";
+                }
             }
-            else if (expr is CastExpression castExpr) {
-                if (castExpr.instanceOfCast != null && castExpr.instanceOfCast.alias != null)
-                    res = this.name_(castExpr.instanceOfCast.alias);
-                else
-                    res = $"(({this.type(castExpr.newType)}){this.expr(castExpr.expression)})";
-            }
+            else if (expr is CastExpression castExpr)
+                res = $"(({this.type(castExpr.newType)}){this.expr(castExpr.expression)})";
             else if (expr is ConditionalExpression condExpr)
                 res = $"{this.expr(condExpr.condition)} ? {this.expr(condExpr.whenTrue)} : {this.mutatedExpr(condExpr.whenFalse, condExpr.whenTrue)}";
-            else if (expr is InstanceOfExpression instOfExpr) {
-                if (instOfExpr.implicitCasts != null && instOfExpr.implicitCasts.length() > 0) {
-                    var aliasPrefix = this.inferExprNameForType(instOfExpr.checkType);
-                    if (aliasPrefix == null)
-                        aliasPrefix = instOfExpr.expr is VariableReference varRef3 ? varRef3.getVariable().name : "obj";
-                    var id = this.instanceOfIds.hasKey(aliasPrefix) ? this.instanceOfIds.get(aliasPrefix) : 1;
-                    this.instanceOfIds.set(aliasPrefix, id + 1);
-                    instOfExpr.alias = aliasPrefix + (id == 1 ? "" : $"{id}");
-                }
-                res = $"{this.expr(instOfExpr.expr)} is {this.type(instOfExpr.checkType)}{(instOfExpr.alias != null ? $" {this.name_(instOfExpr.alias)}" : "")}";
-            }
+            else if (expr is InstanceOfExpression instOfExpr)
+                res = $"{this.expr(instOfExpr.expr)} instanceof {this.type(instOfExpr.checkType)}";
             else if (expr is ParenthesizedExpression parExpr)
                 res = $"({this.expr(parExpr.expression)})";
             else if (expr is RegexLiteral regexLit)
@@ -341,20 +359,27 @@ namespace Generator
                 
                 var params_ = lambd.parameters.map(x => this.name_(x.name));
                 
-                res = $"{(params_.length() == 1 ? params_.get(0) : $"({params_.join(", ")})")} => {body}";
+                res = $"{(params_.length() == 1 ? params_.get(0) : $"({params_.join(", ")})")} -> {body}";
             }
             else if (expr is UnaryExpression unaryExpr && unaryExpr.unaryType == UnaryType.Prefix)
                 res = $"{unaryExpr.operator_}{this.expr(unaryExpr.operand)}";
             else if (expr is UnaryExpression unaryExpr2 && unaryExpr2.unaryType == UnaryType.Postfix)
                 res = $"{this.expr(unaryExpr2.operand)}{unaryExpr2.operator_}";
             else if (expr is MapLiteral mapLit) {
-                var repr = mapLit.items.map(item => $"[{JSON.stringify(item.key)}] = {this.expr(item.value)}").join(",\n");
-                res = $"new {this.type(mapLit.actualType)} " + (repr == "" ? "{}" : repr.includes("\n") ? $"{{\n{this.pad(repr)}\n}}" : $"{{ {repr} }}");
+                if (mapLit.items.length() > 10)
+                    throw new Error("MapLiteral is only supported with maximum of 10 items");
+                if (mapLit.items.length() == 0)
+                    res = $"new {this.type(mapLit.actualType, true, true)}()";
+                else {
+                    this.imports.add($"java.util.Map");
+                    var repr = mapLit.items.map(item => $"{JSON.stringify(item.key)}, {this.expr(item.value)}").join(", ");
+                    res = $"Map.of({repr})";
+                }
             }
             else if (expr is NullLiteral)
                 res = $"null";
             else if (expr is AwaitExpression awaitExpr)
-                res = $"await {this.expr(awaitExpr.expr)}";
+                res = $"{this.expr(awaitExpr.expr)}";
             else if (expr is ThisReference)
                 res = $"this";
             else if (expr is StaticThisReference)
@@ -376,35 +401,43 @@ namespace Generator
             else if (expr is GlobalFunctionReference globFunctRef)
                 res = $"{this.name_(globFunctRef.decl.name)}";
             else if (expr is SuperReference)
-                res = $"base";
+                res = $"super";
             else if (expr is StaticFieldReference statFieldRef)
                 res = $"{this.name_(statFieldRef.decl.parentInterface.name)}.{this.name_(statFieldRef.decl.name)}";
             else if (expr is StaticPropertyReference statPropRef)
                 res = $"{this.name_(statPropRef.decl.parentClass.name)}.{this.name_(statPropRef.decl.name)}";
-            else if (expr is InstanceFieldReference instFieldRef)
-                res = $"{this.expr(instFieldRef.object_)}.{this.name_(instFieldRef.field.name)}";
+            else if (expr is InstanceFieldReference instFieldRef2) {
+                // TODO: unified handling of field -> property conversion?
+                if (this.useGetterSetter(instFieldRef2))
+                    res = $"{this.expr(instFieldRef2.object_)}.get{this.ucFirst(instFieldRef2.field.name)}()";
+                else
+                    res = $"{this.expr(instFieldRef2.object_)}.{this.name_(instFieldRef2.field.name)}";
+            }
             else if (expr is InstancePropertyReference instPropRef)
-                res = $"{this.expr(instPropRef.object_)}.{this.name_(instPropRef.property.name)}";
+                res = $"{this.expr(instPropRef.object_)}.{(this.isSetExpr(instPropRef) ? "set" : "get")}{this.ucFirst(instPropRef.property.name)}()";
             else if (expr is EnumMemberReference enumMembRef)
                 res = $"{this.name_(enumMembRef.decl.parentEnum.name)}.{this.name_(enumMembRef.decl.name)}";
             else if (expr is NullCoalesceExpression nullCoalExpr)
-                res = $"{this.expr(nullCoalExpr.defaultExpr)} ?? {this.mutatedExpr(nullCoalExpr.exprIfNull, nullCoalExpr.defaultExpr)}";
+                res = $"{this.expr(nullCoalExpr.defaultExpr)} != null ? {this.expr(nullCoalExpr.defaultExpr)} : {this.mutatedExpr(nullCoalExpr.exprIfNull, nullCoalExpr.defaultExpr)}";
             else { }
             return res;
+        }
+        
+        public bool useGetterSetter(InstanceFieldReference fieldRef)
+        {
+            return fieldRef.object_.actualType is InterfaceType || (fieldRef.field.interfaceDeclarations != null && fieldRef.field.interfaceDeclarations.length() > 0);
         }
         
         public string block(Block block, bool allowOneLiner = true)
         {
             var stmtLen = block.statements.length();
-            return stmtLen == 0 ? " { }" : allowOneLiner && stmtLen == 1 && !(block.statements.get(0) is IfStatement) ? $"\n{this.pad(this.rawBlock(block))}" : $" {{\n{this.pad(this.rawBlock(block))}\n}}";
+            return stmtLen == 0 ? " { }" : allowOneLiner && stmtLen == 1 && !(block.statements.get(0) is IfStatement) && !(block.statements.get(0) is VariableDeclaration) ? $"\n{this.pad(this.rawBlock(block))}" : $" {{\n{this.pad(this.rawBlock(block))}\n}}";
         }
         
-        public string stmt(Statement stmt)
+        public string stmtDefault(Statement stmt)
         {
             var res = "UNKNOWN-STATEMENT";
-            if (stmt.attributes != null && stmt.attributes.hasKey("csharp"))
-                res = stmt.attributes.get("csharp");
-            else if (stmt is BreakStatement)
+            if (stmt is BreakStatement)
                 res = "break;";
             else if (stmt is ReturnStatement retStat)
                 res = retStat.expression == null ? "return;" : $"return {this.mutateArg(retStat.expression, false)};";
@@ -423,7 +456,7 @@ namespace Generator
                     res = $"{this.type(varDecl.type)} {this.name_(varDecl.name)};";
             }
             else if (stmt is ForeachStatement forStat)
-                res = $"foreach (var {this.name_(forStat.itemVar.name)} in {this.expr(forStat.items)})" + this.block(forStat.body);
+                res = $"for (var {this.name_(forStat.itemVar.name)} : {this.expr(forStat.items)})" + this.block(forStat.body);
             else if (stmt is IfStatement ifStat) {
                 var elseIf = ifStat.else_ != null && ifStat.else_.statements.length() == 1 && ifStat.else_.statements.get(0) is IfStatement;
                 res = $"if ({this.expr(ifStat.condition)}){this.block(ifStat.then)}";
@@ -437,16 +470,38 @@ namespace Generator
                 res = $"do{this.block(doStat.body)} while ({this.expr(doStat.condition)});";
             else if (stmt is TryStatement tryStat) {
                 res = "try" + this.block(tryStat.tryBody, false);
-                if (tryStat.catchBody != null) {
-                    this.usings.add("System");
+                if (tryStat.catchBody != null)
+                    //this.imports.add("System");
                     res += $" catch (Exception {this.name_(tryStat.catchVar.name)}) {this.block(tryStat.catchBody, false)}";
-                }
                 if (tryStat.finallyBody != null)
                     res += "finally" + this.block(tryStat.finallyBody);
             }
             else if (stmt is ContinueStatement)
                 res = $"continue;";
             else { }
+            return res;
+        }
+        
+        public string stmt(Statement stmt)
+        {
+            string res = null;
+            
+            if (stmt.attributes != null && stmt.attributes.hasKey("java-import"))
+                this.imports.add(stmt.attributes.get("java-import"));
+            
+            if (stmt.attributes != null && stmt.attributes.hasKey("java"))
+                res = stmt.attributes.get("java");
+            else {
+                foreach (var plugin in this.plugins) {
+                    res = plugin.stmt(stmt);
+                    if (res != null)
+                        break;
+                }
+                
+                if (res == null)
+                    res = this.stmtDefault(stmt);
+            }
+            
             return this.leading(stmt) + res;
         }
         
@@ -460,65 +515,129 @@ namespace Generator
             return this.stmts(block.statements.ToArray());
         }
         
-        public string classLike(IInterface cls)
+        public string overloadMethodGen(string prefix, Method method, MethodParameter[] params_, string body)
+        {
+            var methods = new List<string>();
+            methods.push(prefix + $"({params_.map(p => this.varWoInit(p, null)).join(", ")})" + body);
+            
+            for (int paramLen = params_.length() - 1; paramLen >= 0; paramLen--) {
+                if (params_.get(paramLen).initializer == null)
+                    break;
+                
+                var methodParams = new List<string>();
+                var methodArgs = new List<string>();
+                for (int i = 0; i < params_.length(); i++) {
+                    var p = params_.get(i);
+                    if (i < paramLen)
+                        methodParams.push(this.varWoInit(p, null));
+                    methodArgs.push(i >= paramLen ? this.expr(p.initializer) : p.name);
+                }
+                
+                var baseName = $"{(method != null && method.isStatic ? this.currentClass.name : "this")}{(method != null ? $".{method.name}" : "")}";
+                methods.push($"{prefix}({methodParams.join(", ")}) {{\n{this.pad($"{(method != null && !(method.returns is VoidType) ? "return " : "")}{baseName}({methodArgs.join(", ")});")}\n}}");
+            }
+            
+            return methods.join("\n\n");
+        }
+        
+        public string method(Method method, bool isCls)
+        {
+            // TODO: final
+            var prefix = (isCls ? this.vis(method.visibility) + " " : "") + this.preIf("static ", method.isStatic) + this.preIf("/* throws */ ", method.throws) + (method.typeArguments.length() > 0 ? $"<{method.typeArguments.join(", ")}> " : "") + $"{this.type(method.returns, false)} " + this.name_(method.name);
+            return this.overloadMethodGen(prefix, method, method.parameters, method.body == null ? ";" : $"\n{{\n{this.pad(this.stmts(method.body.statements.ToArray()))}\n}}");
+        }
+        
+        public string class_(Class cls)
         {
             this.currentClass = cls;
             var resList = new List<string>();
             
             var staticConstructorStmts = new List<Statement>();
             var complexFieldInits = new List<Statement>();
-            if (cls is Class class_) {
-                var fieldReprs = new List<string>();
-                foreach (var field in class_.fields) {
-                    var isInitializerComplex = field.initializer != null && !(field.initializer is StringLiteral) && !(field.initializer is BooleanLiteral) && !(field.initializer is NumericLiteral);
-                    
-                    var prefix = $"{this.vis(field.visibility)} {this.preIf("static ", field.isStatic)}";
-                    if (field.interfaceDeclarations.length() > 0)
-                        fieldReprs.push($"{prefix}{this.varWoInit(field, field)} {{ get; set; }}");
-                    else if (isInitializerComplex) {
-                        if (field.isStatic)
-                            staticConstructorStmts.push(new ExpressionStatement(new BinaryExpression(new StaticFieldReference(field), "=", field.initializer)));
-                        else
-                            complexFieldInits.push(new ExpressionStatement(new BinaryExpression(new InstanceFieldReference(new ThisReference(class_), field), "=", field.initializer)));
-                        
-                        fieldReprs.push($"{prefix}{this.varWoInit(field, field)};");
-                    }
+            var fieldReprs = new List<string>();
+            var propReprs = new List<string>();
+            foreach (var field in cls.fields) {
+                var isInitializerComplex = field.initializer != null && !(field.initializer is StringLiteral) && !(field.initializer is BooleanLiteral) && !(field.initializer is NumericLiteral);
+                
+                var prefix = $"{this.vis(field.visibility)} {this.preIf("static ", field.isStatic)}";
+                if (field.interfaceDeclarations.length() > 0) {
+                    var varType = this.varType(field, field);
+                    var name = this.name_(field.name);
+                    var pname = this.ucFirst(field.name);
+                    propReprs.push($"{varType} {name};\n" + $"{prefix}{varType} get{pname}() {{ return this.{name}; }}\n" + $"{prefix}void set{pname}({varType} value) {{ this.{name} = value; }}");
+                }
+                else if (isInitializerComplex) {
+                    if (field.isStatic)
+                        staticConstructorStmts.push(new ExpressionStatement(new BinaryExpression(new StaticFieldReference(field), "=", field.initializer)));
                     else
-                        fieldReprs.push($"{prefix}{this.var(field, field)};");
-                }
-                resList.push(fieldReprs.join("\n"));
-                
-                resList.push(class_.properties.map(prop => $"{this.vis(prop.visibility)} {this.preIf("static ", prop.isStatic)}" + this.varWoInit(prop, prop) + (prop.getter != null ? $" {{\n    get {{\n{this.pad(this.block(prop.getter))}\n    }}\n}}" : "") + (prop.setter != null ? $" {{\n    set {{\n{this.pad(this.block(prop.setter))}\n    }}\n}}" : "")).join("\n"));
-                
-                if (staticConstructorStmts.length() > 0)
-                    resList.push($"static {this.name_(class_.name)}()\n{{\n{this.pad(this.stmts(staticConstructorStmts.ToArray()))}\n}}");
-                
-                if (class_.constructor_ != null) {
-                    var constrFieldInits = new List<Statement>();
-                    foreach (var field in class_.fields.filter(x => x.constructorParam != null)) {
-                        var fieldRef = new InstanceFieldReference(new ThisReference(class_), field);
-                        var mpRef = new MethodParameterReference(field.constructorParam);
-                        // TODO: decide what to do with "after-TypeEngine" transformations
-                        mpRef.setActualType(field.type, false, false);
-                        constrFieldInits.push(new ExpressionStatement(new BinaryExpression(fieldRef, "=", mpRef)));
-                    }
+                        complexFieldInits.push(new ExpressionStatement(new BinaryExpression(new InstanceFieldReference(new ThisReference(cls), field), "=", field.initializer)));
                     
-                    resList.push("public " + this.preIf("/* throws */ ", class_.constructor_.throws) + this.name_(class_.name) + $"({class_.constructor_.parameters.map(p => this.var(p, p)).join(", ")})" + (class_.constructor_.superCallArgs != null ? $": base({class_.constructor_.superCallArgs.map(x => this.expr(x)).join(", ")})" : "") + $"\n{{\n{this.pad(this.stmts(constrFieldInits.concat(complexFieldInits.ToArray()).concat(class_.constructor_.body.statements.ToArray())))}\n}}");
+                    fieldReprs.push($"{prefix}{this.varWoInit(field, field)};");
                 }
-                else if (complexFieldInits.length() > 0)
-                    resList.push($"public {this.name_(class_.name)}()\n{{\n{this.pad(this.stmts(complexFieldInits.ToArray()))}\n}}");
+                else
+                    fieldReprs.push($"{prefix}{this.var(field, field)};");
             }
-            else if (cls is Interface int_)
-                resList.push(int_.fields.map(field => $"{this.varWoInit(field, field)} {{ get; set; }}").join("\n"));
+            resList.push(fieldReprs.join("\n"));
+            resList.push(propReprs.join("\n\n"));
+            
+            foreach (var prop in cls.properties) {
+                var prefix = $"{this.vis(prop.visibility)} {this.preIf("static ", prop.isStatic)}";
+                if (prop.getter != null)
+                    resList.push($"{prefix}{this.type(prop.type)} get{this.ucFirst(prop.name)}(){this.block(prop.getter, false)}");
+                
+                if (prop.setter != null)
+                    resList.push($"{prefix}void set{this.ucFirst(prop.name)}({this.type(prop.type)} value){this.block(prop.setter, false)}");
+            }
+            
+            if (staticConstructorStmts.length() > 0)
+                resList.push($"static {{\n{this.pad(this.stmts(staticConstructorStmts.ToArray()))}\n}}");
+            
+            if (cls.constructor_ != null) {
+                var constrFieldInits = new List<Statement>();
+                foreach (var field in cls.fields.filter(x => x.constructorParam != null)) {
+                    var fieldRef = new InstanceFieldReference(new ThisReference(cls), field);
+                    var mpRef = new MethodParameterReference(field.constructorParam);
+                    // TODO: decide what to do with "after-TypeEngine" transformations
+                    mpRef.setActualType(field.type, false, false);
+                    constrFieldInits.push(new ExpressionStatement(new BinaryExpression(fieldRef, "=", mpRef)));
+                }
+                
+                var superCall = cls.constructor_.superCallArgs != null ? $"super({cls.constructor_.superCallArgs.map(x => this.expr(x)).join(", ")});\n" : "";
+                
+                // TODO: super calls
+                resList.push(this.overloadMethodGen("public " + this.preIf("/* throws */ ", cls.constructor_.throws) + this.name_(cls.name), null, cls.constructor_.parameters, $"\n{{\n{this.pad(superCall + this.stmts(constrFieldInits.concat(complexFieldInits.ToArray()).concat(cls.constructor_.body.statements.ToArray())))}\n}}"));
+            }
+            else if (complexFieldInits.length() > 0)
+                resList.push($"public {this.name_(cls.name)}()\n{{\n{this.pad(this.stmts(complexFieldInits.ToArray()))}\n}}");
             
             var methods = new List<string>();
             foreach (var method in cls.methods) {
-                if (cls is Class && method.body == null)
+                if (method.body == null)
                     continue;
                 // declaration only
-                methods.push((method.parentInterface is Interface ? "" : this.vis(method.visibility) + " ") + this.preIf("static ", method.isStatic) + this.preIf("virtual ", method.overrides == null && method.overriddenBy.length() > 0) + this.preIf("override ", method.overrides != null) + this.preIf("async ", method.async) + this.preIf("/* throws */ ", method.throws) + $"{this.type(method.returns, false)} " + this.name_(method.name) + this.typeArgs(method.typeArguments) + $"({method.parameters.map(p => this.var(p, null)).join(", ")})" + (method.body != null ? $"\n{{\n{this.pad(this.stmts(method.body.statements.ToArray()))}\n}}" : ";"));
+                methods.push(this.method(method, true));
             }
             resList.push(methods.join("\n\n"));
+            return this.pad(resList.filter(x => x != "").join("\n\n"));
+        }
+        
+        public string ucFirst(string str)
+        {
+            return str.get(0).toUpperCase() + str.substr(1);
+        }
+        
+        public string interface_(Interface intf)
+        {
+            this.currentClass = intf;
+            
+            var resList = new List<string>();
+            foreach (var field in intf.fields) {
+                var varType = this.varType(field, field);
+                var name = this.ucFirst(field.name);
+                resList.push($"{varType} get{name}();\nvoid set{name}({varType} value);");
+            }
+            
+            resList.push(intf.methods.map(method => this.method(method, false)).join("\n"));
             return this.pad(resList.filter(x => x != "").join("\n\n"));
         }
         
@@ -535,47 +654,35 @@ namespace Generator
             return parts.join(".");
         }
         
-        public string genFile(SourceFile sourceFile)
+        public string importsHead()
         {
-            this.instanceOfIds = new Dictionary<string, int> {};
-            this.usings = new Set<string>();
-            var enums = sourceFile.enums.map(enum_ => $"public enum {this.name_(enum_.name)} {{ {enum_.values.map(x => this.name_(x.name)).join(", ")} }}");
-            
-            var intfs = sourceFile.interfaces.map(intf => $"public interface {this.name_(intf.name)}{this.typeArgs(intf.typeArguments)}" + $"{this.preArr(" : ", intf.baseInterfaces.map(x => this.type(x)))} {{\n{this.classLike(intf)}\n}}");
-            
-            var classes = new List<string>();
-            foreach (var cls in sourceFile.classes) {
-                var baseClasses = new List<IType>();
-                if (cls.baseClass != null)
-                    baseClasses.push(cls.baseClass);
-                foreach (var intf in cls.baseInterfaces)
-                    baseClasses.push(intf);
-                classes.push($"public class {this.name_(cls.name)}{this.typeArgs(cls.typeArguments)}{this.preArr(" : ", baseClasses.map(x => this.type(x)))} {{\n{this.classLike(cls)}\n}}");
-            }
-            
-            var main = sourceFile.mainBlock.statements.length() > 0 ? $"public class Program\n{{\n    static void Main(string[] args)\n    {{\n{this.pad(this.rawBlock(sourceFile.mainBlock))}\n    }}\n}}" : "";
-            
-            // @java var usingsSet = new HashSet<String>(Arrays.stream(sourceFile.imports).map(x -> this.pathToNs(x.exportScope.scopeName)).filter(x -> x != "").collect(Collectors.toList()));
-            var usingsSet = new Set<string>(sourceFile.imports.map(x => this.pathToNs(x.exportScope.scopeName)).filter(x => x != ""));
-            foreach (var using_ in this.usings.values())
-                usingsSet.add(using_);
-            
-            var usings = new List<string>();
-            foreach (var using_ in usingsSet.values())
-                usings.push($"using {using_};");
-            
-            var result = new List<string> { enums.join("\n"), intfs.join("\n\n"), classes.join("\n\n"), main }.filter(x => x != "").join("\n\n");
-            var nl = "\n";
-            // Python fix
-            result = $"{usings.join(nl)}\n\nnamespace {this.pathToNs(sourceFile.sourcePath.path)}\n{{\n{this.pad(result)}\n}}";
-            return result;
+            var imports = new List<string>();
+            foreach (var imp in this.imports.values())
+                imports.push(imp);
+            this.imports = new Set<string>();
+            return imports.length() == 0 ? "" : imports.map(x => $"import {x};").join("\n") + "\n\n";
         }
         
         public GeneratedFile[] generate(Package pkg)
         {
             var result = new List<GeneratedFile>();
-            foreach (var path in Object.keys(pkg.files))
-                result.push(new GeneratedFile(path, this.genFile(pkg.files.get(path))));
+            foreach (var path in Object.keys(pkg.files)) {
+                var file = pkg.files.get(path);
+                var dstDir = $"src/main/java/{pkg.name}/{file.sourcePath.path.replace(new RegExp("\\.ts$"), "")}";
+                
+                foreach (var enum_ in file.enums)
+                    result.push(new GeneratedFile($"{dstDir}/{enum_.name}.java", $"public enum {this.name_(enum_.name)} {{ {enum_.values.map(x => this.name_(x.name)).join(", ")} }}"));
+                
+                foreach (var intf in file.interfaces) {
+                    var res = $"public interface {this.name_(intf.name)}{this.typeArgs(intf.typeArguments)}" + $"{this.preArr(" extends ", intf.baseInterfaces.map(x => this.type(x)))} {{\n{this.interface_(intf)}\n}}";
+                    result.push(new GeneratedFile($"{dstDir}/{intf.name}.java", this.importsHead() + res));
+                }
+                
+                foreach (var cls in file.classes) {
+                    var res = $"public class {this.name_(cls.name)}{this.typeArgs(cls.typeArguments)}" + (cls.baseClass != null ? $" extends {this.type(cls.baseClass)}" : "") + this.preArr(" implements ", cls.baseInterfaces.map(x => this.type(x))) + $" {{\n{this.class_(cls)}\n}}";
+                    result.push(new GeneratedFile($"{dstDir}/{cls.name}.java", this.importsHead() + res));
+                }
+            }
             return result.ToArray();
         }
     }

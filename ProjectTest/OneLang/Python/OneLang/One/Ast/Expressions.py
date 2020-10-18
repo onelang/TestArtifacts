@@ -42,6 +42,7 @@ class Expression:
         #if (!allowGeneric && TypeHelper.isGeneric(actualType))
         #    throw new Error(`Actual type cannot be generic (${actualType.repr()})!`);
         
+        #if (actualType.repr() === "C:TsArray<Void>") debugger;
         self.actual_type = actual_type
     
     def set_expected_type(self, type, allow_void = False):

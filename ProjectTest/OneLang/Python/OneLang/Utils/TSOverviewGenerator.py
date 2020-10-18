@@ -5,14 +5,20 @@ import OneLang.One.Ast.Types as types
 import OneLang.One.Ast.AstTypes as astTypes
 import OneLang.One.Ast.References as refs
 import OneLang.One.Ast.Interfaces as ints
+import OneLangStdLib as one
 import re
 
+@one.static_init
 class TSOverviewGenerator:
-    def __init__(self):
-        pass
-    
     @classmethod
-    def leading(cls, item):
+    def static_init(cls):
+        cls.preview = cls(True)
+    
+    def __init__(self, preview_only = False, show_types = False):
+        self.preview_only = preview_only
+        self.show_types = show_types
+    
+    def leading(self, item):
         result = ""
         if item.leading_trivia != None and len(item.leading_trivia) > 0:
             result += item.leading_trivia
@@ -20,76 +26,69 @@ class TSOverviewGenerator:
             result += "".join(list(map(lambda x: f'''/// {{ATTR}} name="{x}", value={JSON.stringify(item.attributes.get(x))}\n''', item.attributes.keys())))
         return result
     
-    @classmethod
-    def pre_arr(cls, prefix, value):
+    def pre_arr(self, prefix, value):
         return f'''{prefix}{", ".join(value)}''' if len(value) > 0 else ""
     
-    @classmethod
-    def pre_if(cls, prefix, condition):
+    def pre_if(self, prefix, condition):
         return prefix if condition else ""
     
-    @classmethod
-    def pre(cls, prefix, value):
+    def pre(self, prefix, value):
         return f'''{prefix}{value}''' if value != None else ""
     
-    @classmethod
-    def type_args(cls, args):
+    def type_args(self, args):
         return f'''<{", ".join(args)}>''' if args != None and len(args) > 0 else ""
     
-    @classmethod
-    def type(cls, t, raw = False):
+    def type(self, t, raw = False):
         repr = "???" if t == None else t.repr()
         if repr == "U:UNKNOWN":
             pass
         return ("" if raw else "{T}") + repr
     
-    @classmethod
-    def var(cls, v):
+    def var(self, v):
         result = ""
         is_prop = isinstance(v, types.Property)
         if isinstance(v, types.Field) or isinstance(v, types.Property):
             m = v
-            result += TSOverviewGenerator.pre_if("static ", m.is_static)
+            result += self.pre_if("", m.is_static)
             result += "private " if m.visibility == types.VISIBILITY.PRIVATE else "protected " if m.visibility == types.VISIBILITY.PROTECTED else "public " if m.visibility == types.VISIBILITY.PUBLIC else "VISIBILITY-NOT-SET"
         result += f'''{("@prop " if is_prop else "")}'''
         if v.mutability != None:
             result += f'''{("@unused " if v.mutability.unused else "")}'''
             result += f'''{("@mutated " if v.mutability.mutated else "")}'''
             result += f'''{("@reass " if v.mutability.reassigned else "")}'''
-        result += f'''{v.name}{("()" if is_prop else "")}: {TSOverviewGenerator.type(v.type)}'''
+        result += f'''{v.name}{("()" if is_prop else "")}: {self.type(v.type)}'''
         if isinstance(v, stats.VariableDeclaration) or isinstance(v, stats.ForVariable) or isinstance(v, types.Field) or isinstance(v, types.MethodParameter):
             init = (v).initializer
             if init != None:
-                result += TSOverviewGenerator.pre(" = ", TSOverviewGenerator.expr(init))
+                result += self.pre(" = ", self.expr(init))
         return result
     
-    @classmethod
-    def expr(cls, expr, preview_only = False):
+    def expr(self, expr):
         res = "UNKNOWN-EXPR"
         if isinstance(expr, exprs.NewExpression):
-            res = f'''new {TSOverviewGenerator.type(expr.cls_)}({("..." if preview_only else ", ".join(list(map(lambda x: TSOverviewGenerator.expr(x), expr.args))))})'''
+            res = f'''new {self.type(expr.cls_)}({("..." if self.preview_only else ", ".join(list(map(lambda x: self.expr(x), expr.args))))})'''
         elif isinstance(expr, exprs.UnresolvedNewExpression):
-            res = f'''new {TSOverviewGenerator.type(expr.cls_)}({("..." if preview_only else ", ".join(list(map(lambda x: TSOverviewGenerator.expr(x), expr.args))))})'''
+            res = f'''new {self.type(expr.cls_)}({("..." if self.preview_only else ", ".join(list(map(lambda x: self.expr(x), expr.args))))})'''
         elif isinstance(expr, exprs.Identifier):
             res = f'''{{ID}}{expr.text}'''
         elif isinstance(expr, exprs.PropertyAccessExpression):
-            res = f'''{TSOverviewGenerator.expr(expr.object)}.{{PA}}{expr.property_name}'''
+            res = f'''{self.expr(expr.object)}.{{PA}}{expr.property_name}'''
         elif isinstance(expr, exprs.UnresolvedCallExpression):
-            type_args = f'''<{", ".join(list(map(lambda x: TSOverviewGenerator.type(x), expr.type_args)))}>''' if len(expr.type_args) > 0 else ""
-            res = f'''{TSOverviewGenerator.expr(expr.func)}{type_args}({("..." if preview_only else ", ".join(list(map(lambda x: TSOverviewGenerator.expr(x), expr.args))))})'''
+            type_args = f'''<{", ".join(list(map(lambda x: self.type(x), expr.type_args)))}>''' if len(expr.type_args) > 0 else ""
+            res = f'''{self.expr(expr.func)}{type_args}({("..." if self.preview_only else ", ".join(list(map(lambda x: self.expr(x), expr.args))))})'''
         elif isinstance(expr, exprs.UnresolvedMethodCallExpression):
-            type_args = f'''<{", ".join(list(map(lambda x: TSOverviewGenerator.type(x), expr.type_args)))}>''' if len(expr.type_args) > 0 else ""
-            res = f'''{TSOverviewGenerator.expr(expr.object)}.{{UM}}{expr.method_name}{type_args}({("..." if preview_only else ", ".join(list(map(lambda x: TSOverviewGenerator.expr(x), expr.args))))})'''
+            type_args = f'''<{", ".join(list(map(lambda x: self.type(x), expr.type_args)))}>''' if len(expr.type_args) > 0 else ""
+            res = f'''{self.expr(expr.object)}.{{UM}}{expr.method_name}{type_args}({("..." if self.preview_only else ", ".join(list(map(lambda x: self.expr(x), expr.args))))})'''
         elif isinstance(expr, exprs.InstanceMethodCallExpression):
-            type_args = f'''<{", ".join(list(map(lambda x: TSOverviewGenerator.type(x), expr.type_args)))}>''' if len(expr.type_args) > 0 else ""
-            res = f'''{TSOverviewGenerator.expr(expr.object)}.{{M}}{expr.method.name}{type_args}({("..." if preview_only else ", ".join(list(map(lambda x: TSOverviewGenerator.expr(x), expr.args))))})'''
+            type_args = f'''<{", ".join(list(map(lambda x: self.type(x), expr.type_args)))}>''' if len(expr.type_args) > 0 else ""
+            res = f'''{self.expr(expr.object)}.{{M}}{expr.method.name}{type_args}({("..." if self.preview_only else ", ".join(list(map(lambda x: self.expr(x), expr.args))))})'''
         elif isinstance(expr, exprs.StaticMethodCallExpression):
-            type_args = f'''<{", ".join(list(map(lambda x: TSOverviewGenerator.type(x), expr.type_args)))}>''' if len(expr.type_args) > 0 else ""
-            res = f'''{expr.method.parent_interface.name}.{{M}}{expr.method.name}{type_args}({("..." if preview_only else ", ".join(list(map(lambda x: TSOverviewGenerator.expr(x), expr.args))))})'''
+            type_args = f'''<{", ".join(list(map(lambda x: self.type(x), expr.type_args)))}>''' if len(expr.type_args) > 0 else ""
+            res = f'''{expr.method.parent_interface.name}.{{M}}{expr.method.name}{type_args}({("..." if self.preview_only else ", ".join(list(map(lambda x: self.expr(x), expr.args))))})'''
         elif isinstance(expr, exprs.GlobalFunctionCallExpression):
-            res = f'''{expr.func.name}({("..." if preview_only else ", ".join(list(map(lambda x: TSOverviewGenerator.expr(x), expr.args))))})'''
+            res = f'''{expr.func.name}({("..." if self.preview_only else ", ".join(list(map(lambda x: self.expr(x), expr.args))))})'''
         elif isinstance(expr, exprs.LambdaCallExpression):
-            res = f'''{TSOverviewGenerator.expr(expr.method)}({("..." if preview_only else ", ".join(list(map(lambda x: TSOverviewGenerator.expr(x), expr.args))))})'''
+            res = f'''{self.expr(expr.method)}({("..." if self.preview_only else ", ".join(list(map(lambda x: self.expr(x), expr.args))))})'''
         elif isinstance(expr, exprs.BooleanLiteral):
             res = f'''{("true" if expr.bool_value else "false")}'''
         elif isinstance(expr, exprs.StringLiteral):
@@ -99,36 +98,36 @@ class TSOverviewGenerator:
         elif isinstance(expr, exprs.CharacterLiteral):
             res = f'''\'{expr.char_value}\''''
         elif isinstance(expr, exprs.ElementAccessExpression):
-            res = f'''({TSOverviewGenerator.expr(expr.object)})[{TSOverviewGenerator.expr(expr.element_expr)}]'''
+            res = f'''({self.expr(expr.object)})[{self.expr(expr.element_expr)}]'''
         elif isinstance(expr, exprs.TemplateString):
-            res = "`" + "".join(list(map(lambda x: x.literal_text if x.is_literal else "${" + TSOverviewGenerator.expr(x.expression) + "}", expr.parts))) + "`"
+            res = "`" + "".join(list(map(lambda x: x.literal_text if x.is_literal else "${" + self.expr(x.expression) + "}", expr.parts))) + "`"
         elif isinstance(expr, exprs.BinaryExpression):
-            res = f'''{TSOverviewGenerator.expr(expr.left)} {expr.operator} {TSOverviewGenerator.expr(expr.right)}'''
+            res = f'''{self.expr(expr.left)} {expr.operator} {self.expr(expr.right)}'''
         elif isinstance(expr, exprs.ArrayLiteral):
-            res = f'''[{", ".join(list(map(lambda x: TSOverviewGenerator.expr(x), expr.items)))}]'''
+            res = f'''[{", ".join(list(map(lambda x: self.expr(x), expr.items)))}]'''
         elif isinstance(expr, exprs.CastExpression):
-            res = f'''<{TSOverviewGenerator.type(expr.new_type)}>({TSOverviewGenerator.expr(expr.expression)})'''
+            res = f'''<{self.type(expr.new_type)}>({self.expr(expr.expression)})'''
         elif isinstance(expr, exprs.ConditionalExpression):
-            res = f'''{TSOverviewGenerator.expr(expr.condition)} ? {TSOverviewGenerator.expr(expr.when_true)} : {TSOverviewGenerator.expr(expr.when_false)}'''
+            res = f'''{self.expr(expr.condition)} ? {self.expr(expr.when_true)} : {self.expr(expr.when_false)}'''
         elif isinstance(expr, exprs.InstanceOfExpression):
-            res = f'''{TSOverviewGenerator.expr(expr.expr)} instanceof {TSOverviewGenerator.type(expr.check_type)}'''
+            res = f'''{self.expr(expr.expr)} instanceof {self.type(expr.check_type)}'''
         elif isinstance(expr, exprs.ParenthesizedExpression):
-            res = f'''({TSOverviewGenerator.expr(expr.expression)})'''
+            res = f'''({self.expr(expr.expression)})'''
         elif isinstance(expr, exprs.RegexLiteral):
             res = f'''/{expr.pattern}/{("g" if expr.global_ else "")}{("g" if expr.case_insensitive else "")}'''
         elif isinstance(expr, types.Lambda):
-            res = f'''({", ".join(list(map(lambda x: x.name + (": " + TSOverviewGenerator.type(x.type) if x.type != None else ""), expr.parameters)))})''' + (f''' @captures({", ".join(list(map(lambda x: x.name, expr.captures)))})''' if expr.captures != None and len(expr.captures) > 0 else "") + f''' => {{ {TSOverviewGenerator.raw_block(expr.body)} }}'''
+            res = f'''({", ".join(list(map(lambda x: x.name + (": " + self.type(x.type) if x.type != None else ""), expr.parameters)))})''' + (f''' @captures({", ".join(list(map(lambda x: x.name, expr.captures)))})''' if expr.captures != None and len(expr.captures) > 0 else "") + f''' => {{ {self.raw_block(expr.body)} }}'''
         elif isinstance(expr, exprs.UnaryExpression) and expr.unary_type == exprs.UNARY_TYPE.PREFIX:
-            res = f'''{expr.operator}{TSOverviewGenerator.expr(expr.operand)}'''
+            res = f'''{expr.operator}{self.expr(expr.operand)}'''
         elif isinstance(expr, exprs.UnaryExpression) and expr.unary_type == exprs.UNARY_TYPE.POSTFIX:
-            res = f'''{TSOverviewGenerator.expr(expr.operand)}{expr.operator}'''
+            res = f'''{self.expr(expr.operand)}{expr.operator}'''
         elif isinstance(expr, exprs.MapLiteral):
-            repr = ",\n".join(list(map(lambda item: f'''{item.key}: {TSOverviewGenerator.expr(item.value)}''', expr.items)))
-            res = "{L:M}" + ("{}" if repr == "" else f'''{{\n{TSOverviewGenerator.pad(repr)}\n}}''' if "\n" in repr else f'''{{ {repr} }}''')
+            repr = ",\n".join(list(map(lambda item: f'''{item.key}: {self.expr(item.value)}''', expr.items)))
+            res = "{L:M}" + ("{}" if repr == "" else f'''{{\n{self.pad(repr)}\n}}''' if "\n" in repr else f'''{{ {repr} }}''')
         elif isinstance(expr, exprs.NullLiteral):
             res = f'''null'''
         elif isinstance(expr, exprs.AwaitExpression):
-            res = f'''await {TSOverviewGenerator.expr(expr.expr)}'''
+            res = f'''await {self.expr(expr.expr)}'''
         elif isinstance(expr, refs.ThisReference):
             res = f'''{{R}}this'''
         elif isinstance(expr, refs.StaticThisReference):
@@ -156,110 +155,104 @@ class TSOverviewGenerator:
         elif isinstance(expr, refs.StaticPropertyReference):
             res = f'''{{R:StPr}}{expr.decl.parent_class.name}::{expr.decl.name}'''
         elif isinstance(expr, refs.InstanceFieldReference):
-            res = f'''{TSOverviewGenerator.expr(expr.object)}.{{F}}{expr.field.name}'''
+            res = f'''{self.expr(expr.object)}.{{F}}{expr.field.name}'''
         elif isinstance(expr, refs.InstancePropertyReference):
-            res = f'''{TSOverviewGenerator.expr(expr.object)}.{{P}}{expr.property.name}'''
+            res = f'''{self.expr(expr.object)}.{{P}}{expr.property.name}'''
         elif isinstance(expr, refs.EnumMemberReference):
             res = f'''{{E}}{expr.decl.parent_enum.name}::{expr.decl.name}'''
         elif isinstance(expr, exprs.NullCoalesceExpression):
-            res = f'''{TSOverviewGenerator.expr(expr.default_expr)} ?? {TSOverviewGenerator.expr(expr.expr_if_null)}'''
+            res = f'''{self.expr(expr.default_expr)} ?? {self.expr(expr.expr_if_null)}'''
         else:
             pass
+        
+        if self.show_types:
+            res = f'''<{self.type(expr.get_type(), True)}>({res})'''
+        
         return res
     
-    @classmethod
-    def block(cls, block, preview_only = False, allow_one_liner = True):
-        if preview_only:
+    def block(self, block, allow_one_liner = True):
+        if self.preview_only:
             return " { ... }"
         stmt_len = len(block.statements)
-        return " { }" if stmt_len == 0 else f'''\n{TSOverviewGenerator.pad(TSOverviewGenerator.raw_block(block))}''' if allow_one_liner and stmt_len == 1 else f''' {{\n{TSOverviewGenerator.pad(TSOverviewGenerator.raw_block(block))}\n}}'''
+        return " { }" if stmt_len == 0 else f'''\n{self.pad(self.raw_block(block))}''' if allow_one_liner and stmt_len == 1 else f''' {{\n{self.pad(self.raw_block(block))}\n}}'''
     
-    @classmethod
-    def stmt(cls, stmt, preview_only = False):
+    def stmt(self, stmt):
         res = "UNKNOWN-STATEMENT"
         if isinstance(stmt, stats.BreakStatement):
             res = "break;"
         elif isinstance(stmt, stats.ReturnStatement):
-            res = "return;" if stmt.expression == None else f'''return {TSOverviewGenerator.expr(stmt.expression)};'''
+            res = "return;" if stmt.expression == None else f'''return {self.expr(stmt.expression)};'''
         elif isinstance(stmt, stats.UnsetStatement):
-            res = f'''unset {TSOverviewGenerator.expr(stmt.expression)};'''
+            res = f'''unset {self.expr(stmt.expression)};'''
         elif isinstance(stmt, stats.ThrowStatement):
-            res = f'''throw {TSOverviewGenerator.expr(stmt.expression)};'''
+            res = f'''throw {self.expr(stmt.expression)};'''
         elif isinstance(stmt, stats.ExpressionStatement):
-            res = f'''{TSOverviewGenerator.expr(stmt.expression)};'''
+            res = f'''{self.expr(stmt.expression)};'''
         elif isinstance(stmt, stats.VariableDeclaration):
-            res = f'''var {TSOverviewGenerator.var(stmt)};'''
+            res = f'''var {self.var(stmt)};'''
         elif isinstance(stmt, stats.ForeachStatement):
-            res = f'''for (const {stmt.item_var.name} of {TSOverviewGenerator.expr(stmt.items)})''' + TSOverviewGenerator.block(stmt.body, preview_only)
+            res = f'''for (const {stmt.item_var.name} of {self.expr(stmt.items)})''' + self.block(stmt.body)
         elif isinstance(stmt, stats.IfStatement):
             else_if = stmt.else_ != None and len(stmt.else_.statements) == 1 and isinstance(stmt.else_.statements[0], stats.IfStatement)
-            res = f'''if ({TSOverviewGenerator.expr(stmt.condition)}){TSOverviewGenerator.block(stmt.then, preview_only)}'''
-            if not preview_only:
-                res += (f'''\nelse {TSOverviewGenerator.stmt(stmt.else_.statements[0])}''' if else_if else "") + (f'''\nelse''' + TSOverviewGenerator.block(stmt.else_) if not else_if and stmt.else_ != None else "")
+            res = f'''if ({self.expr(stmt.condition)}){self.block(stmt.then)}'''
+            if not self.preview_only:
+                res += (f'''\nelse {self.stmt(stmt.else_.statements[0])}''' if else_if else "") + (f'''\nelse''' + self.block(stmt.else_) if not else_if and stmt.else_ != None else "")
         elif isinstance(stmt, stats.WhileStatement):
-            res = f'''while ({TSOverviewGenerator.expr(stmt.condition)})''' + TSOverviewGenerator.block(stmt.body, preview_only)
+            res = f'''while ({self.expr(stmt.condition)})''' + self.block(stmt.body)
         elif isinstance(stmt, stats.ForStatement):
-            res = f'''for ({(TSOverviewGenerator.var(stmt.item_var) if stmt.item_var != None else "")}; {TSOverviewGenerator.expr(stmt.condition)}; {TSOverviewGenerator.expr(stmt.incrementor)})''' + TSOverviewGenerator.block(stmt.body, preview_only)
+            res = f'''for ({(self.var(stmt.item_var) if stmt.item_var != None else "")}; {self.expr(stmt.condition)}; {self.expr(stmt.incrementor)})''' + self.block(stmt.body)
         elif isinstance(stmt, stats.DoStatement):
-            res = f'''do{TSOverviewGenerator.block(stmt.body, preview_only)} while ({TSOverviewGenerator.expr(stmt.condition)})'''
+            res = f'''do{self.block(stmt.body)} while ({self.expr(stmt.condition)})'''
         elif isinstance(stmt, stats.TryStatement):
-            res = "try" + TSOverviewGenerator.block(stmt.try_body, preview_only, False) + (f''' catch ({stmt.catch_var.name}){TSOverviewGenerator.block(stmt.catch_body, preview_only)}''' if stmt.catch_body != None else "") + ("finally" + TSOverviewGenerator.block(stmt.finally_body, preview_only) if stmt.finally_body != None else "")
+            res = "try" + self.block(stmt.try_body, False) + (f''' catch ({stmt.catch_var.name}){self.block(stmt.catch_body)}''' if stmt.catch_body != None else "") + ("finally" + self.block(stmt.finally_body) if stmt.finally_body != None else "")
         elif isinstance(stmt, stats.ContinueStatement):
             res = f'''continue;'''
         else:
             pass
-        return res if preview_only else TSOverviewGenerator.leading(stmt) + res
+        return res if self.preview_only else self.leading(stmt) + res
     
-    @classmethod
-    def raw_block(cls, block):
-        return "\n".join(list(map(lambda stmt: TSOverviewGenerator.stmt(stmt), block.statements)))
+    def raw_block(self, block):
+        return "\n".join(list(map(lambda stmt: self.stmt(stmt), block.statements)))
     
-    @classmethod
-    def method_base(cls, method, returns):
+    def method_base(self, method, returns):
         if method == None:
             return ""
         name = method.name if isinstance(method, types.Method) else "constructor" if isinstance(method, types.Constructor) else method.name if isinstance(method, types.GlobalFunction) else "???"
         type_args = method.type_arguments if isinstance(method, types.Method) else None
-        return TSOverviewGenerator.pre_if("/* throws */ ", method.throws) + f'''{name}{TSOverviewGenerator.type_args(type_args)}({", ".join(list(map(lambda p: TSOverviewGenerator.leading(p) + TSOverviewGenerator.var(p), method.parameters)))})''' + ("" if isinstance(returns, astTypes.VoidType) else f''': {TSOverviewGenerator.type(returns)}''') + (f''' {{\n{TSOverviewGenerator.pad(TSOverviewGenerator.raw_block(method.body))}\n}}''' if method.body != None else ";")
+        return self.pre_if("/* throws */ ", method.throws) + f'''{name}{self.type_args(type_args)}({", ".join(list(map(lambda p: self.leading(p) + self.var(p), method.parameters)))})''' + ("" if isinstance(returns, astTypes.VoidType) else f''': {self.type(returns)}''') + (f''' {{\n{self.pad(self.raw_block(method.body))}\n}}''' if method.body != None else ";")
     
-    @classmethod
-    def method(cls, method):
-        return "" if method == None else ("static " if method.is_static else "") + ("@mutates " if method.attributes != None and "mutates" in method.attributes else "") + TSOverviewGenerator.method_base(method, method.returns)
+    def method(self, method):
+        return "" if method == None else ("static " if method.is_static else "") + ("@mutates " if method.attributes != None and "mutates" in method.attributes else "") + self.method_base(method, method.returns)
     
-    @classmethod
-    def class_like(cls, cls_):
+    def class_like(self, cls_):
         res_list = []
-        res_list.append("\n".join(list(map(lambda field: TSOverviewGenerator.var(field) + ";", cls_.fields))))
+        res_list.append("\n".join(list(map(lambda field: self.var(field) + ";", cls_.fields))))
         if isinstance(cls_, types.Class):
-            res_list.append("\n".join(list(map(lambda prop: TSOverviewGenerator.var(prop) + ";", cls_.properties))))
-            res_list.append(TSOverviewGenerator.method_base(cls_.constructor_, astTypes.VoidType.instance))
-        res_list.append("\n\n".join(list(map(lambda method: TSOverviewGenerator.method(method), cls_.methods))))
-        return TSOverviewGenerator.pad("\n\n".join(list(filter(lambda x: x != "", res_list))))
+            res_list.append("\n".join(list(map(lambda prop: self.var(prop) + ";", cls_.properties))))
+            res_list.append(self.method_base(cls_.constructor_, astTypes.VoidType.instance))
+        res_list.append("\n\n".join(list(map(lambda method: self.method(method), cls_.methods))))
+        return self.pad("\n\n".join(list(filter(lambda x: x != "", res_list))))
     
-    @classmethod
-    def pad(cls, str):
+    def pad(self, str):
         return "\n".join(list(map(lambda x: f'''    {x}''', re.split("\\n", str))))
     
-    @classmethod
-    def imp(cls, imp):
+    def imp(self, imp):
         return "" + ("X" if isinstance(imp, types.UnresolvedImport) else "C" if isinstance(imp, types.Class) else "I" if isinstance(imp, types.Interface) else "E" if isinstance(imp, types.Enum) else "???") + f''':{imp.name}'''
     
-    @classmethod
-    def node_repr(cls, node):
+    def node_repr(self, node):
         if isinstance(node, stats.Statement):
-            return TSOverviewGenerator.stmt(node, True)
+            return self.stmt(node)
         elif isinstance(node, exprs.Expression):
-            return TSOverviewGenerator.expr(node, True)
+            return self.expr(node)
         else:
             return "/* TODO: missing */"
     
-    @classmethod
-    def generate(cls, source_file):
-        imps = list(map(lambda imp: (f'''import * as {imp.import_as}''' if imp.import_all else f'''import {{ {", ".join(list(map(lambda x: TSOverviewGenerator.imp(x), imp.imports)))} }}''') + f''' from "{imp.export_scope.package_name}{TSOverviewGenerator.pre("/", imp.export_scope.scope_name)}";''', source_file.imports))
-        enums = list(map(lambda enum_: f'''{TSOverviewGenerator.leading(enum_)}enum {enum_.name} {{ {", ".join(list(map(lambda x: x.name, enum_.values)))} }}''', source_file.enums))
-        intfs = list(map(lambda intf: f'''{TSOverviewGenerator.leading(intf)}interface {intf.name}{TSOverviewGenerator.type_args(intf.type_arguments)}''' + f'''{TSOverviewGenerator.pre_arr(" extends ", list(map(lambda x: TSOverviewGenerator.type(x), intf.base_interfaces)))} {{\n{TSOverviewGenerator.class_like(intf)}\n}}''', source_file.interfaces))
-        classes = list(map(lambda cls_: f'''{TSOverviewGenerator.leading(cls_)}class {cls_.name}{TSOverviewGenerator.type_args(cls_.type_arguments)}''' + TSOverviewGenerator.pre(" extends ", TSOverviewGenerator.type(cls_.base_class) if cls_.base_class != None else None) + TSOverviewGenerator.pre_arr(" implements ", list(map(lambda x: TSOverviewGenerator.type(x), cls_.base_interfaces))) + f''' {{\n{TSOverviewGenerator.class_like(cls_)}\n}}''', source_file.classes))
-        funcs = list(map(lambda func: f'''{TSOverviewGenerator.leading(func)}function {func.name}{TSOverviewGenerator.method_base(func, func.returns)}''', source_file.funcs))
-        main = TSOverviewGenerator.raw_block(source_file.main_block)
+    def generate(self, source_file):
+        imps = list(map(lambda imp: (f'''import * as {imp.import_as}''' if imp.import_all else f'''import {{ {", ".join(list(map(lambda x: self.imp(x), imp.imports)))} }}''') + f''' from "{imp.export_scope.package_name}{self.pre("/", imp.export_scope.scope_name)}";''', source_file.imports))
+        enums = list(map(lambda enum_: f'''{self.leading(enum_)}enum {enum_.name} {{ {", ".join(list(map(lambda x: x.name, enum_.values)))} }}''', source_file.enums))
+        intfs = list(map(lambda intf: f'''{self.leading(intf)}interface {intf.name}{self.type_args(intf.type_arguments)}''' + f'''{self.pre_arr(" extends ", list(map(lambda x: self.type(x), intf.base_interfaces)))} {{\n{self.class_like(intf)}\n}}''', source_file.interfaces))
+        classes = list(map(lambda cls_: f'''{self.leading(cls_)}class {cls_.name}{self.type_args(cls_.type_arguments)}''' + self.pre(" extends ", self.type(cls_.base_class) if cls_.base_class != None else None) + self.pre_arr(" implements ", list(map(lambda x: self.type(x), cls_.base_interfaces))) + f''' {{\n{self.class_like(cls_)}\n}}''', source_file.classes))
+        funcs = list(map(lambda func: f'''{self.leading(func)}function {func.name}{self.method_base(func, func.returns)}''', source_file.funcs))
+        main = self.raw_block(source_file.main_block)
         result = f'''// export scope: {source_file.export_scope.package_name}/{source_file.export_scope.scope_name}\n''' + "\n\n".join(list(filter(lambda x: x != "", ["\n".join(imps), "\n".join(enums), "\n\n".join(intfs), "\n\n".join(classes), "\n\n".join(funcs), main])))
         return result

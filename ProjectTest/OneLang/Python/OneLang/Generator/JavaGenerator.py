@@ -8,21 +8,24 @@ import OneLang.Generator.GeneratedFile as genFile
 import OneLang.Generator.NameUtils as nameUtils
 import OneLang.Generator.IGenerator as iGen
 import OneLang.One.Ast.Interfaces as ints
+import OneLang.Generator.IGeneratorPlugin as iGenPlug
+import OneLang.Generator.JavaPlugins.JsToJava as jsToJava
 import re
 
-class CsharpGenerator:
+class JavaGenerator:
     def __init__(self):
-        self.usings = None
+        self.imports = dict()
         self.current_class = None
-        self.reserved_words = ["object", "else", "operator", "class", "enum", "void", "string", "implicit", "Type", "Enum", "params", "using", "throw", "ref", "base", "virtual", "interface", "int", "const"]
-        self.field_to_method_hack = ["length"]
-        self.instance_of_ids = {}
+        self.reserved_words = ["class", "interface", "throws", "package", "throw", "boolean"]
+        self.field_to_method_hack = []
+        self.plugins = []
+        self.plugins.append(jsToJava.JsToJava(self))
     
     def get_lang_name(self):
-        return "CSharp"
+        return "Java"
     
     def get_extension(self):
-        return "cs"
+        return "java"
     
     def name_(self, name):
         if name in self.reserved_words:
@@ -36,6 +39,8 @@ class CsharpGenerator:
             name_parts[i] = name_parts[i][0].upper() + name_parts[i][1:]
             i = i + 1
         name = "".join(name_parts)
+        if name == "_":
+            name = "unused"
         return name
     
     def leading(self, item):
@@ -61,30 +66,39 @@ class CsharpGenerator:
     def type_args2(self, args):
         return self.type_args(list(map(lambda x: self.type(x), args)))
     
-    def type(self, t, mutates = True):
+    def type(self, t, mutates = True, is_new = False):
         if isinstance(t, astTypes.ClassType):
             type_args = self.type_args(list(map(lambda x: self.type(x), t.type_arguments)))
             if t.decl.name == "TsString":
-                return "string"
+                return "String"
             elif t.decl.name == "TsBoolean":
-                return "bool"
+                return "Boolean"
             elif t.decl.name == "TsNumber":
-                return "int"
+                return "Integer"
             elif t.decl.name == "TsArray":
+                real_type = "ArrayList" if is_new else "List"
                 if mutates:
-                    self.usings["System.Collections.Generic"] = None
-                    return f'''List<{self.type(t.type_arguments[0])}>'''
+                    self.imports[f'''java.util.{real_type}'''] = None
+                    return f'''{real_type}<{self.type(t.type_arguments[0])}>'''
                 else:
                     return f'''{self.type(t.type_arguments[0])}[]'''
+            elif t.decl.name == "Map":
+                real_type = "HashMap" if is_new else "Map"
+                self.imports[f'''java.util.{real_type}'''] = None
+                return f'''{real_type}<{self.type(t.type_arguments[0])}, {self.type(t.type_arguments[1])}>'''
+            elif t.decl.name == "Set":
+                real_type = "HashSet" if is_new else "Set"
+                self.imports[f'''java.util.{real_type}'''] = None
+                return f'''{real_type}<{self.type(t.type_arguments[0])}>'''
             elif t.decl.name == "Promise":
-                self.usings["System.Threading.Tasks"] = None
-                return "Task" if isinstance(t.type_arguments[0], astTypes.VoidType) else f'''Task{type_args}'''
+                return "void" if isinstance(t.type_arguments[0], astTypes.VoidType) else f'''{self.type(t.type_arguments[0])}'''
             elif t.decl.name == "Object":
-                self.usings["System"] = None
-                return f'''object'''
+                #this.imports.add("System");
+                return f'''Object'''
             elif t.decl.name == "TsMap":
-                self.usings["System.Collections.Generic"] = None
-                return f'''Dictionary<string, {self.type(t.type_arguments[0])}>'''
+                real_type = "HashMap" if is_new else "Map"
+                self.imports[f'''java.util.{real_type}'''] = None
+                return f'''{real_type}<String, {self.type(t.type_arguments[0])}>'''
             return self.name_(t.decl.name) + type_args
         elif isinstance(t, astTypes.InterfaceType):
             return f'''{self.name_(t.decl.name)}{self.type_args(list(map(lambda x: self.type(x), t.type_arguments)))}'''
@@ -93,7 +107,7 @@ class CsharpGenerator:
         elif isinstance(t, astTypes.EnumType):
             return f'''{self.name_(t.decl.name)}'''
         elif isinstance(t, astTypes.AnyType):
-            return f'''object'''
+            return f'''Object'''
         elif isinstance(t, astTypes.NullType):
             return f'''null'''
         elif isinstance(t, astTypes.GenericsType):
@@ -103,8 +117,8 @@ class CsharpGenerator:
             param_types = list(map(lambda x: self.type(x.type), t.parameters))
             if is_func:
                 param_types.append(self.type(t.return_type))
-            self.usings["System"] = None
-            return f'''{("Func" if is_func else "Action")}<{", ".join(param_types)}>'''
+            self.imports["java.util.function." + ("Function" if is_func else "Consumer")] = None
+            return f'''{("Function" if is_func else "Consumer")}<{", ".join(param_types)}>'''
         elif t == None:
             return "/* TODO */ object"
         else:
@@ -116,19 +130,22 @@ class CsharpGenerator:
     def vis(self, v):
         return "private" if v == types.VISIBILITY.PRIVATE else "protected" if v == types.VISIBILITY.PROTECTED else "public" if v == types.VISIBILITY.PUBLIC else "/* TODO: not set */public"
     
-    def var_wo_init(self, v, attr):
+    def var_type(self, v, attr):
         
-        if attr != None and attr.attributes != None and "csharp-type" in attr.attributes:
-            type = attr.attributes.get("csharp-type")
+        if attr != None and attr.attributes != None and "java-type" in attr.attributes:
+            type = attr.attributes.get("java-type")
         elif isinstance(v.type, astTypes.ClassType) and v.type.decl.name == "TsArray":
             if v.mutability.mutated:
-                self.usings["System.Collections.Generic"] = None
+                self.imports["java.util.List"] = None
                 type = f'''List<{self.type(v.type.type_arguments[0])}>'''
             else:
                 type = f'''{self.type(v.type.type_arguments[0])}[]'''
         else:
             type = self.type(v.type)
-        return f'''{type} {self.name_(v.name)}'''
+        return type
+    
+    def var_wo_init(self, v, attr):
+        return f'''{self.var_type(v, attr)} {self.name_(v.name)}'''
     
     def var(self, v, attrs):
         return self.var_wo_init(v, attrs) + (f''' = {self.expr(v.initializer)}''' if v.initializer != None else "")
@@ -138,8 +155,8 @@ class CsharpGenerator:
     
     def mutate_arg(self, arg, should_be_mutable):
         if self.is_ts_array(arg.actual_type):
+            item_type = (arg.actual_type).type_arguments[0]
             if isinstance(arg, exprs.ArrayLiteral) and not should_be_mutable:
-                item_type = (arg.actual_type).type_arguments[0]
                 return f'''new {self.type(item_type)}[0]''' if len(arg.items) == 0 and not self.is_ts_array(item_type) else f'''new {self.type(item_type)}[] {{ {", ".join(list(map(lambda x: self.expr(x), arg.items)))} }}'''
             
             currently_mutable = should_be_mutable
@@ -149,10 +166,10 @@ class CsharpGenerator:
                 currently_mutable = False
             
             if currently_mutable and not should_be_mutable:
-                return f'''{self.expr(arg)}.ToArray()'''
+                return f'''{self.expr(arg)}.toArray({self.type(item_type)}[]::new)'''
             elif not currently_mutable and should_be_mutable:
-                self.usings["System.Linq"] = None
-                return f'''{self.expr(arg)}.ToList()'''
+                self.imports["java.util.Arrays"] = None
+                return f'''Arrays.asList({self.expr(arg)})'''
         return self.expr(arg)
     
     def mutated_expr(self, expr, to_where):
@@ -180,10 +197,18 @@ class CsharpGenerator:
             return nameUtils.NameUtils.short_name(full_name)
         return None
     
+    def is_set_expr(self, var_ref):
+        return isinstance(var_ref.parent_node, exprs.BinaryExpression) and var_ref.parent_node.left == var_ref and var_ref.parent_node.operator in ["=", "+=", "-="]
+    
     def expr(self, expr):
+        for plugin in self.plugins:
+            result = plugin.expr(expr)
+            if result != None:
+                return result
+        
         res = "UNKNOWN-EXPR"
         if isinstance(expr, exprs.NewExpression):
-            res = f'''new {self.type(expr.cls_)}{self.call_params(expr.args, expr.cls_.decl.constructor_.parameters if expr.cls_.decl.constructor_ != None else [])}'''
+            res = f'''new {self.type(expr.cls_, True, True)}{self.call_params(expr.args, expr.cls_.decl.constructor_.parameters if expr.cls_.decl.constructor_ != None else [])}'''
         elif isinstance(expr, exprs.UnresolvedNewExpression):
             res = f'''/* TODO: UnresolvedNewExpression */ new {self.type(expr.cls_)}({", ".join(list(map(lambda x: self.expr(x), expr.args)))})'''
         elif isinstance(expr, exprs.Identifier):
@@ -201,7 +226,7 @@ class CsharpGenerator:
         elif isinstance(expr, exprs.GlobalFunctionCallExpression):
             res = f'''Global.{self.name_(expr.func.name)}{self.expr_call([], expr.args)}'''
         elif isinstance(expr, exprs.LambdaCallExpression):
-            res = f'''{self.expr(expr.method)}({", ".join(list(map(lambda x: self.expr(x), expr.args)))})'''
+            res = f'''{self.expr(expr.method)}.apply({", ".join(list(map(lambda x: self.expr(x), expr.args)))})'''
         elif isinstance(expr, exprs.BooleanLiteral):
             res = f'''{("true" if expr.bool_value else "false")}'''
         elif isinstance(expr, exprs.StringLiteral):
@@ -211,11 +236,10 @@ class CsharpGenerator:
         elif isinstance(expr, exprs.CharacterLiteral):
             res = f'''\'{expr.char_value}\''''
         elif isinstance(expr, exprs.ElementAccessExpression):
-            res = f'''{self.expr(expr.object)}[{self.expr(expr.element_expr)}]'''
+            res = f'''{self.expr(expr.object)}.get({self.expr(expr.element_expr)})'''
         elif isinstance(expr, exprs.TemplateString):
             parts = []
             for part in expr.parts:
-                # parts.push(part.literalText.replace(new RegExp("\\n"), $"\\n").replace(new RegExp("\\r"), $"\\r").replace(new RegExp("\\t"), $"\\t").replace(new RegExp("{"), "{{").replace(new RegExp("}"), "}}").replace(new RegExp("\""), $"\\\""));
                 if part.is_literal:
                     lit = ""
                     i = 0
@@ -232,10 +256,6 @@ class CsharpGenerator:
                             lit += "\\\\"
                         elif chr == "\"":
                             lit += "\\\""
-                        elif chr == "{":
-                            lit += "{{"
-                        elif chr == "}":
-                            lit += "}}"
                         else:
                             chr_code = ord(chr[0])
                             if 32 <= chr_code and chr_code <= 126:
@@ -243,34 +263,29 @@ class CsharpGenerator:
                             else:
                                 raise Error(f'''invalid char in template string (code={chr_code})''')
                         i = i + 1
-                    parts.append(lit)
+                    parts.append(f'''"{lit}"''')
                 else:
                     repr = self.expr(part.expression)
-                    parts.append(f'''{{({repr})}}''' if isinstance(part.expression, exprs.ConditionalExpression) else f'''{{{repr}}}''')
-            res = f'''$"{"".join(parts)}"'''
+                    parts.append(f'''({repr})''' if isinstance(part.expression, exprs.ConditionalExpression) else repr)
+            res = " + ".join(parts)
         elif isinstance(expr, exprs.BinaryExpression):
-            res = f'''{self.expr(expr.left)} {expr.operator} {self.mutated_expr(expr.right, expr.left if expr.operator == "=" else None)}'''
+            modifies = expr.operator in ["=", "+=", "-="]
+            if modifies and isinstance(expr.left, refs.InstanceFieldReference) and self.use_getter_setter(expr.left):
+                res = f'''{self.expr(expr.left.object)}.set{self.uc_first(expr.left.field.name)}({self.mutated_expr(expr.right, expr.left if expr.operator == "=" else None)})'''
+            else:
+                res = f'''{self.expr(expr.left)} {expr.operator} {self.mutated_expr(expr.right, expr.left if expr.operator == "=" else None)}'''
         elif isinstance(expr, exprs.ArrayLiteral):
             if len(expr.items) == 0:
-                res = f'''new {self.type(expr.actual_type)}()'''
+                res = f'''new {self.type(expr.actual_type, True, True)}()'''
             else:
-                res = f'''new {self.type(expr.actual_type)} {{ {", ".join(list(map(lambda x: self.expr(x), expr.items)))} }}'''
+                self.imports[f'''java.util.List'''] = None
+                res = f'''List.of({", ".join(list(map(lambda x: self.expr(x), expr.items)))})'''
         elif isinstance(expr, exprs.CastExpression):
-            if expr.instance_of_cast != None and expr.instance_of_cast.alias != None:
-                res = self.name_(expr.instance_of_cast.alias)
-            else:
-                res = f'''(({self.type(expr.new_type)}){self.expr(expr.expression)})'''
+            res = f'''(({self.type(expr.new_type)}){self.expr(expr.expression)})'''
         elif isinstance(expr, exprs.ConditionalExpression):
             res = f'''{self.expr(expr.condition)} ? {self.expr(expr.when_true)} : {self.mutated_expr(expr.when_false, expr.when_true)}'''
         elif isinstance(expr, exprs.InstanceOfExpression):
-            if expr.implicit_casts != None and len(expr.implicit_casts) > 0:
-                alias_prefix = self.infer_expr_name_for_type(expr.check_type)
-                if alias_prefix == None:
-                    alias_prefix = expr.expr.get_variable().name if isinstance(expr.expr, refs.VariableReference) else "obj"
-                id = self.instance_of_ids.get(alias_prefix) if alias_prefix in self.instance_of_ids else 1
-                self.instance_of_ids[alias_prefix] = id + 1
-                expr.alias = alias_prefix + ("" if id == 1 else f'''{id}''')
-            res = f'''{self.expr(expr.expr)} is {self.type(expr.check_type)}{(f' {self.name_(expr.alias)}' if expr.alias != None else "")}'''
+            res = f'''{self.expr(expr.expr)} instanceof {self.type(expr.check_type)}'''
         elif isinstance(expr, exprs.ParenthesizedExpression):
             res = f'''({self.expr(expr.expression)})'''
         elif isinstance(expr, exprs.RegexLiteral):
@@ -284,18 +299,24 @@ class CsharpGenerator:
             
             params = list(map(lambda x: self.name_(x.name), expr.parameters))
             
-            res = f'''{(params[0] if len(params) == 1 else f'({", ".join(params)})')} => {body}'''
+            res = f'''{(params[0] if len(params) == 1 else f'({", ".join(params)})')} -> {body}'''
         elif isinstance(expr, exprs.UnaryExpression) and expr.unary_type == exprs.UNARY_TYPE.PREFIX:
             res = f'''{expr.operator}{self.expr(expr.operand)}'''
         elif isinstance(expr, exprs.UnaryExpression) and expr.unary_type == exprs.UNARY_TYPE.POSTFIX:
             res = f'''{self.expr(expr.operand)}{expr.operator}'''
         elif isinstance(expr, exprs.MapLiteral):
-            repr = ",\n".join(list(map(lambda item: f'''[{JSON.stringify(item.key)}] = {self.expr(item.value)}''', expr.items)))
-            res = f'''new {self.type(expr.actual_type)} ''' + ("{}" if repr == "" else f'''{{\n{self.pad(repr)}\n}}''' if "\n" in repr else f'''{{ {repr} }}''')
+            if len(expr.items) > 10:
+                raise Error("MapLiteral is only supported with maximum of 10 items")
+            if len(expr.items) == 0:
+                res = f'''new {self.type(expr.actual_type, True, True)}()'''
+            else:
+                self.imports[f'''java.util.Map'''] = None
+                repr = ", ".join(list(map(lambda item: f'''{JSON.stringify(item.key)}, {self.expr(item.value)}''', expr.items)))
+                res = f'''Map.of({repr})'''
         elif isinstance(expr, exprs.NullLiteral):
             res = f'''null'''
         elif isinstance(expr, exprs.AwaitExpression):
-            res = f'''await {self.expr(expr.expr)}'''
+            res = f'''{self.expr(expr.expr)}'''
         elif isinstance(expr, refs.ThisReference):
             res = f'''this'''
         elif isinstance(expr, refs.StaticThisReference):
@@ -317,32 +338,37 @@ class CsharpGenerator:
         elif isinstance(expr, refs.GlobalFunctionReference):
             res = f'''{self.name_(expr.decl.name)}'''
         elif isinstance(expr, refs.SuperReference):
-            res = f'''base'''
+            res = f'''super'''
         elif isinstance(expr, refs.StaticFieldReference):
             res = f'''{self.name_(expr.decl.parent_interface.name)}.{self.name_(expr.decl.name)}'''
         elif isinstance(expr, refs.StaticPropertyReference):
             res = f'''{self.name_(expr.decl.parent_class.name)}.{self.name_(expr.decl.name)}'''
         elif isinstance(expr, refs.InstanceFieldReference):
-            res = f'''{self.expr(expr.object)}.{self.name_(expr.field.name)}'''
+            # TODO: unified handling of field -> property conversion?
+            if self.use_getter_setter(expr):
+                res = f'''{self.expr(expr.object)}.get{self.uc_first(expr.field.name)}()'''
+            else:
+                res = f'''{self.expr(expr.object)}.{self.name_(expr.field.name)}'''
         elif isinstance(expr, refs.InstancePropertyReference):
-            res = f'''{self.expr(expr.object)}.{self.name_(expr.property.name)}'''
+            res = f'''{self.expr(expr.object)}.{("set" if self.is_set_expr(expr) else "get")}{self.uc_first(expr.property.name)}()'''
         elif isinstance(expr, refs.EnumMemberReference):
             res = f'''{self.name_(expr.decl.parent_enum.name)}.{self.name_(expr.decl.name)}'''
         elif isinstance(expr, exprs.NullCoalesceExpression):
-            res = f'''{self.expr(expr.default_expr)} ?? {self.mutated_expr(expr.expr_if_null, expr.default_expr)}'''
+            res = f'''{self.expr(expr.default_expr)} != null ? {self.expr(expr.default_expr)} : {self.mutated_expr(expr.expr_if_null, expr.default_expr)}'''
         else:
             pass
         return res
     
+    def use_getter_setter(self, field_ref):
+        return isinstance(field_ref.object.actual_type, astTypes.InterfaceType) or (field_ref.field.interface_declarations != None and len(field_ref.field.interface_declarations) > 0)
+    
     def block(self, block, allow_one_liner = True):
         stmt_len = len(block.statements)
-        return " { }" if stmt_len == 0 else f'''\n{self.pad(self.raw_block(block))}''' if allow_one_liner and stmt_len == 1 and not (isinstance(block.statements[0], stats.IfStatement)) else f''' {{\n{self.pad(self.raw_block(block))}\n}}'''
+        return " { }" if stmt_len == 0 else f'''\n{self.pad(self.raw_block(block))}''' if allow_one_liner and stmt_len == 1 and not (isinstance(block.statements[0], stats.IfStatement)) and not (isinstance(block.statements[0], stats.VariableDeclaration)) else f''' {{\n{self.pad(self.raw_block(block))}\n}}'''
     
-    def stmt(self, stmt):
+    def stmt_default(self, stmt):
         res = "UNKNOWN-STATEMENT"
-        if stmt.attributes != None and "csharp" in stmt.attributes:
-            res = stmt.attributes.get("csharp")
-        elif isinstance(stmt, stats.BreakStatement):
+        if isinstance(stmt, stats.BreakStatement):
             res = "break;"
         elif isinstance(stmt, stats.ReturnStatement):
             res = "return;" if stmt.expression == None else f'''return {self.mutate_arg(stmt.expression, False)};'''
@@ -360,7 +386,7 @@ class CsharpGenerator:
             else:
                 res = f'''{self.type(stmt.type)} {self.name_(stmt.name)};'''
         elif isinstance(stmt, stats.ForeachStatement):
-            res = f'''foreach (var {self.name_(stmt.item_var.name)} in {self.expr(stmt.items)})''' + self.block(stmt.body)
+            res = f'''for (var {self.name_(stmt.item_var.name)} : {self.expr(stmt.items)})''' + self.block(stmt.body)
         elif isinstance(stmt, stats.IfStatement):
             else_if = stmt.else_ != None and len(stmt.else_.statements) == 1 and isinstance(stmt.else_.statements[0], stats.IfStatement)
             res = f'''if ({self.expr(stmt.condition)}){self.block(stmt.then)}'''
@@ -374,7 +400,7 @@ class CsharpGenerator:
         elif isinstance(stmt, stats.TryStatement):
             res = "try" + self.block(stmt.try_body, False)
             if stmt.catch_body != None:
-                self.usings["System"] = None
+                #this.imports.add("System");
                 res += f''' catch (Exception {self.name_(stmt.catch_var.name)}) {self.block(stmt.catch_body, False)}'''
             if stmt.finally_body != None:
                 res += "finally" + self.block(stmt.finally_body)
@@ -382,6 +408,25 @@ class CsharpGenerator:
             res = f'''continue;'''
         else:
             pass
+        return res
+    
+    def stmt(self, stmt):
+        res = None
+        
+        if stmt.attributes != None and "java-import" in stmt.attributes:
+            self.imports[stmt.attributes.get("java-import")] = None
+        
+        if stmt.attributes != None and "java" in stmt.attributes:
+            res = stmt.attributes.get("java")
+        else:
+            for plugin in self.plugins:
+                res = plugin.stmt(stmt)
+                if res != None:
+                    break
+            
+            if res == None:
+                res = self.stmt_default(stmt)
+        
         return self.leading(stmt) + res
     
     def stmts(self, stmts):
@@ -390,58 +435,116 @@ class CsharpGenerator:
     def raw_block(self, block):
         return self.stmts(block.statements)
     
-    def class_like(self, cls_):
+    def overload_method_gen(self, prefix, method, params, body):
+        methods = []
+        methods.append(prefix + f'''({", ".join(list(map(lambda p: self.var_wo_init(p, None), params)))})''' + body)
+        
+        param_len = len(params) - 1
+        
+        while param_len >= 0:
+            if params[param_len].initializer == None:
+                break
+            
+            method_params = []
+            method_args = []
+            i = 0
+            
+            while i < len(params):
+                p = params[i]
+                if i < param_len:
+                    method_params.append(self.var_wo_init(p, None))
+                method_args.append(self.expr(p.initializer) if i >= param_len else p.name)
+                i = i + 1
+            
+            base_name = f'''{(self.current_class.name if method != None and method.is_static else "this")}{(f'.{method.name}' if method != None else "")}'''
+            methods.append(f'''{prefix}({", ".join(method_params)}) {{\n{self.pad(f'{("return " if method != None and not (isinstance(method.returns, astTypes.VoidType)) else "")}{base_name}({", ".join(method_args)});')}\n}}''')
+            param_len = param_len - 1
+        
+        return "\n\n".join(methods)
+    
+    def method(self, method, is_cls):
+        # TODO: final
+        prefix = (self.vis(method.visibility) + " " if is_cls else "") + self.pre_if("static ", method.is_static) + self.pre_if("/* throws */ ", method.throws) + (f'''<{", ".join(method.type_arguments)}> ''' if len(method.type_arguments) > 0 else "") + f'''{self.type(method.returns, False)} ''' + self.name_(method.name)
+        return self.overload_method_gen(prefix, method, method.parameters, ";" if method.body == None else f'''\n{{\n{self.pad(self.stmts(method.body.statements))}\n}}''')
+    
+    def class(self, cls_):
         self.current_class = cls_
         res_list = []
         
         static_constructor_stmts = []
         complex_field_inits = []
-        if isinstance(cls_, types.Class):
-            field_reprs = []
-            for field in cls_.fields:
-                is_initializer_complex = field.initializer != None and not (isinstance(field.initializer, exprs.StringLiteral)) and not (isinstance(field.initializer, exprs.BooleanLiteral)) and not (isinstance(field.initializer, exprs.NumericLiteral))
-                
-                prefix = f'''{self.vis(field.visibility)} {self.pre_if("static ", field.is_static)}'''
-                if len(field.interface_declarations) > 0:
-                    field_reprs.append(f'''{prefix}{self.var_wo_init(field, field)} {{ get; set; }}''')
-                elif is_initializer_complex:
-                    if field.is_static:
-                        static_constructor_stmts.append(stats.ExpressionStatement(exprs.BinaryExpression(refs.StaticFieldReference(field), "=", field.initializer)))
-                    else:
-                        complex_field_inits.append(stats.ExpressionStatement(exprs.BinaryExpression(refs.InstanceFieldReference(refs.ThisReference(cls_), field), "=", field.initializer)))
-                    
-                    field_reprs.append(f'''{prefix}{self.var_wo_init(field, field)};''')
+        field_reprs = []
+        prop_reprs = []
+        for field in cls_.fields:
+            is_initializer_complex = field.initializer != None and not (isinstance(field.initializer, exprs.StringLiteral)) and not (isinstance(field.initializer, exprs.BooleanLiteral)) and not (isinstance(field.initializer, exprs.NumericLiteral))
+            
+            prefix = f'''{self.vis(field.visibility)} {self.pre_if("static ", field.is_static)}'''
+            if len(field.interface_declarations) > 0:
+                var_type = self.var_type(field, field)
+                name = self.name_(field.name)
+                pname = self.uc_first(field.name)
+                prop_reprs.append(f'''{var_type} {name};\n''' + f'''{prefix}{var_type} get{pname}() {{ return this.{name}; }}\n''' + f'''{prefix}void set{pname}({var_type} value) {{ this.{name} = value; }}''')
+            elif is_initializer_complex:
+                if field.is_static:
+                    static_constructor_stmts.append(stats.ExpressionStatement(exprs.BinaryExpression(refs.StaticFieldReference(field), "=", field.initializer)))
                 else:
-                    field_reprs.append(f'''{prefix}{self.var(field, field)};''')
-            res_list.append("\n".join(field_reprs))
-            
-            res_list.append("\n".join(list(map(lambda prop: f'''{self.vis(prop.visibility)} {self.pre_if("static ", prop.is_static)}''' + self.var_wo_init(prop, prop) + (f''' {{\n    get {{\n{self.pad(self.block(prop.getter))}\n    }}\n}}''' if prop.getter != None else "") + (f''' {{\n    set {{\n{self.pad(self.block(prop.setter))}\n    }}\n}}''' if prop.setter != None else ""), cls_.properties))))
-            
-            if len(static_constructor_stmts) > 0:
-                res_list.append(f'''static {self.name_(cls_.name)}()\n{{\n{self.pad(self.stmts(static_constructor_stmts))}\n}}''')
-            
-            if cls_.constructor_ != None:
-                constr_field_inits = []
-                for field in list(filter(lambda x: x.constructor_param != None, cls_.fields)):
-                    field_ref = refs.InstanceFieldReference(refs.ThisReference(cls_), field)
-                    mp_ref = refs.MethodParameterReference(field.constructor_param)
-                    # TODO: decide what to do with "after-TypeEngine" transformations
-                    mp_ref.set_actual_type(field.type, False, False)
-                    constr_field_inits.append(stats.ExpressionStatement(exprs.BinaryExpression(field_ref, "=", mp_ref)))
+                    complex_field_inits.append(stats.ExpressionStatement(exprs.BinaryExpression(refs.InstanceFieldReference(refs.ThisReference(cls_), field), "=", field.initializer)))
                 
-                res_list.append("public " + self.pre_if("/* throws */ ", cls_.constructor_.throws) + self.name_(cls_.name) + f'''({", ".join(list(map(lambda p: self.var(p, p), cls_.constructor_.parameters)))})''' + (f''': base({", ".join(list(map(lambda x: self.expr(x), cls_.constructor_.super_call_args)))})''' if cls_.constructor_.super_call_args != None else "") + f'''\n{{\n{self.pad(self.stmts(constr_field_inits + complex_field_inits + cls_.constructor_.body.statements))}\n}}''')
-            elif len(complex_field_inits) > 0:
-                res_list.append(f'''public {self.name_(cls_.name)}()\n{{\n{self.pad(self.stmts(complex_field_inits))}\n}}''')
-        elif isinstance(cls_, types.Interface):
-            res_list.append("\n".join(list(map(lambda field: f'''{self.var_wo_init(field, field)} {{ get; set; }}''', cls_.fields))))
+                field_reprs.append(f'''{prefix}{self.var_wo_init(field, field)};''')
+            else:
+                field_reprs.append(f'''{prefix}{self.var(field, field)};''')
+        res_list.append("\n".join(field_reprs))
+        res_list.append("\n\n".join(prop_reprs))
+        
+        for prop in cls_.properties:
+            prefix = f'''{self.vis(prop.visibility)} {self.pre_if("static ", prop.is_static)}'''
+            if prop.getter != None:
+                res_list.append(f'''{prefix}{self.type(prop.type)} get{self.uc_first(prop.name)}(){self.block(prop.getter, False)}''')
+            
+            if prop.setter != None:
+                res_list.append(f'''{prefix}void set{self.uc_first(prop.name)}({self.type(prop.type)} value){self.block(prop.setter, False)}''')
+        
+        if len(static_constructor_stmts) > 0:
+            res_list.append(f'''static {{\n{self.pad(self.stmts(static_constructor_stmts))}\n}}''')
+        
+        if cls_.constructor_ != None:
+            constr_field_inits = []
+            for field in list(filter(lambda x: x.constructor_param != None, cls_.fields)):
+                field_ref = refs.InstanceFieldReference(refs.ThisReference(cls_), field)
+                mp_ref = refs.MethodParameterReference(field.constructor_param)
+                # TODO: decide what to do with "after-TypeEngine" transformations
+                mp_ref.set_actual_type(field.type, False, False)
+                constr_field_inits.append(stats.ExpressionStatement(exprs.BinaryExpression(field_ref, "=", mp_ref)))
+            
+            super_call = f'''super({", ".join(list(map(lambda x: self.expr(x), cls_.constructor_.super_call_args)))});\n''' if cls_.constructor_.super_call_args != None else ""
+            
+            # TODO: super calls
+            res_list.append(self.overload_method_gen("public " + self.pre_if("/* throws */ ", cls_.constructor_.throws) + self.name_(cls_.name), None, cls_.constructor_.parameters, f'''\n{{\n{self.pad(super_call + self.stmts(constr_field_inits + complex_field_inits + cls_.constructor_.body.statements))}\n}}'''))
+        elif len(complex_field_inits) > 0:
+            res_list.append(f'''public {self.name_(cls_.name)}()\n{{\n{self.pad(self.stmts(complex_field_inits))}\n}}''')
         
         methods = []
         for method in cls_.methods:
-            if isinstance(cls_, types.Class) and method.body == None:
+            if method.body == None:
                 continue
             # declaration only
-            methods.append(("" if isinstance(method.parent_interface, types.Interface) else self.vis(method.visibility) + " ") + self.pre_if("static ", method.is_static) + self.pre_if("virtual ", method.overrides == None and len(method.overridden_by) > 0) + self.pre_if("override ", method.overrides != None) + self.pre_if("async ", method.async_) + self.pre_if("/* throws */ ", method.throws) + f'''{self.type(method.returns, False)} ''' + self.name_(method.name) + self.type_args(method.type_arguments) + f'''({", ".join(list(map(lambda p: self.var(p, None), method.parameters)))})''' + (f'''\n{{\n{self.pad(self.stmts(method.body.statements))}\n}}''' if method.body != None else ";"))
+            methods.append(self.method(method, True))
         res_list.append("\n\n".join(methods))
+        return self.pad("\n\n".join(list(filter(lambda x: x != "", res_list))))
+    
+    def uc_first(self, str):
+        return str[0].upper() + str[1:]
+    
+    def interface(self, intf):
+        self.current_class = intf
+        
+        res_list = []
+        for field in intf.fields:
+            var_type = self.var_type(field, field)
+            name = self.uc_first(field.name)
+            res_list.append(f'''{var_type} get{name}();\nvoid set{name}({var_type} value);''')
+        
+        res_list.append("\n".join(list(map(lambda method: self.method(method, False), intf.methods))))
         return self.pad("\n\n".join(list(filter(lambda x: x != "", res_list))))
     
     def pad(self, str):
@@ -453,41 +556,27 @@ class CsharpGenerator:
         parts.pop()
         return ".".join(parts)
     
-    def gen_file(self, source_file):
-        self.instance_of_ids = {}
-        self.usings = dict()
-        enums = list(map(lambda enum_: f'''public enum {self.name_(enum_.name)} {{ {", ".join(list(map(lambda x: self.name_(x.name), enum_.values)))} }}''', source_file.enums))
-        
-        intfs = list(map(lambda intf: f'''public interface {self.name_(intf.name)}{self.type_args(intf.type_arguments)}''' + f'''{self.pre_arr(" : ", list(map(lambda x: self.type(x), intf.base_interfaces)))} {{\n{self.class_like(intf)}\n}}''', source_file.interfaces))
-        
-        classes = []
-        for cls_ in source_file.classes:
-            base_classes = []
-            if cls_.base_class != None:
-                base_classes.append(cls_.base_class)
-            for intf in cls_.base_interfaces:
-                base_classes.append(intf)
-            classes.append(f'''public class {self.name_(cls_.name)}{self.type_args(cls_.type_arguments)}{self.pre_arr(" : ", list(map(lambda x: self.type(x), base_classes)))} {{\n{self.class_like(cls_)}\n}}''')
-        
-        main = f'''public class Program\n{{\n    static void Main(string[] args)\n    {{\n{self.pad(self.raw_block(source_file.main_block))}\n    }}\n}}''' if len(source_file.main_block.statements) > 0 else ""
-        
-        # @java var usingsSet = new HashSet<String>(Arrays.stream(sourceFile.imports).map(x -> this.pathToNs(x.exportScope.scopeName)).filter(x -> x != "").collect(Collectors.toList()));
-        usings_set = dict.fromkeys(list(filter(lambda x: x != "", list(map(lambda x: self.path_to_ns(x.export_scope.scope_name), source_file.imports)))))
-        for using in self.usings.keys():
-            usings_set[using] = None
-        
-        usings = []
-        for using in usings_set.keys():
-            usings.append(f'''using {using};''')
-        
-        result = "\n\n".join(list(filter(lambda x: x != "", ["\n".join(enums), "\n\n".join(intfs), "\n\n".join(classes), main])))
-        nl = "\n"
-        # Python fix
-        result = f'''{nl.join(usings)}\n\nnamespace {self.path_to_ns(source_file.source_path.path)}\n{{\n{self.pad(result)}\n}}'''
-        return result
+    def imports_head(self):
+        imports = []
+        for imp in self.imports.keys():
+            imports.append(imp)
+        self.imports = dict()
+        return "" if len(imports) == 0 else "\n".join(list(map(lambda x: f'''import {x};''', imports))) + "\n\n"
     
     def generate(self, pkg):
         result = []
         for path in pkg.files.keys():
-            result.append(genFile.GeneratedFile(path, self.gen_file(pkg.files.get(path))))
+            file = pkg.files.get(path)
+            dst_dir = f'''src/main/java/{pkg.name}/{re.sub("\\.ts$", "", file.source_path.path)}'''
+            
+            for enum_ in file.enums:
+                result.append(genFile.GeneratedFile(f'''{dst_dir}/{enum_.name}.java''', f'''public enum {self.name_(enum_.name)} {{ {", ".join(list(map(lambda x: self.name_(x.name), enum_.values)))} }}'''))
+            
+            for intf in file.interfaces:
+                res = f'''public interface {self.name_(intf.name)}{self.type_args(intf.type_arguments)}''' + f'''{self.pre_arr(" extends ", list(map(lambda x: self.type(x), intf.base_interfaces)))} {{\n{self.interface(intf)}\n}}'''
+                result.append(genFile.GeneratedFile(f'''{dst_dir}/{intf.name}.java''', self.imports_head() + res))
+            
+            for cls_ in file.classes:
+                res = f'''public class {self.name_(cls_.name)}{self.type_args(cls_.type_arguments)}''' + (f''' extends {self.type(cls_.base_class)}''' if cls_.base_class != None else "") + self.pre_arr(" implements ", list(map(lambda x: self.type(x), cls_.base_interfaces))) + f''' {{\n{self.class(cls_)}\n}}'''
+                result.append(genFile.GeneratedFile(f'''{dst_dir}/{cls_.name}.java''', self.imports_head() + res))
         return result

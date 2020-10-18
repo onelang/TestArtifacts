@@ -61,7 +61,7 @@ class InferTypes extends AstTransformer {
     }
     
     function processLambda($lambda) {
-        parent::visitLambda($lambda);
+        parent::visitMethodBase($lambda);
     }
     
     function processMethodBase($method) {

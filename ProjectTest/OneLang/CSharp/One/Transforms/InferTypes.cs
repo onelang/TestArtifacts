@@ -34,7 +34,7 @@ namespace One.Transforms
         
         public void processLambda(Lambda lambda)
         {
-            base.visitLambda(lambda);
+            base.visitMethodBase(lambda);
         }
         
         public void processMethodBase(IMethodBase method)

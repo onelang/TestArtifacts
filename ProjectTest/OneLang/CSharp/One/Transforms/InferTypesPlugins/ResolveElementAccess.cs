@@ -1,6 +1,7 @@
 using One.Transforms.InferTypesPlugins.Helpers;
 using One.Ast;
 using One.Transforms.InferTypesPlugins;
+using System.Collections.Generic;
 
 namespace One.Transforms.InferTypesPlugins
 {
@@ -12,7 +13,7 @@ namespace One.Transforms.InferTypesPlugins
         
         public override bool canTransform(Expression expr)
         {
-            var isSet = expr is BinaryExpression binExpr && binExpr.left is ElementAccessExpression && binExpr.operator_ == "=";
+            var isSet = expr is BinaryExpression binExpr && binExpr.left is ElementAccessExpression && new List<string> { "=", "+=", "-=" }.includes(binExpr.operator_);
             return expr is ElementAccessExpression || isSet;
         }
         

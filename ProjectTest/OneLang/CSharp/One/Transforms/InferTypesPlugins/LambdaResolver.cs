@@ -30,11 +30,6 @@ namespace One.Transforms.InferTypesPlugins
                 this.errorMan.throw_("Expected LambdaType as Lambda's type!");
         }
         
-        protected void processReturnExpr(Expression returnExpr)
-        {
-            
-        }
-        
         protected void visitLambda(Lambda lambda)
         {
             this.setupLambdaParameterTypes(lambda);

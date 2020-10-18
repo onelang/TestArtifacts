@@ -21,7 +21,7 @@ class ResolveElementAccess extends InferTypesPlugin {
     }
     
     function canTransform($expr) {
-        $isSet = $expr instanceof BinaryExpression && $expr->left instanceof ElementAccessExpression && $expr->operator === "=";
+        $isSet = $expr instanceof BinaryExpression && $expr->left instanceof ElementAccessExpression && in_array($expr->operator, array("=", "+=", "-="));
         return $expr instanceof ElementAccessExpression || $isSet;
     }
     

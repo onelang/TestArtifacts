@@ -102,15 +102,15 @@ class InferReturnType extends InferTypesPlugin {
     }
     
     function handleStatement($stmt) {
+        if (count($this->returnTypeInfer) === 0)
+            return false;
         if ($stmt instanceof ReturnStatement && $stmt->expression !== null) {
             $this->main->processStatement($stmt);
-            if (count($this->returnTypeInfer) !== 0)
-                $this->get_current()->addReturn($stmt->expression);
+            $this->get_current()->addReturn($stmt->expression);
             return true;
         }
         else if ($stmt instanceof ThrowStatement) {
-            if (count($this->returnTypeInfer) !== 0)
-                $this->get_current()->throws = true;
+            $this->get_current()->throws = true;
             return false;
         }
         else

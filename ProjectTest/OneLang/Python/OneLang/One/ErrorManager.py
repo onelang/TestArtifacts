@@ -25,13 +25,8 @@ class ErrorManager:
         self.errors = []
         self.last_context_info = None
     
-    def reset_context(self, transformer = None):
-        self.transformer = transformer
-    
-    def log(self, type, msg):
+    def get_location(self):
         t = self.transformer
-        
-        text = (f'''[{t.name}] ''' if t != None else "") + msg
         
         par = self.current_node
         while isinstance(par, exprs.Expression):
@@ -66,14 +61,30 @@ class ErrorManager:
                 else:
                     pass
         
-        if self.current_node != None:
-            text += f'''\n  Node: {tSOvervGen.TSOverviewGenerator.node_repr(self.current_node)}'''
+        return location
+    
+    def get_current_node_repr(self):
+        return tSOvervGen.TSOverviewGenerator.preview.node_repr(self.current_node)
+    
+    def get_current_statement_repr(self):
+        return "<null>" if self.transformer.current_statement == None else tSOvervGen.TSOverviewGenerator.preview.stmt(self.transformer.current_statement)
+    
+    def reset_context(self, transformer = None):
+        self.transformer = transformer
+    
+    def log(self, type, msg):
+        t = self.transformer
+        text = (f'''[{t.name}] ''' if t != None else "") + msg
         
+        if self.current_node != None:
+            text += f'''\n  Node: {self.get_current_node_repr()}'''
+        
+        location = self.get_location()
         if location != None:
             text += f'''\n  Location: {location}'''
         
         if t != None and t.current_statement != None:
-            text += f'''\n  Statement: {tSOvervGen.TSOverviewGenerator.stmt(t.current_statement, True)}'''
+            text += f'''\n  Statement: {self.get_current_statement_repr()}'''
         
         if self.last_context_info != None:
             text += f'''\n  Context: {self.last_context_info}'''

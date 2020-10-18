@@ -87,7 +87,9 @@ namespace One.Transforms
                 this.pushContext();
                 result = base.visitExpression(expr) ?? expr;
                 this.popContext();
-                var match = this.casts.find(cast => this.equals(result, cast.expr));
+                // @java final var result2 = result;
+                var result2 = result;
+                var match = this.casts.find(cast => this.equals(result2, cast.expr));
                 if (match != null) {
                     var castExpr = new CastExpression(match.checkType, result, match);
                     match.implicitCasts.push(castExpr);

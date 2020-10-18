@@ -366,7 +366,7 @@ class PythonGenerator implements IGenerator {
             if (count($expr->body->statements) === 1 && $expr->body->statements[0] instanceof ReturnStatement)
                 $body = $this->expr(($expr->body->statements[0])->expression);
             else
-                \OneLang\console::error("Multi-line lambda is not yet supported for Python: " . TSOverviewGenerator::nodeRepr($expr));
+                \OneLang\console::error("Multi-line lambda is not yet supported for Python: " . TSOverviewGenerator::$preview->nodeRepr($expr));
             
             $params = array_map(function ($x) { return $this->name_($x->name); }, $expr->parameters);
             

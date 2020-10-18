@@ -36,10 +36,6 @@ class LambdaResolver extends InferTypesPlugin {
             $this->errorMan->throw("Expected LambdaType as Lambda's type!");
     }
     
-    protected function processReturnExpr($returnExpr) {
-        
-    }
-    
     protected function visitLambda($lambda) {
         $this->setupLambdaParameterTypes($lambda);
     }

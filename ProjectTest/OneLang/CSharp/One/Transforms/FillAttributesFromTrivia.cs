@@ -13,7 +13,10 @@ namespace One.Transforms
                     var match = regex.exec(trivia);
                     if (match == null)
                         break;
-                    result.set(match.get(1), match.get(2) ?? "true");
+                    if (result.hasKey(match.get(1)))
+                        result.set(match.get(1), "\n" + match.get(2));
+                    else
+                        result.set(match.get(1), match.get(2) ?? "true");
                 }
             }
             return result;
@@ -35,6 +38,10 @@ namespace One.Transforms
                     FillAttributesFromTrivia.processBlock(forStat.body);
                 else if (stmt is ForStatement forStat2)
                     FillAttributesFromTrivia.processBlock(forStat2.body);
+                else if (stmt is WhileStatement whileStat)
+                    FillAttributesFromTrivia.processBlock(whileStat.body);
+                else if (stmt is DoStatement doStat)
+                    FillAttributesFromTrivia.processBlock(doStat.body);
                 else if (stmt is IfStatement ifStat) {
                     FillAttributesFromTrivia.processBlock(ifStat.then);
                     FillAttributesFromTrivia.processBlock(ifStat.else_);

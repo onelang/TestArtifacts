@@ -18,6 +18,7 @@ class GenericsResolver:
         prev_res = self.resolution_map.get(type_var_name)
         if prev_res != None and not astTypes.TypeHelper.equals(prev_res, actual_type):
             raise Error(f'''Resolving \'{type_var_name}\' is ambiguous, {prev_res.repr()} <> {actual_type.repr()}''')
+        #if (typeVarName === "T2" && actualType instanceof VoidType) debugger;
         self.resolution_map.set(type_var_name, actual_type)
     
     def collect_from_method_call(self, method_call):

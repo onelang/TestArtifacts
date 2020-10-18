@@ -240,7 +240,7 @@ class PythonGenerator:
             if len(expr.body.statements) == 1 and isinstance(expr.body.statements[0], stats.ReturnStatement):
                 body = self.expr((expr.body.statements[0]).expression)
             else:
-                console.error(f'''Multi-line lambda is not yet supported for Python: {tSOvervGen.TSOverviewGenerator.node_repr(expr)}''')
+                console.error(f'''Multi-line lambda is not yet supported for Python: {tSOvervGen.TSOverviewGenerator.preview.node_repr(expr)}''')
             
             params = list(map(lambda x: self.name_(x.name), expr.parameters))
             

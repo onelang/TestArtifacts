@@ -10,7 +10,7 @@ class ResolveElementAccess(inferTypesPlug.InferTypesPlugin):
         super().__init__("ResolveElementAccess")
     
     def can_transform(self, expr):
-        is_set = isinstance(expr, exprs.BinaryExpression) and isinstance(expr.left, exprs.ElementAccessExpression) and expr.operator == "="
+        is_set = isinstance(expr, exprs.BinaryExpression) and isinstance(expr.left, exprs.ElementAccessExpression) and expr.operator in ["=", "+=", "-="]
         return isinstance(expr, exprs.ElementAccessExpression) or is_set
     
     def is_map_or_array_type(self, type):

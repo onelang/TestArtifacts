@@ -46,7 +46,7 @@ class InferTypes(astTrans.AstTransformer):
         self.add_plugin(resElemAccs.ResolveElementAccess())
     
     def process_lambda(self, lambda_):
-        super().visit_lambda(lambda_)
+        super().visit_method_base(lambda_)
     
     def process_method_base(self, method):
         super().visit_method_base(method)

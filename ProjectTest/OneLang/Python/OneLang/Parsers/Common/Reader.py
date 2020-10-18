@@ -284,6 +284,7 @@ class CursorPositionSearch:
         high = len(self.line_offsets) - 1
         
         while low <= high:
+            # @java var middle = (int)Math.floor((low + high) / 2);
             middle = Math.floor((low + high) / 2)
             middle_offset = self.line_offsets[middle]
             if offset == middle_offset:

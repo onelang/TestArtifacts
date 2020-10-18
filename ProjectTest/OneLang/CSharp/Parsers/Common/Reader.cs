@@ -385,6 +385,7 @@ namespace Parsers.Common
             var high = this.lineOffsets.length() - 1;
             
             while (low <= high) {
+                // @java var middle = (int)Math.floor((low + high) / 2);
                 var middle = Math.floor((low + high) / 2);
                 var middleOffset = this.lineOffsets.get(middle);
                 if (offset == middleOffset)

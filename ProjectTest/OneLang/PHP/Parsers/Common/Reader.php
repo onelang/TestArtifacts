@@ -349,6 +349,7 @@ class CursorPositionSearch {
         $high = count($this->lineOffsets) - 1;
         
         while ($low <= $high) {
+            // @java var middle = (int)Math.floor((low + high) / 2);
             $middle = floor(($low + $high) / 2);
             $middleOffset = $this->lineOffsets[$middle];
             if ($offset === $middleOffset)

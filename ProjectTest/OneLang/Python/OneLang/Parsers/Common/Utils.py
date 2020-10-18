@@ -28,5 +28,7 @@ class Utils:
         for pad_len in list(filter(lambda x: x != -1, list(map(lambda x: Utils.get_pad_len(x), lines)))):
             if pad_len < min_pad_len:
                 min_pad_len = pad_len
-        new_str = "\n".join(list(map(lambda x: x[min_pad_len:] if len(x) != 0 else x, lines)))
+        # @java final var minPadLen2 = minPadLen;
+        min_pad_len2 = min_pad_len
+        new_str = "\n".join(list(map(lambda x: x[min_pad_len2:] if len(x) != 0 else x, lines)))
         return new_str

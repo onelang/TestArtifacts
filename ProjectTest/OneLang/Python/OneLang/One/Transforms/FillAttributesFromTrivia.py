@@ -15,7 +15,10 @@ class FillAttributesFromTrivia:
                 match = regex.exec(trivia)
                 if match == None:
                     break
-                result[match[1]] = match[2] or "true"
+                if match[1] in result:
+                    result[match[1]] = "\n" + match[2]
+                else:
+                    result[match[1]] = match[2] or "true"
         return result
     
     @classmethod
@@ -32,6 +35,10 @@ class FillAttributesFromTrivia:
             if isinstance(stmt, stats.ForeachStatement):
                 FillAttributesFromTrivia.process_block(stmt.body)
             elif isinstance(stmt, stats.ForStatement):
+                FillAttributesFromTrivia.process_block(stmt.body)
+            elif isinstance(stmt, stats.WhileStatement):
+                FillAttributesFromTrivia.process_block(stmt.body)
+            elif isinstance(stmt, stats.DoStatement):
                 FillAttributesFromTrivia.process_block(stmt.body)
             elif isinstance(stmt, stats.IfStatement):
                 FillAttributesFromTrivia.process_block(stmt.then)

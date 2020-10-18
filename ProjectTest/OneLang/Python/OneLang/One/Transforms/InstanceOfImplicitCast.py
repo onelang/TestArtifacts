@@ -72,7 +72,9 @@ class InstanceOfImplicitCast(astTrans.AstTransformer):
             self.push_context()
             result = super().visit_expression(expr) or expr
             self.pop_context()
-            match = next(filter(lambda cast: self.equals(result, cast.expr), self.casts), None)
+            # @java final var result2 = result;
+            result2 = result
+            match = next(filter(lambda cast: self.equals(result2, cast.expr), self.casts), None)
             if match != None:
                 cast_expr = exprs.CastExpression(match.check_type, result, match)
                 match.implicit_casts.append(cast_expr)

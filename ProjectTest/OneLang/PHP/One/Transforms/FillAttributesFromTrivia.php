@@ -11,6 +11,8 @@ use One\Ast\Statements\ForeachStatement;
 use One\Ast\Statements\ForStatement;
 use One\Ast\Statements\IfStatement;
 use One\Ast\Statements\Block;
+use One\Ast\Statements\WhileStatement;
+use One\Ast\Statements\DoStatement;
 
 class FillAttributesFromTrivia {
     static function processTrivia($trivia) {
@@ -21,7 +23,10 @@ class FillAttributesFromTrivia {
                 $match = $regex->exec($trivia);
                 if ($match === null)
                     break;
-                $result[$match[1]] = $match[2] ?? "true";
+                if (array_key_exists($match[1], $result))
+                    $result[$match[1]] = "\n" . $match[2];
+                else
+                    $result[$match[1]] = $match[2] ?? "true";
             }
         }
         return $result;
@@ -40,6 +45,10 @@ class FillAttributesFromTrivia {
             if ($stmt instanceof ForeachStatement)
                 FillAttributesFromTrivia::processBlock($stmt->body);
             else if ($stmt instanceof ForStatement)
+                FillAttributesFromTrivia::processBlock($stmt->body);
+            else if ($stmt instanceof WhileStatement)
+                FillAttributesFromTrivia::processBlock($stmt->body);
+            else if ($stmt instanceof DoStatement)
                 FillAttributesFromTrivia::processBlock($stmt->body);
             else if ($stmt instanceof IfStatement) {
                 FillAttributesFromTrivia::processBlock($stmt->then);

@@ -63,6 +63,7 @@ class Expression implements IAstNode, IExpression {
         //if (!allowGeneric && TypeHelper.isGeneric(actualType))
         //    throw new Error(`Actual type cannot be generic (${actualType.repr()})!`);
         
+        //if (actualType.repr() === "C:TsArray<Void>") debugger;
         $this->actualType = $actualType;
     }
     

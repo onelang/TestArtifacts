@@ -286,7 +286,7 @@ namespace Generator
                 if (lambd.body.statements.length() == 1 && lambd.body.statements.get(0) is ReturnStatement)
                     body = this.expr((((ReturnStatement)lambd.body.statements.get(0))).expression);
                 else
-                    console.error($"Multi-line lambda is not yet supported for Python: {TSOverviewGenerator.nodeRepr(lambd)}");
+                    console.error($"Multi-line lambda is not yet supported for Python: {TSOverviewGenerator.preview.nodeRepr(lambd)}");
                 
                 var params_ = lambd.parameters.map(x => this.name_(x.name));
                 

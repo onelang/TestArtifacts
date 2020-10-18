@@ -72,14 +72,14 @@ class InferReturnType(inferTypesPlug.InferTypesPlugin):
         return self.return_type_infer.pop().finish(declared_type, error_context, async_type)
     
     def handle_statement(self, stmt):
+        if len(self.return_type_infer) == 0:
+            return False
         if isinstance(stmt, stats.ReturnStatement) and stmt.expression != None:
             self.main.process_statement(stmt)
-            if len(self.return_type_infer) != 0:
-                self.get_current().add_return(stmt.expression)
+            self.get_current().add_return(stmt.expression)
             return True
         elif isinstance(stmt, stats.ThrowStatement):
-            if len(self.return_type_infer) != 0:
-                self.get_current().throws = True
+            self.get_current().throws = True
             return False
         else:
             return False

@@ -29,9 +29,6 @@ class LambdaResolver(inferTypesPlug.InferTypesPlugin):
         else:
             self.error_man.throw("Expected LambdaType as Lambda's type!")
     
-    def process_return_expr(self, return_expr):
-        pass
-    
     def visit_lambda(self, lambda_):
         self.setup_lambda_parameter_types(lambda_)
     
