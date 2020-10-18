@@ -1,0 +1,1 @@
+public enum DetectionMode { AllImports, AllInheritence, BaseClassesOnly }

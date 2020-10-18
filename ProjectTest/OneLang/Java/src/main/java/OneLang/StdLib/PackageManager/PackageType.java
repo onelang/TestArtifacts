@@ -1,0 +1,1 @@
+public enum PackageType { Interface, Implementation }

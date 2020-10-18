@@ -1,0 +1,1 @@
+public enum InferTypesStage { Invalid, Fields, Properties, Methods }
