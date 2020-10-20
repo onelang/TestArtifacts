@@ -16,7 +16,7 @@ public class VariableDeclaration extends Statement implements IVariableWithIniti
     public Expression getInitializer() { return this.initializer; }
     public void setInitializer(Expression value) { this.initializer = value; }
     
-    MutabilityInfo mutability;
+    MutabilityInfo mutability = null;
     public MutabilityInfo getMutability() { return this.mutability; }
     public void setMutability(MutabilityInfo value) { this.mutability = value; }
     
@@ -29,8 +29,7 @@ public class VariableDeclaration extends Statement implements IVariableWithIniti
         this.references = new ArrayList<VariableDeclarationReference>();
     }
     
-    public Reference createReference()
-    {
+    public Reference createReference() {
         return new VariableDeclarationReference(this);
     }
 }

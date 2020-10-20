@@ -10,11 +10,11 @@ public class Import implements IHasAttributesAndTrivia, ISourceFileMember {
     public String getLeadingTrivia() { return this.leadingTrivia; }
     public void setLeadingTrivia(String value) { this.leadingTrivia = value; }
     
-    SourceFile parentFile;
+    SourceFile parentFile = null;
     public SourceFile getParentFile() { return this.parentFile; }
     public void setParentFile(SourceFile value) { this.parentFile = value; }
     
-    Map<String, String> attributes;
+    Map<String, String> attributes = null;
     public Map<String, String> getAttributes() { return this.attributes; }
     public void setAttributes(Map<String, String> value) { this.attributes = value; }
     

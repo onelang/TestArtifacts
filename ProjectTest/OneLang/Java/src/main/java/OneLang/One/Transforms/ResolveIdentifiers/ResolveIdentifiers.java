@@ -7,8 +7,7 @@ public class ResolveIdentifiers extends AstTransformer {
         this.symbolLookup = new SymbolLookup();
     }
     
-    protected Expression visitIdentifier(Identifier id)
-    {
+    protected Expression visitIdentifier(Identifier id) {
         super.visitIdentifier(id);
         var symbol = this.symbolLookup.getSymbol(id.text);
         if (symbol == null) {
@@ -17,11 +16,11 @@ public class ResolveIdentifiers extends AstTransformer {
         }
         
         Reference ref = null;
-        if (symbol instanceof Class && id.text == "this") {
+        if (symbol instanceof Class && id.text.equals("this")) {
             var withinStaticMethod = this.currentMethod instanceof Method && ((Method)this.currentMethod).getIsStatic();
             ref = withinStaticMethod ? ((Reference)new StaticThisReference(((Class)symbol))) : new ThisReference(((Class)symbol));
         }
-        else if (symbol instanceof Class && id.text == "super")
+        else if (symbol instanceof Class && id.text.equals("super"))
             ref = new SuperReference(((Class)symbol));
         else
             ref = symbol.createReference();
@@ -29,8 +28,7 @@ public class ResolveIdentifiers extends AstTransformer {
         return ref;
     }
     
-    protected Statement visitStatement(Statement stmt)
-    {
+    protected Statement visitStatement(Statement stmt) {
         if (stmt instanceof ForStatement) {
             this.symbolLookup.pushContext("For");
             if (((ForStatement)stmt).itemVar != null)
@@ -60,8 +58,7 @@ public class ResolveIdentifiers extends AstTransformer {
         return null;
     }
     
-    protected Lambda visitLambda(Lambda lambda)
-    {
+    protected Lambda visitLambda(Lambda lambda) {
         this.symbolLookup.pushContext("Lambda");
         for (var param : lambda.getParameters())
             this.symbolLookup.addSymbol(param.getName(), param);
@@ -71,22 +68,19 @@ public class ResolveIdentifiers extends AstTransformer {
         return null;
     }
     
-    protected Block visitBlock(Block block)
-    {
+    protected Block visitBlock(Block block) {
         this.symbolLookup.pushContext("block");
         super.visitBlock(block);
         this.symbolLookup.popContext();
         return null;
     }
     
-    protected VariableDeclaration visitVariableDeclaration(VariableDeclaration stmt)
-    {
+    protected VariableDeclaration visitVariableDeclaration(VariableDeclaration stmt) {
         this.symbolLookup.addSymbol(stmt.getName(), stmt);
         return super.visitVariableDeclaration(stmt);
     }
     
-    protected void visitMethodBase(IMethodBase method)
-    {
+    protected void visitMethodBase(IMethodBase method) {
         this.symbolLookup.pushContext(method instanceof Method ? "Method: " + ((Method)method).name : method instanceof Constructor ? "constructor" : "???");
         
         for (var param : method.getParameters()) {
@@ -102,8 +96,7 @@ public class ResolveIdentifiers extends AstTransformer {
         this.symbolLookup.popContext();
     }
     
-    protected void visitClass(Class cls)
-    {
+    protected void visitClass(Class cls) {
         this.symbolLookup.pushContext("Class: " + cls.getName());
         this.symbolLookup.addSymbol("this", cls);
         if (cls.baseClass instanceof ClassType)
@@ -112,8 +105,7 @@ public class ResolveIdentifiers extends AstTransformer {
         this.symbolLookup.popContext();
     }
     
-    public void visitSourceFile(SourceFile sourceFile)
-    {
+    public void visitSourceFile(SourceFile sourceFile) {
         this.errorMan.resetContext(this);
         this.symbolLookup.pushContext("File: " + sourceFile.sourcePath.toString());
         

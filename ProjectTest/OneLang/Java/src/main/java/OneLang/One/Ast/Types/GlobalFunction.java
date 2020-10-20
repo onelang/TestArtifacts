@@ -18,7 +18,7 @@ public class GlobalFunction implements IMethodBaseWithTrivia, IResolvedImportabl
     public Block getBody() { return this.body; }
     public void setBody(Block value) { this.body = value; }
     
-    Boolean isExported;
+    Boolean isExported = false;
     public Boolean getIsExported() { return this.isExported; }
     public void setIsExported(Boolean value) { this.isExported = value; }
     
@@ -26,15 +26,15 @@ public class GlobalFunction implements IMethodBaseWithTrivia, IResolvedImportabl
     public String getLeadingTrivia() { return this.leadingTrivia; }
     public void setLeadingTrivia(String value) { this.leadingTrivia = value; }
     
-    SourceFile parentFile;
+    SourceFile parentFile = null;
     public SourceFile getParentFile() { return this.parentFile; }
     public void setParentFile(SourceFile value) { this.parentFile = value; }
     
-    Map<String, String> attributes;
+    Map<String, String> attributes = null;
     public Map<String, String> getAttributes() { return this.attributes; }
     public void setAttributes(Map<String, String> value) { this.attributes = value; }
     
-    Boolean throws_;
+    Boolean throws_ = false;
     public Boolean getThrows() { return this.throws_; }
     public void setThrows(Boolean value) { this.throws_ = value; }
     
@@ -49,8 +49,7 @@ public class GlobalFunction implements IMethodBaseWithTrivia, IResolvedImportabl
         this.references = new ArrayList<GlobalFunctionReference>();
     }
     
-    public Reference createReference()
-    {
+    public Reference createReference() {
         return new GlobalFunctionReference(this);
     }
 }

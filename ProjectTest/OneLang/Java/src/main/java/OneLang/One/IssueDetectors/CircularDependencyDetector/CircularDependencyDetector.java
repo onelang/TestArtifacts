@@ -8,8 +8,7 @@ public class CircularDependencyDetector implements IGraphVisitor<SourceFile> {
         this.detector = new GraphCycleDetector<SourceFile>(this);
     }
     
-    public void processIntfs(SourceFile file, String type, IInterface[] intfs)
-    {
+    public void processIntfs(SourceFile file, String type, IInterface[] intfs) {
         for (var intf : intfs)
             for (var baseIntf : intf.getAllBaseInterfaces()) {
                 if (baseIntf.getParentFile() != file && this.detector.visitNode(baseIntf.getParentFile()))
@@ -17,8 +16,7 @@ public class CircularDependencyDetector implements IGraphVisitor<SourceFile> {
             }
     }
     
-    public void processNode(SourceFile file)
-    {
+    public void processNode(SourceFile file) {
         if (this.detectionMode == DetectionMode.AllImports)
             for (var imp : file.imports)
                 for (var impSym : imp.imports) {
@@ -38,13 +36,11 @@ public class CircularDependencyDetector implements IGraphVisitor<SourceFile> {
             }
     }
     
-    public void processPackage(Package pkg)
-    {
+    public void processPackage(Package pkg) {
         this.detector.findCycles(pkg.files.values().toArray(SourceFile[]::new));
     }
     
-    public void processWorkspace(Workspace ws)
-    {
+    public void processWorkspace(Workspace ws) {
         for (var pkg : ws.packages.values().toArray(Package[]::new))
             this.processPackage(pkg);
     }

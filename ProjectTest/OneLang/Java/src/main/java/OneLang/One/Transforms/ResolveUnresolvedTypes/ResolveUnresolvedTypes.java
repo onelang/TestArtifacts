@@ -7,8 +7,7 @@ public class ResolveUnresolvedTypes extends AstTransformer {
         
     }
     
-    protected IType visitType(IType type)
-    {
+    protected IType visitType(IType type) {
         super.visitType(type);
         if (type instanceof UnresolvedType) {
             if (this.currentInterface != null && Arrays.stream(this.currentInterface.getTypeArguments()).anyMatch(((UnresolvedType)type).typeName::equals))
@@ -35,8 +34,7 @@ public class ResolveUnresolvedTypes extends AstTransformer {
             return null;
     }
     
-    protected Expression visitExpression(Expression expr)
-    {
+    protected Expression visitExpression(Expression expr) {
         if (expr instanceof UnresolvedNewExpression) {
             var clsType = this.visitType(((UnresolvedNewExpression)expr).cls);
             if (clsType instanceof ClassType) {

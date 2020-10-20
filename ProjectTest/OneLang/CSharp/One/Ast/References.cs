@@ -170,6 +170,11 @@ namespace One.Ast
         {
             return this.decl;
         }
+        
+        public override VariableDeclarationReference copy()
+        {
+            return new VariableDeclarationReference(this.decl);
+        }
     }
     
     public class ForVariableReference : VariableReference {

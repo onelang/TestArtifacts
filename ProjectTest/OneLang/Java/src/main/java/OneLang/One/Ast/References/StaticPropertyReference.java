@@ -8,8 +8,7 @@ public class StaticPropertyReference extends VariableReference {
         decl.staticReferences.add(this);
     }
     
-    public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric)
-    {
+    public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric) {
         if (TypeHelper.isGeneric(type))
             throw new Error("StaticProperty's type cannot be Generic");
         super.setActualType(type);
@@ -23,8 +22,7 @@ public class StaticPropertyReference extends VariableReference {
         this.setActualType(type, false, false);
     }
     
-    public IVariable getVariable()
-    {
+    public IVariable getVariable() {
         return this.decl;
     }
 }

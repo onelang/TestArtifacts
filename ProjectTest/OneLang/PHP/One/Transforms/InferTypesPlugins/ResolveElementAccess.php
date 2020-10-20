@@ -32,8 +32,10 @@ class ResolveElementAccess extends InferTypesPlugin {
     function transform($expr) {
         if ($expr instanceof BinaryExpression && $expr->left instanceof ElementAccessExpression) {
             $expr->left->object = $this->main->runPluginsOn($expr->left->object);
-            if ($this->isMapOrArrayType($expr->left->object->getType()))
-                return new UnresolvedMethodCallExpression($expr->left->object, "set", array(), array($expr->left->elementExpr, $expr->right));
+            if ($this->isMapOrArrayType($expr->left->object->getType())) {
+                $right = $expr->operator === "=" ? $expr->right : new BinaryExpression($expr->left->copy(), $expr->operator === "+=" ? "+" : "-", $expr->right);
+                return new UnresolvedMethodCallExpression($expr->left->object, "set", array(), array($expr->left->elementExpr, $right));
+            }
         }
         else if ($expr instanceof ElementAccessExpression) {
             $expr->object = $this->main->runPluginsOn($expr->object);

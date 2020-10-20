@@ -5,8 +5,7 @@ public class AnyType implements IPrimitiveType {
         AnyType.instance = new AnyType();
     }
     
-    public String repr()
-    {
+    public String repr() {
         return "Any";
     }
 }

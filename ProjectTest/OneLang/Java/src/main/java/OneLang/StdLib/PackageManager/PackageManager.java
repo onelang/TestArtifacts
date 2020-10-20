@@ -2,7 +2,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class PackageManager {
     public List<InterfacePackage> interfacesPkgs;
@@ -16,8 +16,7 @@ public class PackageManager {
         this.implementationPkgs = new ArrayList<ImplementationPackage>();
     }
     
-    public void loadAllCached()
-    {
+    public void loadAllCached() {
         var allPackages = this.source.getAllCached();
         
         for (var content : Arrays.stream(allPackages.packages).filter(x -> x.id.type == PackageType.Interface).toArray(PackageContent[]::new))
@@ -27,26 +26,23 @@ public class PackageManager {
             this.implementationPkgs.add(new ImplementationPackage(content));
     }
     
-    public ImplPkgImplementation[] getLangImpls(String langName)
-    {
+    public ImplPkgImplementation[] getLangImpls(String langName) {
         var allImpls = new ArrayList<ImplPkgImplementation>();
         for (var pkg : this.implementationPkgs)
             for (var impl : pkg.implementations)
                 allImpls.add(impl);
-        return allImpls.stream().filter(x -> x.language == langName).toArray(ImplPkgImplementation[]::new);
+        return allImpls.stream().filter(x -> x.language.equals(langName)).toArray(ImplPkgImplementation[]::new);
     }
     
-    public String getInterfaceDefinitions()
-    {
+    public String getInterfaceDefinitions() {
         return Arrays.stream(this.interfacesPkgs.stream().map(x -> x.definition).toArray(String[]::new)).collect(Collectors.joining("\n"));
     }
     
-    public PackageNativeImpl[] getLangNativeImpls(String langName)
-    {
+    public PackageNativeImpl[] getLangNativeImpls(String langName) {
         var result = new ArrayList<PackageNativeImpl>();
         for (var pkg : this.implementationPkgs)
-            for (var pkgImpl : pkg.implementations.stream().filter(x -> x.language == langName).toArray(ImplPkgImplementation[]::new)) {
-                var fileNamePaths = new HashMap<String, String>();
+            for (var pkgImpl : pkg.implementations.stream().filter(x -> x.language.equals(langName)).toArray(ImplPkgImplementation[]::new)) {
+                var fileNamePaths = new LinkedHashMap<String, String>();
                 for (var fileName : pkgImpl.nativeIncludes)
                     fileNamePaths.put(fileName, "native/" + fileName);
                 

@@ -16,7 +16,7 @@ public class ForVariable implements IVariableWithInitializer, IReferencable {
     public Expression getInitializer() { return this.initializer; }
     public void setInitializer(Expression value) { this.initializer = value; }
     
-    MutabilityInfo mutability;
+    MutabilityInfo mutability = null;
     public MutabilityInfo getMutability() { return this.mutability; }
     public void setMutability(MutabilityInfo value) { this.mutability = value; }
     
@@ -28,8 +28,7 @@ public class ForVariable implements IVariableWithInitializer, IReferencable {
         this.references = new ArrayList<ForVariableReference>();
     }
     
-    public Reference createReference()
-    {
+    public Reference createReference() {
         return new ForVariableReference(this);
     }
 }

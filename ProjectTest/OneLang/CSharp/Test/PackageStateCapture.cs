@@ -13,7 +13,7 @@ namespace Test
             this.pkg = pkg;
             this.overviews = new Dictionary<string, string> {};
             foreach (var file in Object.values(pkg.files))
-                this.overviews.set(file.sourcePath.path, new TSOverviewGenerator(false, true).generate(file));
+                this.overviews.set(file.sourcePath.path, new TSOverviewGenerator(false, false).generate(file));
         }
         
         public string getSummary()

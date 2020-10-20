@@ -5,15 +5,13 @@ public class NullabilityCheckWithNot extends InferTypesPlugin {
         
     }
     
-    public Boolean canTransform(Expression expr)
-    {
-        return expr instanceof UnaryExpression ? ((UnaryExpression)expr).operator == "!" : false;
+    public Boolean canTransform(Expression expr) {
+        return expr instanceof UnaryExpression ? ((UnaryExpression)expr).operator.equals("!") : false;
     }
     
-    public Expression transform(Expression expr)
-    {
+    public Expression transform(Expression expr) {
         var unaryExpr = ((UnaryExpression)expr);
-        if (unaryExpr.operator == "!") {
+        if (unaryExpr.operator.equals("!")) {
             this.main.processExpression(expr);
             var type = unaryExpr.operand.actualType;
             var litTypes = this.main.currentFile.literalTypes;

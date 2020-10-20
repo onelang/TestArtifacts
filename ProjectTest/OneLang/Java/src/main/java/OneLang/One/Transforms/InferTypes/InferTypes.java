@@ -27,45 +27,37 @@ public class InferTypes extends AstTransformer {
         this.addPlugin(new ResolveElementAccess());
     }
     
-    public void processLambda(Lambda lambda)
-    {
+    public void processLambda(Lambda lambda) {
         super.visitMethodBase(lambda);
     }
     
-    public void processMethodBase(IMethodBase method)
-    {
+    public void processMethodBase(IMethodBase method) {
         super.visitMethodBase(method);
     }
     
-    public void processBlock(Block block)
-    {
+    public void processBlock(Block block) {
         super.visitBlock(block);
     }
     
-    public void processVariable(IVariable variable)
-    {
+    public void processVariable(IVariable variable) {
         super.visitVariable(variable);
     }
     
-    public void processStatement(Statement stmt)
-    {
+    public void processStatement(Statement stmt) {
         super.visitStatement(stmt);
     }
     
-    public void processExpression(Expression expr)
-    {
+    public void processExpression(Expression expr) {
         super.visitExpression(expr);
     }
     
-    public void addPlugin(InferTypesPlugin plugin)
-    {
+    public void addPlugin(InferTypesPlugin plugin) {
         plugin.main = this;
         plugin.errorMan = this.errorMan;
         this.plugins.add(plugin);
     }
     
-    protected IVariableWithInitializer visitVariableWithInitializer(IVariableWithInitializer variable)
-    {
+    protected IVariableWithInitializer visitVariableWithInitializer(IVariableWithInitializer variable) {
         if (variable.getType() != null && variable.getInitializer() != null)
             variable.getInitializer().setExpectedType(variable.getType());
         
@@ -77,8 +69,7 @@ public class InferTypes extends AstTransformer {
         return null;
     }
     
-    protected Expression runTransformRound(Expression expr)
-    {
+    protected Expression runTransformRound(Expression expr) {
         if (expr.actualType != null)
             return null;
         
@@ -106,8 +97,7 @@ public class InferTypes extends AstTransformer {
         }
     }
     
-    protected Boolean detectType(Expression expr)
-    {
+    protected Boolean detectType(Expression expr) {
         for (var plugin : this.plugins) {
             if (!plugin.canDetectType(expr))
                 continue;
@@ -124,8 +114,7 @@ public class InferTypes extends AstTransformer {
         return false;
     }
     
-    protected Expression visitExpression(Expression expr)
-    {
+    protected Expression visitExpression(Expression expr) {
         Expression transformedExpr = null;
         while (true) {
             var newExpr = this.runTransformRound(transformedExpr != null ? transformedExpr : expr);
@@ -151,8 +140,7 @@ public class InferTypes extends AstTransformer {
         return expr2;
     }
     
-    protected Statement visitStatement(Statement stmt)
-    {
+    protected Statement visitStatement(Statement stmt) {
         this.currentStatement = stmt;
         
         for (var plugin : this.plugins) {
@@ -163,15 +151,13 @@ public class InferTypes extends AstTransformer {
         return super.visitStatement(stmt);
     }
     
-    protected void visitField(Field field)
-    {
+    protected void visitField(Field field) {
         if (this.stage != InferTypesStage.Fields)
             return;
         super.visitField(field);
     }
     
-    protected void visitProperty(Property prop)
-    {
+    protected void visitProperty(Property prop) {
         if (this.stage != InferTypesStage.Properties)
             return;
         
@@ -183,8 +169,7 @@ public class InferTypes extends AstTransformer {
         super.visitProperty(prop);
     }
     
-    protected void visitMethodBase(IMethodBase method)
-    {
+    protected void visitMethodBase(IMethodBase method) {
         if (this.stage != InferTypesStage.Methods)
             return;
         
@@ -196,8 +181,7 @@ public class InferTypes extends AstTransformer {
         super.visitMethodBase(method);
     }
     
-    protected Lambda visitLambda(Lambda lambda)
-    {
+    protected Lambda visitLambda(Lambda lambda) {
         if (lambda.actualType != null)
             return null;
         
@@ -209,21 +193,18 @@ public class InferTypes extends AstTransformer {
         return super.visitLambda(lambda);
     }
     
-    public Expression runPluginsOn(Expression expr)
-    {
+    public Expression runPluginsOn(Expression expr) {
         return this.visitExpression(expr);
     }
     
-    protected void visitClass(Class cls)
-    {
-        if (cls.getAttributes().get("external") == "true")
+    protected void visitClass(Class cls) {
+        if (cls.getAttributes().get("external").equals("true"))
             return;
         super.visitClass(cls);
     }
     
-    public void visitPackage(Package pkg)
-    {
-        for (var stage : List.of(InferTypesStage.Fields, InferTypesStage.Properties, InferTypesStage.Methods)) {
+    public void visitPackage(Package pkg) {
+        for (var stage : new ArrayList<>(List.of(InferTypesStage.Fields, InferTypesStage.Properties, InferTypesStage.Methods))) {
             this.stage = stage;
             super.visitPackage(pkg);
         }

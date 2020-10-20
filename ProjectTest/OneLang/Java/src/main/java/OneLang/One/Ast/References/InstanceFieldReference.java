@@ -10,8 +10,7 @@ public class InstanceFieldReference extends VariableReference {
         field.instanceReferences.add(this);
     }
     
-    public IVariable getVariable()
-    {
+    public IVariable getVariable() {
         return this.field;
     }
 }

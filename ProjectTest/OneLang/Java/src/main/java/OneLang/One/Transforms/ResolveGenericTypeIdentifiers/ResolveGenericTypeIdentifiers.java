@@ -7,8 +7,7 @@ public class ResolveGenericTypeIdentifiers extends AstTransformer {
         
     }
     
-    protected IType visitType(IType type)
-    {
+    protected IType visitType(IType type) {
         super.visitType(type);
         
         //console.log(type && type.constructor.name, JSON.stringify(type));

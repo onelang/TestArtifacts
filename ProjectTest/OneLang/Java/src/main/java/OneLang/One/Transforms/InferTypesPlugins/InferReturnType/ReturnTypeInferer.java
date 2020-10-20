@@ -15,8 +15,7 @@ public class ReturnTypeInferer {
         this.returnTypes = new ArrayList<IType>();
     }
     
-    public void addReturn(Expression returnValue)
-    {
+    public void addReturn(Expression returnValue) {
         if (returnValue instanceof NullLiteral) {
             this.returnsNull = true;
             return;
@@ -30,8 +29,7 @@ public class ReturnTypeInferer {
             this.returnTypes.add(returnType);
     }
     
-    public IType finish(IType declaredType, String errorContext, ClassType asyncType)
-    {
+    public IType finish(IType declaredType, String errorContext, ClassType asyncType) {
         IType inferredType = null;
         
         if (this.returnTypes.size() == 0) {

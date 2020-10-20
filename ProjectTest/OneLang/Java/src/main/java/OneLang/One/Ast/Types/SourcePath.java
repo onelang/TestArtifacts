@@ -8,8 +8,7 @@ public class SourcePath {
         this.path = path;
     }
     
-    public String toString()
-    {
+    public String toString() {
         return this.pkg.name + "/" + this.path;
     }
 }

@@ -19,14 +19,12 @@ public class Compiler {
         this.hooks = null;
     }
     
-    public void init(String packagesDir)
-    {
+    public void init(String packagesDir) {
         this.pacMan = new PackageManager(new PackagesFolderSource(packagesDir));
         this.pacMan.loadAllCached();
     }
     
-    public void setupNativeResolver(String content)
-    {
+    public void setupNativeResolver(String content) {
         this.nativeFile = TypeScriptParser2.parseFile(content);
         this.nativeExports = Package.collectExportsFromFile(this.nativeFile, true);
         new FillParent().visitSourceFile(this.nativeFile);
@@ -36,8 +34,7 @@ public class Compiler {
         new FillMutabilityInfo().visitSourceFile(this.nativeFile);
     }
     
-    public void newWorkspace(String pkgName)
-    {
+    public void newWorkspace(String pkgName) {
         this.workspace = new Workspace();
         for (var intfPkg : this.pacMan.interfacesPkgs) {
             var libName = intfPkg.interfaceYaml.vendor + "." + intfPkg.interfaceYaml.name + "-v" + intfPkg.interfaceYaml.version;
@@ -52,8 +49,7 @@ public class Compiler {
         this.newWorkspace("@");
     }
     
-    public void addInterfacePackage(String libName, String definitionFileContent)
-    {
+    public void addInterfacePackage(String libName, String definitionFileContent) {
         var libPkg = new Package(libName, true);
         var file = TypeScriptParser2.parseFile(definitionFileContent, new SourcePath(libPkg, Package.INDEX));
         this.setupFile(file);
@@ -61,22 +57,19 @@ public class Compiler {
         this.workspace.addPackage(libPkg);
     }
     
-    public void setupFile(SourceFile file)
-    {
+    public void setupFile(SourceFile file) {
         file.addAvailableSymbols(this.nativeExports.getAllExports());
         file.literalTypes = new LiteralTypes((((Class)file.availableSymbols.get("TsBoolean"))).type, (((Class)file.availableSymbols.get("TsNumber"))).type, (((Class)file.availableSymbols.get("TsString"))).type, (((Class)file.availableSymbols.get("RegExp"))).type, (((Class)file.availableSymbols.get("TsArray"))).type, (((Class)file.availableSymbols.get("TsMap"))).type, (((Class)file.availableSymbols.get("Error"))).type, (((Class)file.availableSymbols.get("Promise"))).type);
         file.arrayTypes = new ClassType[] { (((Class)file.availableSymbols.get("TsArray"))).type, (((Class)file.availableSymbols.get("IterableIterator"))).type, (((Class)file.availableSymbols.get("RegExpExecArray"))).type, (((Class)file.availableSymbols.get("TsString"))).type, (((Class)file.availableSymbols.get("Set"))).type };
     }
     
-    public void addProjectFile(String fn, String content)
-    {
+    public void addProjectFile(String fn, String content) {
         var file = TypeScriptParser2.parseFile(content, new SourcePath(this.projectPkg, fn));
         this.setupFile(file);
         this.projectPkg.addFile(file);
     }
     
-    public void processWorkspace()
-    {
+    public void processWorkspace() {
         for (var pkg : Arrays.stream(this.workspace.packages.values().toArray(Package[]::new)).filter(x -> x.definitionOnly).toArray(Package[]::new)) {
             // sets method's parentInterface property
             new FillParent().visitPackage(pkg);

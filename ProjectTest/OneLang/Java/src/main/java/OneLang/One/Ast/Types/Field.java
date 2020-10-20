@@ -25,7 +25,7 @@ public class Field implements IVariableWithInitializer, IHasAttributesAndTrivia,
     public Visibility getVisibility() { return this.visibility; }
     public void setVisibility(Visibility value) { this.visibility = value; }
     
-    Boolean isStatic;
+    Boolean isStatic = false;
     public Boolean getIsStatic() { return this.isStatic; }
     public void setIsStatic(Boolean value) { this.isStatic = value; }
     
@@ -33,11 +33,11 @@ public class Field implements IVariableWithInitializer, IHasAttributesAndTrivia,
     public String getLeadingTrivia() { return this.leadingTrivia; }
     public void setLeadingTrivia(String value) { this.leadingTrivia = value; }
     
-    Map<String, String> attributes;
+    Map<String, String> attributes = null;
     public Map<String, String> getAttributes() { return this.attributes; }
     public void setAttributes(Map<String, String> value) { this.attributes = value; }
     
-    MutabilityInfo mutability;
+    MutabilityInfo mutability = null;
     public MutabilityInfo getMutability() { return this.mutability; }
     public void setMutability(MutabilityInfo value) { this.mutability = value; }
     

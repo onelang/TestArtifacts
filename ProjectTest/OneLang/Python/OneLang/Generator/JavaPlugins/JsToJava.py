@@ -29,7 +29,7 @@ class JsToJava:
         return f'''toArray({self.main.type(type)}[]::new)'''
     
     def convert_method(self, cls_, obj, method, args, return_type):
-        obj_r = self.main.expr(obj)
+        obj_r = None if obj == None else self.main.expr(obj)
         args_r = list(map(lambda x: self.main.expr(x), args))
         if cls_.name == "TsArray":
             if method.name == "includes":
@@ -68,7 +68,7 @@ class JsToJava:
             if method.name == "replace":
                 if isinstance(args[0], exprs.RegexLiteral):
                     self.main.imports["java.util.regex.Pattern"] = None
-                    return f'''{obj_r}.replaceAll(Pattern.quote({JSON.stringify((args[0]).pattern)}), {args_r[1]})'''
+                    return f'''{obj_r}.replaceAll({JSON.stringify((args[0]).pattern)}, {args_r[1]})'''
                 
                 return f'''{args_r[0]}.replace({obj_r}, {args_r[1]})'''
             elif method.name == "charCodeAt":
@@ -84,7 +84,7 @@ class JsToJava:
             
             if method.name == "split" and isinstance(args[0], exprs.RegexLiteral):
                 pattern = (args[0]).pattern
-                return f'''{obj_r}.split({JSON.stringify(pattern)})'''
+                return f'''{obj_r}.split({JSON.stringify(pattern)}, -1)'''
         elif cls_.name == "TsMap" or cls_.name == "Map":
             if method.name == "set":
                 return f'''{obj_r}.put({args_r[0]}, {args_r[1]})'''

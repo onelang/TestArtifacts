@@ -10,13 +10,11 @@ public class TemplateStringPart {
         this.expression = expression;
     }
     
-    public static TemplateStringPart Literal(String literalText)
-    {
+    public static TemplateStringPart Literal(String literalText) {
         return new TemplateStringPart(true, literalText, null);
     }
     
-    public static TemplateStringPart Expression(Expression expr)
-    {
+    public static TemplateStringPart Expression(Expression expr) {
         return new TemplateStringPart(false, null, expr);
     }
 }

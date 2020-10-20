@@ -1,5 +1,5 @@
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Arrays;
 
 public class Package {
@@ -13,12 +13,11 @@ public class Package {
     {
         this.name = name;
         this.definitionOnly = definitionOnly;
-        this.files = new HashMap<String, SourceFile>();
-        this.exportedScopes = new HashMap<String, ExportedScope>();
+        this.files = new LinkedHashMap<String, SourceFile>();
+        this.exportedScopes = new LinkedHashMap<String, ExportedScope>();
     }
     
-    public static ExportedScope collectExportsFromFile(SourceFile file, Boolean exportAll, ExportedScope scope)
-    {
+    public static ExportedScope collectExportsFromFile(SourceFile file, Boolean exportAll, ExportedScope scope) {
         if (scope == null)
             scope = new ExportedScope();
         
@@ -41,9 +40,8 @@ public class Package {
         return Package.collectExportsFromFile(file, exportAll, null);
     }
     
-    public void addFile(SourceFile file, Boolean exportAll)
-    {
-        if (file.sourcePath.pkg != this || file.exportScope.packageName != this.name)
+    public void addFile(SourceFile file, Boolean exportAll) {
+        if (file.sourcePath.pkg != this || !file.exportScope.packageName.equals(this.name))
             throw new Error("This file belongs to another package!");
         
         this.files.put(file.sourcePath.path, file);
@@ -55,8 +53,7 @@ public class Package {
         this.addFile(file, false);
     }
     
-    public ExportedScope getExportedScope(String name)
-    {
+    public ExportedScope getExportedScope(String name) {
         var scope = this.exportedScopes.get(name);
         if (scope == null)
             throw new Error("Scope \"" + name + "\" was not found in package \"" + this.name + "\"");

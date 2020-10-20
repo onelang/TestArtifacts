@@ -5,8 +5,7 @@ public class LambdaResolver extends InferTypesPlugin {
         
     }
     
-    protected void setupLambdaParameterTypes(Lambda lambda)
-    {
+    protected void setupLambdaParameterTypes(Lambda lambda) {
         if (lambda.expectedType == null)
             return;
         
@@ -26,18 +25,15 @@ public class LambdaResolver extends InferTypesPlugin {
             this.errorMan.throw_("Expected LambdaType as Lambda's type!");
     }
     
-    protected void visitLambda(Lambda lambda)
-    {
+    protected void visitLambda(Lambda lambda) {
         this.setupLambdaParameterTypes(lambda);
     }
     
-    public Boolean canTransform(Expression expr)
-    {
+    public Boolean canTransform(Expression expr) {
         return expr instanceof Lambda;
     }
     
-    public Expression transform(Expression expr)
-    {
+    public Expression transform(Expression expr) {
         this.visitLambda(((Lambda)expr));
         // does not transform actually
         return null;

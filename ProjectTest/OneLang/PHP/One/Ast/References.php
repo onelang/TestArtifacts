@@ -181,6 +181,10 @@ class VariableDeclarationReference extends VariableReference {
     function getVariable() {
         return $this->decl;
     }
+    
+    function copy() {
+        return new VariableDeclarationReference($this->decl);
+    }
 }
 
 class ForVariableReference extends VariableReference {

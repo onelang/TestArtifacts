@@ -36,7 +36,7 @@ namespace Generator.JavaPlugins
         
         public string convertMethod(Class cls, Expression obj, Method method, Expression[] args, IType returnType)
         {
-            var objR = this.main.expr(obj);
+            var objR = obj == null ? null : this.main.expr(obj);
             var argsR = args.map(x => this.main.expr(x));
             if (cls.name == "TsArray") {
                 if (method.name == "includes")
@@ -79,7 +79,7 @@ namespace Generator.JavaPlugins
                 if (method.name == "replace") {
                     if (args.get(0) is RegexLiteral) {
                         this.main.imports.add("java.util.regex.Pattern");
-                        return $"{objR}.replaceAll(Pattern.quote({JSON.stringify((((RegexLiteral)args.get(0))).pattern)}), {argsR.get(1)})";
+                        return $"{objR}.replaceAll({JSON.stringify((((RegexLiteral)args.get(0))).pattern)}, {argsR.get(1)})";
                     }
                     
                     return $"{argsR.get(0)}.replace({objR}, {argsR.get(1)})";
@@ -97,7 +97,7 @@ namespace Generator.JavaPlugins
                 
                 if (method.name == "split" && args.get(0) is RegexLiteral) {
                     var pattern = (((RegexLiteral)args.get(0))).pattern;
-                    return $"{objR}.split({JSON.stringify(pattern)})";
+                    return $"{objR}.split({JSON.stringify(pattern)}, -1)";
                 }
             }
             else if (cls.name == "TsMap" || cls.name == "Map") {

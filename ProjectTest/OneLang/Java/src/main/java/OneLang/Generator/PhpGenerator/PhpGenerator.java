@@ -22,31 +22,27 @@ public class PhpGenerator implements IGenerator {
         this.plugins.add(new JsToPhp(this));
     }
     
-    public String getLangName()
-    {
+    public String getLangName() {
         return "PHP";
     }
     
-    public String getExtension()
-    {
+    public String getExtension() {
         return "php";
     }
     
-    public String name_(String name)
-    {
+    public String name_(String name) {
         if (Arrays.stream(this.reservedWords).anyMatch(name::equals))
             name += "_";
         if (Arrays.stream(this.fieldToMethodHack).anyMatch(name::equals))
             name += "()";
-        var nameParts = name.split("-");
+        var nameParts = name.split("-", -1);
         for (Integer i = 1; i < nameParts.length; i++)
             nameParts[i] = nameParts[i].substring(0, 0 + 1).toUpperCase() + nameParts[i].substring(1);
         name = Arrays.stream(nameParts).collect(Collectors.joining(""));
         return name;
     }
     
-    public String leading(Statement item)
-    {
+    public String leading(Statement item) {
         var result = "";
         if (item.getLeadingTrivia() != null && item.getLeadingTrivia().length() > 0)
             result += item.getLeadingTrivia();
@@ -55,53 +51,47 @@ public class PhpGenerator implements IGenerator {
         return result;
     }
     
-    public String preArr(String prefix, String[] value)
-    {
+    public String preArr(String prefix, String[] value) {
         return value.length > 0 ? prefix + Arrays.stream(value).collect(Collectors.joining(", ")) : "";
     }
     
-    public String preIf(String prefix, Boolean condition)
-    {
+    public String preIf(String prefix, Boolean condition) {
         return condition ? prefix : "";
     }
     
-    public String pre(String prefix, String value)
-    {
+    public String pre(String prefix, String value) {
         return value != null ? prefix + value : "";
     }
     
-    public String typeArgs(String[] args)
-    {
+    public String typeArgs(String[] args) {
         return args != null && args.length > 0 ? "<" + Arrays.stream(args).collect(Collectors.joining(", ")) + ">" : "";
     }
     
-    public String typeArgs2(IType[] args)
-    {
+    public String typeArgs2(IType[] args) {
         return this.typeArgs(Arrays.stream(args).map(x -> this.type(x)).toArray(String[]::new));
     }
     
-    public String type(IType t, Boolean mutates)
-    {
+    public String type(IType t, Boolean mutates) {
         if (t instanceof ClassType) {
             //const typeArgs = this.typeArgs(t.typeArguments.map(x => this.type(x)));
-            if (((ClassType)t).decl.getName() == "TsString")
+            if (((ClassType)t).decl.getName().equals("TsString"))
                 return "string";
-            else if (((ClassType)t).decl.getName() == "TsBoolean")
+            else if (((ClassType)t).decl.getName().equals("TsBoolean"))
                 return "bool";
-            else if (((ClassType)t).decl.getName() == "TsNumber")
+            else if (((ClassType)t).decl.getName().equals("TsNumber"))
                 return "int";
-            else if (((ClassType)t).decl.getName() == "TsArray") {
+            else if (((ClassType)t).decl.getName().equals("TsArray")) {
                 if (mutates)
                     return "List_";
                 else
                     return this.type(((ClassType)t).getTypeArguments()[0]) + "[]";
             }
-            else if (((ClassType)t).decl.getName() == "Promise")
+            else if (((ClassType)t).decl.getName().equals("Promise"))
                 return this.type(((ClassType)t).getTypeArguments()[0]);
-            else if (((ClassType)t).decl.getName() == "Object")
+            else if (((ClassType)t).decl.getName().equals("Object"))
                 //this.usings.add("System");
                 return "object";
-            else if (((ClassType)t).decl.getName() == "TsMap")
+            else if (((ClassType)t).decl.getName().equals("TsMap"))
                 return "Dictionary";
             
             if (((ClassType)t).decl.getParentFile().exportScope == null)
@@ -123,7 +113,7 @@ public class PhpGenerator implements IGenerator {
             return ((GenericsType)t).typeVarName;
         else if (t instanceof LambdaType) {
             var isFunc = !(((LambdaType)t).returnType instanceof VoidType);
-            var paramTypes = Arrays.asList(Arrays.stream(((LambdaType)t).parameters).map(x -> this.type(x.getType())).toArray(String[]::new));
+            var paramTypes = new ArrayList<>(Arrays.asList(Arrays.stream(((LambdaType)t).parameters).map(x -> this.type(x.getType())).toArray(String[]::new)));
             if (isFunc)
                 paramTypes.add(this.type(((LambdaType)t).returnType));
             return (isFunc ? "Func" : "Action") + "<" + paramTypes.stream().collect(Collectors.joining(", ")) + ">";
@@ -138,18 +128,15 @@ public class PhpGenerator implements IGenerator {
         return this.type(t, true);
     }
     
-    public Boolean isTsArray(IType type)
-    {
-        return type instanceof ClassType && ((ClassType)type).decl.getName() == "TsArray";
+    public Boolean isTsArray(IType type) {
+        return type instanceof ClassType && ((ClassType)type).decl.getName().equals("TsArray");
     }
     
-    public String vis(Visibility v, Boolean isProperty)
-    {
+    public String vis(Visibility v, Boolean isProperty) {
         return v == Visibility.Private ? "private " : v == Visibility.Protected ? "protected " : v == Visibility.Public ? (isProperty ? "public " : "") : "/* TODO: not set */" + (isProperty ? "public " : "");
     }
     
-    public String varWoInit(IVariable v, IHasAttributesAndTrivia attr)
-    {
+    public String varWoInit(IVariable v, IHasAttributesAndTrivia attr) {
         // let type: string;
         // if (attr !== null && attr.attributes !== null && "php-type" in attr.attributes)
         //     type = attr.attributes["php-type"];
@@ -165,18 +152,15 @@ public class PhpGenerator implements IGenerator {
         return "$" + this.name_(v.getName());
     }
     
-    public String var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs)
-    {
+    public String var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs) {
         return this.varWoInit(v, attrs) + (v.getInitializer() != null ? " = " + this.expr(v.getInitializer()) : "");
     }
     
-    public String exprCall(IType[] typeArgs, Expression[] args)
-    {
+    public String exprCall(IType[] typeArgs, Expression[] args) {
         return this.typeArgs2(typeArgs) + "(" + Arrays.stream(Arrays.stream(args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")";
     }
     
-    public String mutateArg(Expression arg, Boolean shouldBeMutable)
-    {
+    public String mutateArg(Expression arg, Boolean shouldBeMutable) {
         // if (this.isTsArray(arg.actualType)) {
         //     if (arg instanceof ArrayLiteral && !shouldBeMutable) {
         //         return `Array(${arg.items.map(x => this.expr(x)).join(', ')})`;
@@ -197,8 +181,7 @@ public class PhpGenerator implements IGenerator {
         return this.expr(arg);
     }
     
-    public String mutatedExpr(Expression expr, Expression toWhere)
-    {
+    public String mutatedExpr(Expression expr, Expression toWhere) {
         if (toWhere instanceof VariableReference) {
             var v = ((VariableReference)toWhere).getVariable();
             if (this.isTsArray(v.getType()))
@@ -207,21 +190,18 @@ public class PhpGenerator implements IGenerator {
         return this.expr(expr);
     }
     
-    public String callParams(Expression[] args, MethodParameter[] params)
-    {
+    public String callParams(Expression[] args, MethodParameter[] params) {
         var argReprs = new ArrayList<String>();
         for (Integer i = 0; i < args.length; i++)
             argReprs.add(this.isTsArray(params[i].getType()) ? this.mutateArg(args[i], params[i].getMutability().mutated) : this.expr(args[i]));
         return "(" + argReprs.stream().collect(Collectors.joining(", ")) + ")";
     }
     
-    public String methodCall(IMethodCallExpression expr)
-    {
+    public String methodCall(IMethodCallExpression expr) {
         return this.name_(expr.getMethod().name) + this.typeArgs2(expr.getTypeArgs()) + this.callParams(expr.getArgs(), expr.getMethod().getParameters());
     }
     
-    public String inferExprNameForType(IType type)
-    {
+    public String inferExprNameForType(IType type) {
         if (type instanceof ClassType && StdArrayHelper.allMatch(((ClassType)type).getTypeArguments(), (x, unused) -> x instanceof ClassType)) {
             var fullName = Arrays.stream(Arrays.stream(((ClassType)type).getTypeArguments()).map(x -> (((ClassType)x)).decl.getName()).toArray(String[]::new)).collect(Collectors.joining("")) + ((ClassType)type).decl.getName();
             return NameUtils.shortName(fullName);
@@ -229,8 +209,7 @@ public class PhpGenerator implements IGenerator {
         return null;
     }
     
-    public String expr(IExpression expr)
-    {
+    public String expr(IExpression expr) {
         for (var plugin : this.plugins) {
             var result = plugin.expr(expr);
             if (result != null)
@@ -270,7 +249,7 @@ public class PhpGenerator implements IGenerator {
         else if (expr instanceof BooleanLiteral)
             res = (((BooleanLiteral)expr).boolValue ? "true" : "false");
         else if (expr instanceof StringLiteral)
-            res = JSON.stringify(((StringLiteral)expr).stringValue).replaceAll(Pattern.quote("\\$"), "\\$");
+            res = JSON.stringify(((StringLiteral)expr).stringValue).replaceAll("\\$", "\\$");
         else if (expr instanceof NumericLiteral)
             res = ((NumericLiteral)expr).valueAsText;
         else if (expr instanceof CharacterLiteral)
@@ -284,15 +263,15 @@ public class PhpGenerator implements IGenerator {
                     var lit = "";
                     for (Integer i = 0; i < part.literalText.length(); i++) {
                         var chr = part.literalText.substring(i, i + 1);
-                        if (chr == "\n")
+                        if (chr.equals("\n"))
                             lit += "\\n";
-                        else if (chr == "\r")
+                        else if (chr.equals("\r"))
                             lit += "\\r";
-                        else if (chr == "\t")
+                        else if (chr.equals("\t"))
                             lit += "\\t";
-                        else if (chr == "\\")
+                        else if (chr.equals("\\"))
                             lit += "\\\\";
-                        else if (chr == "\"")
+                        else if (chr.equals("\""))
                             lit += "\\\"";
                         else {
                             var chrCode = (int)chr.charAt(0);
@@ -313,20 +292,20 @@ public class PhpGenerator implements IGenerator {
         }
         else if (expr instanceof BinaryExpression) {
             var op = ((BinaryExpression)expr).operator;
-            if (op == "==")
+            if (op.equals("=="))
                 op = "===";
-            else if (op == "!=")
+            else if (op.equals("!="))
                 op = "!==";
             
-            if (((BinaryExpression)expr).left.actualType != null && ((BinaryExpression)expr).left.actualType.repr() == "C:TsString") {
-                if (op == "+")
+            if (((BinaryExpression)expr).left.actualType != null && ((BinaryExpression)expr).left.actualType.repr().equals("C:TsString")) {
+                if (op.equals("+"))
                     op = ".";
-                else if (op == "+=")
+                else if (op.equals("+="))
                     op = ".=";
             }
             
             
-            res = this.expr(((BinaryExpression)expr).left) + " " + op + " " + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator == "=" ? ((BinaryExpression)expr).left : null);
+            res = this.expr(((BinaryExpression)expr).left) + " " + op + " " + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator.equals("=") ? ((BinaryExpression)expr).left : null);
         }
         else if (expr instanceof ArrayLiteral)
             res = "array(" + Arrays.stream(Arrays.stream(((ArrayLiteral)expr).items).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")";
@@ -356,7 +335,7 @@ public class PhpGenerator implements IGenerator {
             res = this.expr(((UnaryExpression)expr).operand) + ((UnaryExpression)expr).operator;
         else if (expr instanceof MapLiteral) {
             var repr = Arrays.stream(Arrays.stream(((MapLiteral)expr).items).map(item -> JSON.stringify(item.key) + " => " + this.expr(item.value)).toArray(String[]::new)).collect(Collectors.joining(",\n"));
-            res = "Array(" + (repr == "" ? "" : repr.contains("\n") ? "\n" + this.pad(repr) + "\n" : "(" + repr) + ")";
+            res = "Array(" + (repr.equals("") ? "" : repr.contains("\n") ? "\n" + this.pad(repr) + "\n" : "(" + repr) + ")";
         }
         else if (expr instanceof NullLiteral)
             res = "null";
@@ -400,8 +379,7 @@ public class PhpGenerator implements IGenerator {
         return res;
     }
     
-    public String block(Block block, Boolean allowOneLiner)
-    {
+    public String block(Block block, Boolean allowOneLiner) {
         var stmtLen = block.statements.size();
         return stmtLen == 0 ? " { }" : allowOneLiner && stmtLen == 1 && !(block.statements.get(0) instanceof IfStatement) ? "\n" + this.pad(this.rawBlock(block)) : " {\n" + this.pad(this.rawBlock(block)) + "\n}";
     }
@@ -410,8 +388,7 @@ public class PhpGenerator implements IGenerator {
         return this.block(block, true);
     }
     
-    public String stmtDefault(Statement stmt)
-    {
+    public String stmtDefault(Statement stmt) {
         var res = "UNKNOWN-STATEMENT";
         if (stmt.getAttributes() != null && stmt.getAttributes().containsKey("csharp"))
             res = stmt.getAttributes().get("csharp");
@@ -460,8 +437,7 @@ public class PhpGenerator implements IGenerator {
         return res;
     }
     
-    public String stmt(Statement stmt)
-    {
+    public String stmt(Statement stmt) {
         String res = null;
         
         if (stmt.getAttributes() != null && stmt.getAttributes().containsKey("php"))
@@ -480,18 +456,15 @@ public class PhpGenerator implements IGenerator {
         return this.leading(stmt) + res;
     }
     
-    public String stmts(Statement[] stmts)
-    {
+    public String stmts(Statement[] stmts) {
         return Arrays.stream(Arrays.stream(stmts).map(stmt -> this.stmt(stmt)).toArray(String[]::new)).collect(Collectors.joining("\n"));
     }
     
-    public String rawBlock(Block block)
-    {
+    public String rawBlock(Block block) {
         return this.stmts(block.statements.toArray(Statement[]::new));
     }
     
-    public String classLike(IInterface cls)
-    {
+    public String classLike(IInterface cls) {
         this.currentClass = cls;
         var resList = new ArrayList<String>();
         
@@ -555,24 +528,21 @@ public class PhpGenerator implements IGenerator {
             methods.add((method.parentInterface instanceof Interface ? "" : this.vis(method.getVisibility(), false)) + this.preIf("static ", method.getIsStatic()) + this.preIf("/* throws */ ", method.getThrows()) + "function " + this.name_(method.name) + this.typeArgs(method.typeArguments) + "(" + Arrays.stream(Arrays.stream(method.getParameters()).map(p -> this.var(p, null)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + (method.getBody() != null ? " {\n" + this.pad(this.stmts(method.getBody().statements.toArray(Statement[]::new))) + "\n}" : ";"));
         }
         resList.add(methods.stream().collect(Collectors.joining("\n\n")));
-        return " {\n" + this.pad(Arrays.stream(resList.stream().filter(x -> x != "").toArray(String[]::new)).collect(Collectors.joining("\n\n"))) + "\n}" + (staticConstructorStmts.size() > 0 ? "\n" + this.name_(cls.getName()) + "::StaticInit();" : "");
+        return " {\n" + this.pad(Arrays.stream(resList.stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n"))) + "\n}" + (staticConstructorStmts.size() > 0 ? "\n" + this.name_(cls.getName()) + "::StaticInit();" : "");
     }
     
-    public String pad(String str)
-    {
-        return Arrays.stream(Arrays.stream(str.split("\\n")).map(x -> "    " + x).toArray(String[]::new)).collect(Collectors.joining("\n"));
+    public String pad(String str) {
+        return Arrays.stream(Arrays.stream(str.split("\\n", -1)).map(x -> "    " + x).toArray(String[]::new)).collect(Collectors.joining("\n"));
     }
     
-    public String pathToNs(String path)
-    {
+    public String pathToNs(String path) {
         // Generator/ExprLang/ExprLangAst.ts -> Generator\ExprLang\ExprLangAst
-        var parts = path.replaceAll(Pattern.quote("\\.ts"), "").split("/");
+        var parts = path.replaceAll("\\.ts", "").split("/", -1);
         //parts.pop();
         return Arrays.stream(parts).collect(Collectors.joining("\\"));
     }
     
-    public String enumName(Enum enum_, Boolean isDecl)
-    {
+    public String enumName(Enum enum_, Boolean isDecl) {
         return enum_.getName();
     }
     
@@ -580,13 +550,11 @@ public class PhpGenerator implements IGenerator {
         return this.enumName(enum_, false);
     }
     
-    public String enumMemberName(String name)
-    {
+    public String enumMemberName(String name) {
         return this.name_(name).toUpperCase();
     }
     
-    public String genFile(SourceFile sourceFile)
-    {
+    public String genFile(SourceFile sourceFile) {
         this.usings = new HashSet<String>();
         
         var enums = new ArrayList<String>();
@@ -611,7 +579,7 @@ public class PhpGenerator implements IGenerator {
                 usingsSet.add(imp.getAttributes().get("php-use"));
             else {
                 var fileNs = this.pathToNs(imp.exportScope.scopeName);
-                if (fileNs == "index")
+                if (fileNs.equals("index"))
                     continue;
                 for (var impItem : imp.imports)
                     usingsSet.add(fileNs + "\\" + this.name_(impItem.getName()));
@@ -625,14 +593,13 @@ public class PhpGenerator implements IGenerator {
         for (var using : usingsSet)
             usings.add("use " + using + ";");
         
-        var result = Arrays.stream(List.of(usings.stream().collect(Collectors.joining("\n")), enums.stream().collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), classes.stream().collect(Collectors.joining("\n\n")), main).stream().filter(x -> x != "").toArray(String[]::new)).collect(Collectors.joining("\n\n"));
+        var result = Arrays.stream(new ArrayList<>(List.of(usings.stream().collect(Collectors.joining("\n")), enums.stream().collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), classes.stream().collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
         var nl = "\n";
         result = "<?php\n\nnamespace " + this.pathToNs(sourceFile.sourcePath.path) + ";\n\n" + result + "\n";
         return result;
     }
     
-    public GeneratedFile[] generate(Package pkg)
-    {
+    public GeneratedFile[] generate(Package pkg) {
         var result = new ArrayList<GeneratedFile>();
         for (var path : pkg.files.keySet().toArray(String[]::new))
             result.add(new GeneratedFile(path, this.genFile(pkg.files.get(path))));

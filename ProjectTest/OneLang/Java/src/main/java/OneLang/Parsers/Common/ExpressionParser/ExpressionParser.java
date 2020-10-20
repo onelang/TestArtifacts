@@ -1,6 +1,6 @@
 import java.util.Map;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.ArrayList;
 
 public class ExpressionParser {
@@ -39,8 +39,7 @@ public class ExpressionParser {
         this(reader, null, null, null);
     }
     
-    public static ExpressionParserConfig defaultConfig()
-    {
+    public static ExpressionParserConfig defaultConfig() {
         var config = new ExpressionParserConfig();
         config.unary = new String[] { "++", "--", "!", "not", "+", "-", "~" };
         config.precedenceLevels = new PrecedenceLevel[] { new PrecedenceLevel("assignment", new String[] { "=", "+=", "-=", "*=", "/=", "<<=", ">>=" }, true), new PrecedenceLevel("conditional", new String[] { "?" }, false), new PrecedenceLevel("or", new String[] { "||", "or" }, true), new PrecedenceLevel("and", new String[] { "&&", "and" }, true), new PrecedenceLevel("comparison", new String[] { ">=", "!=", "===", "!==", "==", "<=", ">", "<" }, true), new PrecedenceLevel("sum", new String[] { "+", "-" }, true), new PrecedenceLevel("product", new String[] { "*", "/", "%" }, true), new PrecedenceLevel("bitwise", new String[] { "|", "&", "^" }, true), new PrecedenceLevel("exponent", new String[] { "**" }, true), new PrecedenceLevel("shift", new String[] { "<<", ">>" }, true), new PrecedenceLevel("range", new String[] { "..." }, true), new PrecedenceLevel("in", new String[] { "in" }, true), new PrecedenceLevel("prefix", new String[0], false), new PrecedenceLevel("postfix", new String[] { "++", "--" }, false), new PrecedenceLevel("call", new String[] { "(" }, false), new PrecedenceLevel("propertyAccess", new String[0], false), new PrecedenceLevel("elementAccess", new String[] { "[" }, false) };
@@ -50,23 +49,22 @@ public class ExpressionParser {
         return config;
     }
     
-    public void reconfigure()
-    {
-        Arrays.stream(this.config.precedenceLevels).filter(x -> x.name == "propertyAccess").findFirst().orElse(null).operators = this.config.propertyAccessOps;
+    public void reconfigure() {
+        Arrays.stream(this.config.precedenceLevels).filter(x -> x.name.equals("propertyAccess")).findFirst().orElse(null).operators = this.config.propertyAccessOps;
         
-        this.operatorMap = new HashMap<String, Operator>();
+        this.operatorMap = new LinkedHashMap<String, Operator>();
         
         for (Integer i = 0; i < this.config.precedenceLevels.length; i++) {
             var level = this.config.precedenceLevels[i];
             var precedence = i + 1;
-            if (level.name == "prefix")
+            if (level.name.equals("prefix"))
                 this.prefixPrecedence = precedence;
             
             if (level.operators == null)
                 continue;
             
             for (var opText : level.operators) {
-                var op = new Operator(opText, precedence, level.binary, Arrays.stream(this.config.rightAssoc).anyMatch(opText::equals), level.name == "postfix");
+                var op = new Operator(opText, precedence, level.binary, Arrays.stream(this.config.rightAssoc).anyMatch(opText::equals), level.name.equals("postfix"));
                 
                 this.operatorMap.put(opText, op);
             }
@@ -75,8 +73,7 @@ public class ExpressionParser {
         this.operators = ArrayHelper.sortBy(this.operatorMap.keySet().toArray(String[]::new), x -> -x.length());
     }
     
-    public MapLiteral parseMapLiteral(String keySeparator, String startToken, String endToken)
-    {
+    public MapLiteral parseMapLiteral(String keySeparator, String startToken, String endToken) {
         if (!this.reader.readToken(startToken))
             return null;
         
@@ -110,8 +107,7 @@ public class ExpressionParser {
         return this.parseMapLiteral(":", "{", "}");
     }
     
-    public ArrayLiteral parseArrayLiteral(String startToken, String endToken)
-    {
+    public ArrayLiteral parseArrayLiteral(String startToken, String endToken) {
         if (!this.reader.readToken(startToken))
             return null;
         
@@ -135,8 +131,7 @@ public class ExpressionParser {
         return this.parseArrayLiteral("[", "]");
     }
     
-    public Expression parseLeft(Boolean required)
-    {
+    public Expression parseLeft(Boolean required) {
         var result = this.hooks != null ? this.hooks.unaryPrehook() : null;
         if (result != null)
             return result;
@@ -175,8 +170,7 @@ public class ExpressionParser {
         return this.parseLeft(true);
     }
     
-    public Operator parseOperator()
-    {
+    public Operator parseOperator() {
         for (var opText : this.operators) {
             if (this.reader.peekToken(opText))
                 return this.operatorMap.get(opText);
@@ -185,8 +179,7 @@ public class ExpressionParser {
         return null;
     }
     
-    public Expression[] parseCallArguments()
-    {
+    public Expression[] parseCallArguments() {
         var args = new ArrayList<Expression>();
         
         if (!this.reader.readToken(")")) {
@@ -201,14 +194,12 @@ public class ExpressionParser {
         return args.toArray(Expression[]::new);
     }
     
-    public void addNode(Object node, Integer start)
-    {
+    public void addNode(Object node, Integer start) {
         if (this.nodeManager != null)
             this.nodeManager.addNode(node, start);
     }
     
-    public Expression parse(Integer precedence, Boolean required)
-    {
+    public Expression parse(Integer precedence, Boolean required) {
         this.reader.skipWhitespace();
         var leftStart = this.reader.offset;
         var left = this.parseLeft(required);
@@ -238,17 +229,17 @@ public class ExpressionParser {
             }
             else if (op.isPostfix)
                 left = new UnaryExpression(UnaryType.Postfix, opText, left);
-            else if (op.text == "?") {
+            else if (op.text.equals("?")) {
                 var whenTrue = this.parse();
                 this.reader.expectToken(":");
                 var whenFalse = this.parse(op.precedence - 1);
                 left = new ConditionalExpression(left, whenTrue, whenFalse);
             }
-            else if (op.text == "(") {
+            else if (op.text.equals("(")) {
                 var args = this.parseCallArguments();
                 left = new UnresolvedCallExpression(left, new IType[0], args);
             }
-            else if (op.text == "[") {
+            else if (op.text.equals("[")) {
                 var elementExpr = this.parse();
                 this.reader.expectToken("]");
                 left = new ElementAccessExpression(left, elementExpr);

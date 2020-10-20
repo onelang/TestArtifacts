@@ -102,7 +102,7 @@ namespace Generator
                         return $"{this.type(classType.typeArguments.get(0))}[]";
                 }
                 else if (classType.decl.name == "Map") {
-                    var realType = isNew ? "HashMap" : "Map";
+                    var realType = isNew ? "LinkedHashMap" : "Map";
                     this.imports.add($"java.util.{realType}");
                     return $"{realType}<{this.type(classType.typeArguments.get(0))}, {this.type(classType.typeArguments.get(1))}>";
                 }
@@ -117,7 +117,7 @@ namespace Generator
                     //this.imports.add("System");
                     return $"Object";
                 else if (classType.decl.name == "TsMap") {
-                    var realType = isNew ? "HashMap" : "Map";
+                    var realType = isNew ? "LinkedHashMap" : "Map";
                     this.imports.add($"java.util.{realType}");
                     return $"{realType}<String, {this.type(classType.typeArguments.get(0))}>";
                 }
@@ -209,7 +209,8 @@ namespace Generator
                     return $"{this.expr(arg)}.toArray({this.type(itemType)}[]::new)";
                 else if (!currentlyMutable && shouldBeMutable) {
                     this.imports.add("java.util.Arrays");
-                    return $"Arrays.asList({this.expr(arg)})";
+                    this.imports.add("java.util.ArrayList");
+                    return $"new ArrayList<>(Arrays.asList({this.expr(arg)}))";
                 }
             }
             return this.expr(arg);
@@ -329,6 +330,16 @@ namespace Generator
                 var modifies = new List<string> { "=", "+=", "-=" }.includes(binExpr2.operator_);
                 if (modifies && binExpr2.left is InstanceFieldReference instFieldRef && this.useGetterSetter(instFieldRef))
                     res = $"{this.expr(instFieldRef.object_)}.set{this.ucFirst(instFieldRef.field.name)}({this.mutatedExpr(binExpr2.right, binExpr2.operator_ == "=" ? instFieldRef : null)})";
+                else if (new List<string> { "==", "!=" }.includes(binExpr2.operator_)) {
+                    var lit = this.currentClass.parentFile.literalTypes;
+                    var leftType = binExpr2.left.getType();
+                    var rightType = binExpr2.right.getType();
+                    var useEquals = TypeHelper.equals(leftType, lit.string_) && rightType != null && TypeHelper.equals(rightType, lit.string_);
+                    if (useEquals)
+                        res = $"{(binExpr2.operator_ == "!=" ? "!" : "")}{this.expr(binExpr2.left)}.equals({this.expr(binExpr2.right)})";
+                    else
+                        res = $"{this.expr(binExpr2.left)} {binExpr2.operator_} {this.expr(binExpr2.right)}";
+                }
                 else
                     res = $"{this.expr(binExpr2.left)} {binExpr2.operator_} {this.mutatedExpr(binExpr2.right, binExpr2.operator_ == "=" ? binExpr2.left : null)}";
             }
@@ -337,7 +348,8 @@ namespace Generator
                     res = $"new {this.type(arrayLit2.actualType, true, true)}()";
                 else {
                     this.imports.add($"java.util.List");
-                    res = $"List.of({arrayLit2.items.map(x => this.expr(x)).join(", ")})";
+                    this.imports.add($"java.util.ArrayList");
+                    res = $"new ArrayList<>(List.of({arrayLit2.items.map(x => this.expr(x)).join(", ")}))";
                 }
             }
             else if (expr is CastExpression castExpr)
@@ -518,7 +530,7 @@ namespace Generator
         public string overloadMethodGen(string prefix, Method method, MethodParameter[] params_, string body)
         {
             var methods = new List<string>();
-            methods.push(prefix + $"({params_.map(p => this.varWoInit(p, null)).join(", ")})" + body);
+            methods.push(prefix + $"({params_.map(p => this.varWoInit(p, p)).join(", ")})" + body);
             
             for (int paramLen = params_.length() - 1; paramLen >= 0; paramLen--) {
                 if (params_.get(paramLen).initializer == null)
@@ -544,7 +556,8 @@ namespace Generator
         {
             // TODO: final
             var prefix = (isCls ? this.vis(method.visibility) + " " : "") + this.preIf("static ", method.isStatic) + this.preIf("/* throws */ ", method.throws) + (method.typeArguments.length() > 0 ? $"<{method.typeArguments.join(", ")}> " : "") + $"{this.type(method.returns, false)} " + this.name_(method.name);
-            return this.overloadMethodGen(prefix, method, method.parameters, method.body == null ? ";" : $"\n{{\n{this.pad(this.stmts(method.body.statements.ToArray()))}\n}}");
+            
+            return this.overloadMethodGen(prefix, method, method.parameters, method.body == null ? ";" : $" {{\n{this.pad(this.stmts(method.body.statements.ToArray()))}\n}}");
         }
         
         public string class_(Class cls)
@@ -564,7 +577,8 @@ namespace Generator
                     var varType = this.varType(field, field);
                     var name = this.name_(field.name);
                     var pname = this.ucFirst(field.name);
-                    propReprs.push($"{varType} {name};\n" + $"{prefix}{varType} get{pname}() {{ return this.{name}; }}\n" + $"{prefix}void set{pname}({varType} value) {{ this.{name} = value; }}");
+                    var setToFalse = TypeHelper.equals(field.type, this.currentClass.parentFile.literalTypes.boolean);
+                    propReprs.push($"{varType} {name}{(setToFalse ? " = false" : field.initializer != null ? $" = {this.expr(field.initializer)}" : "")};\n" + $"{prefix}{varType} get{pname}() {{ return this.{name}; }}\n" + $"{prefix}void set{pname}({varType} value) {{ this.{name} = value; }}");
                 }
                 else if (isInitializerComplex) {
                     if (field.isStatic)

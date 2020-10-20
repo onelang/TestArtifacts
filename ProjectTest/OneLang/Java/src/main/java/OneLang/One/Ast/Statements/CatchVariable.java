@@ -12,7 +12,7 @@ public class CatchVariable implements IVariable, IReferencable {
     public IType getType() { return this.type; }
     public void setType(IType value) { this.type = value; }
     
-    MutabilityInfo mutability;
+    MutabilityInfo mutability = null;
     public MutabilityInfo getMutability() { return this.mutability; }
     public void setMutability(MutabilityInfo value) { this.mutability = value; }
     
@@ -23,8 +23,7 @@ public class CatchVariable implements IVariable, IReferencable {
         this.references = new ArrayList<CatchVariableReference>();
     }
     
-    public Reference createReference()
-    {
+    public Reference createReference() {
         return new CatchVariableReference(this);
     }
 }

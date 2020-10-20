@@ -26,8 +26,7 @@ public class TSOverviewGenerator {
         this(false, false);
     }
     
-    public String leading(IHasAttributesAndTrivia item)
-    {
+    public String leading(IHasAttributesAndTrivia item) {
         var result = "";
         if (item.getLeadingTrivia() != null && item.getLeadingTrivia().length() > 0)
             result += item.getLeadingTrivia();
@@ -36,30 +35,25 @@ public class TSOverviewGenerator {
         return result;
     }
     
-    public String preArr(String prefix, String[] value)
-    {
+    public String preArr(String prefix, String[] value) {
         return value.length > 0 ? prefix + Arrays.stream(value).collect(Collectors.joining(", ")) : "";
     }
     
-    public String preIf(String prefix, Boolean condition)
-    {
+    public String preIf(String prefix, Boolean condition) {
         return condition ? prefix : "";
     }
     
-    public String pre(String prefix, String value)
-    {
+    public String pre(String prefix, String value) {
         return value != null ? prefix + value : "";
     }
     
-    public String typeArgs(String[] args)
-    {
+    public String typeArgs(String[] args) {
         return args != null && args.length > 0 ? "<" + Arrays.stream(args).collect(Collectors.joining(", ")) + ">" : "";
     }
     
-    public String type(IType t, Boolean raw)
-    {
+    public String type(IType t, Boolean raw) {
         var repr = t == null ? "???" : t.repr();
-        if (repr == "U:UNKNOWN") { }
+        if (repr.equals("U:UNKNOWN")) { }
         return (raw ? "" : "{T}") + repr;
     }
     
@@ -67,8 +61,7 @@ public class TSOverviewGenerator {
         return this.type(t, false);
     }
     
-    public String var(IVariable v)
-    {
+    public String var(IVariable v) {
         var result = "";
         var isProp = v instanceof Property;
         if (v instanceof Field || v instanceof Property) {
@@ -91,8 +84,7 @@ public class TSOverviewGenerator {
         return result;
     }
     
-    public String expr(IExpression expr)
-    {
+    public String expr(IExpression expr) {
         var res = "UNKNOWN-EXPR";
         if (expr instanceof NewExpression)
             res = "new " + this.type(((NewExpression)expr).cls) + "(" + (this.previewOnly ? "..." : Arrays.stream(Arrays.stream(((NewExpression)expr).args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", "))) + ")";
@@ -156,7 +148,7 @@ public class TSOverviewGenerator {
             res = this.expr(((UnaryExpression)expr).operand) + ((UnaryExpression)expr).operator;
         else if (expr instanceof MapLiteral) {
             var repr = Arrays.stream(Arrays.stream(((MapLiteral)expr).items).map(item -> item.key + ": " + this.expr(item.value)).toArray(String[]::new)).collect(Collectors.joining(",\n"));
-            res = "{L:M}" + (repr == "" ? "{}" : repr.contains("\n") ? "{\n" + this.pad(repr) + "\n}" : "{ " + repr + " }");
+            res = "{L:M}" + (repr.equals("") ? "{}" : repr.contains("\n") ? "{\n" + this.pad(repr) + "\n}" : "{ " + repr + " }");
         }
         else if (expr instanceof NullLiteral)
             res = "null";
@@ -204,8 +196,7 @@ public class TSOverviewGenerator {
         return res;
     }
     
-    public String block(Block block, Boolean allowOneLiner)
-    {
+    public String block(Block block, Boolean allowOneLiner) {
         if (this.previewOnly)
             return " { ... }";
         var stmtLen = block.statements.size();
@@ -216,8 +207,7 @@ public class TSOverviewGenerator {
         return this.block(block, true);
     }
     
-    public String stmt(Statement stmt)
-    {
+    public String stmt(Statement stmt) {
         var res = "UNKNOWN-STATEMENT";
         if (stmt instanceof BreakStatement)
             res = "break;";
@@ -253,13 +243,11 @@ public class TSOverviewGenerator {
         return this.previewOnly ? res : this.leading(stmt) + res;
     }
     
-    public String rawBlock(Block block)
-    {
+    public String rawBlock(Block block) {
         return Arrays.stream(block.statements.stream().map(stmt -> this.stmt(stmt)).toArray(String[]::new)).collect(Collectors.joining("\n"));
     }
     
-    public String methodBase(IMethodBase method, IType returns)
-    {
+    public String methodBase(IMethodBase method, IType returns) {
         if (method == null)
             return "";
         var name = method instanceof Method ? ((Method)method).name : method instanceof Constructor ? "constructor" : method instanceof GlobalFunction ? ((GlobalFunction)method).getName() : "???";
@@ -267,13 +255,11 @@ public class TSOverviewGenerator {
         return this.preIf("/* throws */ ", method.getThrows()) + name + this.typeArgs(typeArgs) + "(" + Arrays.stream(Arrays.stream(method.getParameters()).map(p -> this.leading(p) + this.var(p)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + (returns instanceof VoidType ? "" : ": " + this.type(returns)) + (method.getBody() != null ? " {\n" + this.pad(this.rawBlock(method.getBody())) + "\n}" : ";");
     }
     
-    public String method(Method method)
-    {
+    public String method(Method method) {
         return method == null ? "" : (method.getIsStatic() ? "static " : "") + (method.getAttributes() != null && method.getAttributes().containsKey("mutates") ? "@mutates " : "") + this.methodBase(method, method.returns);
     }
     
-    public String classLike(IInterface cls)
-    {
+    public String classLike(IInterface cls) {
         var resList = new ArrayList<String>();
         resList.add(Arrays.stream(Arrays.stream(cls.getFields()).map(field -> this.var(field) + ";").toArray(String[]::new)).collect(Collectors.joining("\n")));
         if (cls instanceof Class) {
@@ -281,21 +267,18 @@ public class TSOverviewGenerator {
             resList.add(this.methodBase(((Class)cls).constructor_, VoidType.instance));
         }
         resList.add(Arrays.stream(Arrays.stream(cls.getMethods()).map(method -> this.method(method)).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
-        return this.pad(Arrays.stream(resList.stream().filter(x -> x != "").toArray(String[]::new)).collect(Collectors.joining("\n\n")));
+        return this.pad(Arrays.stream(resList.stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
     }
     
-    public String pad(String str)
-    {
-        return Arrays.stream(Arrays.stream(str.split("\\n")).map(x -> "    " + x).toArray(String[]::new)).collect(Collectors.joining("\n"));
+    public String pad(String str) {
+        return Arrays.stream(Arrays.stream(str.split("\\n", -1)).map(x -> "    " + x).toArray(String[]::new)).collect(Collectors.joining("\n"));
     }
     
-    public String imp(IImportable imp)
-    {
+    public String imp(IImportable imp) {
         return "" + (imp instanceof UnresolvedImport ? "X" : imp instanceof Class ? "C" : imp instanceof Interface ? "I" : imp instanceof Enum ? "E" : "???") + ":" + imp.getName();
     }
     
-    public String nodeRepr(IAstNode node)
-    {
+    public String nodeRepr(IAstNode node) {
         if (node instanceof Statement)
             return this.stmt(((Statement)node));
         else if (node instanceof Expression)
@@ -304,15 +287,14 @@ public class TSOverviewGenerator {
             return "/* TODO: missing */";
     }
     
-    public String generate(SourceFile sourceFile)
-    {
+    public String generate(SourceFile sourceFile) {
         var imps = Arrays.stream(sourceFile.imports).map(imp -> (imp.importAll ? "import * as " + imp.importAs : "import { " + Arrays.stream(Arrays.stream(imp.imports).map(x -> this.imp(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + " }") + " from \"" + imp.exportScope.packageName + this.pre("/", imp.exportScope.scopeName) + "\";").toArray(String[]::new);
         var enums = Arrays.stream(sourceFile.enums).map(enum_ -> this.leading(enum_) + "enum " + enum_.getName() + " { " + Arrays.stream(Arrays.stream(enum_.values).map(x -> x.name).toArray(String[]::new)).collect(Collectors.joining(", ")) + " }").toArray(String[]::new);
         var intfs = Arrays.stream(sourceFile.interfaces).map(intf -> this.leading(intf) + "interface " + intf.getName() + this.typeArgs(intf.getTypeArguments()) + this.preArr(" extends ", Arrays.stream(intf.getBaseInterfaces()).map(x -> this.type(x)).toArray(String[]::new)) + " {\n" + this.classLike(intf) + "\n}").toArray(String[]::new);
         var classes = Arrays.stream(sourceFile.classes).map(cls -> this.leading(cls) + "class " + cls.getName() + this.typeArgs(cls.getTypeArguments()) + this.pre(" extends ", cls.baseClass != null ? this.type(cls.baseClass) : null) + this.preArr(" implements ", Arrays.stream(cls.getBaseInterfaces()).map(x -> this.type(x)).toArray(String[]::new)) + " {\n" + this.classLike(cls) + "\n}").toArray(String[]::new);
         var funcs = Arrays.stream(sourceFile.funcs).map(func -> this.leading(func) + "function " + func.getName() + this.methodBase(func, func.returns)).toArray(String[]::new);
         var main = this.rawBlock(sourceFile.mainBlock);
-        var result = "// export scope: " + sourceFile.exportScope.packageName + "/" + sourceFile.exportScope.scopeName + "\n" + Arrays.stream(List.of(Arrays.stream(imps).collect(Collectors.joining("\n")), Arrays.stream(enums).collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), Arrays.stream(classes).collect(Collectors.joining("\n\n")), Arrays.stream(funcs).collect(Collectors.joining("\n\n")), main).stream().filter(x -> x != "").toArray(String[]::new)).collect(Collectors.joining("\n\n"));
+        var result = "// export scope: " + sourceFile.exportScope.packageName + "/" + sourceFile.exportScope.scopeName + "\n" + Arrays.stream(new ArrayList<>(List.of(Arrays.stream(imps).collect(Collectors.joining("\n")), Arrays.stream(enums).collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), Arrays.stream(classes).collect(Collectors.joining("\n\n")), Arrays.stream(funcs).collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
         return result;
     }
 }

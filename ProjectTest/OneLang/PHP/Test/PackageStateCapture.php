@@ -13,7 +13,7 @@ class PackageStateCapture {
         $this->pkg = $pkg;
         $this->overviews = Array();
         foreach (array_values($pkg->files) as $file)
-            $this->overviews[$file->sourcePath->path] = (new TSOverviewGenerator(false, true))->generate($file);
+            $this->overviews[$file->sourcePath->path] = (new TSOverviewGenerator(false, false))->generate($file);
     }
     
     function getSummary() {

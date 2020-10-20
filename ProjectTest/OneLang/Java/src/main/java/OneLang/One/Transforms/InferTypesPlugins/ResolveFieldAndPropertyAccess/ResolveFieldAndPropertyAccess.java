@@ -7,13 +7,12 @@ public class ResolveFieldAndPropertyAccess extends InferTypesPlugin {
         
     }
     
-    protected Reference getStaticRef(Class cls, String memberName)
-    {
-        var field = Arrays.stream(cls.getFields()).filter(x -> x.getName() == memberName).findFirst().orElse(null);
+    protected Reference getStaticRef(Class cls, String memberName) {
+        var field = Arrays.stream(cls.getFields()).filter(x -> x.getName().equals(memberName)).findFirst().orElse(null);
         if (field != null && field.getIsStatic())
             return new StaticFieldReference(field);
         
-        var prop = Arrays.stream(cls.properties).filter(x -> x.getName() == memberName).findFirst().orElse(null);
+        var prop = Arrays.stream(cls.properties).filter(x -> x.getName().equals(memberName)).findFirst().orElse(null);
         if (prop != null && prop.getIsStatic())
             return new StaticPropertyReference(prop);
         
@@ -21,14 +20,13 @@ public class ResolveFieldAndPropertyAccess extends InferTypesPlugin {
         return null;
     }
     
-    protected Reference getInstanceRef(Class cls, String memberName, Expression obj)
-    {
+    protected Reference getInstanceRef(Class cls, String memberName, Expression obj) {
         while (true) {
-            var field = Arrays.stream(cls.getFields()).filter(x -> x.getName() == memberName).findFirst().orElse(null);
+            var field = Arrays.stream(cls.getFields()).filter(x -> x.getName().equals(memberName)).findFirst().orElse(null);
             if (field != null && !field.getIsStatic())
                 return new InstanceFieldReference(obj, field);
             
-            var prop = Arrays.stream(cls.properties).filter(x -> x.getName() == memberName).findFirst().orElse(null);
+            var prop = Arrays.stream(cls.properties).filter(x -> x.getName().equals(memberName)).findFirst().orElse(null);
             if (prop != null && !prop.getIsStatic())
                 return new InstancePropertyReference(obj, prop);
             
@@ -42,9 +40,8 @@ public class ResolveFieldAndPropertyAccess extends InferTypesPlugin {
         return null;
     }
     
-    protected Reference getInterfaceRef(Interface intf, String memberName, Expression obj)
-    {
-        var field = Arrays.stream(intf.getFields()).filter(x -> x.getName() == memberName).findFirst().orElse(null);
+    protected Reference getInterfaceRef(Interface intf, String memberName, Expression obj) {
+        var field = Arrays.stream(intf.getFields()).filter(x -> x.getName().equals(memberName)).findFirst().orElse(null);
         if (field != null && !field.getIsStatic())
             return new InstanceFieldReference(obj, field);
         
@@ -56,8 +53,7 @@ public class ResolveFieldAndPropertyAccess extends InferTypesPlugin {
         return null;
     }
     
-    protected Expression transformPA(PropertyAccessExpression expr)
-    {
+    protected Expression transformPA(PropertyAccessExpression expr) {
         if (expr.object instanceof ClassReference)
             return this.getStaticRef(((ClassReference)expr.object).decl, expr.propertyName);
         
@@ -89,23 +85,19 @@ public class ResolveFieldAndPropertyAccess extends InferTypesPlugin {
         return expr;
     }
     
-    public Boolean canTransform(Expression expr)
-    {
+    public Boolean canTransform(Expression expr) {
         return expr instanceof PropertyAccessExpression && !(((PropertyAccessExpression)expr).object instanceof EnumReference) && !(((PropertyAccessExpression)expr).parentNode instanceof UnresolvedCallExpression && ((UnresolvedCallExpression)((PropertyAccessExpression)expr).parentNode).func == ((PropertyAccessExpression)expr)) && !(((PropertyAccessExpression)expr).actualType instanceof AnyType);
     }
     
-    public Expression transform(Expression expr)
-    {
+    public Expression transform(Expression expr) {
         return this.transformPA(((PropertyAccessExpression)expr));
     }
     
-    public Boolean canDetectType(Expression expr)
-    {
+    public Boolean canDetectType(Expression expr) {
         return expr instanceof InstanceFieldReference || expr instanceof InstancePropertyReference || expr instanceof StaticFieldReference || expr instanceof StaticPropertyReference;
     }
     
-    public Boolean detectType(Expression expr)
-    {
+    public Boolean detectType(Expression expr) {
         if (expr instanceof InstanceFieldReference) {
             var actualType = GenericsResolver.fromObject(((InstanceFieldReference)expr).object).resolveType(((InstanceFieldReference)expr).field.getType(), true);
             ((InstanceFieldReference)expr).setActualType(actualType, false, TypeHelper.isGeneric(((InstanceFieldReference)expr).object.actualType));

@@ -1,8 +1,8 @@
 public class InterfaceDependency {
     public String name;
-    public Integer minver;
+    public Double minver;
     
-    public InterfaceDependency(String name, Integer minver)
+    public InterfaceDependency(String name, Double minver)
     {
         this.name = name;
         this.minver = minver;

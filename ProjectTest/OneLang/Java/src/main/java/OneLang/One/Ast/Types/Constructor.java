@@ -16,11 +16,11 @@ public class Constructor implements IMethodBaseWithTrivia {
     public String getLeadingTrivia() { return this.leadingTrivia; }
     public void setLeadingTrivia(String value) { this.leadingTrivia = value; }
     
-    Map<String, String> attributes;
+    Map<String, String> attributes = null;
     public Map<String, String> getAttributes() { return this.attributes; }
     public void setAttributes(Map<String, String> value) { this.attributes = value; }
     
-    Boolean throws_;
+    Boolean throws_ = false;
     public Boolean getThrows() { return this.throws_; }
     public void setThrows(Boolean value) { this.throws_ = value; }
     

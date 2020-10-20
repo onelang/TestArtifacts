@@ -11,7 +11,6 @@ use One\Ast\AstTypes\LambdaType;
 use One\Ast\AstTypes\EnumType;
 use One\Ast\AstTypes\AnyType;
 use One\Ast\AstTypes\TypeHelper;
-use One\Ast\AstTypes\VoidType;
 use One\Ast\Types\MethodParameter;
 use One\Ast\Interfaces\IType;
 
@@ -33,7 +32,6 @@ class GenericsResolver {
         $prevRes = $this->resolutionMap->get($typeVarName);
         if ($prevRes !== null && !TypeHelper::equals($prevRes, $actualType))
             throw new \OneLang\Error("Resolving '" . $typeVarName . "' is ambiguous, " . $prevRes->repr() . " <> " . $actualType->repr());
-        //if (typeVarName === "T2" && actualType instanceof VoidType) debugger;
         $this->resolutionMap->set($typeVarName, $actualType);
     }
     

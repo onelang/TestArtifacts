@@ -11,7 +11,7 @@ public class Enum implements IHasAttributesAndTrivia, IResolvedImportable, ISour
     public String getName() { return this.name; }
     public void setName(String value) { this.name = value; }
     
-    Boolean isExported;
+    Boolean isExported = false;
     public Boolean getIsExported() { return this.isExported; }
     public void setIsExported(Boolean value) { this.isExported = value; }
     
@@ -19,11 +19,11 @@ public class Enum implements IHasAttributesAndTrivia, IResolvedImportable, ISour
     public String getLeadingTrivia() { return this.leadingTrivia; }
     public void setLeadingTrivia(String value) { this.leadingTrivia = value; }
     
-    SourceFile parentFile;
+    SourceFile parentFile = null;
     public SourceFile getParentFile() { return this.parentFile; }
     public void setParentFile(SourceFile value) { this.parentFile = value; }
     
-    Map<String, String> attributes;
+    Map<String, String> attributes = null;
     public Map<String, String> getAttributes() { return this.attributes; }
     public void setAttributes(Map<String, String> value) { this.attributes = value; }
     
@@ -37,8 +37,7 @@ public class Enum implements IHasAttributesAndTrivia, IResolvedImportable, ISour
         this.type = new EnumType(this);
     }
     
-    public Reference createReference()
-    {
+    public Reference createReference() {
         return new EnumReference(this);
     }
 }

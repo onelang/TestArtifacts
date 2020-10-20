@@ -5,13 +5,11 @@ public class ResolveNewCalls extends InferTypesPlugin {
         
     }
     
-    public Boolean canTransform(Expression expr)
-    {
+    public Boolean canTransform(Expression expr) {
         return expr instanceof NewExpression;
     }
     
-    public Expression transform(Expression expr)
-    {
+    public Expression transform(Expression expr) {
         var newExpr = ((NewExpression)expr);
         for (Integer i = 0; i < newExpr.args.length; i++) {
             newExpr.args[i].setExpectedType(newExpr.cls.decl.constructor_.getParameters()[i].getType());

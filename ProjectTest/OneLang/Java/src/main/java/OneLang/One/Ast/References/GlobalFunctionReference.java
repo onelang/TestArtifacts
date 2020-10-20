@@ -8,8 +8,7 @@ public class GlobalFunctionReference extends Reference implements IGetMethodBase
         decl.references.add(this);
     }
     
-    public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric)
-    {
+    public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric) {
         throw new Error("GlobalFunctionReference cannot have a type!");
     }
     
@@ -21,8 +20,7 @@ public class GlobalFunctionReference extends Reference implements IGetMethodBase
         this.setActualType(type, false, false);
     }
     
-    public IMethodBase getMethodBase()
-    {
+    public IMethodBase getMethodBase() {
         return this.decl;
     }
 }

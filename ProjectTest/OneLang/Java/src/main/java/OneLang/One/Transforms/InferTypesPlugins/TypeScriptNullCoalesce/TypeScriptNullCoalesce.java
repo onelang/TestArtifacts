@@ -5,14 +5,12 @@ public class TypeScriptNullCoalesce extends InferTypesPlugin {
         
     }
     
-    public Boolean canTransform(Expression expr)
-    {
-        return expr instanceof BinaryExpression && ((BinaryExpression)expr).operator == "||";
+    public Boolean canTransform(Expression expr) {
+        return expr instanceof BinaryExpression && ((BinaryExpression)expr).operator.equals("||");
     }
     
-    public Expression transform(Expression expr)
-    {
-        if (expr instanceof BinaryExpression && ((BinaryExpression)expr).operator == "||") {
+    public Expression transform(Expression expr) {
+        if (expr instanceof BinaryExpression && ((BinaryExpression)expr).operator.equals("||")) {
             var litTypes = this.main.currentFile.literalTypes;
             
             ((BinaryExpression)expr).left = this.main.runPluginsOn(((BinaryExpression)expr).left) != null ? this.main.runPluginsOn(((BinaryExpression)expr).left) : ((BinaryExpression)expr).left;

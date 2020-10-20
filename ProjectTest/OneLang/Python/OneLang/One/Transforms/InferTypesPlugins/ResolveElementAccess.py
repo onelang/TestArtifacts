@@ -20,7 +20,8 @@ class ResolveElementAccess(inferTypesPlug.InferTypesPlugin):
         if isinstance(expr, exprs.BinaryExpression) and isinstance(expr.left, exprs.ElementAccessExpression):
             expr.left.object = self.main.run_plugins_on(expr.left.object)
             if self.is_map_or_array_type(expr.left.object.get_type()):
-                return exprs.UnresolvedMethodCallExpression(expr.left.object, "set", [], [expr.left.element_expr, expr.right])
+                right = expr.right if expr.operator == "=" else exprs.BinaryExpression(expr.left.copy(), "+" if expr.operator == "+=" else "-", expr.right)
+                return exprs.UnresolvedMethodCallExpression(expr.left.object, "set", [], [expr.left.element_expr, right])
         elif isinstance(expr, exprs.ElementAccessExpression):
             expr.object = self.main.run_plugins_on(expr.object)
             if self.is_map_or_array_type(expr.object.get_type()):

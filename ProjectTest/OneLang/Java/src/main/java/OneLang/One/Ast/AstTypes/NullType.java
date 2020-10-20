@@ -5,8 +5,7 @@ public class NullType implements IPrimitiveType {
         NullType.instance = new NullType();
     }
     
-    public String repr()
-    {
+    public String repr() {
         return "Null";
     }
 }

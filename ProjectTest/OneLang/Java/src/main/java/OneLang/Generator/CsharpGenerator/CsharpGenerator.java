@@ -1,6 +1,6 @@
 import java.util.Set;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -19,34 +19,30 @@ public class CsharpGenerator implements IGenerator {
     {
         this.reservedWords = new String[] { "object", "else", "operator", "class", "enum", "void", "string", "implicit", "Type", "Enum", "params", "using", "throw", "ref", "base", "virtual", "interface", "int", "const" };
         this.fieldToMethodHack = new String[] { "length" };
-        this.instanceOfIds = new HashMap<String, Integer>();
+        this.instanceOfIds = new LinkedHashMap<String, Integer>();
     }
     
-    public String getLangName()
-    {
+    public String getLangName() {
         return "CSharp";
     }
     
-    public String getExtension()
-    {
+    public String getExtension() {
         return "cs";
     }
     
-    public String name_(String name)
-    {
+    public String name_(String name) {
         if (Arrays.stream(this.reservedWords).anyMatch(name::equals))
             name += "_";
         if (Arrays.stream(this.fieldToMethodHack).anyMatch(name::equals))
             name += "()";
-        var nameParts = name.split("-");
+        var nameParts = name.split("-", -1);
         for (Integer i = 1; i < nameParts.length; i++)
             nameParts[i] = nameParts[i].substring(0, 0 + 1).toUpperCase() + nameParts[i].substring(1);
         name = Arrays.stream(nameParts).collect(Collectors.joining(""));
         return name;
     }
     
-    public String leading(Statement item)
-    {
+    public String leading(Statement item) {
         var result = "";
         if (item.getLeadingTrivia() != null && item.getLeadingTrivia().length() > 0)
             result += item.getLeadingTrivia();
@@ -55,42 +51,36 @@ public class CsharpGenerator implements IGenerator {
         return result;
     }
     
-    public String preArr(String prefix, String[] value)
-    {
+    public String preArr(String prefix, String[] value) {
         return value.length > 0 ? prefix + Arrays.stream(value).collect(Collectors.joining(", ")) : "";
     }
     
-    public String preIf(String prefix, Boolean condition)
-    {
+    public String preIf(String prefix, Boolean condition) {
         return condition ? prefix : "";
     }
     
-    public String pre(String prefix, String value)
-    {
+    public String pre(String prefix, String value) {
         return value != null ? prefix + value : "";
     }
     
-    public String typeArgs(String[] args)
-    {
+    public String typeArgs(String[] args) {
         return args != null && args.length > 0 ? "<" + Arrays.stream(args).collect(Collectors.joining(", ")) + ">" : "";
     }
     
-    public String typeArgs2(IType[] args)
-    {
+    public String typeArgs2(IType[] args) {
         return this.typeArgs(Arrays.stream(args).map(x -> this.type(x)).toArray(String[]::new));
     }
     
-    public String type(IType t, Boolean mutates)
-    {
+    public String type(IType t, Boolean mutates) {
         if (t instanceof ClassType) {
             var typeArgs = this.typeArgs(Arrays.stream(((ClassType)t).getTypeArguments()).map(x -> this.type(x)).toArray(String[]::new));
-            if (((ClassType)t).decl.getName() == "TsString")
+            if (((ClassType)t).decl.getName().equals("TsString"))
                 return "string";
-            else if (((ClassType)t).decl.getName() == "TsBoolean")
+            else if (((ClassType)t).decl.getName().equals("TsBoolean"))
                 return "bool";
-            else if (((ClassType)t).decl.getName() == "TsNumber")
+            else if (((ClassType)t).decl.getName().equals("TsNumber"))
                 return "int";
-            else if (((ClassType)t).decl.getName() == "TsArray") {
+            else if (((ClassType)t).decl.getName().equals("TsArray")) {
                 if (mutates) {
                     this.usings.add("System.Collections.Generic");
                     return "List<" + this.type(((ClassType)t).getTypeArguments()[0]) + ">";
@@ -98,15 +88,15 @@ public class CsharpGenerator implements IGenerator {
                 else
                     return this.type(((ClassType)t).getTypeArguments()[0]) + "[]";
             }
-            else if (((ClassType)t).decl.getName() == "Promise") {
+            else if (((ClassType)t).decl.getName().equals("Promise")) {
                 this.usings.add("System.Threading.Tasks");
                 return ((ClassType)t).getTypeArguments()[0] instanceof VoidType ? "Task" : "Task" + typeArgs;
             }
-            else if (((ClassType)t).decl.getName() == "Object") {
+            else if (((ClassType)t).decl.getName().equals("Object")) {
                 this.usings.add("System");
                 return "object";
             }
-            else if (((ClassType)t).decl.getName() == "TsMap") {
+            else if (((ClassType)t).decl.getName().equals("TsMap")) {
                 this.usings.add("System.Collections.Generic");
                 return "Dictionary<string, " + this.type(((ClassType)t).getTypeArguments()[0]) + ">";
             }
@@ -126,7 +116,7 @@ public class CsharpGenerator implements IGenerator {
             return ((GenericsType)t).typeVarName;
         else if (t instanceof LambdaType) {
             var isFunc = !(((LambdaType)t).returnType instanceof VoidType);
-            var paramTypes = Arrays.asList(Arrays.stream(((LambdaType)t).parameters).map(x -> this.type(x.getType())).toArray(String[]::new));
+            var paramTypes = new ArrayList<>(Arrays.asList(Arrays.stream(((LambdaType)t).parameters).map(x -> this.type(x.getType())).toArray(String[]::new)));
             if (isFunc)
                 paramTypes.add(this.type(((LambdaType)t).returnType));
             this.usings.add("System");
@@ -142,22 +132,19 @@ public class CsharpGenerator implements IGenerator {
         return this.type(t, true);
     }
     
-    public Boolean isTsArray(IType type)
-    {
-        return type instanceof ClassType && ((ClassType)type).decl.getName() == "TsArray";
+    public Boolean isTsArray(IType type) {
+        return type instanceof ClassType && ((ClassType)type).decl.getName().equals("TsArray");
     }
     
-    public String vis(Visibility v)
-    {
+    public String vis(Visibility v) {
         return v == Visibility.Private ? "private" : v == Visibility.Protected ? "protected" : v == Visibility.Public ? "public" : "/* TODO: not set */public";
     }
     
-    public String varWoInit(IVariable v, IHasAttributesAndTrivia attr)
-    {
+    public String varWoInit(IVariable v, IHasAttributesAndTrivia attr) {
         String type;
         if (attr != null && attr.getAttributes() != null && attr.getAttributes().containsKey("csharp-type"))
             type = attr.getAttributes().get("csharp-type");
-        else if (v.getType() instanceof ClassType && ((ClassType)v.getType()).decl.getName() == "TsArray") {
+        else if (v.getType() instanceof ClassType && ((ClassType)v.getType()).decl.getName().equals("TsArray")) {
             if (v.getMutability().mutated) {
                 this.usings.add("System.Collections.Generic");
                 type = "List<" + this.type(((ClassType)v.getType()).getTypeArguments()[0]) + ">";
@@ -170,18 +157,15 @@ public class CsharpGenerator implements IGenerator {
         return type + " " + this.name_(v.getName());
     }
     
-    public String var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs)
-    {
+    public String var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs) {
         return this.varWoInit(v, attrs) + (v.getInitializer() != null ? " = " + this.expr(v.getInitializer()) : "");
     }
     
-    public String exprCall(IType[] typeArgs, Expression[] args)
-    {
+    public String exprCall(IType[] typeArgs, Expression[] args) {
         return this.typeArgs2(typeArgs) + "(" + Arrays.stream(Arrays.stream(args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")";
     }
     
-    public String mutateArg(Expression arg, Boolean shouldBeMutable)
-    {
+    public String mutateArg(Expression arg, Boolean shouldBeMutable) {
         if (this.isTsArray(arg.actualType)) {
             if (arg instanceof ArrayLiteral && !shouldBeMutable) {
                 var itemType = (((ClassType)((ArrayLiteral)arg).actualType)).getTypeArguments()[0];
@@ -204,8 +188,7 @@ public class CsharpGenerator implements IGenerator {
         return this.expr(arg);
     }
     
-    public String mutatedExpr(Expression expr, Expression toWhere)
-    {
+    public String mutatedExpr(Expression expr, Expression toWhere) {
         if (toWhere instanceof VariableReference) {
             var v = ((VariableReference)toWhere).getVariable();
             if (this.isTsArray(v.getType()))
@@ -214,21 +197,18 @@ public class CsharpGenerator implements IGenerator {
         return this.expr(expr);
     }
     
-    public String callParams(Expression[] args, MethodParameter[] params)
-    {
+    public String callParams(Expression[] args, MethodParameter[] params) {
         var argReprs = new ArrayList<String>();
         for (Integer i = 0; i < args.length; i++)
             argReprs.add(this.isTsArray(params[i].getType()) ? this.mutateArg(args[i], params[i].getMutability().mutated) : this.expr(args[i]));
         return "(" + argReprs.stream().collect(Collectors.joining(", ")) + ")";
     }
     
-    public String methodCall(IMethodCallExpression expr)
-    {
+    public String methodCall(IMethodCallExpression expr) {
         return this.name_(expr.getMethod().name) + this.typeArgs2(expr.getTypeArgs()) + this.callParams(expr.getArgs(), expr.getMethod().getParameters());
     }
     
-    public String inferExprNameForType(IType type)
-    {
+    public String inferExprNameForType(IType type) {
         if (type instanceof ClassType && StdArrayHelper.allMatch(((ClassType)type).getTypeArguments(), (x, unused) -> x instanceof ClassType)) {
             var fullName = Arrays.stream(Arrays.stream(((ClassType)type).getTypeArguments()).map(x -> (((ClassType)x)).decl.getName()).toArray(String[]::new)).collect(Collectors.joining("")) + ((ClassType)type).decl.getName();
             return NameUtils.shortName(fullName);
@@ -236,8 +216,7 @@ public class CsharpGenerator implements IGenerator {
         return null;
     }
     
-    public String expr(IExpression expr)
-    {
+    public String expr(IExpression expr) {
         var res = "UNKNOWN-EXPR";
         if (expr instanceof NewExpression)
             res = "new " + this.type(((NewExpression)expr).cls) + this.callParams(((NewExpression)expr).args, ((NewExpression)expr).cls.decl.constructor_ != null ? ((NewExpression)expr).cls.decl.constructor_.getParameters() : new MethodParameter[0]);
@@ -277,19 +256,19 @@ public class CsharpGenerator implements IGenerator {
                     var lit = "";
                     for (Integer i = 0; i < part.literalText.length(); i++) {
                         var chr = part.literalText.substring(i, i + 1);
-                        if (chr == "\n")
+                        if (chr.equals("\n"))
                             lit += "\\n";
-                        else if (chr == "\r")
+                        else if (chr.equals("\r"))
                             lit += "\\r";
-                        else if (chr == "\t")
+                        else if (chr.equals("\t"))
                             lit += "\\t";
-                        else if (chr == "\\")
+                        else if (chr.equals("\\"))
                             lit += "\\\\";
-                        else if (chr == "\"")
+                        else if (chr.equals("\""))
                             lit += "\\\"";
-                        else if (chr == "{")
+                        else if (chr.equals("{"))
                             lit += "{{";
-                        else if (chr == "}")
+                        else if (chr.equals("}"))
                             lit += "}}";
                         else {
                             var chrCode = (int)chr.charAt(0);
@@ -309,7 +288,7 @@ public class CsharpGenerator implements IGenerator {
             res = "$\"" + parts.stream().collect(Collectors.joining("")) + "\"";
         }
         else if (expr instanceof BinaryExpression)
-            res = this.expr(((BinaryExpression)expr).left) + " " + ((BinaryExpression)expr).operator + " " + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator == "=" ? ((BinaryExpression)expr).left : null);
+            res = this.expr(((BinaryExpression)expr).left) + " " + ((BinaryExpression)expr).operator + " " + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator.equals("=") ? ((BinaryExpression)expr).left : null);
         else if (expr instanceof ArrayLiteral) {
             if (((ArrayLiteral)expr).items.length == 0)
                 res = "new " + this.type(((ArrayLiteral)expr).actualType) + "()";
@@ -356,7 +335,7 @@ public class CsharpGenerator implements IGenerator {
             res = this.expr(((UnaryExpression)expr).operand) + ((UnaryExpression)expr).operator;
         else if (expr instanceof MapLiteral) {
             var repr = Arrays.stream(Arrays.stream(((MapLiteral)expr).items).map(item -> "[" + JSON.stringify(item.key) + "] = " + this.expr(item.value)).toArray(String[]::new)).collect(Collectors.joining(",\n"));
-            res = "new " + this.type(((MapLiteral)expr).actualType) + " " + (repr == "" ? "{}" : repr.contains("\n") ? "{\n" + this.pad(repr) + "\n}" : "{ " + repr + " }");
+            res = "new " + this.type(((MapLiteral)expr).actualType) + " " + (repr.equals("") ? "{}" : repr.contains("\n") ? "{\n" + this.pad(repr) + "\n}" : "{ " + repr + " }");
         }
         else if (expr instanceof NullLiteral)
             res = "null";
@@ -400,8 +379,7 @@ public class CsharpGenerator implements IGenerator {
         return res;
     }
     
-    public String block(Block block, Boolean allowOneLiner)
-    {
+    public String block(Block block, Boolean allowOneLiner) {
         var stmtLen = block.statements.size();
         return stmtLen == 0 ? " { }" : allowOneLiner && stmtLen == 1 && !(block.statements.get(0) instanceof IfStatement) ? "\n" + this.pad(this.rawBlock(block)) : " {\n" + this.pad(this.rawBlock(block)) + "\n}";
     }
@@ -410,8 +388,7 @@ public class CsharpGenerator implements IGenerator {
         return this.block(block, true);
     }
     
-    public String stmt(Statement stmt)
-    {
+    public String stmt(Statement stmt) {
         var res = "UNKNOWN-STATEMENT";
         if (stmt.getAttributes() != null && stmt.getAttributes().containsKey("csharp"))
             res = stmt.getAttributes().get("csharp");
@@ -461,18 +438,15 @@ public class CsharpGenerator implements IGenerator {
         return this.leading(stmt) + res;
     }
     
-    public String stmts(Statement[] stmts)
-    {
+    public String stmts(Statement[] stmts) {
         return Arrays.stream(Arrays.stream(stmts).map(stmt -> this.stmt(stmt)).toArray(String[]::new)).collect(Collectors.joining("\n"));
     }
     
-    public String rawBlock(Block block)
-    {
+    public String rawBlock(Block block) {
         return this.stmts(block.statements.toArray(Statement[]::new));
     }
     
-    public String classLike(IInterface cls)
-    {
+    public String classLike(IInterface cls) {
         this.currentClass = cls;
         var resList = new ArrayList<String>();
         
@@ -530,25 +504,22 @@ public class CsharpGenerator implements IGenerator {
             methods.add((method.parentInterface instanceof Interface ? "" : this.vis(method.getVisibility()) + " ") + this.preIf("static ", method.getIsStatic()) + this.preIf("virtual ", method.overrides == null && method.overriddenBy.size() > 0) + this.preIf("override ", method.overrides != null) + this.preIf("async ", method.async) + this.preIf("/* throws */ ", method.getThrows()) + this.type(method.returns, false) + " " + this.name_(method.name) + this.typeArgs(method.typeArguments) + "(" + Arrays.stream(Arrays.stream(method.getParameters()).map(p -> this.var(p, null)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + (method.getBody() != null ? "\n{\n" + this.pad(this.stmts(method.getBody().statements.toArray(Statement[]::new))) + "\n}" : ";"));
         }
         resList.add(methods.stream().collect(Collectors.joining("\n\n")));
-        return this.pad(Arrays.stream(resList.stream().filter(x -> x != "").toArray(String[]::new)).collect(Collectors.joining("\n\n")));
+        return this.pad(Arrays.stream(resList.stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
     }
     
-    public String pad(String str)
-    {
-        return Arrays.stream(Arrays.stream(str.split("\\n")).map(x -> "    " + x).toArray(String[]::new)).collect(Collectors.joining("\n"));
+    public String pad(String str) {
+        return Arrays.stream(Arrays.stream(str.split("\\n", -1)).map(x -> "    " + x).toArray(String[]::new)).collect(Collectors.joining("\n"));
     }
     
-    public String pathToNs(String path)
-    {
+    public String pathToNs(String path) {
         // Generator/ExprLang/ExprLangAst.ts -> Generator.ExprLang
-        var parts = Arrays.asList(path.split("/"));
+        var parts = new ArrayList<>(Arrays.asList(path.split("/", -1)));
         parts.remove(parts.size() - 1);
         return parts.stream().collect(Collectors.joining("."));
     }
     
-    public String genFile(SourceFile sourceFile)
-    {
-        this.instanceOfIds = new HashMap<String, Integer>();
+    public String genFile(SourceFile sourceFile) {
+        this.instanceOfIds = new LinkedHashMap<String, Integer>();
         this.usings = new HashSet<String>();
         var enums = Arrays.stream(sourceFile.enums).map(enum_ -> "public enum " + this.name_(enum_.getName()) + " { " + Arrays.stream(Arrays.stream(enum_.values).map(x -> this.name_(x.name)).toArray(String[]::new)).collect(Collectors.joining(", ")) + " }").toArray(String[]::new);
         
@@ -575,15 +546,14 @@ public class CsharpGenerator implements IGenerator {
         for (var using : usingsSet.toArray(String[]::new))
             usings.add("using " + using + ";");
         
-        var result = Arrays.stream(List.of(Arrays.stream(enums).collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), classes.stream().collect(Collectors.joining("\n\n")), main).stream().filter(x -> x != "").toArray(String[]::new)).collect(Collectors.joining("\n\n"));
+        var result = Arrays.stream(new ArrayList<>(List.of(Arrays.stream(enums).collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), classes.stream().collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
         var nl = "\n";
         // Python fix
         result = usings.stream().collect(Collectors.joining(nl)) + "\n\nnamespace " + this.pathToNs(sourceFile.sourcePath.path) + "\n{\n" + this.pad(result) + "\n}";
         return result;
     }
     
-    public GeneratedFile[] generate(Package pkg)
-    {
+    public GeneratedFile[] generate(Package pkg) {
         var result = new ArrayList<GeneratedFile>();
         for (var path : pkg.files.keySet().toArray(String[]::new))
             result.add(new GeneratedFile(path, this.genFile(pkg.files.get(path))));

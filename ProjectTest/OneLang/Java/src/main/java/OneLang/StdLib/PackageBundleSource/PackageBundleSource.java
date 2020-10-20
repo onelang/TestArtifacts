@@ -6,13 +6,11 @@ public class PackageBundleSource implements PackageSource {
         this.bundle = bundle;
     }
     
-    public PackageBundle getPackageBundle(PackageId[] ids, Boolean cachedOnly)
-    {
+    public PackageBundle getPackageBundle(PackageId[] ids, Boolean cachedOnly) {
         throw new Error("Method not implemented.");
     }
     
-    public PackageBundle getAllCached()
-    {
+    public PackageBundle getAllCached() {
         return this.bundle;
     }
 }

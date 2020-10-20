@@ -16,8 +16,7 @@ public class LambdaCaptureCollector extends AstTransformer {
         this.capturedVars = null;
     }
     
-    protected Lambda visitLambda(Lambda lambda)
-    {
+    protected Lambda visitLambda(Lambda lambda) {
         if (this.scopeVars != null)
             this.scopeVarStack.add(this.scopeVars);
         
@@ -33,16 +32,14 @@ public class LambdaCaptureCollector extends AstTransformer {
         return null;
     }
     
-    protected IVariable visitVariable(IVariable variable)
-    {
+    protected IVariable visitVariable(IVariable variable) {
         if (this.scopeVars == null)
             return null;
         this.scopeVars.add(variable);
         return null;
     }
     
-    protected VariableReference visitVariableReference(VariableReference varRef)
-    {
+    protected VariableReference visitVariableReference(VariableReference varRef) {
         if (varRef instanceof StaticFieldReference || varRef instanceof InstanceFieldReference || varRef instanceof StaticPropertyReference || varRef instanceof InstancePropertyReference)
             return null;
         if (this.scopeVars == null)

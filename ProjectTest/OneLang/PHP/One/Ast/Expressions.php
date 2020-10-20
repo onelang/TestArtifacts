@@ -63,7 +63,6 @@ class Expression implements IAstNode, IExpression {
         //if (!allowGeneric && TypeHelper.isGeneric(actualType))
         //    throw new Error(`Actual type cannot be generic (${actualType.repr()})!`);
         
-        //if (actualType.repr() === "C:TsArray<Void>") debugger;
         $this->actualType = $actualType;
     }
     
@@ -82,6 +81,10 @@ class Expression implements IAstNode, IExpression {
     function getType() {
         return $this->actualType ?? $this->expectedType;
     }
+    
+    function copy() {
+        throw new \OneLang\Error("Copy is not implemented!");
+    }
 }
 
 class Identifier extends Expression {
@@ -99,6 +102,10 @@ class NumericLiteral extends Expression {
     function __construct($valueAsText) {
         parent::__construct();
         $this->valueAsText = $valueAsText;
+    }
+    
+    function copy() {
+        return new NumericLiteral($this->valueAsText);
     }
 }
 
@@ -316,6 +323,10 @@ class ElementAccessExpression extends Expression {
         parent::__construct();
         $this->object = $object;
         $this->elementExpr = $elementExpr;
+    }
+    
+    function copy() {
+        return new ElementAccessExpression($this->object->copy(), $this->elementExpr->copy());
     }
 }
 

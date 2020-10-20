@@ -16,7 +16,7 @@ class FillAttributesFromTrivia:
                 if match == None:
                     break
                 if match[1] in result:
-                    result[match[1]] = "\n" + match[2]
+                    result[match[1]] = result.get(match[1]) + "\n" + match[2]
                 else:
                     result[match[1]] = match[2] or "true"
         return result

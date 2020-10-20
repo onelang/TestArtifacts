@@ -7,8 +7,7 @@ public class InferForeachVarType extends InferTypesPlugin {
         
     }
     
-    public Boolean handleStatement(Statement stmt)
-    {
+    public Boolean handleStatement(Statement stmt) {
         if (stmt instanceof ForeachStatement) {
             ((ForeachStatement)stmt).items = this.main.runPluginsOn(((ForeachStatement)stmt).items) != null ? this.main.runPluginsOn(((ForeachStatement)stmt).items) : ((ForeachStatement)stmt).items;
             var arrayType = ((ForeachStatement)stmt).items.getType();

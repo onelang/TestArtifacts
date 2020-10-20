@@ -22,7 +22,6 @@ namespace One.Transforms.InferTypesPlugins.Helpers
             var prevRes = this.resolutionMap.get(typeVarName);
             if (prevRes != null && !TypeHelper.equals(prevRes, actualType))
                 throw new Error($"Resolving '{typeVarName}' is ambiguous, {prevRes.repr()} <> {actualType.repr()}");
-            //if (typeVarName === "T2" && actualType instanceof VoidType) debugger;
             this.resolutionMap.set(typeVarName, actualType);
         }
         

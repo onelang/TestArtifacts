@@ -12,7 +12,7 @@ public class Lambda extends Expression implements IMethodBase {
     public Block getBody() { return this.body; }
     public void setBody(Block value) { this.body = value; }
     
-    Boolean throws_;
+    Boolean throws_ = false;
     public Boolean getThrows() { return this.throws_; }
     public void setThrows(Boolean value) { this.throws_ = value; }
     

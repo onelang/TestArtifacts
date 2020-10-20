@@ -10,8 +10,7 @@ public class Expression implements IAstNode, IExpression {
         this.actualType = null;
     }
     
-    protected void typeCheck(IType type, Boolean allowVoid)
-    {
+    protected void typeCheck(IType type, Boolean allowVoid) {
         if (type == null)
             throw new Error("New type cannot be null!");
         
@@ -22,8 +21,7 @@ public class Expression implements IAstNode, IExpression {
             throw new Error("Expression's type cannot be UnresolvedType!");
     }
     
-    public void setActualType(IType actualType, Boolean allowVoid, Boolean allowGeneric)
-    {
+    public void setActualType(IType actualType, Boolean allowVoid, Boolean allowGeneric) {
         if (this.actualType != null)
             throw new Error("Expression already has actual type (current type = " + this.actualType.repr() + ", new type = " + actualType.repr() + ")");
         
@@ -36,7 +34,6 @@ public class Expression implements IAstNode, IExpression {
         //if (!allowGeneric && TypeHelper.isGeneric(actualType))
         //    throw new Error(`Actual type cannot be generic (${actualType.repr()})!`);
         
-        //if (actualType.repr() === "C:TsArray<Void>") debugger;
         this.actualType = actualType;
     }
     
@@ -48,8 +45,7 @@ public class Expression implements IAstNode, IExpression {
         this.setActualType(actualType, false, false);
     }
     
-    public void setExpectedType(IType type, Boolean allowVoid)
-    {
+    public void setExpectedType(IType type, Boolean allowVoid) {
         if (this.actualType != null)
             throw new Error("Cannot set expected type after actual type was already set!");
         
@@ -65,8 +61,11 @@ public class Expression implements IAstNode, IExpression {
         this.setExpectedType(type, false);
     }
     
-    public IType getType()
-    {
+    public IType getType() {
         return this.actualType != null ? this.actualType : this.expectedType;
+    }
+    
+    public IExpression copy() {
+        throw new Error("Copy is not implemented!");
     }
 }

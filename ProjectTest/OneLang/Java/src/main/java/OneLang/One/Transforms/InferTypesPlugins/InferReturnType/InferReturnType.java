@@ -14,18 +14,15 @@ public class InferReturnType extends InferTypesPlugin {
         this.returnTypeInfer = new ArrayList<ReturnTypeInferer>();
     }
     
-    public void start()
-    {
+    public void start() {
         this.returnTypeInfer.add(new ReturnTypeInferer(this.errorMan));
     }
     
-    public IType finish(IType declaredType, String errorContext, ClassType asyncType)
-    {
+    public IType finish(IType declaredType, String errorContext, ClassType asyncType) {
         return this.returnTypeInfer.remove(this.returnTypeInfer.size() - 1).finish(declaredType, errorContext, asyncType);
     }
     
-    public Boolean handleStatement(Statement stmt)
-    {
+    public Boolean handleStatement(Statement stmt) {
         if (this.returnTypeInfer.size() == 0)
             return false;
         if (stmt instanceof ReturnStatement && ((ReturnStatement)stmt).expression != null) {
@@ -41,8 +38,7 @@ public class InferReturnType extends InferTypesPlugin {
             return false;
     }
     
-    public Boolean handleLambda(Lambda lambda)
-    {
+    public Boolean handleLambda(Lambda lambda) {
         this.start();
         this.main.processLambda(lambda);
         lambda.returns = this.finish(lambda.returns, "Lambda", null);
@@ -50,8 +46,7 @@ public class InferReturnType extends InferTypesPlugin {
         return true;
     }
     
-    public Boolean handleMethod(IMethodBase method)
-    {
+    public Boolean handleMethod(IMethodBase method) {
         if (method instanceof Method && ((Method)method).getBody() != null) {
             this.start();
             this.main.processMethodBase(((Method)method));
@@ -62,8 +57,7 @@ public class InferReturnType extends InferTypesPlugin {
             return false;
     }
     
-    public Boolean handleProperty(Property prop)
-    {
+    public Boolean handleProperty(Property prop) {
         this.main.processVariable(prop);
         
         if (prop.getter != null) {

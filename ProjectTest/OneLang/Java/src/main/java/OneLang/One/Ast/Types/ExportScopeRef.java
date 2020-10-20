@@ -8,8 +8,7 @@ public class ExportScopeRef {
         this.scopeName = scopeName;
     }
     
-    public String getId()
-    {
+    public String getId() {
         return this.packageName + "." + this.scopeName;
     }
 }

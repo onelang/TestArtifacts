@@ -23,33 +23,29 @@ public class JavaGenerator implements IGenerator {
         this.plugins.add(new JsToJava(this));
     }
     
-    public String getLangName()
-    {
+    public String getLangName() {
         return "Java";
     }
     
-    public String getExtension()
-    {
+    public String getExtension() {
         return "java";
     }
     
-    public String name_(String name)
-    {
+    public String name_(String name) {
         if (Arrays.stream(this.reservedWords).anyMatch(name::equals))
             name += "_";
         if (Arrays.stream(this.fieldToMethodHack).anyMatch(name::equals))
             name += "()";
-        var nameParts = name.split("-");
+        var nameParts = name.split("-", -1);
         for (Integer i = 1; i < nameParts.length; i++)
             nameParts[i] = nameParts[i].substring(0, 0 + 1).toUpperCase() + nameParts[i].substring(1);
         name = Arrays.stream(nameParts).collect(Collectors.joining(""));
-        if (name == "_")
+        if (name.equals("_"))
             name = "unused";
         return name;
     }
     
-    public String leading(Statement item)
-    {
+    public String leading(Statement item) {
         var result = "";
         if (item.getLeadingTrivia() != null && item.getLeadingTrivia().length() > 0)
             result += item.getLeadingTrivia();
@@ -58,42 +54,36 @@ public class JavaGenerator implements IGenerator {
         return result;
     }
     
-    public String preArr(String prefix, String[] value)
-    {
+    public String preArr(String prefix, String[] value) {
         return value.length > 0 ? prefix + Arrays.stream(value).collect(Collectors.joining(", ")) : "";
     }
     
-    public String preIf(String prefix, Boolean condition)
-    {
+    public String preIf(String prefix, Boolean condition) {
         return condition ? prefix : "";
     }
     
-    public String pre(String prefix, String value)
-    {
+    public String pre(String prefix, String value) {
         return value != null ? prefix + value : "";
     }
     
-    public String typeArgs(String[] args)
-    {
+    public String typeArgs(String[] args) {
         return args != null && args.length > 0 ? "<" + Arrays.stream(args).collect(Collectors.joining(", ")) + ">" : "";
     }
     
-    public String typeArgs2(IType[] args)
-    {
+    public String typeArgs2(IType[] args) {
         return this.typeArgs(Arrays.stream(args).map(x -> this.type(x)).toArray(String[]::new));
     }
     
-    public String type(IType t, Boolean mutates, Boolean isNew)
-    {
+    public String type(IType t, Boolean mutates, Boolean isNew) {
         if (t instanceof ClassType) {
             var typeArgs = this.typeArgs(Arrays.stream(((ClassType)t).getTypeArguments()).map(x -> this.type(x)).toArray(String[]::new));
-            if (((ClassType)t).decl.getName() == "TsString")
+            if (((ClassType)t).decl.getName().equals("TsString"))
                 return "String";
-            else if (((ClassType)t).decl.getName() == "TsBoolean")
+            else if (((ClassType)t).decl.getName().equals("TsBoolean"))
                 return "Boolean";
-            else if (((ClassType)t).decl.getName() == "TsNumber")
+            else if (((ClassType)t).decl.getName().equals("TsNumber"))
                 return "Integer";
-            else if (((ClassType)t).decl.getName() == "TsArray") {
+            else if (((ClassType)t).decl.getName().equals("TsArray")) {
                 var realType = isNew ? "ArrayList" : "List";
                 if (mutates) {
                     this.imports.add("java.util." + realType);
@@ -102,23 +92,23 @@ public class JavaGenerator implements IGenerator {
                 else
                     return this.type(((ClassType)t).getTypeArguments()[0]) + "[]";
             }
-            else if (((ClassType)t).decl.getName() == "Map") {
-                var realType = isNew ? "HashMap" : "Map";
+            else if (((ClassType)t).decl.getName().equals("Map")) {
+                var realType = isNew ? "LinkedHashMap" : "Map";
                 this.imports.add("java.util." + realType);
                 return realType + "<" + this.type(((ClassType)t).getTypeArguments()[0]) + ", " + this.type(((ClassType)t).getTypeArguments()[1]) + ">";
             }
-            else if (((ClassType)t).decl.getName() == "Set") {
+            else if (((ClassType)t).decl.getName().equals("Set")) {
                 var realType = isNew ? "HashSet" : "Set";
                 this.imports.add("java.util." + realType);
                 return realType + "<" + this.type(((ClassType)t).getTypeArguments()[0]) + ">";
             }
-            else if (((ClassType)t).decl.getName() == "Promise")
+            else if (((ClassType)t).decl.getName().equals("Promise"))
                 return ((ClassType)t).getTypeArguments()[0] instanceof VoidType ? "void" : this.type(((ClassType)t).getTypeArguments()[0]);
-            else if (((ClassType)t).decl.getName() == "Object")
+            else if (((ClassType)t).decl.getName().equals("Object"))
                 //this.imports.add("System");
                 return "Object";
-            else if (((ClassType)t).decl.getName() == "TsMap") {
-                var realType = isNew ? "HashMap" : "Map";
+            else if (((ClassType)t).decl.getName().equals("TsMap")) {
+                var realType = isNew ? "LinkedHashMap" : "Map";
                 this.imports.add("java.util." + realType);
                 return realType + "<String, " + this.type(((ClassType)t).getTypeArguments()[0]) + ">";
             }
@@ -138,7 +128,7 @@ public class JavaGenerator implements IGenerator {
             return ((GenericsType)t).typeVarName;
         else if (t instanceof LambdaType) {
             var isFunc = !(((LambdaType)t).returnType instanceof VoidType);
-            var paramTypes = Arrays.asList(Arrays.stream(((LambdaType)t).parameters).map(x -> this.type(x.getType())).toArray(String[]::new));
+            var paramTypes = new ArrayList<>(Arrays.asList(Arrays.stream(((LambdaType)t).parameters).map(x -> this.type(x.getType())).toArray(String[]::new)));
             if (isFunc)
                 paramTypes.add(this.type(((LambdaType)t).returnType));
             this.imports.add("java.util.function." + (isFunc ? "Function" : "Consumer"));
@@ -158,22 +148,19 @@ public class JavaGenerator implements IGenerator {
         return this.type(t, true, false);
     }
     
-    public Boolean isTsArray(IType type)
-    {
-        return type instanceof ClassType && ((ClassType)type).decl.getName() == "TsArray";
+    public Boolean isTsArray(IType type) {
+        return type instanceof ClassType && ((ClassType)type).decl.getName().equals("TsArray");
     }
     
-    public String vis(Visibility v)
-    {
+    public String vis(Visibility v) {
         return v == Visibility.Private ? "private" : v == Visibility.Protected ? "protected" : v == Visibility.Public ? "public" : "/* TODO: not set */public";
     }
     
-    public String varType(IVariable v, IHasAttributesAndTrivia attr)
-    {
+    public String varType(IVariable v, IHasAttributesAndTrivia attr) {
         String type;
         if (attr != null && attr.getAttributes() != null && attr.getAttributes().containsKey("java-type"))
             type = attr.getAttributes().get("java-type");
-        else if (v.getType() instanceof ClassType && ((ClassType)v.getType()).decl.getName() == "TsArray") {
+        else if (v.getType() instanceof ClassType && ((ClassType)v.getType()).decl.getName().equals("TsArray")) {
             if (v.getMutability().mutated) {
                 this.imports.add("java.util.List");
                 type = "List<" + this.type(((ClassType)v.getType()).getTypeArguments()[0]) + ">";
@@ -186,23 +173,19 @@ public class JavaGenerator implements IGenerator {
         return type;
     }
     
-    public String varWoInit(IVariable v, IHasAttributesAndTrivia attr)
-    {
+    public String varWoInit(IVariable v, IHasAttributesAndTrivia attr) {
         return this.varType(v, attr) + " " + this.name_(v.getName());
     }
     
-    public String var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs)
-    {
+    public String var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs) {
         return this.varWoInit(v, attrs) + (v.getInitializer() != null ? " = " + this.expr(v.getInitializer()) : "");
     }
     
-    public String exprCall(IType[] typeArgs, Expression[] args)
-    {
+    public String exprCall(IType[] typeArgs, Expression[] args) {
         return this.typeArgs2(typeArgs) + "(" + Arrays.stream(Arrays.stream(args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")";
     }
     
-    public String mutateArg(Expression arg, Boolean shouldBeMutable)
-    {
+    public String mutateArg(Expression arg, Boolean shouldBeMutable) {
         if (this.isTsArray(arg.actualType)) {
             var itemType = (((ClassType)arg.actualType)).getTypeArguments()[0];
             if (arg instanceof ArrayLiteral && !shouldBeMutable)
@@ -218,14 +201,14 @@ public class JavaGenerator implements IGenerator {
                 return this.expr(arg) + ".toArray(" + this.type(itemType) + "[]::new)";
             else if (!currentlyMutable && shouldBeMutable) {
                 this.imports.add("java.util.Arrays");
-                return "Arrays.asList(" + this.expr(arg) + ")";
+                this.imports.add("java.util.ArrayList");
+                return "new ArrayList<>(Arrays.asList(" + this.expr(arg) + "))";
             }
         }
         return this.expr(arg);
     }
     
-    public String mutatedExpr(Expression expr, Expression toWhere)
-    {
+    public String mutatedExpr(Expression expr, Expression toWhere) {
         if (toWhere instanceof VariableReference) {
             var v = ((VariableReference)toWhere).getVariable();
             if (this.isTsArray(v.getType()))
@@ -234,21 +217,18 @@ public class JavaGenerator implements IGenerator {
         return this.expr(expr);
     }
     
-    public String callParams(Expression[] args, MethodParameter[] params)
-    {
+    public String callParams(Expression[] args, MethodParameter[] params) {
         var argReprs = new ArrayList<String>();
         for (Integer i = 0; i < args.length; i++)
             argReprs.add(this.isTsArray(params[i].getType()) ? this.mutateArg(args[i], params[i].getMutability().mutated) : this.expr(args[i]));
         return "(" + argReprs.stream().collect(Collectors.joining(", ")) + ")";
     }
     
-    public String methodCall(IMethodCallExpression expr)
-    {
+    public String methodCall(IMethodCallExpression expr) {
         return this.name_(expr.getMethod().name) + this.typeArgs2(expr.getTypeArgs()) + this.callParams(expr.getArgs(), expr.getMethod().getParameters());
     }
     
-    public String inferExprNameForType(IType type)
-    {
+    public String inferExprNameForType(IType type) {
         if (type instanceof ClassType && StdArrayHelper.allMatch(((ClassType)type).getTypeArguments(), (x, unused) -> x instanceof ClassType)) {
             var fullName = Arrays.stream(Arrays.stream(((ClassType)type).getTypeArguments()).map(x -> (((ClassType)x)).decl.getName()).toArray(String[]::new)).collect(Collectors.joining("")) + ((ClassType)type).decl.getName();
             return NameUtils.shortName(fullName);
@@ -256,13 +236,11 @@ public class JavaGenerator implements IGenerator {
         return null;
     }
     
-    public Boolean isSetExpr(VariableReference varRef)
-    {
-        return varRef.parentNode instanceof BinaryExpression && ((BinaryExpression)varRef.parentNode).left == varRef && List.of("=", "+=", "-=").stream().anyMatch(((BinaryExpression)varRef.parentNode).operator::equals);
+    public Boolean isSetExpr(VariableReference varRef) {
+        return varRef.parentNode instanceof BinaryExpression && ((BinaryExpression)varRef.parentNode).left == varRef && new ArrayList<>(List.of("=", "+=", "-=")).stream().anyMatch(((BinaryExpression)varRef.parentNode).operator::equals);
     }
     
-    public String expr(IExpression expr)
-    {
+    public String expr(IExpression expr) {
         for (var plugin : this.plugins) {
             var result = plugin.expr(expr);
             if (result != null)
@@ -307,15 +285,15 @@ public class JavaGenerator implements IGenerator {
                     var lit = "";
                     for (Integer i = 0; i < part.literalText.length(); i++) {
                         var chr = part.literalText.substring(i, i + 1);
-                        if (chr == "\n")
+                        if (chr.equals("\n"))
                             lit += "\\n";
-                        else if (chr == "\r")
+                        else if (chr.equals("\r"))
                             lit += "\\r";
-                        else if (chr == "\t")
+                        else if (chr.equals("\t"))
                             lit += "\\t";
-                        else if (chr == "\\")
+                        else if (chr.equals("\\"))
                             lit += "\\\\";
-                        else if (chr == "\"")
+                        else if (chr.equals("\""))
                             lit += "\\\"";
                         else {
                             var chrCode = (int)chr.charAt(0);
@@ -335,18 +313,29 @@ public class JavaGenerator implements IGenerator {
             res = parts.stream().collect(Collectors.joining(" + "));
         }
         else if (expr instanceof BinaryExpression) {
-            var modifies = List.of("=", "+=", "-=").stream().anyMatch(((BinaryExpression)expr).operator::equals);
+            var modifies = new ArrayList<>(List.of("=", "+=", "-=")).stream().anyMatch(((BinaryExpression)expr).operator::equals);
             if (modifies && ((BinaryExpression)expr).left instanceof InstanceFieldReference && this.useGetterSetter(((InstanceFieldReference)((BinaryExpression)expr).left)))
-                res = this.expr(((InstanceFieldReference)((BinaryExpression)expr).left).object) + ".set" + this.ucFirst(((InstanceFieldReference)((BinaryExpression)expr).left).field.getName()) + "(" + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator == "=" ? ((InstanceFieldReference)((BinaryExpression)expr).left) : null) + ")";
+                res = this.expr(((InstanceFieldReference)((BinaryExpression)expr).left).object) + ".set" + this.ucFirst(((InstanceFieldReference)((BinaryExpression)expr).left).field.getName()) + "(" + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator.equals("=") ? ((InstanceFieldReference)((BinaryExpression)expr).left) : null) + ")";
+            else if (new ArrayList<>(List.of("==", "!=")).stream().anyMatch(((BinaryExpression)expr).operator::equals)) {
+                var lit = this.currentClass.getParentFile().literalTypes;
+                var leftType = ((BinaryExpression)expr).left.getType();
+                var rightType = ((BinaryExpression)expr).right.getType();
+                var useEquals = TypeHelper.equals(leftType, lit.string) && rightType != null && TypeHelper.equals(rightType, lit.string);
+                if (useEquals)
+                    res = (((BinaryExpression)expr).operator.equals("!=") ? "!" : "") + this.expr(((BinaryExpression)expr).left) + ".equals(" + this.expr(((BinaryExpression)expr).right) + ")";
+                else
+                    res = this.expr(((BinaryExpression)expr).left) + " " + ((BinaryExpression)expr).operator + " " + this.expr(((BinaryExpression)expr).right);
+            }
             else
-                res = this.expr(((BinaryExpression)expr).left) + " " + ((BinaryExpression)expr).operator + " " + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator == "=" ? ((BinaryExpression)expr).left : null);
+                res = this.expr(((BinaryExpression)expr).left) + " " + ((BinaryExpression)expr).operator + " " + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator.equals("=") ? ((BinaryExpression)expr).left : null);
         }
         else if (expr instanceof ArrayLiteral) {
             if (((ArrayLiteral)expr).items.length == 0)
                 res = "new " + this.type(((ArrayLiteral)expr).actualType, true, true) + "()";
             else {
                 this.imports.add("java.util.List");
-                res = "List.of(" + Arrays.stream(Arrays.stream(((ArrayLiteral)expr).items).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")";
+                this.imports.add("java.util.ArrayList");
+                res = "new ArrayList<>(List.of(" + Arrays.stream(Arrays.stream(((ArrayLiteral)expr).items).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + "))";
             }
         }
         else if (expr instanceof CastExpression)
@@ -432,13 +421,11 @@ public class JavaGenerator implements IGenerator {
         return res;
     }
     
-    public Boolean useGetterSetter(InstanceFieldReference fieldRef)
-    {
+    public Boolean useGetterSetter(InstanceFieldReference fieldRef) {
         return fieldRef.object.actualType instanceof InterfaceType || (fieldRef.field.interfaceDeclarations != null && fieldRef.field.interfaceDeclarations.length > 0);
     }
     
-    public String block(Block block, Boolean allowOneLiner)
-    {
+    public String block(Block block, Boolean allowOneLiner) {
         var stmtLen = block.statements.size();
         return stmtLen == 0 ? " { }" : allowOneLiner && stmtLen == 1 && !(block.statements.get(0) instanceof IfStatement) && !(block.statements.get(0) instanceof VariableDeclaration) ? "\n" + this.pad(this.rawBlock(block)) : " {\n" + this.pad(this.rawBlock(block)) + "\n}";
     }
@@ -447,8 +434,7 @@ public class JavaGenerator implements IGenerator {
         return this.block(block, true);
     }
     
-    public String stmtDefault(Statement stmt)
-    {
+    public String stmtDefault(Statement stmt) {
         var res = "UNKNOWN-STATEMENT";
         if (stmt instanceof BreakStatement)
             res = "break;";
@@ -495,8 +481,7 @@ public class JavaGenerator implements IGenerator {
         return res;
     }
     
-    public String stmt(Statement stmt)
-    {
+    public String stmt(Statement stmt) {
         String res = null;
         
         if (stmt.getAttributes() != null && stmt.getAttributes().containsKey("java-import"))
@@ -518,20 +503,17 @@ public class JavaGenerator implements IGenerator {
         return this.leading(stmt) + res;
     }
     
-    public String stmts(Statement[] stmts)
-    {
+    public String stmts(Statement[] stmts) {
         return Arrays.stream(Arrays.stream(stmts).map(stmt -> this.stmt(stmt)).toArray(String[]::new)).collect(Collectors.joining("\n"));
     }
     
-    public String rawBlock(Block block)
-    {
+    public String rawBlock(Block block) {
         return this.stmts(block.statements.toArray(Statement[]::new));
     }
     
-    public String overloadMethodGen(String prefix, Method method, MethodParameter[] params, String body)
-    {
+    public String overloadMethodGen(String prefix, Method method, MethodParameter[] params, String body) {
         var methods = new ArrayList<String>();
-        methods.add(prefix + "(" + Arrays.stream(Arrays.stream(params).map(p -> this.varWoInit(p, null)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + body);
+        methods.add(prefix + "(" + Arrays.stream(Arrays.stream(params).map(p -> this.varWoInit(p, p)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + body);
         
         for (Integer paramLen = params.length - 1; paramLen >= 0; paramLen--) {
             if (params[paramLen].getInitializer() == null)
@@ -553,15 +535,14 @@ public class JavaGenerator implements IGenerator {
         return methods.stream().collect(Collectors.joining("\n\n"));
     }
     
-    public String method(Method method, Boolean isCls)
-    {
+    public String method(Method method, Boolean isCls) {
         // TODO: final
         var prefix = (isCls ? this.vis(method.getVisibility()) + " " : "") + this.preIf("static ", method.getIsStatic()) + this.preIf("/* throws */ ", method.getThrows()) + (method.typeArguments.length > 0 ? "<" + Arrays.stream(method.typeArguments).collect(Collectors.joining(", ")) + "> " : "") + this.type(method.returns, false) + " " + this.name_(method.name);
-        return this.overloadMethodGen(prefix, method, method.getParameters(), method.getBody() == null ? ";" : "\n{\n" + this.pad(this.stmts(method.getBody().statements.toArray(Statement[]::new))) + "\n}");
+        
+        return this.overloadMethodGen(prefix, method, method.getParameters(), method.getBody() == null ? ";" : " {\n" + this.pad(this.stmts(method.getBody().statements.toArray(Statement[]::new))) + "\n}");
     }
     
-    public String class_(Class cls)
-    {
+    public String class_(Class cls) {
         this.currentClass = cls;
         var resList = new ArrayList<String>();
         
@@ -577,7 +558,8 @@ public class JavaGenerator implements IGenerator {
                 var varType = this.varType(field, field);
                 var name = this.name_(field.getName());
                 var pname = this.ucFirst(field.getName());
-                propReprs.add(varType + " " + name + ";\n" + prefix + varType + " get" + pname + "() { return this." + name + "; }\n" + prefix + "void set" + pname + "(" + varType + " value) { this." + name + " = value; }");
+                var setToFalse = TypeHelper.equals(field.getType(), this.currentClass.getParentFile().literalTypes.boolean_);
+                propReprs.add(varType + " " + name + (setToFalse ? " = false" : field.getInitializer() != null ? " = " + this.expr(field.getInitializer()) : "") + ";\n" + prefix + varType + " get" + pname + "() { return this." + name + "; }\n" + prefix + "void set" + pname + "(" + varType + " value) { this." + name + " = value; }");
             }
             else if (isInitializerComplex) {
                 if (field.getIsStatic())
@@ -631,16 +613,14 @@ public class JavaGenerator implements IGenerator {
             methods.add(this.method(method, true));
         }
         resList.add(methods.stream().collect(Collectors.joining("\n\n")));
-        return this.pad(Arrays.stream(resList.stream().filter(x -> x != "").toArray(String[]::new)).collect(Collectors.joining("\n\n")));
+        return this.pad(Arrays.stream(resList.stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
     }
     
-    public String ucFirst(String str)
-    {
+    public String ucFirst(String str) {
         return str.substring(0, 0 + 1).toUpperCase() + str.substring(1);
     }
     
-    public String interface_(Interface intf)
-    {
+    public String interface_(Interface intf) {
         this.currentClass = intf;
         
         var resList = new ArrayList<String>();
@@ -651,24 +631,21 @@ public class JavaGenerator implements IGenerator {
         }
         
         resList.add(Arrays.stream(Arrays.stream(intf.getMethods()).map(method -> this.method(method, false)).toArray(String[]::new)).collect(Collectors.joining("\n")));
-        return this.pad(Arrays.stream(resList.stream().filter(x -> x != "").toArray(String[]::new)).collect(Collectors.joining("\n\n")));
+        return this.pad(Arrays.stream(resList.stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
     }
     
-    public String pad(String str)
-    {
-        return Arrays.stream(Arrays.stream(str.split("\\n")).map(x -> "    " + x).toArray(String[]::new)).collect(Collectors.joining("\n"));
+    public String pad(String str) {
+        return Arrays.stream(Arrays.stream(str.split("\\n", -1)).map(x -> "    " + x).toArray(String[]::new)).collect(Collectors.joining("\n"));
     }
     
-    public String pathToNs(String path)
-    {
+    public String pathToNs(String path) {
         // Generator/ExprLang/ExprLangAst.ts -> Generator.ExprLang
-        var parts = Arrays.asList(path.split("/"));
+        var parts = new ArrayList<>(Arrays.asList(path.split("/", -1)));
         parts.remove(parts.size() - 1);
         return parts.stream().collect(Collectors.joining("."));
     }
     
-    public String importsHead()
-    {
+    public String importsHead() {
         var imports = new ArrayList<String>();
         for (var imp : this.imports.toArray(String[]::new))
             imports.add(imp);
@@ -676,12 +653,11 @@ public class JavaGenerator implements IGenerator {
         return imports.size() == 0 ? "" : Arrays.stream(imports.stream().map(x -> "import " + x + ";").toArray(String[]::new)).collect(Collectors.joining("\n")) + "\n\n";
     }
     
-    public GeneratedFile[] generate(Package pkg)
-    {
+    public GeneratedFile[] generate(Package pkg) {
         var result = new ArrayList<GeneratedFile>();
         for (var path : pkg.files.keySet().toArray(String[]::new)) {
             var file = pkg.files.get(path);
-            var dstDir = "src/main/java/" + pkg.name + "/" + file.sourcePath.path.replaceAll(Pattern.quote("\\.ts$"), "");
+            var dstDir = "src/main/java/" + pkg.name + "/" + file.sourcePath.path.replaceAll("\\.ts$", "");
             
             for (var enum_ : file.enums)
                 result.add(new GeneratedFile(dstDir + "/" + enum_.getName() + ".java", "public enum " + this.name_(enum_.getName()) + " { " + Arrays.stream(Arrays.stream(enum_.values).map(x -> this.name_(x.name)).toArray(String[]::new)).collect(Collectors.joining(", ")) + " }"));

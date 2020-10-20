@@ -11,13 +11,11 @@ public class ClassType implements IType, IHasTypeArguments, IInterfaceType {
         this.setTypeArguments(typeArguments);
     }
     
-    public IInterface getDecl()
-    {
+    public IInterface getDecl() {
         return this.decl;
     }
     
-    public String repr()
-    {
+    public String repr() {
         return "C:" + this.decl.getName() + TypeHelper.argsRepr(this.getTypeArguments());
     }
 }

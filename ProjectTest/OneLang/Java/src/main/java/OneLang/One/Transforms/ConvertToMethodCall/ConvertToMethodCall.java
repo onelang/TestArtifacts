@@ -5,13 +5,12 @@ public class ConvertToMethodCall extends AstTransformer {
         
     }
     
-    protected Expression visitExpression(Expression expr)
-    {
+    protected Expression visitExpression(Expression expr) {
         var origExpr = expr;
         
         expr = super.visitExpression(expr) != null ? super.visitExpression(expr) : expr;
         
-        if (expr instanceof BinaryExpression && ((BinaryExpression)expr).operator == "in")
+        if (expr instanceof BinaryExpression && ((BinaryExpression)expr).operator.equals("in"))
             expr = new UnresolvedCallExpression(new PropertyAccessExpression(((BinaryExpression)expr).right, "hasKey"), new IType[0], new Expression[] { ((BinaryExpression)expr).left });
         
         expr.parentNode = origExpr.parentNode;

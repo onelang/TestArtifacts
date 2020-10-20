@@ -8,8 +8,7 @@ public class EnumMemberReference extends Reference {
         decl.references.add(this);
     }
     
-    public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric)
-    {
+    public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric) {
         if (!(type instanceof EnumType))
             throw new Error("Expected EnumType!");
         super.setActualType(type);

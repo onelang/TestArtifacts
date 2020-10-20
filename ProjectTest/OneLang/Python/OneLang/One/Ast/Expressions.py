@@ -42,7 +42,6 @@ class Expression:
         #if (!allowGeneric && TypeHelper.isGeneric(actualType))
         #    throw new Error(`Actual type cannot be generic (${actualType.repr()})!`);
         
-        #if (actualType.repr() === "C:TsArray<Void>") debugger;
         self.actual_type = actual_type
     
     def set_expected_type(self, type, allow_void = False):
@@ -58,6 +57,9 @@ class Expression:
     
     def get_type(self):
         return self.actual_type or self.expected_type
+    
+    def copy(self):
+        raise Error("Copy is not implemented!")
 
 class Identifier(Expression):
     def __init__(self, text):
@@ -68,6 +70,9 @@ class NumericLiteral(Expression):
     def __init__(self, value_as_text):
         self.value_as_text = value_as_text
         super().__init__()
+    
+    def copy(self):
+        return NumericLiteral(self.value_as_text)
 
 class BooleanLiteral(Expression):
     def __init__(self, bool_value):
@@ -191,6 +196,9 @@ class ElementAccessExpression(Expression):
         self.object = object
         self.element_expr = element_expr
         super().__init__()
+    
+    def copy(self):
+        return ElementAccessExpression(self.object.copy(), self.element_expr.copy())
 
 class UnresolvedCallExpression(Expression):
     def __init__(self, func, type_args, args):

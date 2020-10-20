@@ -1,6 +1,5 @@
 public class VariableReference extends Reference {
-    public IVariable getVariable()
-    {
+    public IVariable getVariable() {
         throw new Error("Abstract method");
     }
 }

@@ -22,11 +22,11 @@ public class MethodParameter implements IVariableWithInitializer, IReferencable,
     public String getLeadingTrivia() { return this.leadingTrivia; }
     public void setLeadingTrivia(String value) { this.leadingTrivia = value; }
     
-    Map<String, String> attributes;
+    Map<String, String> attributes = null;
     public Map<String, String> getAttributes() { return this.attributes; }
     public void setAttributes(Map<String, String> value) { this.attributes = value; }
     
-    MutabilityInfo mutability;
+    MutabilityInfo mutability = null;
     public MutabilityInfo getMutability() { return this.mutability; }
     public void setMutability(MutabilityInfo value) { this.mutability = value; }
     
@@ -40,8 +40,7 @@ public class MethodParameter implements IVariableWithInitializer, IReferencable,
         this.references = new ArrayList<MethodParameterReference>();
     }
     
-    public Reference createReference()
-    {
+    public Reference createReference() {
         return new MethodParameterReference(this);
     }
 }

@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.ArrayList;
 
 public class AstTransformer implements ITransformer {
     public ErrorManager errorMan;
@@ -21,8 +22,7 @@ public class AstTransformer implements ITransformer {
         this.currentStatement = null;
     }
     
-    protected IType visitType(IType type)
-    {
+    protected IType visitType(IType type) {
         if (type instanceof ClassType || type instanceof InterfaceType || type instanceof UnresolvedType) {
             var type2 = ((IHasTypeArguments)type);
             type2.setTypeArguments(Arrays.stream(type2.getTypeArguments()).map(x -> this.visitType(x) != null ? this.visitType(x) : x).toArray(IType[]::new));
@@ -35,40 +35,34 @@ public class AstTransformer implements ITransformer {
         return null;
     }
     
-    protected Expression visitIdentifier(Identifier id)
-    {
+    protected Expression visitIdentifier(Identifier id) {
         return null;
     }
     
-    protected IVariable visitVariable(IVariable variable)
-    {
+    protected IVariable visitVariable(IVariable variable) {
         if (variable.getType() != null)
             variable.setType(this.visitType(variable.getType()) != null ? this.visitType(variable.getType()) : variable.getType());
         return null;
     }
     
-    protected IVariableWithInitializer visitVariableWithInitializer(IVariableWithInitializer variable)
-    {
+    protected IVariableWithInitializer visitVariableWithInitializer(IVariableWithInitializer variable) {
         this.visitVariable(variable);
         if (variable.getInitializer() != null)
             variable.setInitializer(this.visitExpression(variable.getInitializer()) != null ? this.visitExpression(variable.getInitializer()) : variable.getInitializer());
         return null;
     }
     
-    protected VariableDeclaration visitVariableDeclaration(VariableDeclaration stmt)
-    {
+    protected VariableDeclaration visitVariableDeclaration(VariableDeclaration stmt) {
         this.visitVariableWithInitializer(stmt);
         return null;
     }
     
-    protected Statement visitUnknownStatement(Statement stmt)
-    {
+    protected Statement visitUnknownStatement(Statement stmt) {
         this.errorMan.throw_("Unknown statement type");
         return null;
     }
     
-    protected Statement visitStatement(Statement stmt)
-    {
+    protected Statement visitStatement(Statement stmt) {
         this.currentStatement = stmt;
         if (stmt instanceof ReturnStatement) {
             if (((ReturnStatement)stmt).expression != null)
@@ -124,14 +118,12 @@ public class AstTransformer implements ITransformer {
         return null;
     }
     
-    protected Block visitBlock(Block block)
-    {
-        block.statements = Arrays.asList(block.statements.stream().map(x -> this.visitStatement(x) != null ? this.visitStatement(x) : x).toArray(Statement[]::new));
+    protected Block visitBlock(Block block) {
+        block.statements = new ArrayList<>(Arrays.asList(block.statements.stream().map(x -> this.visitStatement(x) != null ? this.visitStatement(x) : x).toArray(Statement[]::new)));
         return null;
     }
     
-    protected TemplateString visitTemplateString(TemplateString expr)
-    {
+    protected TemplateString visitTemplateString(TemplateString expr) {
         for (Integer i = 0; i < expr.parts.length; i++) {
             var part = expr.parts[i];
             if (!part.isLiteral)
@@ -140,25 +132,21 @@ public class AstTransformer implements ITransformer {
         return null;
     }
     
-    protected Expression visitUnknownExpression(Expression expr)
-    {
+    protected Expression visitUnknownExpression(Expression expr) {
         this.errorMan.throw_("Unknown expression type");
         return null;
     }
     
-    protected Lambda visitLambda(Lambda lambda)
-    {
+    protected Lambda visitLambda(Lambda lambda) {
         this.visitMethodBase(lambda);
         return null;
     }
     
-    protected VariableReference visitVariableReference(VariableReference varRef)
-    {
+    protected VariableReference visitVariableReference(VariableReference varRef) {
         return null;
     }
     
-    protected Expression visitExpression(Expression expr)
-    {
+    protected Expression visitExpression(Expression expr) {
         if (expr instanceof BinaryExpression) {
             ((BinaryExpression)expr).left = this.visitExpression(((BinaryExpression)expr).left) != null ? this.visitExpression(((BinaryExpression)expr).left) : ((BinaryExpression)expr).left;
             ((BinaryExpression)expr).right = this.visitExpression(((BinaryExpression)expr).right) != null ? this.visitExpression(((BinaryExpression)expr).right) : ((BinaryExpression)expr).right;
@@ -273,13 +261,11 @@ public class AstTransformer implements ITransformer {
         return null;
     }
     
-    protected void visitMethodParameter(MethodParameter methodParameter)
-    {
+    protected void visitMethodParameter(MethodParameter methodParameter) {
         this.visitVariableWithInitializer(methodParameter);
     }
     
-    protected void visitMethodBase(IMethodBase method)
-    {
+    protected void visitMethodBase(IMethodBase method) {
         for (var item : method.getParameters())
             this.visitMethodParameter(item);
         
@@ -287,34 +273,29 @@ public class AstTransformer implements ITransformer {
             method.setBody(this.visitBlock(method.getBody()) != null ? this.visitBlock(method.getBody()) : method.getBody());
     }
     
-    protected void visitMethod(Method method)
-    {
+    protected void visitMethod(Method method) {
         this.currentMethod = method;
         this.visitMethodBase(method);
         method.returns = this.visitType(method.returns) != null ? this.visitType(method.returns) : method.returns;
         this.currentMethod = null;
     }
     
-    protected void visitGlobalFunction(GlobalFunction func)
-    {
+    protected void visitGlobalFunction(GlobalFunction func) {
         this.visitMethodBase(func);
         func.returns = this.visitType(func.returns) != null ? this.visitType(func.returns) : func.returns;
     }
     
-    protected void visitConstructor(Constructor constructor)
-    {
+    protected void visitConstructor(Constructor constructor) {
         this.currentMethod = constructor;
         this.visitMethodBase(constructor);
         this.currentMethod = null;
     }
     
-    protected void visitField(Field field)
-    {
+    protected void visitField(Field field) {
         this.visitVariableWithInitializer(field);
     }
     
-    protected void visitProperty(Property prop)
-    {
+    protected void visitProperty(Property prop) {
         this.visitVariable(prop);
         if (prop.getter != null)
             prop.getter = this.visitBlock(prop.getter) != null ? this.visitBlock(prop.getter) : prop.getter;
@@ -322,8 +303,7 @@ public class AstTransformer implements ITransformer {
             prop.setter = this.visitBlock(prop.setter) != null ? this.visitBlock(prop.setter) : prop.setter;
     }
     
-    protected void visitInterface(Interface intf)
-    {
+    protected void visitInterface(Interface intf) {
         this.currentInterface = intf;
         intf.setBaseInterfaces(Arrays.stream(intf.getBaseInterfaces()).map(x -> this.visitType(x) != null ? this.visitType(x) : x).toArray(IType[]::new));
         for (var field : intf.getFields())
@@ -333,8 +313,7 @@ public class AstTransformer implements ITransformer {
         this.currentInterface = null;
     }
     
-    protected void visitClass(Class cls)
-    {
+    protected void visitClass(Class cls) {
         this.currentInterface = cls;
         if (cls.constructor_ != null)
             this.visitConstructor(cls.constructor_);
@@ -350,19 +329,16 @@ public class AstTransformer implements ITransformer {
         this.currentInterface = null;
     }
     
-    protected void visitEnum(Enum enum_)
-    {
+    protected void visitEnum(Enum enum_) {
         for (var value : enum_.values)
             this.visitEnumMember(value);
     }
     
-    protected void visitEnumMember(EnumMember enumMember)
-    {
+    protected void visitEnumMember(EnumMember enumMember) {
         
     }
     
-    public void visitSourceFile(SourceFile sourceFile)
-    {
+    public void visitSourceFile(SourceFile sourceFile) {
         this.errorMan.resetContext(this);
         this.currentFile = sourceFile;
         for (var enum_ : sourceFile.enums)
@@ -377,8 +353,7 @@ public class AstTransformer implements ITransformer {
         this.currentFile = null;
     }
     
-    public void visitPackage(Package pkg)
-    {
+    public void visitPackage(Package pkg) {
         for (var file : pkg.files.values().toArray(SourceFile[]::new))
             this.visitSourceFile(file);
     }

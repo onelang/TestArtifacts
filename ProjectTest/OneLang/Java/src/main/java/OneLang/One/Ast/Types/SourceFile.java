@@ -1,5 +1,5 @@
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class SourceFile {
     public Import[] imports;
@@ -24,14 +24,13 @@ public class SourceFile {
         this.mainBlock = mainBlock;
         this.sourcePath = sourcePath;
         this.exportScope = exportScope;
-        this.availableSymbols = new HashMap<String, IImportable>();
+        this.availableSymbols = new LinkedHashMap<String, IImportable>();
         this.arrayTypes = new ClassType[0];
         var fileScope = Package.collectExportsFromFile(this, true);
         this.addAvailableSymbols(fileScope.getAllExports());
     }
     
-    public void addAvailableSymbols(IImportable[] items)
-    {
+    public void addAvailableSymbols(IImportable[] items) {
         for (var item : items)
             this.availableSymbols.put(item.getName(), item);
     }

@@ -25,24 +25,21 @@ public class PythonGenerator implements IGenerator {
         this.plugins.add(new JsToPython(this));
     }
     
-    public String getLangName()
-    {
+    public String getLangName() {
         return "Python";
     }
     
-    public String getExtension()
-    {
+    public String getExtension() {
         return "py";
     }
     
-    public String type(IType type)
-    {
+    public String type(IType type) {
         if (type instanceof ClassType) {
-            if (((ClassType)type).decl.getName() == "TsString")
+            if (((ClassType)type).decl.getName().equals("TsString"))
                 return "str";
-            else if (((ClassType)type).decl.getName() == "TsBoolean")
+            else if (((ClassType)type).decl.getName().equals("TsBoolean"))
                 return "bool";
-            else if (((ClassType)type).decl.getName() == "TsNumber")
+            else if (((ClassType)type).decl.getName().equals("TsNumber"))
                 return "int";
             else
                 return this.clsName(((ClassType)type).decl);
@@ -51,8 +48,7 @@ public class PythonGenerator implements IGenerator {
             return "NOT-HANDLED-TYPE";
     }
     
-    public String[] splitName(String name)
-    {
+    public String[] splitName(String name) {
         var nameParts = new ArrayList<String>();
         var partStartIdx = 0;
         for (Integer i = 1; i < name.length(); i++) {
@@ -73,8 +69,7 @@ public class PythonGenerator implements IGenerator {
         return nameParts.toArray(String[]::new);
     }
     
-    public String name_(String name)
-    {
+    public String name_(String name) {
         if (Arrays.stream(this.reservedWords).anyMatch(name::equals))
             name += "_";
         if (Arrays.stream(this.fieldToMethodHack).anyMatch(name::equals))
@@ -82,16 +77,14 @@ public class PythonGenerator implements IGenerator {
         return Arrays.stream(this.splitName(name)).collect(Collectors.joining("_"));
     }
     
-    public String calcImportedName(ExportScopeRef exportScope, String name)
-    {
+    public String calcImportedName(ExportScopeRef exportScope, String name) {
         if (this.importAllScopes.contains(exportScope.getId()))
             return name;
         else
             return this.calcImportAlias(exportScope) + "." + name;
     }
     
-    public String enumName(Enum enum_, Boolean isDecl)
-    {
+    public String enumName(Enum enum_, Boolean isDecl) {
         var name = this.name_(enum_.getName()).toUpperCase();
         if (isDecl || enum_.getParentFile().exportScope == null || enum_.getParentFile() == this.currentFile)
             return name;
@@ -102,15 +95,13 @@ public class PythonGenerator implements IGenerator {
         return this.enumName(enum_, false);
     }
     
-    public String enumMemberName(String name)
-    {
+    public String enumMemberName(String name) {
         return this.name_(name).toUpperCase();
     }
     
-    public String clsName(IInterface cls, Boolean isDecl)
-    {
+    public String clsName(IInterface cls, Boolean isDecl) {
         // TODO: hack
-        if (cls.getName() == "Set")
+        if (cls.getName().equals("Set"))
             return "dict";
         if (isDecl || cls.getParentFile().exportScope == null || cls.getParentFile() == this.currentFile)
             return cls.getName();
@@ -121,71 +112,59 @@ public class PythonGenerator implements IGenerator {
         return this.clsName(cls, false);
     }
     
-    public String leading(Statement item)
-    {
+    public String leading(Statement item) {
         var result = "";
         if (item.getLeadingTrivia() != null && item.getLeadingTrivia().length() > 0)
-            result += item.getLeadingTrivia().replaceAll(Pattern.quote("//"), "#");
+            result += item.getLeadingTrivia().replaceAll("//", "#");
         //if (item.attributes !== null)
         //    result += Object.keys(item.attributes).map(x => `// @${x} ${item.attributes[x]}\n`).join("");
         return result;
     }
     
-    public String preArr(String prefix, String[] value)
-    {
+    public String preArr(String prefix, String[] value) {
         return value.length > 0 ? prefix + Arrays.stream(value).collect(Collectors.joining(", ")) : "";
     }
     
-    public String preIf(String prefix, Boolean condition)
-    {
+    public String preIf(String prefix, Boolean condition) {
         return condition ? prefix : "";
     }
     
-    public String pre(String prefix, String value)
-    {
+    public String pre(String prefix, String value) {
         return value != null ? prefix + value : "";
     }
     
-    public Boolean isTsArray(IType type)
-    {
-        return type instanceof ClassType && ((ClassType)type).decl.getName() == "TsArray";
+    public Boolean isTsArray(IType type) {
+        return type instanceof ClassType && ((ClassType)type).decl.getName().equals("TsArray");
     }
     
-    public String vis(Visibility v)
-    {
+    public String vis(Visibility v) {
         return v == Visibility.Private ? "__" : v == Visibility.Protected ? "_" : v == Visibility.Public ? "" : "/* TODO: not set */public";
     }
     
-    public String varWoInit(IVariable v, IHasAttributesAndTrivia attr)
-    {
+    public String varWoInit(IVariable v, IHasAttributesAndTrivia attr) {
         return this.name_(v.getName());
     }
     
-    public String var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs)
-    {
+    public String var(IVariableWithInitializer v, IHasAttributesAndTrivia attrs) {
         return this.varWoInit(v, attrs) + (v.getInitializer() != null ? " = " + this.expr(v.getInitializer()) : "");
     }
     
-    public String exprCall(Expression[] args)
-    {
+    public String exprCall(Expression[] args) {
         return "(" + Arrays.stream(Arrays.stream(args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")";
     }
     
-    public String callParams(Expression[] args)
-    {
+    public String callParams(Expression[] args) {
         var argReprs = new ArrayList<String>();
         for (Integer i = 0; i < args.length; i++)
             argReprs.add(this.expr(args[i]));
         return "(" + argReprs.stream().collect(Collectors.joining(", ")) + ")";
     }
     
-    public String methodCall(IMethodCallExpression expr)
-    {
+    public String methodCall(IMethodCallExpression expr) {
         return this.name_(expr.getMethod().name) + this.callParams(expr.getArgs());
     }
     
-    public String expr(IExpression expr)
-    {
+    public String expr(IExpression expr) {
         for (var plugin : this.plugins) {
             var result = plugin.expr(expr);
             if (result != null)
@@ -195,7 +174,7 @@ public class PythonGenerator implements IGenerator {
         var res = "UNKNOWN-EXPR";
         if (expr instanceof NewExpression) {
             // TODO: hack
-            if (((NewExpression)expr).cls.decl.getName() == "Set")
+            if (((NewExpression)expr).cls.decl.getName().equals("Set"))
                 res = ((NewExpression)expr).args.length == 0 ? "dict()" : "dict.fromkeys" + this.callParams(((NewExpression)expr).args);
             else
                 res = this.clsName(((NewExpression)expr).cls.decl) + this.callParams(((NewExpression)expr).args);
@@ -240,19 +219,19 @@ public class PythonGenerator implements IGenerator {
                     var lit = "";
                     for (Integer i = 0; i < part.literalText.length(); i++) {
                         var chr = part.literalText.substring(i, i + 1);
-                        if (chr == "\n")
+                        if (chr.equals("\n"))
                             lit += "\\n";
-                        else if (chr == "\r")
+                        else if (chr.equals("\r"))
                             lit += "\\r";
-                        else if (chr == "\t")
+                        else if (chr.equals("\t"))
                             lit += "\\t";
-                        else if (chr == "\\")
+                        else if (chr.equals("\\"))
                             lit += "\\\\";
-                        else if (chr == "'")
+                        else if (chr.equals("'"))
                             lit += "\\'";
-                        else if (chr == "{")
+                        else if (chr.equals("{"))
                             lit += "{{";
-                        else if (chr == "}")
+                        else if (chr.equals("}"))
                             lit += "}}";
                         else {
                             var chrCode = (int)chr.charAt(0);
@@ -274,7 +253,7 @@ public class PythonGenerator implements IGenerator {
             res = this.tmplStrLevel == 1 ? "f'" + parts.stream().collect(Collectors.joining("")) + "'" : "f'''" + parts.stream().collect(Collectors.joining("")) + "'''";
         }
         else if (expr instanceof BinaryExpression) {
-            var op = ((BinaryExpression)expr).operator == "&&" ? "and" : ((BinaryExpression)expr).operator == "||" ? "or" : ((BinaryExpression)expr).operator;
+            var op = ((BinaryExpression)expr).operator.equals("&&") ? "and" : ((BinaryExpression)expr).operator.equals("||") ? "or" : ((BinaryExpression)expr).operator;
             res = this.expr(((BinaryExpression)expr).left) + " " + op + " " + this.expr(((BinaryExpression)expr).right);
         }
         else if (expr instanceof ArrayLiteral)
@@ -301,18 +280,18 @@ public class PythonGenerator implements IGenerator {
             res = "lambda " + Arrays.stream(params).collect(Collectors.joining(", ")) + ": " + body;
         }
         else if (expr instanceof UnaryExpression && ((UnaryExpression)expr).unaryType == UnaryType.Prefix) {
-            var op = ((UnaryExpression)expr).operator == "!" ? "not " : ((UnaryExpression)expr).operator;
-            if (op == "++")
+            var op = ((UnaryExpression)expr).operator.equals("!") ? "not " : ((UnaryExpression)expr).operator;
+            if (op.equals("++"))
                 res = this.expr(((UnaryExpression)expr).operand) + " = " + this.expr(((UnaryExpression)expr).operand) + " + 1";
-            else if (op == "--")
+            else if (op.equals("--"))
                 res = this.expr(((UnaryExpression)expr).operand) + " = " + this.expr(((UnaryExpression)expr).operand) + " - 1";
             else
                 res = op + this.expr(((UnaryExpression)expr).operand);
         }
         else if (expr instanceof UnaryExpression && ((UnaryExpression)expr).unaryType == UnaryType.Postfix) {
-            if (((UnaryExpression)expr).operator == "++")
+            if (((UnaryExpression)expr).operator.equals("++"))
                 res = this.expr(((UnaryExpression)expr).operand) + " = " + this.expr(((UnaryExpression)expr).operand) + " + 1";
-            else if (((UnaryExpression)expr).operator == "--")
+            else if (((UnaryExpression)expr).operator.equals("--"))
                 res = this.expr(((UnaryExpression)expr).operand) + " = " + this.expr(((UnaryExpression)expr).operand) + " - 1";
             else
                 res = this.expr(((UnaryExpression)expr).operand) + ((UnaryExpression)expr).operator;
@@ -363,8 +342,7 @@ public class PythonGenerator implements IGenerator {
         return res;
     }
     
-    public String stmtDefault(Statement stmt)
-    {
+    public String stmtDefault(Statement stmt) {
         var nl = "\n";
         if (stmt instanceof BreakStatement)
             return "break";
@@ -398,8 +376,7 @@ public class PythonGenerator implements IGenerator {
             return "UNKNOWN-STATEMENT";
     }
     
-    public String stmt(Statement stmt)
-    {
+    public String stmt(Statement stmt) {
         String res = null;
         
         if (stmt.getAttributes() != null && stmt.getAttributes().containsKey("python"))
@@ -418,8 +395,7 @@ public class PythonGenerator implements IGenerator {
         return this.leading(stmt) + res;
     }
     
-    public String stmts(Statement[] stmts, Boolean skipPass)
-    {
+    public String stmts(Statement[] stmts, Boolean skipPass) {
         return this.pad(stmts.length == 0 && !skipPass ? "pass" : Arrays.stream(Arrays.stream(stmts).map(stmt -> this.stmt(stmt)).toArray(String[]::new)).collect(Collectors.joining("\n")));
     }
     
@@ -427,8 +403,7 @@ public class PythonGenerator implements IGenerator {
         return this.stmts(stmts, false);
     }
     
-    public String block(Block block, Boolean skipPass)
-    {
+    public String block(Block block, Boolean skipPass) {
         return this.stmts(block.statements.toArray(Statement[]::new), skipPass);
     }
     
@@ -436,14 +411,12 @@ public class PythonGenerator implements IGenerator {
         return this.block(block, false);
     }
     
-    public String pass(String str)
-    {
-        return str == "" ? "pass" : str;
+    public String pass(String str) {
+        return str.equals("") ? "pass" : str;
     }
     
-    public String cls(Class cls)
-    {
-        if (cls.getAttributes().get("external") == "true")
+    public String cls(Class cls) {
+        if (cls.getAttributes().get("external").equals("true"))
             return "";
         this.currentClass = cls;
         var resList = new ArrayList<String>();
@@ -491,24 +464,22 @@ public class PythonGenerator implements IGenerator {
             methods.add((method.getIsStatic() ? "@classmethod\n" : "") + "def " + this.name_(method.name) + "(" + (method.getIsStatic() ? "cls" : "self") + Arrays.stream(Arrays.stream(method.getParameters()).map(p -> ", " + this.var(p, null)).toArray(String[]::new)).collect(Collectors.joining("")) + "):" + "\n" + this.block(method.getBody()));
         }
         resList.add(methods.stream().collect(Collectors.joining("\n\n")));
-        var resList2 = resList.stream().filter(x -> x != "").toArray(String[]::new);
+        var resList2 = resList.stream().filter(x -> !x.equals("")).toArray(String[]::new);
         
         var clsHdr = "class " + this.clsName(cls, true) + (cls.baseClass != null ? "(" + this.clsName((((ClassType)cls.baseClass)).decl) + ")" : "") + ":\n";
         return Arrays.stream(classAttributes.stream().map(x -> x + "\n").toArray(String[]::new)).collect(Collectors.joining("")) + clsHdr + this.pad(resList2.length > 0 ? Arrays.stream(resList2).collect(Collectors.joining("\n\n")) : "pass");
     }
     
-    public String pad(String str)
-    {
-        return str == "" ? "" : Arrays.stream(Arrays.stream(str.split("\\n")).map(x -> "    " + x).toArray(String[]::new)).collect(Collectors.joining("\n"));
+    public String pad(String str) {
+        return str.equals("") ? "" : Arrays.stream(Arrays.stream(str.split("\\n", -1)).map(x -> "    " + x).toArray(String[]::new)).collect(Collectors.joining("\n"));
     }
     
-    public String calcRelImport(ExportScopeRef targetPath, ExportScopeRef fromPath)
-    {
-        var targetParts = targetPath.scopeName.split("/");
-        var fromParts = fromPath.scopeName.split("/");
+    public String calcRelImport(ExportScopeRef targetPath, ExportScopeRef fromPath) {
+        var targetParts = targetPath.scopeName.split("/", -1);
+        var fromParts = fromPath.scopeName.split("/", -1);
         
         var sameLevel = 0;
-        while (sameLevel < targetParts.length && sameLevel < fromParts.length && targetParts[sameLevel] == fromParts[sameLevel])
+        while (sameLevel < targetParts.length && sameLevel < fromParts.length && targetParts[sameLevel].equals(fromParts[sameLevel]))
             sameLevel++;
         
         var result = "";
@@ -521,15 +492,13 @@ public class PythonGenerator implements IGenerator {
         return result;
     }
     
-    public String calcImportAlias(ExportScopeRef targetPath)
-    {
-        var parts = targetPath.scopeName.split("/");
+    public String calcImportAlias(ExportScopeRef targetPath) {
+        var parts = targetPath.scopeName.split("/", -1);
         var filename = parts[parts.length - 1];
         return NameUtils.shortName(filename);
     }
     
-    public String genFile(SourceFile sourceFile)
-    {
+    public String genFile(SourceFile sourceFile) {
         this.currentFile = sourceFile;
         this.imports = new HashSet<String>();
         this.importAllScopes = new HashSet<String>();
@@ -540,7 +509,7 @@ public class PythonGenerator implements IGenerator {
             this.imports.add("from enum import Enum");
         
         for (var import_ : Arrays.stream(sourceFile.imports).filter(x -> !x.importAll).toArray(Import[]::new)) {
-            if (import_.getAttributes().get("python-ignore") == "true")
+            if (import_.getAttributes().get("python-ignore").equals("true"))
                 continue;
             
             if (import_.getAttributes().containsKey("python-import-all")) {
@@ -549,7 +518,7 @@ public class PythonGenerator implements IGenerator {
             }
             else {
                 var alias = this.calcImportAlias(import_.exportScope);
-                this.imports.add("import " + this.package_.name + "." + import_.exportScope.scopeName.replaceAll(Pattern.quote("/"), ".") + " as " + alias);
+                this.imports.add("import " + this.package_.name + "." + import_.exportScope.scopeName.replaceAll("/", ".") + " as " + alias);
             }
         }
         
@@ -571,11 +540,10 @@ public class PythonGenerator implements IGenerator {
         for (var imp : this.imports)
             imports.add(imp);
         
-        return Arrays.stream(List.of(imports.stream().collect(Collectors.joining("\n")), enums.stream().collect(Collectors.joining("\n\n")), classes.stream().collect(Collectors.joining("\n\n")), main).stream().filter(x -> x != "").toArray(String[]::new)).collect(Collectors.joining("\n\n"));
+        return Arrays.stream(new ArrayList<>(List.of(imports.stream().collect(Collectors.joining("\n")), enums.stream().collect(Collectors.joining("\n\n")), classes.stream().collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
     }
     
-    public GeneratedFile[] generate(Package pkg)
-    {
+    public GeneratedFile[] generate(Package pkg) {
         this.package_ = pkg;
         var result = new ArrayList<GeneratedFile>();
         for (var path : pkg.files.keySet().toArray(String[]::new))

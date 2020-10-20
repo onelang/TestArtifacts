@@ -9,8 +9,7 @@ public class ArrayAndMapLiteralTypeInfer extends InferTypesPlugin {
         
     }
     
-    protected IType inferArrayOrMapItemType(Expression[] items, IType expectedType, Boolean isMap)
-    {
+    protected IType inferArrayOrMapItemType(Expression[] items, IType expectedType, Boolean isMap) {
         var itemTypes = new ArrayList<IType>();
         for (var item : items) {
             if (!itemTypes.stream().anyMatch(t -> TypeHelper.equals(t, item.getType())))
@@ -39,17 +38,15 @@ public class ArrayAndMapLiteralTypeInfer extends InferTypesPlugin {
         return itemType;
     }
     
-    public Boolean canDetectType(Expression expr)
-    {
+    public Boolean canDetectType(Expression expr) {
         return expr instanceof ArrayLiteral || expr instanceof MapLiteral;
     }
     
-    public Boolean detectType(Expression expr)
-    {
+    public Boolean detectType(Expression expr) {
         // make this work: `<{ [name: string]: SomeObject }> {}`
         if (expr.parentNode instanceof CastExpression)
             expr.setExpectedType(((CastExpression)expr.parentNode).newType);
-        else if (expr.parentNode instanceof BinaryExpression && ((BinaryExpression)expr.parentNode).operator == "=" && ((BinaryExpression)expr.parentNode).right == expr)
+        else if (expr.parentNode instanceof BinaryExpression && ((BinaryExpression)expr.parentNode).operator.equals("=") && ((BinaryExpression)expr.parentNode).right == expr)
             expr.setExpectedType(((BinaryExpression)expr.parentNode).left.actualType);
         else if (expr.parentNode instanceof ConditionalExpression && (((ConditionalExpression)expr.parentNode).whenTrue == expr || ((ConditionalExpression)expr.parentNode).whenFalse == expr))
             expr.setExpectedType(((ConditionalExpression)expr.parentNode).whenTrue == expr ? ((ConditionalExpression)expr.parentNode).whenFalse.actualType : ((ConditionalExpression)expr.parentNode).whenTrue.actualType);

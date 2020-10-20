@@ -2,8 +2,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class NameUtils {
-    public static String shortName(String fullName)
-    {
+    public static String shortName(String fullName) {
         var nameParts = new ArrayList<String>();
         var partStartIdx = 0;
         for (Integer i = 1; i < fullName.length(); i++) {

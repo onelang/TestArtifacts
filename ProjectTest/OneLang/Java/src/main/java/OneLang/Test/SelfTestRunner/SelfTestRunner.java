@@ -9,8 +9,7 @@ public class SelfTestRunner {
         this.baseDir = baseDir;
     }
     
-    public Boolean runTest(IGenerator generator)
-    {
+    public Boolean runTest(IGenerator generator) {
         console.log("[-] SelfTestRunner :: START");
         var compiler = new Compiler();
         compiler.init(this.baseDir + "packages/");
@@ -31,14 +30,14 @@ public class SelfTestRunner {
         
         var allMatch = true;
         for (var genFile : generated) {
-            var fn = genFile.path.replaceAll(Pattern.quote("\\.ts$"), ext);
+            var fn = genFile.path.replaceAll("\\.ts$", ext);
             var projBase = this.baseDir + "test/artifacts/ProjectTest/OneLang";
             var tsGenPath = projBase + "/" + langName + "/" + fn;
             var reGenPath = projBase + "/" + langName + "_Regen/" + fn;
             var tsGenContent = OneFile.readText(tsGenPath);
             var reGenContent = genFile.content;
             
-            if (tsGenContent != reGenContent) {
+            if (!tsGenContent.equals(reGenContent)) {
                 OneFile.writeText(reGenPath, genFile.content);
                 console.error("Content does not match: " + genFile.path);
                 allMatch = false;

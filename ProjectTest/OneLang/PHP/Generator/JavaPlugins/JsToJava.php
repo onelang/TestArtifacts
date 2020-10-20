@@ -53,7 +53,7 @@ class JsToJava implements IGeneratorPlugin {
     }
     
     function convertMethod($cls, $obj, $method, $args, $returnType) {
-        $objR = $this->main->expr($obj);
+        $objR = $obj === null ? null : $this->main->expr($obj);
         $argsR = array_map(function ($x) { return $this->main->expr($x); }, $args);
         if ($cls->name === "TsArray") {
             if ($method->name === "includes")
@@ -96,7 +96,7 @@ class JsToJava implements IGeneratorPlugin {
             if ($method->name === "replace") {
                 if ($args[0] instanceof RegexLiteral) {
                     $this->main->imports->add("java.util.regex.Pattern");
-                    return $objR . ".replaceAll(Pattern.quote(" . json_encode(($args[0])->pattern, JSON_UNESCAPED_SLASHES) . "), " . $argsR[1] . ")";
+                    return $objR . ".replaceAll(" . json_encode(($args[0])->pattern, JSON_UNESCAPED_SLASHES) . ", " . $argsR[1] . ")";
                 }
                 
                 return $argsR[0] . ".replace(" . $objR . ", " . $argsR[1] . ")";
@@ -114,7 +114,7 @@ class JsToJava implements IGeneratorPlugin {
             
             if ($method->name === "split" && $args[0] instanceof RegexLiteral) {
                 $pattern = ($args[0])->pattern;
-                return $objR . ".split(" . json_encode($pattern, JSON_UNESCAPED_SLASHES) . ")";
+                return $objR . ".split(" . json_encode($pattern, JSON_UNESCAPED_SLASHES) . ", -1)";
             }
         }
         else if ($cls->name === "TsMap" || $cls->name === "Map") {

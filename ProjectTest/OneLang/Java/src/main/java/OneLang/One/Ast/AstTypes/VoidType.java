@@ -5,8 +5,7 @@ public class VoidType implements IPrimitiveType {
         VoidType.instance = new VoidType();
     }
     
-    public String repr()
-    {
+    public String repr() {
         return "Void";
     }
 }

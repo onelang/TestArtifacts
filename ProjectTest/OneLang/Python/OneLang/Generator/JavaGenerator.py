@@ -83,7 +83,7 @@ class JavaGenerator:
                 else:
                     return f'''{self.type(t.type_arguments[0])}[]'''
             elif t.decl.name == "Map":
-                real_type = "HashMap" if is_new else "Map"
+                real_type = "LinkedHashMap" if is_new else "Map"
                 self.imports[f'''java.util.{real_type}'''] = None
                 return f'''{real_type}<{self.type(t.type_arguments[0])}, {self.type(t.type_arguments[1])}>'''
             elif t.decl.name == "Set":
@@ -96,7 +96,7 @@ class JavaGenerator:
                 #this.imports.add("System");
                 return f'''Object'''
             elif t.decl.name == "TsMap":
-                real_type = "HashMap" if is_new else "Map"
+                real_type = "LinkedHashMap" if is_new else "Map"
                 self.imports[f'''java.util.{real_type}'''] = None
                 return f'''{real_type}<String, {self.type(t.type_arguments[0])}>'''
             return self.name_(t.decl.name) + type_args
@@ -169,7 +169,8 @@ class JavaGenerator:
                 return f'''{self.expr(arg)}.toArray({self.type(item_type)}[]::new)'''
             elif not currently_mutable and should_be_mutable:
                 self.imports["java.util.Arrays"] = None
-                return f'''Arrays.asList({self.expr(arg)})'''
+                self.imports["java.util.ArrayList"] = None
+                return f'''new ArrayList<>(Arrays.asList({self.expr(arg)}))'''
         return self.expr(arg)
     
     def mutated_expr(self, expr, to_where):
@@ -272,6 +273,15 @@ class JavaGenerator:
             modifies = expr.operator in ["=", "+=", "-="]
             if modifies and isinstance(expr.left, refs.InstanceFieldReference) and self.use_getter_setter(expr.left):
                 res = f'''{self.expr(expr.left.object)}.set{self.uc_first(expr.left.field.name)}({self.mutated_expr(expr.right, expr.left if expr.operator == "=" else None)})'''
+            elif expr.operator in ["==", "!="]:
+                lit = self.current_class.parent_file.literal_types
+                left_type = expr.left.get_type()
+                right_type = expr.right.get_type()
+                use_equals = astTypes.TypeHelper.equals(left_type, lit.string) and right_type != None and astTypes.TypeHelper.equals(right_type, lit.string)
+                if use_equals:
+                    res = f'''{("!" if expr.operator == "!=" else "")}{self.expr(expr.left)}.equals({self.expr(expr.right)})'''
+                else:
+                    res = f'''{self.expr(expr.left)} {expr.operator} {self.expr(expr.right)}'''
             else:
                 res = f'''{self.expr(expr.left)} {expr.operator} {self.mutated_expr(expr.right, expr.left if expr.operator == "=" else None)}'''
         elif isinstance(expr, exprs.ArrayLiteral):
@@ -279,7 +289,8 @@ class JavaGenerator:
                 res = f'''new {self.type(expr.actual_type, True, True)}()'''
             else:
                 self.imports[f'''java.util.List'''] = None
-                res = f'''List.of({", ".join(list(map(lambda x: self.expr(x), expr.items)))})'''
+                self.imports[f'''java.util.ArrayList'''] = None
+                res = f'''new ArrayList<>(List.of({", ".join(list(map(lambda x: self.expr(x), expr.items)))}))'''
         elif isinstance(expr, exprs.CastExpression):
             res = f'''(({self.type(expr.new_type)}){self.expr(expr.expression)})'''
         elif isinstance(expr, exprs.ConditionalExpression):
@@ -437,7 +448,7 @@ class JavaGenerator:
     
     def overload_method_gen(self, prefix, method, params, body):
         methods = []
-        methods.append(prefix + f'''({", ".join(list(map(lambda p: self.var_wo_init(p, None), params)))})''' + body)
+        methods.append(prefix + f'''({", ".join(list(map(lambda p: self.var_wo_init(p, p), params)))})''' + body)
         
         param_len = len(params) - 1
         
@@ -465,7 +476,8 @@ class JavaGenerator:
     def method(self, method, is_cls):
         # TODO: final
         prefix = (self.vis(method.visibility) + " " if is_cls else "") + self.pre_if("static ", method.is_static) + self.pre_if("/* throws */ ", method.throws) + (f'''<{", ".join(method.type_arguments)}> ''' if len(method.type_arguments) > 0 else "") + f'''{self.type(method.returns, False)} ''' + self.name_(method.name)
-        return self.overload_method_gen(prefix, method, method.parameters, ";" if method.body == None else f'''\n{{\n{self.pad(self.stmts(method.body.statements))}\n}}''')
+        
+        return self.overload_method_gen(prefix, method, method.parameters, ";" if method.body == None else f''' {{\n{self.pad(self.stmts(method.body.statements))}\n}}''')
     
     def class(self, cls_):
         self.current_class = cls_
@@ -483,7 +495,8 @@ class JavaGenerator:
                 var_type = self.var_type(field, field)
                 name = self.name_(field.name)
                 pname = self.uc_first(field.name)
-                prop_reprs.append(f'''{var_type} {name};\n''' + f'''{prefix}{var_type} get{pname}() {{ return this.{name}; }}\n''' + f'''{prefix}void set{pname}({var_type} value) {{ this.{name} = value; }}''')
+                set_to_false = astTypes.TypeHelper.equals(field.type, self.current_class.parent_file.literal_types.boolean)
+                prop_reprs.append(f'''{var_type} {name}{(" = false" if set_to_false else f' = {self.expr(field.initializer)}' if field.initializer != None else "")};\n''' + f'''{prefix}{var_type} get{pname}() {{ return this.{name}; }}\n''' + f'''{prefix}void set{pname}({var_type} value) {{ this.{name} = value; }}''')
             elif is_initializer_complex:
                 if field.is_static:
                     static_constructor_stmts.append(stats.ExpressionStatement(exprs.BinaryExpression(refs.StaticFieldReference(field), "=", field.initializer)))

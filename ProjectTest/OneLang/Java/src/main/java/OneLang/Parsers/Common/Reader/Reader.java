@@ -31,7 +31,7 @@ public class Reader {
     }
     
     public String getPreview() {
-        var preview = this.input.substring(this.offset, this.offset + 30).replaceAll(Pattern.quote("\\n"), "\\n");
+        var preview = this.input.substring(this.offset, this.offset + 30).replaceAll("\\n", "\\n");
         if (preview.length() == 30)
             preview += "...";
         return preview;
@@ -46,14 +46,12 @@ public class Reader {
         this.cursorSearch = new CursorPositionSearch(input);
     }
     
-    public String linePreview(Cursor cursor)
-    {
+    public String linePreview(Cursor cursor) {
         var line = this.input.substring(cursor.lineStart, cursor.lineEnd - 1);
         return line + "\n" + " ".repeat(cursor.column - 1) + "^^^";
     }
     
-    public void fail(String message, Integer offset)
-    {
+    public void fail(String message, Integer offset) {
         var error = new ParseError(message, this.cursorSearch.getCursorForOffset(offset == -1 ? this.offset : offset), this);
         this.errors.add(error);
         
@@ -67,15 +65,14 @@ public class Reader {
         this.fail(message, -1);
     }
     
-    public void skipWhitespace(Boolean includeInTrivia)
-    {
+    public void skipWhitespace(Boolean includeInTrivia) {
         for (; this.offset < this.input.length(); this.offset++) {
             var c = this.input.substring(this.offset, this.offset + 1);
             
-            if (c == "\n")
+            if (c.equals("\n"))
                 this.wsLineCounter++;
             
-            if (!(c == "\n" || c == "\r" || c == "\t" || c == " "))
+            if (!(c.equals("\n") || c.equals("\r") || c.equals("\t") || c.equals(" ")))
                 break;
         }
         
@@ -87,8 +84,7 @@ public class Reader {
         this.skipWhitespace(false);
     }
     
-    public Boolean skipUntil(String token)
-    {
+    public Boolean skipUntil(String token) {
         var index = this.input.indexOf(token, this.offset);
         if (index == -1)
             return false;
@@ -98,20 +94,17 @@ public class Reader {
         return true;
     }
     
-    public void skipLine()
-    {
+    public void skipLine() {
         if (!this.skipUntil("\n"))
             this.offset = this.input.length();
     }
     
-    public Boolean isAlphaNum(String c)
-    {
+    public Boolean isAlphaNum(String c) {
         var n = (int)c.charAt(0);
         return (97 <= n && n <= 122) || (65 <= n && n <= 90) || (48 <= n && n <= 57) || n == 95;
     }
     
-    public Boolean readExactly(String what)
-    {
+    public Boolean readExactly(String what) {
         if (this.input.startsWith(what, this.offset)) {
             this.wsOffset = this.offset = this.offset + what.length();
             return true;
@@ -119,15 +112,13 @@ public class Reader {
         return false;
     }
     
-    public String readChar()
-    {
+    public String readChar() {
         // TODO: should we move wsOffset?
         this.offset++;
         return this.input.substring(this.offset - 1, this.offset - 1 + 1);
     }
     
-    public Boolean peekToken(String token)
-    {
+    public Boolean peekToken(String token) {
         this.skipWhitespaceAndComment();
         
         if (this.input.startsWith(token, this.offset)) {
@@ -140,8 +131,7 @@ public class Reader {
             return false;
     }
     
-    public Boolean readToken(String token)
-    {
+    public Boolean readToken(String token) {
         if (this.peekToken(token)) {
             this.prevTokenOffset = this.offset;
             this.wsOffset = this.offset = this.offset + token.length();
@@ -150,8 +140,7 @@ public class Reader {
         return false;
     }
     
-    public String readAnyOf(String[] tokens)
-    {
+    public String readAnyOf(String[] tokens) {
         for (var token : tokens) {
             if (this.readToken(token))
                 return token;
@@ -159,8 +148,7 @@ public class Reader {
         return null;
     }
     
-    public void expectToken(String token, String errorMsg)
-    {
+    public void expectToken(String token, String errorMsg) {
         if (!this.readToken(token))
             this.fail(errorMsg != null ? errorMsg : "expected token '" + token + "'");
     }
@@ -169,8 +157,7 @@ public class Reader {
         this.expectToken(token, null);
     }
     
-    public String expectString(String errorMsg)
-    {
+    public String expectString(String errorMsg) {
         var result = this.readString();
         if (result == null)
             this.fail(errorMsg != null ? errorMsg : "expected string");
@@ -181,16 +168,14 @@ public class Reader {
         return this.expectString(null);
     }
     
-    public String expectOneOf(String[] tokens)
-    {
+    public String expectOneOf(String[] tokens) {
         var result = this.readAnyOf(tokens);
         if (result == null)
             this.fail("expected one of the following tokens: " + Arrays.stream(tokens).collect(Collectors.joining(", ")));
         return result;
     }
     
-    public static String[] matchFromIndex(String pattern, String input, Integer offset)
-    {
+    public static String[] matchFromIndex(String pattern, String input, Integer offset) {
         var regex = new RegExp(pattern, "gy");
         regex.lastIndex = offset;
         var matches = regex.exec(input);
@@ -204,14 +189,12 @@ public class Reader {
         }
     }
     
-    public String[] peekRegex(String pattern)
-    {
+    public String[] peekRegex(String pattern) {
         var matches = Reader.matchFromIndex(pattern, this.input, this.offset);
         return matches;
     }
     
-    public String[] readRegex(String pattern)
-    {
+    public String[] readRegex(String pattern) {
         var matches = Reader.matchFromIndex(pattern, this.input, this.offset);
         if (matches != null) {
             this.prevTokenOffset = this.offset;
@@ -220,8 +203,7 @@ public class Reader {
         return matches;
     }
     
-    public void skipWhitespaceAndComment()
-    {
+    public void skipWhitespaceAndComment() {
         if (this.commentDisabled)
             return;
         
@@ -240,8 +222,7 @@ public class Reader {
         this.moveWsOffset = true;
     }
     
-    public String readLeadingTrivia()
-    {
+    public String readLeadingTrivia() {
         this.skipWhitespaceAndComment();
         var thisLineStart = this.input.lastIndexOf("\n", this.offset);
         if (thisLineStart <= this.wsOffset)
@@ -253,8 +234,7 @@ public class Reader {
         return result;
     }
     
-    public String readIdentifier()
-    {
+    public String readIdentifier() {
         this.skipWhitespace();
         var idMatch = this.readRegex(this.identifierRegex);
         if (idMatch == null)
@@ -263,8 +243,7 @@ public class Reader {
         return idMatch[0];
     }
     
-    public String readNumber()
-    {
+    public String readNumber() {
         this.skipWhitespace();
         var numMatch = this.readRegex(this.numberRegex);
         if (numMatch == null)
@@ -276,36 +255,35 @@ public class Reader {
         return numMatch[0];
     }
     
-    public String readString()
-    {
+    public String readString() {
         this.skipWhitespace();
         
         var sepChar = this.input.substring(this.offset, this.offset + 1);
-        if (sepChar != "'" && sepChar != "\"")
+        if (!sepChar.equals("'") && !sepChar.equals("\""))
             return null;
         
         var str = "";
         this.readExactly(sepChar);
         while (!this.readExactly(sepChar)) {
             var chr = this.readChar();
-            if (chr == "\\") {
+            if (chr.equals("\\")) {
                 var esc = this.readChar();
-                if (esc == "n")
+                if (esc.equals("n"))
                     str += "\n";
-                else if (esc == "r")
+                else if (esc.equals("r"))
                     str += "\r";
-                else if (esc == "t")
+                else if (esc.equals("t"))
                     str += "\t";
-                else if (esc == "\\")
+                else if (esc.equals("\\"))
                     str += "\\";
-                else if (esc == sepChar)
+                else if (esc.equals(sepChar))
                     str += sepChar;
                 else
                     this.fail("invalid escape", this.offset - 1);
             }
             else {
                 var chrCode = (int)chr.charAt(0);
-                if (!(32 <= chrCode && chrCode <= 126) || chr == "\\" || chr == sepChar)
+                if (!(32 <= chrCode && chrCode <= 126) || chr.equals("\\") || chr.equals(sepChar))
                     this.fail("not allowed character (code=" + chrCode + ")", this.offset - 1);
                 str += chr;
             }
@@ -313,8 +291,7 @@ public class Reader {
         return str;
     }
     
-    public String expectIdentifier(String errorMsg)
-    {
+    public String expectIdentifier(String errorMsg) {
         var id = this.readIdentifier();
         if (id == null)
             this.fail(errorMsg != null ? errorMsg : "expected identifier");
@@ -325,8 +302,7 @@ public class Reader {
         return this.expectIdentifier(null);
     }
     
-    public String[] readModifiers(String[] modifiers)
-    {
+    public String[] readModifiers(String[] modifiers) {
         var result = new ArrayList<String>();
         while (true) {
             var success = false;

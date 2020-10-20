@@ -6,8 +6,7 @@ public class GenericsType implements IType {
         this.typeVarName = typeVarName;
     }
     
-    public String repr()
-    {
+    public String repr() {
         return "G:" + this.typeVarName;
     }
 }

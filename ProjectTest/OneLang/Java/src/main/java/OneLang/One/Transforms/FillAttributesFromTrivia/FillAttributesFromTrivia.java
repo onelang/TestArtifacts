@@ -1,19 +1,19 @@
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ArrayList;
 
 public class FillAttributesFromTrivia {
-    public static Map<String, String> processTrivia(String trivia)
-    {
-        var result = new HashMap<String, String>();
-        if (trivia != null && trivia != "") {
+    public static Map<String, String> processTrivia(String trivia) {
+        var result = new LinkedHashMap<String, String>();
+        if (trivia != null && !trivia.equals("")) {
             var regex = new RegExp("(?:\\n|^)\\s*(?://|#|/\\*\\*?)\\s*@([a-z0-9_.-]+) ?((?!\\n|\\*/|$).+)?");
             while (true) {
                 var match = regex.exec(trivia);
                 if (match == null)
                     break;
                 if (result.containsKey(match[1]))
-                    result.put(match[1], "\n" + match[2]);
+                    result.put(match[1], result.get(match[1]) + "\n" + match[2]);
                 else
                     result.put(match[1], match[2] != null ? match[2] : "true");
             }
@@ -21,14 +21,12 @@ public class FillAttributesFromTrivia {
         return result;
     }
     
-    private static void process(IHasAttributesAndTrivia[] items)
-    {
+    private static void process(IHasAttributesAndTrivia[] items) {
         for (var item : items)
             item.setAttributes(FillAttributesFromTrivia.processTrivia(item.getLeadingTrivia()));
     }
     
-    private static void processBlock(Block block)
-    {
+    private static void processBlock(Block block) {
         if (block == null)
             return;
         FillAttributesFromTrivia.process(block.statements.toArray(Statement[]::new));
@@ -48,8 +46,7 @@ public class FillAttributesFromTrivia {
         }
     }
     
-    private static void processMethod(IMethodBaseWithTrivia method)
-    {
+    private static void processMethod(IMethodBaseWithTrivia method) {
         if (method == null)
             return;
         FillAttributesFromTrivia.process(new IMethodBaseWithTrivia[] { method });
@@ -57,8 +54,7 @@ public class FillAttributesFromTrivia {
         FillAttributesFromTrivia.processBlock(method.getBody());
     }
     
-    public static void processFile(SourceFile file)
-    {
+    public static void processFile(SourceFile file) {
         FillAttributesFromTrivia.process(file.imports);
         FillAttributesFromTrivia.process(file.enums);
         FillAttributesFromTrivia.process(file.interfaces);
@@ -82,8 +78,7 @@ public class FillAttributesFromTrivia {
         }
     }
     
-    public static void processPackage(Package pkg)
-    {
+    public static void processPackage(Package pkg) {
         for (var file : pkg.files.values().toArray(SourceFile[]::new))
             FillAttributesFromTrivia.processFile(file);
     }

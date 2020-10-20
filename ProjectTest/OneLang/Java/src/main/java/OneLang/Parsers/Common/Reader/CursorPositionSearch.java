@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.ArrayList;
 
 public class CursorPositionSearch {
     public List<Integer> lineOffsets;
@@ -7,16 +8,15 @@ public class CursorPositionSearch {
     public CursorPositionSearch(String input)
     {
         this.input = input;
-        this.lineOffsets = List.of(0);
+        this.lineOffsets = new ArrayList<>(List.of(0));
         for (Integer i = 0; i < input.length(); i++) {
-            if (input.substring(i, i + 1) == "\n")
+            if (input.substring(i, i + 1).equals("\n"))
                 this.lineOffsets.add(i + 1);
         }
         this.lineOffsets.add(input.length());
     }
     
-    public Integer getLineIdxForOffset(Integer offset)
-    {
+    public Integer getLineIdxForOffset(Integer offset) {
         var low = 0;
         var high = this.lineOffsets.size() - 1;
         
@@ -35,8 +35,7 @@ public class CursorPositionSearch {
         return low - 1;
     }
     
-    public Cursor getCursorForOffset(Integer offset)
-    {
+    public Cursor getCursorForOffset(Integer offset) {
         var lineIdx = this.getLineIdxForOffset(offset);
         var lineStart = this.lineOffsets.get(lineIdx);
         var lineEnd = this.lineOffsets.get(lineIdx + 1);

@@ -50,7 +50,6 @@ namespace One.Ast
             //if (!allowGeneric && TypeHelper.isGeneric(actualType))
             //    throw new Error(`Actual type cannot be generic (${actualType.repr()})!`);
             
-            //if (actualType.repr() === "C:TsArray<Void>") debugger;
             this.actualType = actualType;
         }
         
@@ -71,6 +70,11 @@ namespace One.Ast
         {
             return this.actualType ?? this.expectedType;
         }
+        
+        public virtual IExpression copy()
+        {
+            throw new Error("Copy is not implemented!");
+        }
     }
     
     public class Identifier : Expression {
@@ -88,6 +92,11 @@ namespace One.Ast
         public NumericLiteral(string valueAsText): base()
         {
             this.valueAsText = valueAsText;
+        }
+        
+        public override IExpression copy()
+        {
+            return new NumericLiteral(this.valueAsText);
         }
     }
     
@@ -309,6 +318,11 @@ namespace One.Ast
         {
             this.object_ = object_;
             this.elementExpr = elementExpr;
+        }
+        
+        public override IExpression copy()
+        {
+            return new ElementAccessExpression(((Expression)this.object_.copy()), ((Expression)this.elementExpr.copy()));
         }
     }
     

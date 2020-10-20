@@ -1,5 +1,5 @@
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -10,13 +10,12 @@ public class PackageStateCapture {
     public PackageStateCapture(Package pkg)
     {
         this.pkg = pkg;
-        this.overviews = new HashMap<String, String>();
+        this.overviews = new LinkedHashMap<String, String>();
         for (var file : pkg.files.values().toArray(SourceFile[]::new))
-            this.overviews.put(file.sourcePath.path, new TSOverviewGenerator(false, true).generate(file));
+            this.overviews.put(file.sourcePath.path, new TSOverviewGenerator(false, false).generate(file));
     }
     
-    public String getSummary()
-    {
+    public String getSummary() {
         return Arrays.stream(Arrays.stream(this.overviews.keySet().toArray(String[]::new)).map(file -> "=== " + file + " ===\n\n" + this.overviews.get(file)).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
     }
 }

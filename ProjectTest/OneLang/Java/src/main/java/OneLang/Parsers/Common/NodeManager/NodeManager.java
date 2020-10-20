@@ -11,8 +11,7 @@ public class NodeManager {
         this.nodes = new ArrayList<Object>();
     }
     
-    public void addNode(Object node, Integer start)
-    {
+    public void addNode(Object node, Integer start) {
         this.nodes.add(node);
     }
 }

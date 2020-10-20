@@ -8,11 +8,11 @@ public class ForeachVariable implements IVariable, IReferencable {
     public String getName() { return this.name; }
     public void setName(String value) { this.name = value; }
     
-    IType type;
+    IType type = null;
     public IType getType() { return this.type; }
     public void setType(IType value) { this.type = value; }
     
-    MutabilityInfo mutability;
+    MutabilityInfo mutability = null;
     public MutabilityInfo getMutability() { return this.mutability; }
     public void setMutability(MutabilityInfo value) { this.mutability = value; }
     
@@ -22,8 +22,7 @@ public class ForeachVariable implements IVariable, IReferencable {
         this.references = new ArrayList<ForeachVariableReference>();
     }
     
-    public Reference createReference()
-    {
+    public Reference createReference() {
         return new ForeachVariableReference(this);
     }
 }

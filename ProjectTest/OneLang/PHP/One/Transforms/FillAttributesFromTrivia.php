@@ -24,7 +24,7 @@ class FillAttributesFromTrivia {
                 if ($match === null)
                     break;
                 if (array_key_exists($match[1], $result))
-                    $result[$match[1]] = "\n" . $match[2];
+                    $result[$match[1]] = @$result[$match[1]] ?? null . "\n" . $match[2];
                 else
                     $result[$match[1]] = $match[2] ?? "true";
             }

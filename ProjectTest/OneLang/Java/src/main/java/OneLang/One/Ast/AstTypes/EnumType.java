@@ -6,8 +6,7 @@ public class EnumType implements IType {
         this.decl = decl;
     }
     
-    public String repr()
-    {
+    public String repr() {
         return "E:" + this.decl.getName();
     }
 }

@@ -26,6 +26,10 @@ namespace Parsers.Common
                 if (padLen < minPadLen)
                     minPadLen = padLen;
             }
+            
+            if (minPadLen == 9999)
+                return lines.map(x => "").join("\n");
+            
             // @java final var minPadLen2 = minPadLen;
             var minPadLen2 = minPadLen;
             var newStr = lines.map(x => x.length() != 0 ? x.substr(minPadLen2) : x).join("\n");

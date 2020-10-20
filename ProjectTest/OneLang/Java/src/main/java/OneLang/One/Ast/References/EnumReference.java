@@ -8,8 +8,7 @@ public class EnumReference extends Reference {
         decl.references.add(this);
     }
     
-    public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric)
-    {
+    public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric) {
         throw new Error("EnumReference cannot have a type!");
     }
     

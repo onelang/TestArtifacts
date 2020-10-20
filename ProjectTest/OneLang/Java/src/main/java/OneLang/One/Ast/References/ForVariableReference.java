@@ -8,8 +8,7 @@ public class ForVariableReference extends VariableReference {
         decl.references.add(this);
     }
     
-    public IVariable getVariable()
-    {
+    public IVariable getVariable() {
         return this.decl;
     }
 }

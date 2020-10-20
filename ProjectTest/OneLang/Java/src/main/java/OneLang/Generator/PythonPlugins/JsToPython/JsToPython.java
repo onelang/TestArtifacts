@@ -13,42 +13,41 @@ public class JsToPython implements IGeneratorPlugin {
         this.unhandledMethods = new HashSet<String>();
     }
     
-    public String convertMethod(Class cls, Expression obj, Method method, Expression[] args)
-    {
-        if (cls.getName() == "TsArray") {
+    public String convertMethod(Class cls, Expression obj, Method method, Expression[] args) {
+        if (cls.getName().equals("TsArray")) {
             var objR = this.main.expr(obj);
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name == "includes")
+            if (method.name.equals("includes"))
                 return argsR[0] + " in " + objR;
-            else if (method.name == "set")
+            else if (method.name.equals("set"))
                 return objR + "[" + argsR[0] + "] = " + argsR[1];
-            else if (method.name == "get")
+            else if (method.name.equals("get"))
                 return objR + "[" + argsR[0] + "]";
-            else if (method.name == "join")
+            else if (method.name.equals("join"))
                 return argsR[0] + ".join(" + objR + ")";
-            else if (method.name == "map")
+            else if (method.name.equals("map"))
                 return "list(map(" + argsR[0] + ", " + objR + "))";
-            else if (method.name == "push")
+            else if (method.name.equals("push"))
                 return objR + ".append(" + argsR[0] + ")";
-            else if (method.name == "pop")
+            else if (method.name.equals("pop"))
                 return objR + ".pop()";
-            else if (method.name == "filter")
+            else if (method.name.equals("filter"))
                 return "list(filter(" + argsR[0] + ", " + objR + "))";
-            else if (method.name == "every")
+            else if (method.name.equals("every"))
                 return "ArrayHelper.every(" + argsR[0] + ", " + objR + ")";
-            else if (method.name == "some")
+            else if (method.name.equals("some"))
                 return "ArrayHelper.some(" + argsR[0] + ", " + objR + ")";
-            else if (method.name == "concat")
+            else if (method.name.equals("concat"))
                 return objR + " + " + argsR[0];
-            else if (method.name == "shift")
+            else if (method.name.equals("shift"))
                 return objR + ".pop(0)";
-            else if (method.name == "find")
+            else if (method.name.equals("find"))
                 return "next(filter(" + argsR[0] + ", " + objR + "), None)";
         }
-        else if (cls.getName() == "TsString") {
+        else if (cls.getName().equals("TsString")) {
             var objR = this.main.expr(obj);
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name == "split") {
+            if (method.name.equals("split")) {
                 if (args[0] instanceof RegexLiteral) {
                     var pattern = (((RegexLiteral)args[0])).pattern;
                     if (!pattern.startsWith("^")) {
@@ -60,7 +59,7 @@ public class JsToPython implements IGeneratorPlugin {
                 
                 return argsR[0] + ".split(" + objR + ")";
             }
-            else if (method.name == "replace") {
+            else if (method.name.equals("replace")) {
                 if (args[0] instanceof RegexLiteral) {
                     this.main.imports.add("import re");
                     return "re.sub(" + JSON.stringify((((RegexLiteral)args[0])).pattern) + ", " + argsR[1] + ", " + objR + ")";
@@ -68,66 +67,66 @@ public class JsToPython implements IGeneratorPlugin {
                 
                 return argsR[0] + ".replace(" + objR + ", " + argsR[1] + ")";
             }
-            else if (method.name == "includes")
+            else if (method.name.equals("includes"))
                 return argsR[0] + " in " + objR;
-            else if (method.name == "startsWith")
+            else if (method.name.equals("startsWith"))
                 return objR + ".startswith(" + Arrays.stream(argsR).collect(Collectors.joining(", ")) + ")";
-            else if (method.name == "indexOf")
+            else if (method.name.equals("indexOf"))
                 return objR + ".find(" + argsR[0] + ", " + argsR[1] + ")";
-            else if (method.name == "lastIndexOf")
+            else if (method.name.equals("lastIndexOf"))
                 return objR + ".rfind(" + argsR[0] + ", 0, " + argsR[1] + ")";
-            else if (method.name == "substr")
+            else if (method.name.equals("substr"))
                 return argsR.length == 1 ? objR + "[" + argsR[0] + ":]" : objR + "[" + argsR[0] + ":" + argsR[0] + " + " + argsR[1] + "]";
-            else if (method.name == "substring")
+            else if (method.name.equals("substring"))
                 return objR + "[" + argsR[0] + ":" + argsR[1] + "]";
-            else if (method.name == "repeat")
+            else if (method.name.equals("repeat"))
                 return objR + " * (" + argsR[0] + ")";
-            else if (method.name == "toUpperCase")
+            else if (method.name.equals("toUpperCase"))
                 return objR + ".upper()";
-            else if (method.name == "toLowerCase")
+            else if (method.name.equals("toLowerCase"))
                 return objR + ".lower()";
-            else if (method.name == "endsWith")
+            else if (method.name.equals("endsWith"))
                 return objR + ".endswith(" + argsR[0] + ")";
-            else if (method.name == "get")
+            else if (method.name.equals("get"))
                 return objR + "[" + argsR[0] + "]";
-            else if (method.name == "charCodeAt")
+            else if (method.name.equals("charCodeAt"))
                 return "ord(" + objR + "[" + argsR[0] + "])";
         }
-        else if (cls.getName() == "TsMap") {
+        else if (cls.getName().equals("TsMap")) {
             var objR = this.main.expr(obj);
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name == "set")
+            if (method.name.equals("set"))
                 return objR + "[" + argsR[0] + "] = " + argsR[1];
-            else if (method.name == "get")
+            else if (method.name.equals("get"))
                 return objR + ".get(" + argsR[0] + ")";
-            else if (method.name == "hasKey")
+            else if (method.name.equals("hasKey"))
                 return argsR[0] + " in " + objR;
         }
-        else if (cls.getName() == "Object") {
+        else if (cls.getName().equals("Object")) {
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name == "keys")
+            if (method.name.equals("keys"))
                 return argsR[0] + ".keys()";
-            else if (method.name == "values")
+            else if (method.name.equals("values"))
                 return argsR[0] + ".values()";
         }
-        else if (cls.getName() == "Set") {
+        else if (cls.getName().equals("Set")) {
             var objR = this.main.expr(obj);
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name == "values")
+            if (method.name.equals("values"))
                 return objR + ".keys()";
-            else if (method.name == "has")
+            else if (method.name.equals("has"))
                 return argsR[0] + " in " + objR;
-            else if (method.name == "add")
+            else if (method.name.equals("add"))
                 return objR + "[" + argsR[0] + "] = None";
         }
-        else if (cls.getName() == "ArrayHelper") {
+        else if (cls.getName().equals("ArrayHelper")) {
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name == "sortBy")
+            if (method.name.equals("sortBy"))
                 return "sorted(" + argsR[0] + ", key=" + argsR[1] + ")";
-            else if (method.name == "removeLastN")
+            else if (method.name.equals("removeLastN"))
                 return "del " + argsR[0] + "[-" + argsR[1] + ":]";
         }
-        else if (cls.getName() == "RegExpExecArray") {
+        else if (cls.getName().equals("RegExpExecArray")) {
             var objR = this.main.expr(obj);
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
             return objR + "[" + argsR[0] + "]";
@@ -144,18 +143,17 @@ public class JsToPython implements IGeneratorPlugin {
         return null;
     }
     
-    public String expr(IExpression expr)
-    {
+    public String expr(IExpression expr) {
         if (expr instanceof InstanceMethodCallExpression && ((InstanceMethodCallExpression)expr).object.actualType instanceof ClassType)
             return this.convertMethod(((ClassType)((InstanceMethodCallExpression)expr).object.actualType).decl, ((InstanceMethodCallExpression)expr).object, ((InstanceMethodCallExpression)expr).getMethod(), ((InstanceMethodCallExpression)expr).getArgs());
         else if (expr instanceof InstancePropertyReference && ((InstancePropertyReference)expr).object.actualType instanceof ClassType) {
-            if (((InstancePropertyReference)expr).property.parentClass.getName() == "TsString" && ((InstancePropertyReference)expr).property.getName() == "length")
+            if (((InstancePropertyReference)expr).property.parentClass.getName().equals("TsString") && ((InstancePropertyReference)expr).property.getName().equals("length"))
                 return "len(" + this.main.expr(((InstancePropertyReference)expr).object) + ")";
-            if (((InstancePropertyReference)expr).property.parentClass.getName() == "TsArray" && ((InstancePropertyReference)expr).property.getName() == "length")
+            if (((InstancePropertyReference)expr).property.parentClass.getName().equals("TsArray") && ((InstancePropertyReference)expr).property.getName().equals("length"))
                 return "len(" + this.main.expr(((InstancePropertyReference)expr).object) + ")";
         }
         else if (expr instanceof InstanceFieldReference && ((InstanceFieldReference)expr).object.actualType instanceof ClassType) {
-            if (((InstanceFieldReference)expr).field.parentInterface.getName() == "RegExpExecArray" && ((InstanceFieldReference)expr).field.getName() == "length")
+            if (((InstanceFieldReference)expr).field.parentInterface.getName().equals("RegExpExecArray") && ((InstanceFieldReference)expr).field.getName().equals("length"))
                 return "len(" + this.main.expr(((InstanceFieldReference)expr).object) + ")";
         }
         else if (expr instanceof StaticMethodCallExpression && ((StaticMethodCallExpression)expr).getMethod().parentInterface instanceof Class)
@@ -163,8 +161,7 @@ public class JsToPython implements IGeneratorPlugin {
         return null;
     }
     
-    public String stmt(Statement stmt)
-    {
+    public String stmt(Statement stmt) {
         return null;
     }
 }

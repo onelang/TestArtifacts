@@ -11,8 +11,7 @@ public class UnresolvedType implements IType, IHasTypeArguments {
         this.setTypeArguments(typeArguments);
     }
     
-    public String repr()
-    {
+    public String repr() {
         return "X:" + this.typeName + TypeHelper.argsRepr(this.getTypeArguments());
     }
 }

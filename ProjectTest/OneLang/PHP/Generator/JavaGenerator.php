@@ -68,6 +68,7 @@ use One\Ast\AstTypes\AnyType;
 use One\Ast\AstTypes\LambdaType;
 use One\Ast\AstTypes\NullType;
 use One\Ast\AstTypes\GenericsType;
+use One\Ast\AstTypes\TypeHelper;
 use One\Ast\References\ThisReference;
 use One\Ast\References\EnumReference;
 use One\Ast\References\ClassReference;
@@ -178,7 +179,7 @@ class JavaGenerator implements IGenerator {
                     return $this->type($t->typeArguments[0]) . "[]";
             }
             else if ($t->decl->name === "Map") {
-                $realType = $isNew ? "HashMap" : "Map";
+                $realType = $isNew ? "LinkedHashMap" : "Map";
                 $this->imports->add("java.util." . $realType);
                 return $realType . "<" . $this->type($t->typeArguments[0]) . ", " . $this->type($t->typeArguments[1]) . ">";
             }
@@ -193,7 +194,7 @@ class JavaGenerator implements IGenerator {
                 //this.imports.add("System");
                 return "Object";
             else if ($t->decl->name === "TsMap") {
-                $realType = $isNew ? "HashMap" : "Map";
+                $realType = $isNew ? "LinkedHashMap" : "Map";
                 $this->imports->add("java.util." . $realType);
                 return $realType . "<String, " . $this->type($t->typeArguments[0]) . ">";
             }
@@ -278,7 +279,8 @@ class JavaGenerator implements IGenerator {
                 return $this->expr($arg) . ".toArray(" . $this->type($itemType) . "[]::new)";
             else if (!$currentlyMutable && $shouldBeMutable) {
                 $this->imports->add("java.util.Arrays");
-                return "Arrays.asList(" . $this->expr($arg) . ")";
+                $this->imports->add("java.util.ArrayList");
+                return "new ArrayList<>(Arrays.asList(" . $this->expr($arg) . "))";
             }
         }
         return $this->expr($arg);
@@ -392,6 +394,16 @@ class JavaGenerator implements IGenerator {
             $modifies = in_array($expr->operator, array("=", "+=", "-="));
             if ($modifies && $expr->left instanceof InstanceFieldReference && $this->useGetterSetter($expr->left))
                 $res = $this->expr($expr->left->object) . ".set" . $this->ucFirst($expr->left->field->name) . "(" . $this->mutatedExpr($expr->right, $expr->operator === "=" ? $expr->left : null) . ")";
+            else if (in_array($expr->operator, array("==", "!="))) {
+                $lit = $this->currentClass->parentFile->literalTypes;
+                $leftType = $expr->left->getType();
+                $rightType = $expr->right->getType();
+                $useEquals = TypeHelper::equals($leftType, $lit->string) && $rightType !== null && TypeHelper::equals($rightType, $lit->string);
+                if ($useEquals)
+                    $res = ($expr->operator === "!=" ? "!" : "") . $this->expr($expr->left) . ".equals(" . $this->expr($expr->right) . ")";
+                else
+                    $res = $this->expr($expr->left) . " " . $expr->operator . " " . $this->expr($expr->right);
+            }
             else
                 $res = $this->expr($expr->left) . " " . $expr->operator . " " . $this->mutatedExpr($expr->right, $expr->operator === "=" ? $expr->left : null);
         }
@@ -400,7 +412,8 @@ class JavaGenerator implements IGenerator {
                 $res = "new " . $this->type($expr->actualType, true, true) . "()";
             else {
                 $this->imports->add("java.util.List");
-                $res = "List.of(" . implode(", ", array_map(function ($x) { return $this->expr($x); }, $expr->items)) . ")";
+                $this->imports->add("java.util.ArrayList");
+                $res = "new ArrayList<>(List.of(" . implode(", ", array_map(function ($x) { return $this->expr($x); }, $expr->items)) . "))";
             }
         }
         else if ($expr instanceof CastExpression)
@@ -574,7 +587,7 @@ class JavaGenerator implements IGenerator {
     
     function overloadMethodGen($prefix, $method, $params, $body) {
         $methods = array();
-        $methods[] = $prefix . "(" . implode(", ", array_map(function ($p) { return $this->varWoInit($p, null); }, $params)) . ")" . $body;
+        $methods[] = $prefix . "(" . implode(", ", array_map(function ($p) { return $this->varWoInit($p, $p); }, $params)) . ")" . $body;
         
         for ($paramLen = count($params) - 1; $paramLen >= 0; $paramLen--) {
             if ($params[$paramLen]->initializer === null)
@@ -599,7 +612,8 @@ class JavaGenerator implements IGenerator {
     function method($method, $isCls) {
         // TODO: final
         $prefix = ($isCls ? $this->vis($method->visibility) . " " : "") . $this->preIf("static ", $method->isStatic) . $this->preIf("/* throws */ ", $method->throws) . (count($method->typeArguments) > 0 ? "<" . implode(", ", $method->typeArguments) . "> " : "") . $this->type($method->returns, false) . " " . $this->name_($method->name);
-        return $this->overloadMethodGen($prefix, $method, $method->parameters, $method->body === null ? ";" : "\n{\n" . $this->pad($this->stmts($method->body->statements)) . "\n}");
+        
+        return $this->overloadMethodGen($prefix, $method, $method->parameters, $method->body === null ? ";" : " {\n" . $this->pad($this->stmts($method->body->statements)) . "\n}");
     }
     
     function class($cls) {
@@ -618,7 +632,8 @@ class JavaGenerator implements IGenerator {
                 $varType = $this->varType($field, $field);
                 $name = $this->name_($field->name);
                 $pname = $this->ucFirst($field->name);
-                $propReprs[] = $varType . " " . $name . ";\n" . $prefix . $varType . " get" . $pname . "() { return this." . $name . "; }\n" . $prefix . "void set" . $pname . "(" . $varType . " value) { this." . $name . " = value; }";
+                $setToFalse = TypeHelper::equals($field->type, $this->currentClass->parentFile->literalTypes->boolean);
+                $propReprs[] = $varType . " " . $name . ($setToFalse ? " = false" : ($field->initializer !== null ? " = " . $this->expr($field->initializer) : "")) . ";\n" . $prefix . $varType . " get" . $pname . "() { return this." . $name . "; }\n" . $prefix . "void set" . $pname . "(" . $varType . " value) { this." . $name . " = value; }";
             }
             else if ($isInitializerComplex) {
                 if ($field->isStatic)

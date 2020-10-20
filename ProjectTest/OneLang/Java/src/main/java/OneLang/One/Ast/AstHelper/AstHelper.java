@@ -1,11 +1,11 @@
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 
 public class AstHelper {
-    public static IInterface[] collectAllBaseInterfaces(IInterface intf)
-    {
+    public static IInterface[] collectAllBaseInterfaces(IInterface intf) {
         var result = new HashSet<IInterface>();
-        var toBeProcessed = List.of(intf);
+        var toBeProcessed = new ArrayList<>(List.of(intf));
         
         while (toBeProcessed.size() > 0) {
             var curr = toBeProcessed.remove(toBeProcessed.size() - 1);

@@ -1,5 +1,6 @@
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -15,34 +16,32 @@ public class PackagesFolderSource implements PackageSource {
         this("packages");
     }
     
-    public PackageBundle getPackageBundle(PackageId[] ids, Boolean cachedOnly)
-    {
+    public PackageBundle getPackageBundle(PackageId[] ids, Boolean cachedOnly) {
         throw new Error("Method not implemented.");
     }
     
-    public PackageBundle getAllCached()
-    {
-        var packages = new HashMap<String, PackageContent>();
+    public PackageBundle getAllCached() {
+        var packages = new LinkedHashMap<String, PackageContent>();
         var allFiles = OneFile.listFiles(this.packagesDir, true);
         for (var fn : allFiles) {
-            if (fn == "bundle.json")
+            if (fn.equals("bundle.json"))
                 continue;
             // TODO: hack
-            var pathParts = Arrays.asList(fn.split("/"));
+            var pathParts = new ArrayList<>(Arrays.asList(fn.split("/", -1)));
             // [0]=implementations/interfaces, [1]=package-name, [2:]=path
             var type = pathParts.remove(0);
             var pkgDir = pathParts.remove(0);
-            if (type != "implementations" && type != "interfaces")
+            if (!type.equals("implementations") && !type.equals("interfaces"))
                 continue;
             // skip e.g. bundle.json
             var pkgIdStr = type + "/" + pkgDir;
             var pkg = packages.get(pkgIdStr);
             if (pkg == null) {
-                var pkgDirParts = Arrays.asList(pkgDir.split("-"));
-                var version = pkgDirParts.remove(pkgDirParts.size() - 1).replaceAll(Pattern.quote("^v"), "");
-                var pkgType = type == "implementations" ? PackageType.Implementation : PackageType.Interface;
+                var pkgDirParts = new ArrayList<>(Arrays.asList(pkgDir.split("-", -1)));
+                var version = pkgDirParts.remove(pkgDirParts.size() - 1).replaceAll("^v", "");
+                var pkgType = type.equals("implementations") ? PackageType.Implementation : PackageType.Interface;
                 var pkgId = new PackageId(pkgType, pkgDirParts.stream().collect(Collectors.joining("-")), version);
-                pkg = new PackageContent(pkgId, new HashMap<String, String>(), true);
+                pkg = new PackageContent(pkgId, new LinkedHashMap<String, String>(), true);
                 packages.put(pkgIdStr, pkg);
             }
             pkg.files.put(pathParts.stream().collect(Collectors.joining("/")), OneFile.readText(this.packagesDir + "/" + fn));

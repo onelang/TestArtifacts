@@ -7,13 +7,11 @@ public class ResolveFuncCalls extends InferTypesPlugin {
         
     }
     
-    public Boolean canTransform(Expression expr)
-    {
+    public Boolean canTransform(Expression expr) {
         return expr instanceof UnresolvedCallExpression;
     }
     
-    public Expression transform(Expression expr)
-    {
+    public Expression transform(Expression expr) {
         var callExpr = ((UnresolvedCallExpression)expr);
         if (callExpr.func instanceof GlobalFunctionReference) {
             var newExpr = new GlobalFunctionCallExpression(((GlobalFunctionReference)callExpr.func).decl, callExpr.args);

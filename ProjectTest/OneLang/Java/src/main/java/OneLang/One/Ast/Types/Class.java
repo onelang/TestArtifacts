@@ -34,7 +34,7 @@ public class Class implements IHasAttributesAndTrivia, IInterface, IResolvedImpo
     public Method[] getMethods() { return this.methods; }
     public void setMethods(Method[] value) { this.methods = value; }
     
-    Boolean isExported;
+    Boolean isExported = false;
     public Boolean getIsExported() { return this.isExported; }
     public void setIsExported(Boolean value) { this.isExported = value; }
     
@@ -42,11 +42,11 @@ public class Class implements IHasAttributesAndTrivia, IInterface, IResolvedImpo
     public String getLeadingTrivia() { return this.leadingTrivia; }
     public void setLeadingTrivia(String value) { this.leadingTrivia = value; }
     
-    SourceFile parentFile;
+    SourceFile parentFile = null;
     public SourceFile getParentFile() { return this.parentFile; }
     public void setParentFile(SourceFile value) { this.parentFile = value; }
     
-    Map<String, String> attributes;
+    Map<String, String> attributes = null;
     public Map<String, String> getAttributes() { return this.attributes; }
     public void setAttributes(Map<String, String> value) { this.attributes = value; }
     
@@ -70,13 +70,11 @@ public class Class implements IHasAttributesAndTrivia, IInterface, IResolvedImpo
         this._baseInterfaceCache = null;
     }
     
-    public Reference createReference()
-    {
+    public Reference createReference() {
         return new ClassReference(this);
     }
     
-    public IInterface[] getAllBaseInterfaces()
-    {
+    public IInterface[] getAllBaseInterfaces() {
         if (this._baseInterfaceCache == null)
             this._baseInterfaceCache = AstHelper.collectAllBaseInterfaces(this);
         return this._baseInterfaceCache;

@@ -8,8 +8,11 @@ public class VariableDeclarationReference extends VariableReference {
         decl.references.add(this);
     }
     
-    public IVariable getVariable()
-    {
+    public IVariable getVariable() {
         return this.decl;
+    }
+    
+    public VariableDeclarationReference copy() {
+        return new VariableDeclarationReference(this.decl);
     }
 }

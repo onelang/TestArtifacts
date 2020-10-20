@@ -8,8 +8,7 @@ public class ClassReference extends Reference {
         decl.classReferences.add(this);
     }
     
-    public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric)
-    {
+    public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric) {
         throw new Error("ClassReference cannot have a type!");
     }
     

@@ -58,8 +58,7 @@ public class ErrorManager {
         this.errors = new ArrayList<CompilationError>();
     }
     
-    public void resetContext(AstTransformer transformer)
-    {
+    public void resetContext(AstTransformer transformer) {
         this.transformer = transformer;
     }
     
@@ -67,8 +66,7 @@ public class ErrorManager {
         this.resetContext(null);
     }
     
-    public void log(LogType type, String msg)
-    {
+    public void log(LogType type, String msg) {
         var t = this.transformer;
         var text = (t != null ? "[" + t.getName() + "] " : "") + msg;
         
@@ -97,18 +95,15 @@ public class ErrorManager {
             this.errors.add(new CompilationError(msg, type == LogType.Warning, t != null ? t.getName() : null, this.currentNode));
     }
     
-    public void info(String msg)
-    {
+    public void info(String msg) {
         this.log(LogType.Info, msg);
     }
     
-    public void warn(String msg)
-    {
+    public void warn(String msg) {
         this.log(LogType.Warning, msg);
     }
     
-    public void throw_(String msg)
-    {
+    public void throw_(String msg) {
         this.log(LogType.Error, msg);
     }
 }

@@ -3,8 +3,7 @@ import java.util.function.Function;
 import java.util.List;
 
 public class ArrayHelper {
-    public static <T> T[] sortBy(T[] items, Function<T, Integer> keySelector)
-    {
+    public static <T> T[] sortBy(T[] items, Function<T, Integer> keySelector) {
         // @java-import java.util.Arrays
         // @java Arrays.sort(items, (a, b) -> keySelector.apply(a) - keySelector.apply(b));
         // @java return items;
@@ -12,8 +11,7 @@ public class ArrayHelper {
         return items;
     }
     
-    public static <T> void removeLastN(List<T> items, Integer count)
-    {
+    public static <T> void removeLastN(List<T> items, Integer count) {
         // @java items.subList(items.size() - count, items.size()).clear();
         items.subList(items.size() - count, items.size()).clear();
     }

@@ -9,43 +9,35 @@ public class InferTypesPlugin {
         this.errorMan = null;
     }
     
-    public Boolean canTransform(Expression expr)
-    {
+    public Boolean canTransform(Expression expr) {
         return false;
     }
     
-    public Boolean canDetectType(Expression expr)
-    {
+    public Boolean canDetectType(Expression expr) {
         return false;
     }
     
-    public Expression transform(Expression expr)
-    {
+    public Expression transform(Expression expr) {
         return null;
     }
     
-    public Boolean detectType(Expression expr)
-    {
+    public Boolean detectType(Expression expr) {
         return false;
     }
     
-    public Boolean handleProperty(Property prop)
-    {
+    public Boolean handleProperty(Property prop) {
         return false;
     }
     
-    public Boolean handleLambda(Lambda lambda)
-    {
+    public Boolean handleLambda(Lambda lambda) {
         return false;
     }
     
-    public Boolean handleMethod(IMethodBase method)
-    {
+    public Boolean handleMethod(IMethodBase method) {
         return false;
     }
     
-    public Boolean handleStatement(Statement stmt)
-    {
+    public Boolean handleStatement(Statement stmt) {
         return false;
     }
 }

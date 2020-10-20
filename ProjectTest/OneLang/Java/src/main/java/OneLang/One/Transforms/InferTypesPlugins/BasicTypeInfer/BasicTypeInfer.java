@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.ArrayList;
 
 public class BasicTypeInfer extends InferTypesPlugin {
     public BasicTypeInfer()
@@ -7,13 +8,11 @@ public class BasicTypeInfer extends InferTypesPlugin {
         
     }
     
-    public Boolean canDetectType(Expression expr)
-    {
+    public Boolean canDetectType(Expression expr) {
         return true;
     }
     
-    public Boolean detectType(Expression expr)
-    {
+    public Boolean detectType(Expression expr) {
         var litTypes = this.main.currentFile.literalTypes;
         
         if (expr instanceof CastExpression)
@@ -51,15 +50,15 @@ public class BasicTypeInfer extends InferTypesPlugin {
             if (operandType instanceof ClassType) {
                 var opId = ((UnaryExpression)expr).operator + ((ClassType)operandType).decl.getName();
                 
-                if (opId == "-TsNumber")
+                if (opId.equals("-TsNumber"))
                     ((UnaryExpression)expr).setActualType(litTypes.numeric);
-                else if (opId == "+TsNumber")
+                else if (opId.equals("+TsNumber"))
                     ((UnaryExpression)expr).setActualType(litTypes.numeric);
-                else if (opId == "!TsBoolean")
+                else if (opId.equals("!TsBoolean"))
                     ((UnaryExpression)expr).setActualType(litTypes.boolean_);
-                else if (opId == "++TsNumber")
+                else if (opId.equals("++TsNumber"))
                     ((UnaryExpression)expr).setActualType(litTypes.numeric);
-                else if (opId == "--TsNumber")
+                else if (opId.equals("--TsNumber"))
                     ((UnaryExpression)expr).setActualType(litTypes.numeric);
                 else { }
             }
@@ -70,8 +69,8 @@ public class BasicTypeInfer extends InferTypesPlugin {
         else if (expr instanceof BinaryExpression) {
             var leftType = ((BinaryExpression)expr).left.getType();
             var rightType = ((BinaryExpression)expr).right.getType();
-            var isEqOrNeq = ((BinaryExpression)expr).operator == "==" || ((BinaryExpression)expr).operator == "!=";
-            if (((BinaryExpression)expr).operator == "=") {
+            var isEqOrNeq = ((BinaryExpression)expr).operator.equals("==") || ((BinaryExpression)expr).operator.equals("!=");
+            if (((BinaryExpression)expr).operator.equals("=")) {
                 if (TypeHelper.isAssignableTo(rightType, leftType))
                     ((BinaryExpression)expr).setActualType(leftType, false, true);
                 else
@@ -80,17 +79,17 @@ public class BasicTypeInfer extends InferTypesPlugin {
             else if (isEqOrNeq)
                 ((BinaryExpression)expr).setActualType(litTypes.boolean_);
             else if (leftType instanceof ClassType && rightType instanceof ClassType) {
-                if (((ClassType)leftType).decl == litTypes.numeric.decl && ((ClassType)rightType).decl == litTypes.numeric.decl && List.of("-", "+", "-=", "+=", "%", "/").stream().anyMatch(((BinaryExpression)expr).operator::equals))
+                if (((ClassType)leftType).decl == litTypes.numeric.decl && ((ClassType)rightType).decl == litTypes.numeric.decl && new ArrayList<>(List.of("-", "+", "-=", "+=", "%", "/")).stream().anyMatch(((BinaryExpression)expr).operator::equals))
                     ((BinaryExpression)expr).setActualType(litTypes.numeric);
-                else if (((ClassType)leftType).decl == litTypes.numeric.decl && ((ClassType)rightType).decl == litTypes.numeric.decl && List.of("<", "<=", ">", ">=").stream().anyMatch(((BinaryExpression)expr).operator::equals))
+                else if (((ClassType)leftType).decl == litTypes.numeric.decl && ((ClassType)rightType).decl == litTypes.numeric.decl && new ArrayList<>(List.of("<", "<=", ">", ">=")).stream().anyMatch(((BinaryExpression)expr).operator::equals))
                     ((BinaryExpression)expr).setActualType(litTypes.boolean_);
-                else if (((ClassType)leftType).decl == litTypes.string.decl && ((ClassType)rightType).decl == litTypes.string.decl && List.of("+", "+=").stream().anyMatch(((BinaryExpression)expr).operator::equals))
+                else if (((ClassType)leftType).decl == litTypes.string.decl && ((ClassType)rightType).decl == litTypes.string.decl && new ArrayList<>(List.of("+", "+=")).stream().anyMatch(((BinaryExpression)expr).operator::equals))
                     ((BinaryExpression)expr).setActualType(litTypes.string);
-                else if (((ClassType)leftType).decl == litTypes.string.decl && ((ClassType)rightType).decl == litTypes.string.decl && List.of("<=").stream().anyMatch(((BinaryExpression)expr).operator::equals))
+                else if (((ClassType)leftType).decl == litTypes.string.decl && ((ClassType)rightType).decl == litTypes.string.decl && new ArrayList<>(List.of("<=")).stream().anyMatch(((BinaryExpression)expr).operator::equals))
                     ((BinaryExpression)expr).setActualType(litTypes.boolean_);
-                else if (((ClassType)leftType).decl == litTypes.boolean_.decl && ((ClassType)rightType).decl == litTypes.boolean_.decl && List.of("||", "&&").stream().anyMatch(((BinaryExpression)expr).operator::equals))
+                else if (((ClassType)leftType).decl == litTypes.boolean_.decl && ((ClassType)rightType).decl == litTypes.boolean_.decl && new ArrayList<>(List.of("||", "&&")).stream().anyMatch(((BinaryExpression)expr).operator::equals))
                     ((BinaryExpression)expr).setActualType(litTypes.boolean_);
-                else if (((ClassType)leftType).decl == litTypes.string.decl && ((ClassType)rightType).decl == litTypes.map.decl && ((BinaryExpression)expr).operator == "in")
+                else if (((ClassType)leftType).decl == litTypes.string.decl && ((ClassType)rightType).decl == litTypes.map.decl && ((BinaryExpression)expr).operator.equals("in"))
                     ((BinaryExpression)expr).setActualType(litTypes.boolean_);
                 else { }
             }

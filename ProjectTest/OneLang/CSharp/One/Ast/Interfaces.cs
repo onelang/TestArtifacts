@@ -12,5 +12,7 @@ namespace One.Ast
         void setExpectedType(IType type, bool allowVoid);
         
         IType getType();
+        
+        IExpression copy();
     }
 }

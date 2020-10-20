@@ -1,5 +1,5 @@
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class GraphCycleDetector<TNode> {
     public Map<TNode, Boolean> nodeIsInPath;
@@ -11,15 +11,13 @@ public class GraphCycleDetector<TNode> {
         this.nodeIsInPath = null;
     }
     
-    public void findCycles(TNode[] nodes)
-    {
-        this.nodeIsInPath = new HashMap<TNode, Boolean>();
+    public void findCycles(TNode[] nodes) {
+        this.nodeIsInPath = new LinkedHashMap<TNode, Boolean>();
         for (var node : nodes)
             this.visitNode(node);
     }
     
-    public Boolean visitNode(TNode node)
-    {
+    public Boolean visitNode(TNode node) {
         if (!this.nodeIsInPath.containsKey(node)) {
             // untouched node
             this.nodeIsInPath.put(node, true);

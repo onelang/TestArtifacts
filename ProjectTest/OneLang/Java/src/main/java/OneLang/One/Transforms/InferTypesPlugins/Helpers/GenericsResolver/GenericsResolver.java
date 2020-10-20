@@ -1,5 +1,5 @@
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Arrays;
 
 public class GenericsResolver {
@@ -7,27 +7,23 @@ public class GenericsResolver {
     
     public GenericsResolver()
     {
-        this.resolutionMap = new HashMap<String, IType>();
+        this.resolutionMap = new LinkedHashMap<String, IType>();
     }
     
-    public static GenericsResolver fromObject(Expression object)
-    {
+    public static GenericsResolver fromObject(Expression object) {
         var resolver = new GenericsResolver();
         resolver.collectClassGenericsFromObject(object);
         return resolver;
     }
     
-    public void addResolution(String typeVarName, IType actualType)
-    {
+    public void addResolution(String typeVarName, IType actualType) {
         var prevRes = this.resolutionMap.get(typeVarName);
         if (prevRes != null && !TypeHelper.equals(prevRes, actualType))
             throw new Error("Resolving '" + typeVarName + "' is ambiguous, " + prevRes.repr() + " <> " + actualType.repr());
-        //if (typeVarName === "T2" && actualType instanceof VoidType) debugger;
         this.resolutionMap.put(typeVarName, actualType);
     }
     
-    public void collectFromMethodCall(IMethodCallExpression methodCall)
-    {
+    public void collectFromMethodCall(IMethodCallExpression methodCall) {
         if (methodCall.getTypeArgs().length == 0)
             return;
         if (methodCall.getTypeArgs().length != methodCall.getMethod().typeArguments.length)
@@ -36,8 +32,7 @@ public class GenericsResolver {
             this.addResolution(methodCall.getMethod().typeArguments[i], methodCall.getTypeArgs()[i]);
     }
     
-    public void collectClassGenericsFromObject(Expression actualObject)
-    {
+    public void collectClassGenericsFromObject(Expression actualObject) {
         var actualType = actualObject.getType();
         if (actualType instanceof ClassType) {
             if (!this.collectResolutionsFromActualType(((ClassType)actualType).decl.type, ((ClassType)actualType))) { }
@@ -49,8 +44,7 @@ public class GenericsResolver {
             throw new Error("Expected ClassType or InterfaceType, got " + (actualType != null ? actualType.repr() : "<null>"));
     }
     
-    public Boolean collectResolutionsFromActualType(IType genericType, IType actualType)
-    {
+    public Boolean collectResolutionsFromActualType(IType genericType, IType actualType) {
         if (!TypeHelper.isGeneric(genericType))
             return true;
         if (genericType instanceof GenericsType) {
@@ -81,8 +75,7 @@ public class GenericsResolver {
         return false;
     }
     
-    public IType resolveType(IType type, Boolean mustResolveAllGenerics)
-    {
+    public IType resolveType(IType type, Boolean mustResolveAllGenerics) {
         if (type instanceof GenericsType) {
             var resolvedType = this.resolutionMap.get(((GenericsType)type).typeVarName);
             if (resolvedType == null && mustResolveAllGenerics)

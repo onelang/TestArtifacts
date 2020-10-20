@@ -10,8 +10,7 @@ public class InstancePropertyReference extends VariableReference {
         property.instanceReferences.add(this);
     }
     
-    public IVariable getVariable()
-    {
+    public IVariable getVariable() {
         return this.property;
     }
 }

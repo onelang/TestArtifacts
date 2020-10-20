@@ -8,8 +8,7 @@ public class ResolveMethodCalls extends InferTypesPlugin {
         
     }
     
-    protected Method findMethod(IInterface cls, String methodName, Boolean isStatic, Expression[] args)
-    {
+    protected Method findMethod(IInterface cls, String methodName, Boolean isStatic, Expression[] args) {
         var allBases = cls instanceof Class ? Arrays.stream(((Class)cls).getAllBaseInterfaces()).filter(x -> x instanceof Class).toArray(IInterface[]::new) : cls.getAllBaseInterfaces();
         
         var methods = new ArrayList<Method>();
@@ -17,7 +16,7 @@ public class ResolveMethodCalls extends InferTypesPlugin {
             for (var m : base.getMethods()) {
                 var minLen = Arrays.stream(m.getParameters()).filter(p -> p.getInitializer() == null).toArray(MethodParameter[]::new).length;
                 var maxLen = m.getParameters().length;
-                var match = m.name == methodName && m.getIsStatic() == isStatic && minLen <= args.length && args.length <= maxLen;
+                var match = m.name.equals(methodName) && m.getIsStatic() == isStatic && minLen <= args.length && args.length <= maxLen;
                 if (match)
                     methods.add(m);
             }
@@ -34,8 +33,7 @@ public class ResolveMethodCalls extends InferTypesPlugin {
         return methods.get(0);
     }
     
-    protected void resolveReturnType(IMethodCallExpression expr, GenericsResolver genericsResolver)
-    {
+    protected void resolveReturnType(IMethodCallExpression expr, GenericsResolver genericsResolver) {
         genericsResolver.collectFromMethodCall(expr);
         
         for (Integer i = 0; i < expr.getArgs().length; i++) {
@@ -55,8 +53,7 @@ public class ResolveMethodCalls extends InferTypesPlugin {
         expr.setActualType(genericsResolver.resolveType(expr.getMethod().returns, true), true, expr instanceof InstanceMethodCallExpression && TypeHelper.isGeneric(((InstanceMethodCallExpression)expr).object.getType()));
     }
     
-    protected Expression transformMethodCall(UnresolvedMethodCallExpression expr)
-    {
+    protected Expression transformMethodCall(UnresolvedMethodCallExpression expr) {
         if (expr.object instanceof ClassReference || expr.object instanceof StaticThisReference) {
             var cls = expr.object instanceof ClassReference ? ((ClassReference)expr.object).decl : expr.object instanceof StaticThisReference ? ((StaticThisReference)expr.object).cls : null;
             var method = this.findMethod(cls, expr.methodName, true, expr.args);
@@ -84,13 +81,11 @@ public class ResolveMethodCalls extends InferTypesPlugin {
         }
     }
     
-    public Boolean canTransform(Expression expr)
-    {
+    public Boolean canTransform(Expression expr) {
         return expr instanceof UnresolvedMethodCallExpression && !(((UnresolvedMethodCallExpression)expr).actualType instanceof AnyType);
     }
     
-    public Expression transform(Expression expr)
-    {
+    public Expression transform(Expression expr) {
         return this.transformMethodCall(((UnresolvedMethodCallExpression)expr));
     }
 }

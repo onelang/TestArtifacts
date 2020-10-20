@@ -14,7 +14,7 @@ namespace One.Transforms
                     if (match == null)
                         break;
                     if (result.hasKey(match.get(1)))
-                        result.set(match.get(1), "\n" + match.get(2));
+                        result.set(match.get(1), result.get(match.get(1)) + "\n" + match.get(2));
                     else
                         result.set(match.get(1), match.get(2) ?? "true");
                 }

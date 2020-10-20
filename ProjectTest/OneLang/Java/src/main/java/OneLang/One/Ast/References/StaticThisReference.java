@@ -8,8 +8,7 @@ public class StaticThisReference extends Reference {
         cls.staticThisReferences.add(this);
     }
     
-    public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric)
-    {
+    public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric) {
         throw new Error("StaticThisReference cannot have a type!");
     }
     

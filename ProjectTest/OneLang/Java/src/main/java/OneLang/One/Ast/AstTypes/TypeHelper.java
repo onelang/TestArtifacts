@@ -2,13 +2,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class TypeHelper {
-    public static String argsRepr(IType[] args)
-    {
+    public static String argsRepr(IType[] args) {
         return args.length == 0 ? "" : "<" + Arrays.stream(Arrays.stream(args).map(x -> x.repr()).toArray(String[]::new)).collect(Collectors.joining(", ")) + ">";
     }
     
-    public static Boolean isGeneric(IType type)
-    {
+    public static Boolean isGeneric(IType type) {
         if (type instanceof GenericsType)
             return true;
         else if (type instanceof ClassType)
@@ -21,8 +19,7 @@ public class TypeHelper {
             return false;
     }
     
-    public static Boolean equals(IType type1, IType type2)
-    {
+    public static Boolean equals(IType type1, IType type2) {
         if (type1 == null || type2 == null)
             throw new Error("Type is missing!");
         if (type1 instanceof VoidType && type2 instanceof VoidType)
@@ -30,7 +27,7 @@ public class TypeHelper {
         if (type1 instanceof AnyType && type2 instanceof AnyType)
             return true;
         if (type1 instanceof GenericsType && type2 instanceof GenericsType)
-            return ((GenericsType)type1).typeVarName == ((GenericsType)type2).typeVarName;
+            return ((GenericsType)type1).typeVarName.equals(((GenericsType)type2).typeVarName);
         if (type1 instanceof EnumType && type2 instanceof EnumType)
             return ((EnumType)type1).decl == ((EnumType)type2).decl;
         if (type1 instanceof LambdaType && type2 instanceof LambdaType)
@@ -42,8 +39,7 @@ public class TypeHelper {
         return false;
     }
     
-    public static Boolean isAssignableTo(IType toBeAssigned, IType whereTo)
-    {
+    public static Boolean isAssignableTo(IType toBeAssigned, IType whereTo) {
         // AnyType can assigned to any type except to void
         if (toBeAssigned instanceof AnyType && !(whereTo instanceof VoidType))
             return true;
