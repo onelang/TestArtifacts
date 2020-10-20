@@ -61,11 +61,12 @@ class RegExp {
     }
 
     function exec($input) {
-        //print("preg_match, offset={$this->lastIndex}\n");
+        //print("preg_match, pattern='{$this->regex}', offset={$this->lastIndex}, input='" . str_replace("\n", "\\n", substr($input, $this->lastIndex, 30)) . "'\n");
         if (preg_match($this->regex, $input, $matches, PREG_OFFSET_CAPTURE, $this->lastIndex) === 0)
             return null;
 
-        $this->lastIndex = $matches[0][1] + 1;
+        //var_dump($matches);
+        $this->lastIndex = $matches[0][1] + strlen($matches[0][0]);
         //print("new offset={$this->lastIndex}\n");
         $result = array_map(function($x){ return $x[0]; }, $matches);
         //var_dump($result);
