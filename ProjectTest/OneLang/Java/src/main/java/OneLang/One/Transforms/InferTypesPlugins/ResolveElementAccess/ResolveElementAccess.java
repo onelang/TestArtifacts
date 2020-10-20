@@ -10,7 +10,7 @@ public class ResolveElementAccess extends InferTypesPlugin {
     }
     
     public Boolean canTransform(Expression expr) {
-        var isSet = expr instanceof BinaryExpression && ((BinaryExpression)expr).left instanceof ElementAccessExpression && new ArrayList<>(List.of("=", "+=", "-=")).stream().anyMatch(((BinaryExpression)expr).operator::equals);
+        var isSet = expr instanceof BinaryExpression && ((BinaryExpression)expr).left instanceof ElementAccessExpression && new ArrayList<>(List.of("=")).stream().anyMatch(((BinaryExpression)expr).operator::equals);
         return expr instanceof ElementAccessExpression || isSet;
     }
     
@@ -19,6 +19,7 @@ public class ResolveElementAccess extends InferTypesPlugin {
     }
     
     public Expression transform(Expression expr) {
+        // TODO: convert ElementAccess to ElementGet and ElementSet expressions
         if (expr instanceof BinaryExpression && ((BinaryExpression)expr).left instanceof ElementAccessExpression) {
             ((ElementAccessExpression)((BinaryExpression)expr).left).object = this.main.runPluginsOn(((ElementAccessExpression)((BinaryExpression)expr).left).object);
             if (this.isMapOrArrayType(((ElementAccessExpression)((BinaryExpression)expr).left).object.getType())) {

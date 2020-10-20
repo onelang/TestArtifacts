@@ -12,7 +12,7 @@ public class VariableDeclarationReference extends VariableReference {
         return this.decl;
     }
     
-    public VariableDeclarationReference copy() {
+    public IExpression copy() {
         return new VariableDeclarationReference(this.decl);
     }
 }

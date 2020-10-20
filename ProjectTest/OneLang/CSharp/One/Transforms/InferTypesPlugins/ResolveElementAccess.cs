@@ -13,7 +13,7 @@ namespace One.Transforms.InferTypesPlugins
         
         public override bool canTransform(Expression expr)
         {
-            var isSet = expr is BinaryExpression binExpr && binExpr.left is ElementAccessExpression && new List<string> { "=", "+=", "-=" }.includes(binExpr.operator_);
+            var isSet = expr is BinaryExpression binExpr && binExpr.left is ElementAccessExpression && new List<string> { "=" }.includes(binExpr.operator_);
             return expr is ElementAccessExpression || isSet;
         }
         
@@ -24,6 +24,7 @@ namespace One.Transforms.InferTypesPlugins
         
         public override Expression transform(Expression expr)
         {
+            // TODO: convert ElementAccess to ElementGet and ElementSet expressions
             if (expr is BinaryExpression binExpr2 && binExpr2.left is ElementAccessExpression elemAccExpr) {
                 elemAccExpr.object_ = this.main.runPluginsOn(elemAccExpr.object_);
                 if (this.isMapOrArrayType(elemAccExpr.object_.getType())) {

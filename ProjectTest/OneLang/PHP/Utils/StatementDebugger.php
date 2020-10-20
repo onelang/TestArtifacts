@@ -16,7 +16,7 @@ class StatementDebugger extends AstTransformer {
         $this->stmtFilterRegex = $stmtFilterRegex;
     }
     
-    function visitExpression($expr) {
+    protected function visitExpression($expr) {
         // optimization: no need to process these...
         return null;
     }
@@ -26,7 +26,7 @@ class StatementDebugger extends AstTransformer {
         parent::visitField($field);
     }
     
-    function visitStatement($stmt) {
+    protected function visitStatement($stmt) {
         $stmtRepr = TSOverviewGenerator::$preview->stmt($stmt);
         // if (new RegExp(this.stmtFilterRegex).test(stmtRepr))
         //     debugger;

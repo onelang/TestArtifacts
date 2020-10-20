@@ -23,6 +23,7 @@ use One\Ast\Expressions\TypeRestriction;
 use One\Ast\AstTypes\EnumType;
 use One\Ast\AstTypes\ClassType;
 use One\Ast\AstTypes\TypeHelper;
+use One\Ast\Interfaces\IExpression;
 use One\Ast\Interfaces\IType;
 
 interface IReferencable {

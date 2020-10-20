@@ -7,7 +7,7 @@ public class StatementDebugger extends AstTransformer {
         this.stmtFilterRegex = stmtFilterRegex;
     }
     
-    public Expression visitExpression(Expression expr) {
+    protected Expression visitExpression(Expression expr) {
         // optimization: no need to process these...
         return null;
     }
@@ -17,7 +17,7 @@ public class StatementDebugger extends AstTransformer {
         super.visitField(field);
     }
     
-    public Statement visitStatement(Statement stmt) {
+    protected Statement visitStatement(Statement stmt) {
         var stmtRepr = TSOverviewGenerator.preview.stmt(stmt);
         // if (new RegExp(this.stmtFilterRegex).test(stmtRepr))
         //     debugger;

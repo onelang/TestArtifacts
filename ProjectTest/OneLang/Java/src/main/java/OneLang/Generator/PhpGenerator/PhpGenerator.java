@@ -304,6 +304,8 @@ public class PhpGenerator implements IGenerator {
                     op = ".=";
             }
             
+            // const useParen = expr.left instanceof BinaryExpression && expr.left.operator !== expr.operator;
+            // const leftExpr = this.expr(expr.left);
             
             res = this.expr(((BinaryExpression)expr).left) + " " + op + " " + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator.equals("=") ? ((BinaryExpression)expr).left : null);
         }

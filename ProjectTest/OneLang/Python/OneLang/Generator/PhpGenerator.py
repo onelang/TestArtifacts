@@ -273,6 +273,8 @@ class PhpGenerator:
                 elif op == "+=":
                     op = ".="
             
+            # const useParen = expr.left instanceof BinaryExpression && expr.left.operator !== expr.operator;
+            # const leftExpr = this.expr(expr.left);
             
             res = f'''{self.expr(expr.left)} {op} {self.mutated_expr(expr.right, expr.left if expr.operator == "=" else None)}'''
         elif isinstance(expr, exprs.ArrayLiteral):

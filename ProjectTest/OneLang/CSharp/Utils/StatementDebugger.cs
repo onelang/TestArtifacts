@@ -12,7 +12,7 @@ namespace Utils
             this.stmtFilterRegex = stmtFilterRegex;
         }
         
-        public override Expression visitExpression(Expression expr)
+        protected override Expression visitExpression(Expression expr)
         {
             // optimization: no need to process these...
             return null;
@@ -24,7 +24,7 @@ namespace Utils
             base.visitField(field);
         }
         
-        public override Statement visitStatement(Statement stmt)
+        protected override Statement visitStatement(Statement stmt)
         {
             var stmtRepr = TSOverviewGenerator.preview.stmt(stmt);
             // if (new RegExp(this.stmtFilterRegex).test(stmtRepr))

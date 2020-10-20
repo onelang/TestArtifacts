@@ -320,6 +320,8 @@ namespace Generator
                         op = ".=";
                 }
                 
+                // const useParen = expr.left instanceof BinaryExpression && expr.left.operator !== expr.operator;
+                // const leftExpr = this.expr(expr.left);
                 
                 res = $"{this.expr(binExpr.left)} {op} {this.mutatedExpr(binExpr.right, binExpr.operator_ == "=" ? binExpr.left : null)}";
             }

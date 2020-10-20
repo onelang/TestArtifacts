@@ -171,7 +171,7 @@ namespace One.Ast
             return this.decl;
         }
         
-        public override VariableDeclarationReference copy()
+        public override IExpression copy()
         {
             return new VariableDeclarationReference(this.decl);
         }

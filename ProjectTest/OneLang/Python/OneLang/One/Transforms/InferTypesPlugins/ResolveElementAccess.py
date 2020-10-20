@@ -10,13 +10,14 @@ class ResolveElementAccess(inferTypesPlug.InferTypesPlugin):
         super().__init__("ResolveElementAccess")
     
     def can_transform(self, expr):
-        is_set = isinstance(expr, exprs.BinaryExpression) and isinstance(expr.left, exprs.ElementAccessExpression) and expr.operator in ["=", "+=", "-="]
+        is_set = isinstance(expr, exprs.BinaryExpression) and isinstance(expr.left, exprs.ElementAccessExpression) and expr.operator in ["="]
         return isinstance(expr, exprs.ElementAccessExpression) or is_set
     
     def is_map_or_array_type(self, type):
         return astTypes.TypeHelper.is_assignable_to(type, self.main.current_file.literal_types.map) or ArrayHelper.some(lambda x: astTypes.TypeHelper.is_assignable_to(type, x), self.main.current_file.array_types)
     
     def transform(self, expr):
+        # TODO: convert ElementAccess to ElementGet and ElementSet expressions
         if isinstance(expr, exprs.BinaryExpression) and isinstance(expr.left, exprs.ElementAccessExpression):
             expr.left.object = self.main.run_plugins_on(expr.left.object)
             if self.is_map_or_array_type(expr.left.object.get_type()):
