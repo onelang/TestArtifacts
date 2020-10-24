@@ -16,7 +16,8 @@ public class FillAttributesFromTrivia {
                     // @php $result[$match[1]] .= "\n" . $match[2];
                     // @python result[match[1]] += "\n" + match[2]
                     // @csharp result[match[1]] += "\n" + match[2];
-                    result.get(match[1]) += "\n" + match[2];
+                    // @java result.put(match[1], result.get(match[1]) + "\n" + match[2]);
+                    result.put(match[1], result.get(match[1]) + "\n" + match[2]);
                 else
                     result.put(match[1], match[2] != null ? match[2] : "true");
             }

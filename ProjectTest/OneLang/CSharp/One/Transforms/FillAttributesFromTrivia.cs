@@ -17,6 +17,7 @@ namespace One.Transforms
                         // @php $result[$match[1]] .= "\n" . $match[2];
                         // @python result[match[1]] += "\n" + match[2]
                         // @csharp result[match[1]] += "\n" + match[2];
+                        // @java result.put(match[1], result.get(match[1]) + "\n" + match[2]);
                         result[match[1]] += "\n" + match[2];
                     else
                         result.set(match.get(1), match.get(2) ?? "true");
