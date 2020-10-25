@@ -86,7 +86,7 @@ use One\Ast\References\EnumMemberReference;
 use One\Ast\References\StaticThisReference;
 use One\Ast\References\VariableReference;
 use One\ErrorManager\ErrorManager;
-use One\ITransform\ITransformer;
+use One\ITransformer\ITransformer;
 use One\Ast\Interfaces\IType;
 
 class AstTransformer implements ITransformer {

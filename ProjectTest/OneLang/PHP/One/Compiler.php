@@ -26,7 +26,7 @@ use One\Transforms\InferTypes\InferTypes;
 use One\Transforms\CollectInheritanceInfo\CollectInheritanceInfo;
 use One\Transforms\FillMutabilityInfo\FillMutabilityInfo;
 use One\AstTransformer\AstTransformer;
-use One\ITransform\ITransformer;
+use One\ITransformer\ITransformer;
 use One\Transforms\LambdaCaptureCollector\LambdaCaptureCollector;
 
 interface ICompilerHooks {

@@ -5,7 +5,7 @@ import OneLang.One.Ast.Statements as stats
 import OneLang.One.Ast.Types as types
 import OneLang.One.Ast.References as refs
 import OneLang.One.ErrorManager as errorMan
-import OneLang.One.ITransform as iTrans
+import OneLang.One.ITransformer as iTrans
 import OneLang.One.Ast.Interfaces as ints
 
 class AstTransformer:

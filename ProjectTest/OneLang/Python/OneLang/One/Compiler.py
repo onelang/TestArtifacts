@@ -16,7 +16,7 @@ import OneLang.One.Transforms.InferTypes as inferTypes
 import OneLang.One.Transforms.CollectInheritanceInfo as collInhInfo
 import OneLang.One.Transforms.FillMutabilityInfo as fillMutInfo
 import OneLang.One.AstTransformer as astTrans
-import OneLang.One.ITransform as iTrans
+import OneLang.One.ITransformer as iTrans
 import OneLang.One.Transforms.LambdaCaptureCollector as lambdCaptColl
 
 class Compiler:

@@ -5,7 +5,7 @@ namespace One\Transforms\CollectInheritanceInfo;
 use One\Ast\Types\Package;
 use One\Ast\Types\Class_;
 use One\Ast\Types\Interface_;
-use One\ITransform\ITransformer;
+use One\ITransformer\ITransformer;
 
 class CollectInheritanceInfo implements ITransformer {
     public $name;

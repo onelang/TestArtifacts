@@ -1,6 +1,6 @@
 from OneLangStdLib import *
 import OneLang.One.Ast.Types as types
-import OneLang.One.ITransform as iTrans
+import OneLang.One.ITransformer as iTrans
 
 class CollectInheritanceInfo:
     def __init__(self):
