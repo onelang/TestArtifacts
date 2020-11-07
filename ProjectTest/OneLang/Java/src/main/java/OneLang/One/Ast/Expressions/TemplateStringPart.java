@@ -1,4 +1,4 @@
-public class TemplateStringPart {
+public class TemplateStringPart implements IAstNode {
     public Boolean isLiteral;
     public String literalText;
     public Expression expression;

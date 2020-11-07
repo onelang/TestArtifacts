@@ -1,8 +1,6 @@
 import java.util.Map;
 
 public class Statement implements IHasAttributesAndTrivia, IAstNode {
-    public Block parentBlock;
-    
     String leadingTrivia = null;
     public String getLeadingTrivia() { return this.leadingTrivia; }
     public void setLeadingTrivia(String value) { this.leadingTrivia = value; }

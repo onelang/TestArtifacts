@@ -27,10 +27,9 @@ namespace One.Transforms.InferTypesPlugins
             // TODO: convert ElementAccess to ElementGet and ElementSet expressions
             if (expr is BinaryExpression binExpr2 && binExpr2.left is ElementAccessExpression elemAccExpr) {
                 elemAccExpr.object_ = this.main.runPluginsOn(elemAccExpr.object_);
-                if (this.isMapOrArrayType(elemAccExpr.object_.getType())) {
-                    var right = binExpr2.operator_ == "=" ? binExpr2.right : new BinaryExpression(((Expression)elemAccExpr.copy()), binExpr2.operator_ == "+=" ? "+" : "-", binExpr2.right);
-                    return new UnresolvedMethodCallExpression(elemAccExpr.object_, "set", new IType[0], new Expression[] { elemAccExpr.elementExpr, right });
-                }
+                if (this.isMapOrArrayType(elemAccExpr.object_.getType()))
+                    //const right = expr.operator === "=" ? expr.right : new BinaryExpression(<Expression>expr.left.clone(), expr.operator === "+=" ? "+" : "-", expr.right);
+                    return new UnresolvedMethodCallExpression(elemAccExpr.object_, "set", new IType[0], new Expression[] { elemAccExpr.elementExpr, binExpr2.right });
             }
             else if (expr is ElementAccessExpression elemAccExpr2) {
                 elemAccExpr2.object_ = this.main.runPluginsOn(elemAccExpr2.object_);

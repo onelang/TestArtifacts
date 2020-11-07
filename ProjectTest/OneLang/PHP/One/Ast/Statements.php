@@ -19,7 +19,6 @@ use One\Ast\Interfaces\IType;
 class Statement implements IHasAttributesAndTrivia, IAstNode {
     public $leadingTrivia;
     public $attributes;
-    public $parentBlock;
     
     function __construct() {
         

@@ -229,7 +229,7 @@ namespace Parsers
                 var newType = this.parseType();
                 this.reader.expectToken(">");
                 var expression = this.parseExpression();
-                return new CastExpression(newType, expression, null);
+                return new CastExpression(newType, expression);
             }
             else if (this.reader.readToken("/")) {
                 var pattern = "";
@@ -526,8 +526,11 @@ namespace Parsers
                     
                     // init should be used as only the constructor's method parameter, but not again as a field initializer too
                     //   (otherwise it would called twice if cloned or cause AST error is just referenced from two separate places)
-                    if (isPublic)
-                        fields.push(new Field(paramName, typeAndInit.type, null, Visibility.Public, false, param, param.leadingTrivia));
+                    if (isPublic) {
+                        var field = new Field(paramName, typeAndInit.type, null, Visibility.Public, false, param, param.leadingTrivia);
+                        fields.push(field);
+                        param.fieldDecl = field;
+                    }
                     
                     this.nodeManager.addNode(param, paramStart);
                     this.context.pop();
@@ -655,9 +658,10 @@ namespace Parsers
                 var memberLeadingTrivia = this.reader.readLeadingTrivia();
                 
                 var memberStart = this.reader.offset;
-                var modifiers = this.reader.readModifiers(new string[] { "static", "public", "protected", "private", "readonly", "async" });
+                var modifiers = this.reader.readModifiers(new string[] { "static", "public", "protected", "private", "readonly", "async", "abstract" });
                 var isStatic = modifiers.includes("static");
                 var isAsync = modifiers.includes("async");
+                var isAbstract = modifiers.includes("abstract");
                 var visibility = modifiers.includes("private") ? Visibility.Private : modifiers.includes("protected") ? Visibility.Protected : Visibility.Public;
                 
                 var memberName = this.parseIdentifierOrString();
@@ -667,7 +671,7 @@ namespace Parsers
                     var isConstructor = memberName == "constructor";
                     
                     IMethodBase member;
-                    var sig = this.parseMethodSignature(isConstructor, declarationOnly);
+                    var sig = this.parseMethodSignature(isConstructor, declarationOnly || isAbstract);
                     if (isConstructor) {
                         member = constructor = new Constructor(sig.params_, sig.body, sig.superCallArgs, memberLeadingTrivia);
                         foreach (var field in sig.fields)

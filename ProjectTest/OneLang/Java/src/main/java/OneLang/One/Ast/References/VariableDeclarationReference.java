@@ -11,8 +11,4 @@ public class VariableDeclarationReference extends VariableReference {
     public IVariable getVariable() {
         return this.decl;
     }
-    
-    public IExpression copy() {
-        return new VariableDeclarationReference(this.decl);
-    }
 }

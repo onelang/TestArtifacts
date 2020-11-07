@@ -106,7 +106,8 @@ class InstanceOfImplicitCast extends AstTransformer {
             $result2 = $result;
             $match = \OneLang\ArrayHelper::find($this->casts, function ($cast) use ($result2) { return $this->equals($result2, $cast->expr); });
             if ($match !== null) {
-                $castExpr = new CastExpression($match->checkType, $result, $match);
+                $castExpr = new CastExpression($match->checkType, $result);
+                $castExpr->instanceOfCast = $match;
                 $match->implicitCasts[] = $castExpr;
                 $result = $castExpr;
             }

@@ -1,7 +1,7 @@
 import java.util.List;
 import java.util.ArrayList;
 
-public class EnumMember {
+public class EnumMember implements IAstNode {
     public String name;
     public Enum parentEnum;
     public List<EnumMemberReference> references;

@@ -22,10 +22,9 @@ public class ResolveElementAccess extends InferTypesPlugin {
         // TODO: convert ElementAccess to ElementGet and ElementSet expressions
         if (expr instanceof BinaryExpression && ((BinaryExpression)expr).left instanceof ElementAccessExpression) {
             ((ElementAccessExpression)((BinaryExpression)expr).left).object = this.main.runPluginsOn(((ElementAccessExpression)((BinaryExpression)expr).left).object);
-            if (this.isMapOrArrayType(((ElementAccessExpression)((BinaryExpression)expr).left).object.getType())) {
-                var right = ((BinaryExpression)expr).operator.equals("=") ? ((BinaryExpression)expr).right : new BinaryExpression(((Expression)((ElementAccessExpression)((BinaryExpression)expr).left).copy()), ((BinaryExpression)expr).operator.equals("+=") ? "+" : "-", ((BinaryExpression)expr).right);
-                return new UnresolvedMethodCallExpression(((ElementAccessExpression)((BinaryExpression)expr).left).object, "set", new IType[0], new Expression[] { ((ElementAccessExpression)((BinaryExpression)expr).left).elementExpr, right });
-            }
+            if (this.isMapOrArrayType(((ElementAccessExpression)((BinaryExpression)expr).left).object.getType()))
+                //const right = expr.operator === "=" ? expr.right : new BinaryExpression(<Expression>expr.left.clone(), expr.operator === "+=" ? "+" : "-", expr.right);
+                return new UnresolvedMethodCallExpression(((ElementAccessExpression)((BinaryExpression)expr).left).object, "set", new IType[0], new Expression[] { ((ElementAccessExpression)((BinaryExpression)expr).left).elementExpr, ((BinaryExpression)expr).right });
         }
         else if (expr instanceof ElementAccessExpression) {
             ((ElementAccessExpression)expr).object = this.main.runPluginsOn(((ElementAccessExpression)expr).object);

@@ -81,10 +81,6 @@ class Expression implements IAstNode, IExpression {
     function getType() {
         return $this->actualType ?? $this->expectedType;
     }
-    
-    function copy() {
-        throw new \OneLang\Error("Copy is not implemented!");
-    }
 }
 
 class Identifier extends Expression {
@@ -102,10 +98,6 @@ class NumericLiteral extends Expression {
     function __construct($valueAsText) {
         parent::__construct();
         $this->valueAsText = $valueAsText;
-    }
-    
-    function copy() {
-        return new NumericLiteral($this->valueAsText);
     }
 }
 
@@ -153,7 +145,7 @@ class RegexLiteral extends Expression {
     }
 }
 
-class TemplateStringPart {
+class TemplateStringPart implements IAstNode {
     public $isLiteral;
     public $literalText;
     public $expression;
@@ -191,7 +183,7 @@ class ArrayLiteral extends Expression {
     }
 }
 
-class MapLiteralItem {
+class MapLiteralItem implements IAstNode {
     public $key;
     public $value;
     
@@ -274,11 +266,11 @@ class CastExpression extends Expression {
     public $expression;
     public $instanceOfCast;
     
-    function __construct($newType, $expression, $instanceOfCast) {
+    function __construct($newType, $expression) {
         parent::__construct();
         $this->newType = $newType;
         $this->expression = $expression;
-        $this->instanceOfCast = $instanceOfCast;
+        $this->instanceOfCast = null;
     }
 }
 
@@ -323,10 +315,6 @@ class ElementAccessExpression extends Expression {
         parent::__construct();
         $this->object = $object;
         $this->elementExpr = $elementExpr;
-    }
-    
-    function copy() {
-        return new ElementAccessExpression($this->object->copy(), $this->elementExpr->copy());
     }
 }
 

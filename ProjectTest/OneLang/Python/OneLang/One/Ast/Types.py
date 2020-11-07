@@ -14,10 +14,10 @@ class VISIBILITY(Enum):
     PRIVATE = 3
 
 class MutabilityInfo:
-    def __init__(self):
-        self.unused = True
-        self.reassigned = False
-        self.mutated = False
+    def __init__(self, unused, reassigned, mutated):
+        self.unused = unused
+        self.reassigned = reassigned
+        self.mutated = mutated
 
 class ExportedScope:
     def __init__(self):
@@ -262,6 +262,7 @@ class MethodParameter:
         self.type = type
         self.initializer = initializer
         self.leading_trivia = leading_trivia
+        self.field_decl = None
         self.parent_method = None
         self.attributes = None
         self.references = []

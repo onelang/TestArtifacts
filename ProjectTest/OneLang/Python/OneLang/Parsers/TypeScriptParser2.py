@@ -184,7 +184,7 @@ class TypeScriptParser2:
             new_type = self.parse_type()
             self.reader.expect_token(">")
             expression = self.parse_expression()
-            return exprs.CastExpression(new_type, expression, None)
+            return exprs.CastExpression(new_type, expression)
         elif self.reader.read_token("/"):
             pattern = ""
             while True:
@@ -443,7 +443,9 @@ class TypeScriptParser2:
                 # init should be used as only the constructor's method parameter, but not again as a field initializer too
                 #   (otherwise it would called twice if cloned or cause AST error is just referenced from two separate places)
                 if is_public:
-                    fields.append(types.Field(param_name, type_and_init.type, None, types.VISIBILITY.PUBLIC, False, param, param.leading_trivia))
+                    field = types.Field(param_name, type_and_init.type, None, types.VISIBILITY.PUBLIC, False, param, param.leading_trivia)
+                    fields.append(field)
+                    param.field_decl = field
                 
                 self.node_manager.add_node(param, param_start)
                 self.context.pop()
@@ -562,9 +564,10 @@ class TypeScriptParser2:
             member_leading_trivia = self.reader.read_leading_trivia()
             
             member_start = self.reader.offset
-            modifiers = self.reader.read_modifiers(["static", "public", "protected", "private", "readonly", "async"])
+            modifiers = self.reader.read_modifiers(["static", "public", "protected", "private", "readonly", "async", "abstract"])
             is_static = "static" in modifiers
             is_async = "async" in modifiers
+            is_abstract = "abstract" in modifiers
             visibility = types.VISIBILITY.PRIVATE if "private" in modifiers else types.VISIBILITY.PROTECTED if "protected" in modifiers else types.VISIBILITY.PUBLIC
             
             member_name = self.parse_identifier_or_string()
@@ -574,7 +577,7 @@ class TypeScriptParser2:
                 is_constructor = member_name == "constructor"
                 
                 
-                sig = self.parse_method_signature(is_constructor, declaration_only)
+                sig = self.parse_method_signature(is_constructor, declaration_only or is_abstract)
                 if is_constructor:
                     member = constructor = types.Constructor(sig.params, sig.body, sig.super_call_args, member_leading_trivia)
                     for field in sig.fields:

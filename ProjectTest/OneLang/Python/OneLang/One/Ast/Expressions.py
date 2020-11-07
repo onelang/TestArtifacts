@@ -57,9 +57,6 @@ class Expression:
     
     def get_type(self):
         return self.actual_type or self.expected_type
-    
-    def copy(self):
-        raise Error("Copy is not implemented!")
 
 class Identifier(Expression):
     def __init__(self, text):
@@ -70,9 +67,6 @@ class NumericLiteral(Expression):
     def __init__(self, value_as_text):
         self.value_as_text = value_as_text
         super().__init__()
-    
-    def copy(self):
-        return NumericLiteral(self.value_as_text)
 
 class BooleanLiteral(Expression):
     def __init__(self, bool_value):
@@ -167,10 +161,10 @@ class UnaryExpression(Expression):
         super().__init__()
 
 class CastExpression(Expression):
-    def __init__(self, new_type, expression, instance_of_cast):
+    def __init__(self, new_type, expression):
         self.new_type = new_type
         self.expression = expression
-        self.instance_of_cast = instance_of_cast
+        self.instance_of_cast = None
         super().__init__()
 
 class ParenthesizedExpression(Expression):
@@ -196,9 +190,6 @@ class ElementAccessExpression(Expression):
         self.object = object
         self.element_expr = element_expr
         super().__init__()
-    
-    def copy(self):
-        return ElementAccessExpression(self.object.copy(), self.element_expr.copy())
 
 class UnresolvedCallExpression(Expression):
     def __init__(self, func, type_args, args):

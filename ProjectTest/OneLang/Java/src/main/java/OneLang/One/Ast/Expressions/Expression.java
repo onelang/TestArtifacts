@@ -64,8 +64,4 @@ public class Expression implements IAstNode, IExpression {
     public IType getType() {
         return this.actualType != null ? this.actualType : this.expectedType;
     }
-    
-    public IExpression copy() {
-        throw new Error("Copy is not implemented!");
-    }
 }

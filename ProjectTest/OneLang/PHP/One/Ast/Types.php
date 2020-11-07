@@ -77,9 +77,15 @@ interface IMethodBaseWithTrivia extends IMethodBase, IHasAttributesAndTrivia {
 }
 
 class MutabilityInfo {
-    public $unused = true;
-    public $reassigned = false;
-    public $mutated = false;
+    public $unused;
+    public $reassigned;
+    public $mutated;
+    
+    function __construct($unused, $reassigned, $mutated) {
+        $this->unused = $unused;
+        $this->reassigned = $reassigned;
+        $this->mutated = $mutated;
+    }
 }
 
 class ExportedScope {
@@ -280,7 +286,7 @@ class Import implements IHasAttributesAndTrivia, ISourceFileMember {
     }
 }
 
-class Enum implements IHasAttributesAndTrivia, IResolvedImportable, ISourceFileMember, IReferencable {
+class Enum implements IAstNode, IHasAttributesAndTrivia, IResolvedImportable, ISourceFileMember, IReferencable {
     public $name;
     public $values;
     public $isExported;
@@ -304,7 +310,7 @@ class Enum implements IHasAttributesAndTrivia, IResolvedImportable, ISourceFileM
     }
 }
 
-class EnumMember {
+class EnumMember implements IAstNode {
     public $name;
     public $parentEnum;
     public $references;
@@ -469,6 +475,7 @@ class MethodParameter implements IVariableWithInitializer, IReferencable, IHasAt
     public $type;
     public $initializer;
     public $leadingTrivia;
+    public $fieldDecl;
     public $parentMethod;
     public $attributes;
     public $references;
@@ -479,6 +486,7 @@ class MethodParameter implements IVariableWithInitializer, IReferencable, IHasAt
         $this->type = $type;
         $this->initializer = $initializer;
         $this->leadingTrivia = $leadingTrivia;
+        $this->fieldDecl = null;
         $this->parentMethod = null;
         $this->references = array();
     }

@@ -282,7 +282,7 @@ namespace Parsers.Common
             if (left is ParenthesizedExpression parExpr && parExpr.expression is Identifier ident) {
                 var expr = this.parse(0, false);
                 if (expr != null)
-                    return new CastExpression(new UnresolvedType(ident.text, new IType[0]), expr, null);
+                    return new CastExpression(new UnresolvedType(ident.text, new IType[0]), expr);
             }
             
             return left;

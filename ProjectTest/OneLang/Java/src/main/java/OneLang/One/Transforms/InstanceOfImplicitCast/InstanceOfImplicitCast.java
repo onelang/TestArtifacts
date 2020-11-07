@@ -83,7 +83,8 @@ public class InstanceOfImplicitCast extends AstTransformer {
             final var result2 = result;
             var match = this.casts.stream().filter(cast -> this.equals(result2, cast.expr)).findFirst().orElse(null);
             if (match != null) {
-                var castExpr = new CastExpression(match.checkType, result, match);
+                var castExpr = new CastExpression(match.checkType, result);
+                castExpr.instanceOfCast = match;
                 match.implicitCasts.add(castExpr);
                 result = castExpr;
             }

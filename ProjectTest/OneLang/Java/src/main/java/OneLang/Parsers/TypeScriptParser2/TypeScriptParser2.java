@@ -204,7 +204,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             var newType = this.parseType();
             this.reader.expectToken(">");
             var expression = this.parseExpression();
-            return new CastExpression(newType, expression, null);
+            return new CastExpression(newType, expression);
         }
         else if (this.reader.readToken("/")) {
             var pattern = "";
@@ -495,8 +495,11 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                 
                 // init should be used as only the constructor's method parameter, but not again as a field initializer too
                 //   (otherwise it would called twice if cloned or cause AST error is just referenced from two separate places)
-                if (isPublic)
-                    fields.add(new Field(paramName, typeAndInit.type, null, Visibility.Public, false, param, param.getLeadingTrivia()));
+                if (isPublic) {
+                    var field = new Field(paramName, typeAndInit.type, null, Visibility.Public, false, param, param.getLeadingTrivia());
+                    fields.add(field);
+                    param.fieldDecl = field;
+                }
                 
                 this.getNodeManager().addNode(param, paramStart);
                 this.context.remove(this.context.size() - 1);
@@ -620,9 +623,10 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             var memberLeadingTrivia = this.reader.readLeadingTrivia();
             
             var memberStart = this.reader.offset;
-            var modifiers = this.reader.readModifiers(new String[] { "static", "public", "protected", "private", "readonly", "async" });
+            var modifiers = this.reader.readModifiers(new String[] { "static", "public", "protected", "private", "readonly", "async", "abstract" });
             var isStatic = Arrays.stream(modifiers).anyMatch("static"::equals);
             var isAsync = Arrays.stream(modifiers).anyMatch("async"::equals);
+            var isAbstract = Arrays.stream(modifiers).anyMatch("abstract"::equals);
             var visibility = Arrays.stream(modifiers).anyMatch("private"::equals) ? Visibility.Private : Arrays.stream(modifiers).anyMatch("protected"::equals) ? Visibility.Protected : Visibility.Public;
             
             var memberName = this.parseIdentifierOrString();
@@ -632,7 +636,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                 var isConstructor = memberName.equals("constructor");
                 
                 IMethodBase member;
-                var sig = this.parseMethodSignature(isConstructor, declarationOnly);
+                var sig = this.parseMethodSignature(isConstructor, declarationOnly || isAbstract);
                 if (isConstructor) {
                     member = constructor = new Constructor(sig.params, sig.body, sig.superCallArgs, memberLeadingTrivia);
                     for (var field : sig.fields)

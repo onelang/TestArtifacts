@@ -12,7 +12,7 @@ namespace One.Transforms
         protected IVariable getVar(VariableReference varRef)
         {
             var v = varRef.getVariable();
-            v.mutability = v.mutability ?? new MutabilityInfo();
+            v.mutability = v.mutability ?? new MutabilityInfo(true, false, false);
             return v;
         }
         
@@ -43,7 +43,7 @@ namespace One.Transforms
         
         protected override IVariable visitVariable(IVariable variable)
         {
-            variable.mutability = variable.mutability ?? new MutabilityInfo();
+            variable.mutability = variable.mutability ?? new MutabilityInfo(true, false, false);
             return null;
         }
     }

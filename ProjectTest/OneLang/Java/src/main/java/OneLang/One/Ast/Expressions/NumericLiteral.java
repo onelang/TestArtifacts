@@ -6,8 +6,4 @@ public class NumericLiteral extends Expression {
         super();
         this.valueAsText = valueAsText;
     }
-    
-    public IExpression copy() {
-        return new NumericLiteral(this.valueAsText);
-    }
 }

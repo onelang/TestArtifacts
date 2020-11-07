@@ -170,11 +170,6 @@ namespace One.Ast
         {
             return this.decl;
         }
-        
-        public override IExpression copy()
-        {
-            return new VariableDeclarationReference(this.decl);
-        }
     }
     
     public class ForVariableReference : VariableReference {

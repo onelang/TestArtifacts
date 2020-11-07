@@ -65,9 +65,16 @@ namespace One.Ast
     }
     
     public class MutabilityInfo {
-        public bool unused = true;
-        public bool reassigned = false;
-        public bool mutated = false;
+        public bool unused;
+        public bool reassigned;
+        public bool mutated;
+        
+        public MutabilityInfo(bool unused, bool reassigned, bool mutated)
+        {
+            this.unused = unused;
+            this.reassigned = reassigned;
+            this.mutated = mutated;
+        }
     }
     
     public class ExportedScope {
@@ -285,7 +292,7 @@ namespace One.Ast
         }
     }
     
-    public class Enum_ : IHasAttributesAndTrivia, IResolvedImportable, ISourceFileMember, IReferencable {
+    public class Enum_ : IAstNode, IHasAttributesAndTrivia, IResolvedImportable, ISourceFileMember, IReferencable {
         public string name { get; set; }
         public EnumMember[] values;
         public bool isExported { get; set; }
@@ -311,7 +318,7 @@ namespace One.Ast
         }
     }
     
-    public class EnumMember {
+    public class EnumMember : IAstNode {
         public string name;
         public Enum_ parentEnum;
         public List<EnumMemberReference> references;
@@ -485,6 +492,7 @@ namespace One.Ast
         public IType type { get; set; }
         public Expression initializer { get; set; }
         public string leadingTrivia { get; set; }
+        public Field fieldDecl;
         public IMethodBase parentMethod;
         public Dictionary<string, string> attributes { get; set; }
         public List<MethodParameterReference> references;
@@ -496,6 +504,7 @@ namespace One.Ast
             this.type = type;
             this.initializer = initializer;
             this.leadingTrivia = leadingTrivia;
+            this.fieldDecl = null;
             this.parentMethod = null;
             this.references = new List<MethodParameterReference>();
         }

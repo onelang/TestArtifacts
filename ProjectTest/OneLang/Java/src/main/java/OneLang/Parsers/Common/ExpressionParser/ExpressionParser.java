@@ -257,7 +257,7 @@ public class ExpressionParser {
         if (left instanceof ParenthesizedExpression && ((ParenthesizedExpression)left).expression instanceof Identifier) {
             var expr = this.parse(0, false);
             if (expr != null)
-                return new CastExpression(new UnresolvedType(((Identifier)((ParenthesizedExpression)left).expression).text, new IType[0]), expr, null);
+                return new CastExpression(new UnresolvedType(((Identifier)((ParenthesizedExpression)left).expression).text, new IType[0]), expr);
         }
         
         return left;

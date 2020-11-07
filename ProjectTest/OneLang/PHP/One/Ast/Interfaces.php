@@ -12,6 +12,4 @@ interface IExpression {
     function setExpectedType($type, $allowVoid);
     
     function getType();
-    
-    function copy();
 }

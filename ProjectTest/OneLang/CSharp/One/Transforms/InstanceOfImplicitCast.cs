@@ -91,7 +91,8 @@ namespace One.Transforms
                 var result2 = result;
                 var match = this.casts.find(cast => this.equals(result2, cast.expr));
                 if (match != null) {
-                    var castExpr = new CastExpression(match.checkType, result, match);
+                    var castExpr = new CastExpression(match.checkType, result);
+                    castExpr.instanceOfCast = match;
                     match.implicitCasts.push(castExpr);
                     result = castExpr;
                 }

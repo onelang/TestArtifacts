@@ -1,4 +1,4 @@
-public class MapLiteralItem {
+public class MapLiteralItem implements IAstNode {
     public String key;
     public Expression value;
     

@@ -7,7 +7,7 @@ public class FillMutabilityInfo extends AstTransformer {
     
     protected IVariable getVar(VariableReference varRef) {
         var v = varRef.getVariable();
-        v.setMutability(v.getMutability() != null ? v.getMutability() : new MutabilityInfo());
+        v.setMutability(v.getMutability() != null ? v.getMutability() : new MutabilityInfo(true, false, false));
         return v;
     }
     
@@ -34,7 +34,7 @@ public class FillMutabilityInfo extends AstTransformer {
     }
     
     protected IVariable visitVariable(IVariable variable) {
-        variable.setMutability(variable.getMutability() != null ? variable.getMutability() : new MutabilityInfo());
+        variable.setMutability(variable.getMutability() != null ? variable.getMutability() : new MutabilityInfo(true, false, false));
         return null;
     }
 }

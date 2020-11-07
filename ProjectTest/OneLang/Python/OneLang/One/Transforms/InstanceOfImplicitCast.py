@@ -76,7 +76,8 @@ class InstanceOfImplicitCast(astTrans.AstTransformer):
             result2 = result
             match = next(filter(lambda cast: self.equals(result2, cast.expr), self.casts), None)
             if match != None:
-                cast_expr = exprs.CastExpression(match.check_type, result, match)
+                cast_expr = exprs.CastExpression(match.check_type, result)
+                cast_expr.instance_of_cast = match
                 match.implicit_casts.append(cast_expr)
                 result = cast_expr
         return result

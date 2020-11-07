@@ -8,8 +8,4 @@ public class ElementAccessExpression extends Expression {
         this.object = object;
         this.elementExpr = elementExpr;
     }
-    
-    public IExpression copy() {
-        return new ElementAccessExpression(((Expression)this.object.copy()), ((Expression)this.elementExpr.copy()));
-    }
 }

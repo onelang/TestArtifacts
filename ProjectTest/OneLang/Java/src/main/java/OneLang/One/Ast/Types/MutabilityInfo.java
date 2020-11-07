@@ -1,5 +1,12 @@
 public class MutabilityInfo {
-    public Boolean unused = true;
-    public Boolean reassigned = false;
-    public Boolean mutated = false;
+    public Boolean unused;
+    public Boolean reassigned;
+    public Boolean mutated;
+    
+    public MutabilityInfo(Boolean unused, Boolean reassigned, Boolean mutated)
+    {
+        this.unused = unused;
+        this.reassigned = reassigned;
+        this.mutated = mutated;
+    }
 }

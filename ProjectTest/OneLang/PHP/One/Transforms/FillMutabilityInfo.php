@@ -19,7 +19,7 @@ class FillMutabilityInfo extends AstTransformer {
     
     protected function getVar($varRef) {
         $v = $varRef->getVariable();
-        $v->mutability = $v->mutability ?? new MutabilityInfo();
+        $v->mutability = $v->mutability ?? new MutabilityInfo(true, false, false);
         return $v;
     }
     
@@ -46,7 +46,7 @@ class FillMutabilityInfo extends AstTransformer {
     }
     
     protected function visitVariable($variable) {
-        $variable->mutability = $variable->mutability ?? new MutabilityInfo();
+        $variable->mutability = $variable->mutability ?? new MutabilityInfo(true, false, false);
         return null;
     }
 }

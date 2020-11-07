@@ -227,6 +227,6 @@ class ExpressionParser:
         if isinstance(left, exprs.ParenthesizedExpression) and isinstance(left.expression, exprs.Identifier):
             expr = self.parse(0, False)
             if expr != None:
-                return exprs.CastExpression(astTypes.UnresolvedType(left.expression.text, []), expr, None)
+                return exprs.CastExpression(astTypes.UnresolvedType(left.expression.text, []), expr)
         
         return left

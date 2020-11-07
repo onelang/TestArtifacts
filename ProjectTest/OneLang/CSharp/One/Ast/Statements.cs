@@ -7,7 +7,6 @@ namespace One.Ast
     public class Statement : IHasAttributesAndTrivia, IAstNode {
         public string leadingTrivia { get; set; }
         public Dictionary<string, string> attributes { get; set; }
-        public Block parentBlock;
         
         public Statement()
         {

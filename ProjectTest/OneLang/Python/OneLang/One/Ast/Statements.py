@@ -8,7 +8,6 @@ class Statement:
     def __init__(self):
         self.leading_trivia = None
         self.attributes = None
-        self.parent_block = None
 
 class IfStatement(Statement):
     def __init__(self, condition, then, else_):

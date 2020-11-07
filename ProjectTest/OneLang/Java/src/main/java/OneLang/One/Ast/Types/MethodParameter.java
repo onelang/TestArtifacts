@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class MethodParameter implements IVariableWithInitializer, IReferencable, IHasAttributesAndTrivia {
+    public Field fieldDecl;
     public IMethodBase parentMethod;
     public List<MethodParameterReference> references;
     
@@ -36,6 +37,7 @@ public class MethodParameter implements IVariableWithInitializer, IReferencable,
         this.setType(type);
         this.setInitializer(initializer);
         this.setLeadingTrivia(leadingTrivia);
+        this.fieldDecl = null;
         this.parentMethod = null;
         this.references = new ArrayList<MethodParameterReference>();
     }

@@ -108,9 +108,6 @@ class VariableDeclarationReference(VariableReference):
     
     def get_variable(self):
         return self.decl
-    
-    def copy(self):
-        return VariableDeclarationReference(self.decl)
 
 class ForVariableReference(VariableReference):
     def __init__(self, decl):

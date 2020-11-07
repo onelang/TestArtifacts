@@ -289,7 +289,7 @@ class ExpressionParser {
         if ($left instanceof ParenthesizedExpression && $left->expression instanceof Identifier) {
             $expr = $this->parse(0, false);
             if ($expr !== null)
-                return new CastExpression(new UnresolvedType($left->expression->text, array()), $expr, null);
+                return new CastExpression(new UnresolvedType($left->expression->text, array()), $expr);
         }
         
         return $left;

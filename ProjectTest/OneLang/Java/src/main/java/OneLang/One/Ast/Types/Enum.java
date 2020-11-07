@@ -2,7 +2,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Enum implements IHasAttributesAndTrivia, IResolvedImportable, ISourceFileMember, IReferencable {
+public class Enum implements IAstNode, IHasAttributesAndTrivia, IResolvedImportable, ISourceFileMember, IReferencable {
     public EnumMember[] values;
     public List<EnumReference> references;
     public EnumType type;

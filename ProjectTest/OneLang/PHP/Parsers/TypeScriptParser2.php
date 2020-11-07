@@ -283,7 +283,7 @@ class TypeScriptParser2 implements IParser, IExpressionParserHooks, IReaderHooks
             $newType = $this->parseType();
             $this->reader->expectToken(">");
             $expression = $this->parseExpression();
-            return new CastExpression($newType, $expression, null);
+            return new CastExpression($newType, $expression);
         }
         else if ($this->reader->readToken("/")) {
             $pattern = "";
@@ -570,8 +570,11 @@ class TypeScriptParser2 implements IParser, IExpressionParserHooks, IReaderHooks
                 
                 // init should be used as only the constructor's method parameter, but not again as a field initializer too
                 //   (otherwise it would called twice if cloned or cause AST error is just referenced from two separate places)
-                if ($isPublic)
-                    $fields[] = new Field($paramName, $typeAndInit->type, null, Visibility::PUBLIC, false, $param, $param->leadingTrivia);
+                if ($isPublic) {
+                    $field = new Field($paramName, $typeAndInit->type, null, Visibility::PUBLIC, false, $param, $param->leadingTrivia);
+                    $fields[] = $field;
+                    $param->fieldDecl = $field;
+                }
                 
                 $this->nodeManager->addNode($param, $paramStart);
                 array_pop($this->context);
@@ -695,9 +698,10 @@ class TypeScriptParser2 implements IParser, IExpressionParserHooks, IReaderHooks
             $memberLeadingTrivia = $this->reader->readLeadingTrivia();
             
             $memberStart = $this->reader->offset;
-            $modifiers = $this->reader->readModifiers(array("static", "public", "protected", "private", "readonly", "async"));
+            $modifiers = $this->reader->readModifiers(array("static", "public", "protected", "private", "readonly", "async", "abstract"));
             $isStatic = in_array("static", $modifiers);
             $isAsync = in_array("async", $modifiers);
+            $isAbstract = in_array("abstract", $modifiers);
             $visibility = in_array("private", $modifiers) ? Visibility::PRIVATE : (in_array("protected", $modifiers) ? Visibility::PROTECTED : Visibility::PUBLIC);
             
             $memberName = $this->parseIdentifierOrString();
@@ -707,7 +711,7 @@ class TypeScriptParser2 implements IParser, IExpressionParserHooks, IReaderHooks
                 $isConstructor = $memberName === "constructor";
                 
                 /* @var $member */
-                $sig = $this->parseMethodSignature($isConstructor, $declarationOnly);
+                $sig = $this->parseMethodSignature($isConstructor, $declarationOnly || $isAbstract);
                 if ($isConstructor) {
                     $member = $constructor = new Constructor($sig->params, $sig->body, $sig->superCallArgs, $memberLeadingTrivia);
                     foreach ($sig->fields as $field)

@@ -11,7 +11,7 @@ class FillMutabilityInfo(astTrans.AstTransformer):
     
     def get_var(self, var_ref):
         v = var_ref.get_variable()
-        v.mutability = v.mutability or types.MutabilityInfo()
+        v.mutability = v.mutability or types.MutabilityInfo(True, False, False)
         return v
     
     def visit_variable_reference(self, var_ref):
@@ -34,5 +34,5 @@ class FillMutabilityInfo(astTrans.AstTransformer):
         return None
     
     def visit_variable(self, variable):
-        variable.mutability = variable.mutability or types.MutabilityInfo()
+        variable.mutability = variable.mutability or types.MutabilityInfo(True, False, False)
         return None
