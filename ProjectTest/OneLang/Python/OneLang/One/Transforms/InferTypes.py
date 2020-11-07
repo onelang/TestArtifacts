@@ -194,7 +194,8 @@ class InferTypes(astTrans.AstTransformer):
             return
         super().visit_class(cls_)
     
-    def visit_package(self, pkg):
+    def visit_files(self, files):
         for stage in [INFER_TYPES_STAGE.FIELDS, INFER_TYPES_STAGE.PROPERTIES, INFER_TYPES_STAGE.METHODS]:
             self.stage = stage
-            super().visit_package(pkg)
+            for file in files:
+                self.visit_file(file)

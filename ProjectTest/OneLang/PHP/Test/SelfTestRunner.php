@@ -3,6 +3,7 @@
 namespace Test\SelfTestRunner;
 
 use onepkg\OneFile\OneFile;
+use One\CompilerHelper\CompilerHelper;
 use Generator\IGenerator\IGenerator;
 use One\Compiler\Compiler;
 use One\Compiler\ICompilerHooks;
@@ -38,21 +39,12 @@ class SelfTestRunner {
     
     function __construct($baseDir) {
         $this->baseDir = $baseDir;
+        CompilerHelper::$baseDir = $baseDir;
     }
     
     function runTest($generator) {
         \OneLang\console::log("[-] SelfTestRunner :: START");
-        $compiler = new Compiler();
-        $compiler->init($this->baseDir . "packages/");
-        $compiler->setupNativeResolver(OneFile::readText($this->baseDir . "langs/NativeResolvers/typescript.ts"));
-        $compiler->newWorkspace("OneLang");
-        
-        $projDir = $this->baseDir . "src/";
-        foreach (array_values(array_filter(OneFile::listFiles($projDir, true), function ($x) { return substr_compare($x, ".ts", strlen($x) - strlen(".ts"), strlen(".ts")) === 0; })) as $file)
-            $compiler->addProjectFile($file, OneFile::readText($projDir . "/" . $file));
-        
-        $compiler->hooks = new CompilerHooks($compiler, $this->baseDir);
-        
+        $compiler = CompilerHelper::initProject("OneLang", $this->baseDir . "src/");
         $compiler->processWorkspace();
         $generated = $generator->generate($compiler->projectPkg);
         

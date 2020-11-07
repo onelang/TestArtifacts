@@ -56,14 +56,38 @@ class Compiler {
         $this->pacMan->loadAllCached();
     }
     
+    function getTransformers($forDeclarationFile) {
+        $transforms = array();
+        if ($forDeclarationFile) {
+            $transforms[] = new FillParent();
+            $transforms[] = new FillAttributesFromTrivia();
+            $transforms[] = new ResolveGenericTypeIdentifiers();
+            $transforms[] = new ResolveUnresolvedTypes();
+            $transforms[] = new FillMutabilityInfo();
+        }
+        else {
+            $transforms[] = new FillParent();
+            $transforms[] = new FillAttributesFromTrivia();
+            $transforms[] = new ResolveImports($this->workspace);
+            $transforms[] = new ResolveGenericTypeIdentifiers();
+            $transforms[] = new ConvertToMethodCall();
+            $transforms[] = new ResolveUnresolvedTypes();
+            $transforms[] = new ResolveIdentifiers();
+            $transforms[] = new InstanceOfImplicitCast();
+            $transforms[] = new DetectMethodCalls();
+            $transforms[] = new InferTypes();
+            $transforms[] = new CollectInheritanceInfo();
+            $transforms[] = new FillMutabilityInfo();
+            $transforms[] = new LambdaCaptureCollector();
+        }
+        return $transforms;
+    }
+    
     function setupNativeResolver($content) {
         $this->nativeFile = TypeScriptParser2::parseFile($content);
         $this->nativeExports = Package::collectExportsFromFile($this->nativeFile, true);
-        (new FillParent())->visitSourceFile($this->nativeFile);
-        FillAttributesFromTrivia::processFile($this->nativeFile);
-        (new ResolveGenericTypeIdentifiers())->visitSourceFile($this->nativeFile);
-        (new ResolveUnresolvedTypes())->visitSourceFile($this->nativeFile);
-        (new FillMutabilityInfo())->visitSourceFile($this->nativeFile);
+        foreach ($this->getTransformers(true) as $trans)
+            $trans->visitFiles(array($this->nativeFile));
     }
     
     function newWorkspace($pkgName = "@") {
@@ -97,42 +121,19 @@ class Compiler {
         $this->projectPkg->addFile($file);
     }
     
-    function processWorkspace() {
-        foreach (array_values(array_filter(array_values($this->workspace->packages), function ($x) { return $x->definitionOnly; })) as $pkg) {
-            // sets method's parentInterface property
-            (new FillParent())->visitPackage($pkg);
-            FillAttributesFromTrivia::processPackage($pkg);
-            (new ResolveGenericTypeIdentifiers())->visitPackage($pkg);
-            (new ResolveUnresolvedTypes())->visitPackage($pkg);
-        }
-        
-        (new FillParent())->visitPackage($this->projectPkg);
-        if ($this->hooks !== null)
-            $this->hooks->afterStage("FillParent");
-        
-        FillAttributesFromTrivia::processPackage($this->projectPkg);
-        if ($this->hooks !== null)
-            $this->hooks->afterStage("FillAttributesFromTrivia");
-        
-        ResolveImports::processWorkspace($this->workspace);
-        if ($this->hooks !== null)
-            $this->hooks->afterStage("ResolveImports");
-        
-        $transforms = array();
-        $transforms[] = new ResolveGenericTypeIdentifiers();
-        $transforms[] = new ConvertToMethodCall();
-        $transforms[] = new ResolveUnresolvedTypes();
-        $transforms[] = new ResolveIdentifiers();
-        $transforms[] = new InstanceOfImplicitCast();
-        $transforms[] = new DetectMethodCalls();
-        $transforms[] = new InferTypes();
-        $transforms[] = new CollectInheritanceInfo();
-        $transforms[] = new FillMutabilityInfo();
-        $transforms[] = new LambdaCaptureCollector();
-        foreach ($transforms as $trans) {
-            $trans->visitPackage($this->projectPkg);
+    function processFiles($files) {
+        foreach ($this->getTransformers(false) as $trans) {
+            $trans->visitFiles($files);
             if ($this->hooks !== null)
                 $this->hooks->afterStage($trans->name);
         }
+    }
+    
+    function processWorkspace() {
+        foreach (array_values(array_filter(array_values($this->workspace->packages), function ($x) { return $x->definitionOnly; })) as $pkg)
+            foreach ($this->getTransformers(true) as $trans)
+                $trans->visitFiles(array_values($pkg->files));
+        
+        $this->processFiles(array_values($this->projectPkg->files));
     }
 }

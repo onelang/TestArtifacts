@@ -128,7 +128,7 @@ class ResolveIdentifiers(astTrans.AstTransformer):
         super().visit_class(cls_)
         self.symbol_lookup.pop_context()
     
-    def visit_source_file(self, source_file):
+    def visit_file(self, source_file):
         self.error_man.reset_context(self)
         self.symbol_lookup.push_context(f'''File: {source_file.source_path.to_string()}''')
         
@@ -144,7 +144,7 @@ class ResolveIdentifiers(astTrans.AstTransformer):
             else:
                 pass
         
-        super().visit_source_file(source_file)
+        super().visit_file(source_file)
         
         self.symbol_lookup.pop_context()
         self.error_man.reset_context()

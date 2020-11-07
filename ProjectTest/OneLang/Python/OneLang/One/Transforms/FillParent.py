@@ -75,8 +75,8 @@ class FillParent(astTrans.AstTransformer):
         super().visit_method_base(method)
         self.parent_node_stack.pop()
     
-    def visit_source_file(self, file):
+    def visit_file(self, file):
         for imp in file.imports:
             imp.parent_file = file
         
-        super().visit_source_file(file)
+        super().visit_file(file)

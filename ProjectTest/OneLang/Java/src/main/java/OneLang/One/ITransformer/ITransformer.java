@@ -2,5 +2,5 @@ public interface ITransformer {
     String getName();
     void setName(String value);
     
-    void visitPackage(Package pkg);
+    void visitFiles(SourceFile[] files);
 }

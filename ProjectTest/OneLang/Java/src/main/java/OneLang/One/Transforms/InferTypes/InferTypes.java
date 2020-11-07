@@ -203,10 +203,11 @@ public class InferTypes extends AstTransformer {
         super.visitClass(cls);
     }
     
-    public void visitPackage(Package pkg) {
+    public void visitFiles(SourceFile[] files) {
         for (var stage : new ArrayList<>(List.of(InferTypesStage.Fields, InferTypesStage.Properties, InferTypesStage.Methods))) {
             this.stage = stage;
-            super.visitPackage(pkg);
+            for (var file : files)
+                this.visitFile(file);
         }
     }
 }

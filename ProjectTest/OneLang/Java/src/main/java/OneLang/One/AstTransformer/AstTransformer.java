@@ -22,6 +22,10 @@ public class AstTransformer implements ITransformer {
         this.currentStatement = null;
     }
     
+    protected void visitAttributesAndTrivia(IHasAttributesAndTrivia node) {
+        
+    }
+    
     protected IType visitType(IType type) {
         if (type instanceof ClassType || type instanceof InterfaceType || type instanceof UnresolvedType) {
             var type2 = ((IHasTypeArguments)type);
@@ -64,6 +68,7 @@ public class AstTransformer implements ITransformer {
     
     protected Statement visitStatement(Statement stmt) {
         this.currentStatement = stmt;
+        this.visitAttributesAndTrivia(stmt);
         if (stmt instanceof ReturnStatement) {
             if (((ReturnStatement)stmt).expression != null)
                 ((ReturnStatement)stmt).expression = this.visitExpression(((ReturnStatement)stmt).expression) != null ? this.visitExpression(((ReturnStatement)stmt).expression) : ((ReturnStatement)stmt).expression;
@@ -262,6 +267,7 @@ public class AstTransformer implements ITransformer {
     }
     
     protected void visitMethodParameter(MethodParameter methodParameter) {
+        this.visitAttributesAndTrivia(methodParameter);
         this.visitVariableWithInitializer(methodParameter);
     }
     
@@ -275,6 +281,7 @@ public class AstTransformer implements ITransformer {
     
     protected void visitMethod(Method method) {
         this.currentMethod = method;
+        this.visitAttributesAndTrivia(method);
         this.visitMethodBase(method);
         method.returns = this.visitType(method.returns) != null ? this.visitType(method.returns) : method.returns;
         this.currentMethod = null;
@@ -287,15 +294,18 @@ public class AstTransformer implements ITransformer {
     
     protected void visitConstructor(Constructor constructor) {
         this.currentMethod = constructor;
+        this.visitAttributesAndTrivia(constructor);
         this.visitMethodBase(constructor);
         this.currentMethod = null;
     }
     
     protected void visitField(Field field) {
+        this.visitAttributesAndTrivia(field);
         this.visitVariableWithInitializer(field);
     }
     
     protected void visitProperty(Property prop) {
+        this.visitAttributesAndTrivia(prop);
         this.visitVariable(prop);
         if (prop.getter != null)
             prop.getter = this.visitBlock(prop.getter) != null ? this.visitBlock(prop.getter) : prop.getter;
@@ -305,6 +315,7 @@ public class AstTransformer implements ITransformer {
     
     protected void visitInterface(Interface intf) {
         this.currentInterface = intf;
+        this.visitAttributesAndTrivia(intf);
         intf.setBaseInterfaces(Arrays.stream(intf.getBaseInterfaces()).map(x -> this.visitType(x) != null ? this.visitType(x) : x).toArray(IType[]::new));
         for (var field : intf.getFields())
             this.visitField(field);
@@ -315,6 +326,7 @@ public class AstTransformer implements ITransformer {
     
     protected void visitClass(Class cls) {
         this.currentInterface = cls;
+        this.visitAttributesAndTrivia(cls);
         if (cls.constructor_ != null)
             this.visitConstructor(cls.constructor_);
         
@@ -330,6 +342,7 @@ public class AstTransformer implements ITransformer {
     }
     
     protected void visitEnum(Enum enum_) {
+        this.visitAttributesAndTrivia(enum_);
         for (var value : enum_.values)
             this.visitEnumMember(value);
     }
@@ -338,9 +351,15 @@ public class AstTransformer implements ITransformer {
         
     }
     
-    public void visitSourceFile(SourceFile sourceFile) {
+    protected void visitImport(Import imp) {
+        this.visitAttributesAndTrivia(imp);
+    }
+    
+    public void visitFile(SourceFile sourceFile) {
         this.errorMan.resetContext(this);
         this.currentFile = sourceFile;
+        for (var imp : sourceFile.imports)
+            this.visitImport(imp);
         for (var enum_ : sourceFile.enums)
             this.visitEnum(enum_);
         for (var intf : sourceFile.interfaces)
@@ -353,8 +372,12 @@ public class AstTransformer implements ITransformer {
         this.currentFile = null;
     }
     
+    public void visitFiles(SourceFile[] files) {
+        for (var file : files)
+            this.visitFile(file);
+    }
+    
     public void visitPackage(Package pkg) {
-        for (var file : pkg.files.values().toArray(SourceFile[]::new))
-            this.visitSourceFile(file);
+        this.visitFiles(pkg.files.values().toArray(SourceFile[]::new));
     }
 }

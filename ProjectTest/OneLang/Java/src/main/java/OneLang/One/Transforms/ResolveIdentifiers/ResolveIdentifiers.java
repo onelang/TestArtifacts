@@ -105,7 +105,7 @@ public class ResolveIdentifiers extends AstTransformer {
         this.symbolLookup.popContext();
     }
     
-    public void visitSourceFile(SourceFile sourceFile) {
+    public void visitFile(SourceFile sourceFile) {
         this.errorMan.resetContext(this);
         this.symbolLookup.pushContext("File: " + sourceFile.sourcePath.toString());
         
@@ -120,7 +120,7 @@ public class ResolveIdentifiers extends AstTransformer {
             else { }
         }
         
-        super.visitSourceFile(sourceFile);
+        super.visitFile(sourceFile);
         
         this.symbolLookup.popContext();
         this.errorMan.resetContext();

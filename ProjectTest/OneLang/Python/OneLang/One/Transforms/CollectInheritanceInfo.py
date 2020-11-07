@@ -22,7 +22,7 @@ class CollectInheritanceInfo:
             if method.overrides != None:
                 method.overrides.overridden_by.append(method)
     
-    def visit_package(self, pkg):
-        for file in pkg.files.values():
+    def visit_files(self, files):
+        for file in files:
             for cls_ in file.classes:
                 self.visit_class(cls_)

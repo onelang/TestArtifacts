@@ -5,6 +5,7 @@ namespace One\Transforms\CollectInheritanceInfo;
 use One\Ast\Types\Package;
 use One\Ast\Types\Class_;
 use One\Ast\Types\Interface_;
+use One\Ast\Types\SourceFile;
 use One\ITransformer\ITransformer;
 
 class CollectInheritanceInfo implements ITransformer {
@@ -31,8 +32,8 @@ class CollectInheritanceInfo implements ITransformer {
         }
     }
     
-    function visitPackage($pkg) {
-        foreach (array_values($pkg->files) as $file)
+    function visitFiles($files) {
+        foreach ($files as $file)
             foreach ($file->classes as $cls)
                 $this->visitClass($cls);
     }

@@ -98,10 +98,10 @@ class FillParent extends AstTransformer {
         array_pop($this->parentNodeStack);
     }
     
-    function visitSourceFile($file) {
+    function visitFile($file) {
         foreach ($file->imports as $imp)
             $imp->parentFile = $file;
         
-        parent::visitSourceFile($file);
+        parent::visitFile($file);
     }
 }

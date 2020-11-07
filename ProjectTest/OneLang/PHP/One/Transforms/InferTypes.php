@@ -13,6 +13,7 @@ use One\Ast\Types\Lambda;
 use One\Ast\Types\IVariable;
 use One\Ast\Types\Method;
 use One\Ast\Types\Class_;
+use One\Ast\Types\SourceFile;
 use One\Transforms\InferTypesPlugins\BasicTypeInfer\BasicTypeInfer;
 use One\Transforms\InferTypesPlugins\Helpers\InferTypesPlugin\InferTypesPlugin;
 use One\Transforms\InferTypesPlugins\ArrayAndMapLiteralTypeInfer\ArrayAndMapLiteralTypeInfer;
@@ -236,10 +237,11 @@ class InferTypes extends AstTransformer {
         parent::visitClass($cls);
     }
     
-    function visitPackage($pkg) {
+    function visitFiles($files) {
         foreach (array(InferTypesStage::FIELDS, InferTypesStage::PROPERTIES, InferTypesStage::METHODS) as $stage) {
             $this->stage = $stage;
-            parent::visitPackage($pkg);
+            foreach ($files as $file)
+                $this->visitFile($file);
         }
     }
 }

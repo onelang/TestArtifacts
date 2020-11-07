@@ -27,8 +27,8 @@ public class CollectInheritanceInfo implements ITransformer {
         }
     }
     
-    public void visitPackage(Package pkg) {
-        for (var file : pkg.files.values().toArray(SourceFile[]::new))
+    public void visitFiles(SourceFile[] files) {
+        for (var file : files)
             for (var cls : file.classes)
                 this.visitClass(cls);
     }

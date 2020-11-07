@@ -166,7 +166,7 @@ namespace One.Transforms
             this.symbolLookup.popContext();
         }
         
-        public override void visitSourceFile(SourceFile sourceFile)
+        public override void visitFile(SourceFile sourceFile)
         {
             this.errorMan.resetContext(this);
             this.symbolLookup.pushContext($"File: {sourceFile.sourcePath.toString()}");
@@ -182,7 +182,7 @@ namespace One.Transforms
                 else { }
             }
             
-            base.visitSourceFile(sourceFile);
+            base.visitFile(sourceFile);
             
             this.symbolLookup.popContext();
             this.errorMan.resetContext();

@@ -179,7 +179,7 @@ class ResolveIdentifiers extends AstTransformer {
         $this->symbolLookup->popContext();
     }
     
-    function visitSourceFile($sourceFile) {
+    function visitFile($sourceFile) {
         $this->errorMan->resetContext($this);
         $this->symbolLookup->pushContext("File: " . $sourceFile->sourcePath->toString());
         
@@ -194,7 +194,7 @@ class ResolveIdentifiers extends AstTransformer {
             else { }
         }
         
-        parent::visitSourceFile($sourceFile);
+        parent::visitFile($sourceFile);
         
         $this->symbolLookup->popContext();
         $this->errorMan->resetContext();

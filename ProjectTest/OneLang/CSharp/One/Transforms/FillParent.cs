@@ -92,12 +92,12 @@ namespace One.Transforms
             this.parentNodeStack.pop();
         }
         
-        public override void visitSourceFile(SourceFile file)
+        public override void visitFile(SourceFile file)
         {
             foreach (var imp in file.imports)
                 imp.parentFile = file;
             
-            base.visitSourceFile(file);
+            base.visitFile(file);
         }
     }
 }

@@ -29,9 +29,9 @@ namespace One.Transforms
             }
         }
         
-        public void visitPackage(Package pkg)
+        public void visitFiles(SourceFile[] files)
         {
-            foreach (var file in Object.values(pkg.files))
+            foreach (var file in files)
                 foreach (var cls in file.classes)
                     this.visitClass(cls);
         }

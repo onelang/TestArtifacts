@@ -2,8 +2,8 @@
 
 namespace One\ITransformer;
 
-use One\Ast\Types\Package;
+use One\Ast\Types\SourceFile;
 
 interface ITransformer {
-    function visitPackage($pkg);
+    function visitFiles($files);
 }

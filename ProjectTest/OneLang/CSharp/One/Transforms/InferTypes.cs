@@ -226,11 +226,12 @@ namespace One.Transforms
             base.visitClass(cls);
         }
         
-        public override void visitPackage(Package pkg)
+        public override void visitFiles(SourceFile[] files)
         {
             foreach (var stage in new List<InferTypesStage> { InferTypesStage.Fields, InferTypesStage.Properties, InferTypesStage.Methods }) {
                 this.stage = stage;
-                base.visitPackage(pkg);
+                foreach (var file in files)
+                    this.visitFile(file);
             }
         }
     }

@@ -32,14 +32,35 @@ class Compiler:
         self.pac_man = packMan.PackageManager(packFoldSourc.PackagesFolderSource(packages_dir))
         self.pac_man.load_all_cached()
     
+    def get_transformers(self, for_declaration_file):
+        transforms = []
+        if for_declaration_file:
+            transforms.append(fillPar.FillParent())
+            transforms.append(fillAttrFromTriv.FillAttributesFromTrivia())
+            transforms.append(resGenTypeIdents.ResolveGenericTypeIdentifiers())
+            transforms.append(resUnrTypes.ResolveUnresolvedTypes())
+            transforms.append(fillMutInfo.FillMutabilityInfo())
+        else:
+            transforms.append(fillPar.FillParent())
+            transforms.append(fillAttrFromTriv.FillAttributesFromTrivia())
+            transforms.append(resImps.ResolveImports(self.workspace))
+            transforms.append(resGenTypeIdents.ResolveGenericTypeIdentifiers())
+            transforms.append(convToMethCall.ConvertToMethodCall())
+            transforms.append(resUnrTypes.ResolveUnresolvedTypes())
+            transforms.append(resIdents.ResolveIdentifiers())
+            transforms.append(instOfImplCast.InstanceOfImplicitCast())
+            transforms.append(detMethCalls.DetectMethodCalls())
+            transforms.append(inferTypes.InferTypes())
+            transforms.append(collInhInfo.CollectInheritanceInfo())
+            transforms.append(fillMutInfo.FillMutabilityInfo())
+            transforms.append(lambdCaptColl.LambdaCaptureCollector())
+        return transforms
+    
     def setup_native_resolver(self, content):
         self.native_file = typeScrPars.TypeScriptParser2.parse_file(content)
         self.native_exports = types.Package.collect_exports_from_file(self.native_file, True)
-        fillPar.FillParent().visit_source_file(self.native_file)
-        fillAttrFromTriv.FillAttributesFromTrivia.process_file(self.native_file)
-        resGenTypeIdents.ResolveGenericTypeIdentifiers().visit_source_file(self.native_file)
-        resUnrTypes.ResolveUnresolvedTypes().visit_source_file(self.native_file)
-        fillMutInfo.FillMutabilityInfo().visit_source_file(self.native_file)
+        for trans in self.get_transformers(True):
+            trans.visit_files([self.native_file])
     
     def new_workspace(self, pkg_name = "@"):
         self.workspace = types.Workspace()
@@ -67,38 +88,15 @@ class Compiler:
         self.setup_file(file)
         self.project_pkg.add_file(file)
     
-    def process_workspace(self):
-        for pkg in list(filter(lambda x: x.definition_only, self.workspace.packages.values())):
-            # sets method's parentInterface property
-            fillPar.FillParent().visit_package(pkg)
-            fillAttrFromTriv.FillAttributesFromTrivia.process_package(pkg)
-            resGenTypeIdents.ResolveGenericTypeIdentifiers().visit_package(pkg)
-            resUnrTypes.ResolveUnresolvedTypes().visit_package(pkg)
-        
-        fillPar.FillParent().visit_package(self.project_pkg)
-        if self.hooks != None:
-            self.hooks.after_stage("FillParent")
-        
-        fillAttrFromTriv.FillAttributesFromTrivia.process_package(self.project_pkg)
-        if self.hooks != None:
-            self.hooks.after_stage("FillAttributesFromTrivia")
-        
-        resImps.ResolveImports.process_workspace(self.workspace)
-        if self.hooks != None:
-            self.hooks.after_stage("ResolveImports")
-        
-        transforms = []
-        transforms.append(resGenTypeIdents.ResolveGenericTypeIdentifiers())
-        transforms.append(convToMethCall.ConvertToMethodCall())
-        transforms.append(resUnrTypes.ResolveUnresolvedTypes())
-        transforms.append(resIdents.ResolveIdentifiers())
-        transforms.append(instOfImplCast.InstanceOfImplicitCast())
-        transforms.append(detMethCalls.DetectMethodCalls())
-        transforms.append(inferTypes.InferTypes())
-        transforms.append(collInhInfo.CollectInheritanceInfo())
-        transforms.append(fillMutInfo.FillMutabilityInfo())
-        transforms.append(lambdCaptColl.LambdaCaptureCollector())
-        for trans in transforms:
-            trans.visit_package(self.project_pkg)
+    def process_files(self, files):
+        for trans in self.get_transformers(False):
+            trans.visit_files(files)
             if self.hooks != None:
                 self.hooks.after_stage(trans.name)
+    
+    def process_workspace(self):
+        for pkg in list(filter(lambda x: x.definition_only, self.workspace.packages.values())):
+            for trans in self.get_transformers(True):
+                trans.visit_files(pkg.files.values())
+        
+        self.process_files(self.project_pkg.files.values())

@@ -1,5 +1,5 @@
-using Generator;
 using One;
+using Generator;
 using Test;
 using System.Threading.Tasks;
 
@@ -38,22 +38,13 @@ namespace Test
         public SelfTestRunner(string baseDir)
         {
             this.baseDir = baseDir;
+            CompilerHelper.baseDir = baseDir;
         }
         
         public async Task<bool> runTest(IGenerator generator)
         {
             console.log("[-] SelfTestRunner :: START");
-            var compiler = new Compiler();
-            await compiler.init($"{this.baseDir}packages/");
-            compiler.setupNativeResolver(OneFile.readText($"{this.baseDir}langs/NativeResolvers/typescript.ts"));
-            compiler.newWorkspace("OneLang");
-            
-            var projDir = $"{this.baseDir}src/";
-            foreach (var file in OneFile.listFiles(projDir, true).filter(x => x.endsWith(".ts")))
-                compiler.addProjectFile(file, OneFile.readText($"{projDir}/{file}"));
-            
-            compiler.hooks = new CompilerHooks(compiler, this.baseDir);
-            
+            var compiler = await CompilerHelper.initProject("OneLang", $"{this.baseDir}src/");
             compiler.processWorkspace();
             var generated = generator.generate(compiler.projectPkg);
             

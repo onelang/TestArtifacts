@@ -81,10 +81,10 @@ public class FillParent extends AstTransformer {
         this.parentNodeStack.remove(this.parentNodeStack.size() - 1);
     }
     
-    public void visitSourceFile(SourceFile file) {
+    public void visitFile(SourceFile file) {
         for (var imp : file.imports)
             imp.setParentFile(file);
         
-        super.visitSourceFile(file);
+        super.visitFile(file);
     }
 }

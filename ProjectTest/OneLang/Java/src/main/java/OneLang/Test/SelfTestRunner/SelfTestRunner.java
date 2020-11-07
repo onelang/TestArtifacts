@@ -1,4 +1,3 @@
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public class SelfTestRunner {
@@ -7,21 +6,12 @@ public class SelfTestRunner {
     public SelfTestRunner(String baseDir)
     {
         this.baseDir = baseDir;
+        CompilerHelper.baseDir = baseDir;
     }
     
     public Boolean runTest(IGenerator generator) {
         console.log("[-] SelfTestRunner :: START");
-        var compiler = new Compiler();
-        compiler.init(this.baseDir + "packages/");
-        compiler.setupNativeResolver(OneFile.readText(this.baseDir + "langs/NativeResolvers/typescript.ts"));
-        compiler.newWorkspace("OneLang");
-        
-        var projDir = this.baseDir + "src/";
-        for (var file : Arrays.stream(OneFile.listFiles(projDir, true)).filter(x -> x.endsWith(".ts")).toArray(String[]::new))
-            compiler.addProjectFile(file, OneFile.readText(projDir + "/" + file));
-        
-        compiler.hooks = new CompilerHooks(compiler, this.baseDir);
-        
+        var compiler = CompilerHelper.initProject("OneLang", this.baseDir + "src/");
         compiler.processWorkspace();
         var generated = generator.generate(compiler.projectPkg);
         

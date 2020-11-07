@@ -1,5 +1,6 @@
 from OneLangStdLib import *
 from OneFile import *
+import OneLang.One.CompilerHelper as compHelp
 import OneLang.Generator.IGenerator as iGen
 import OneLang.One.Compiler as comp
 import OneLang.Test.PackageStateCapture as packStateCapt
@@ -26,20 +27,11 @@ class CompilerHooks:
 class SelfTestRunner:
     def __init__(self, base_dir):
         self.base_dir = base_dir
+        compHelp.CompilerHelper.base_dir = base_dir
     
     def run_test(self, generator):
         console.log("[-] SelfTestRunner :: START")
-        compiler = comp.Compiler()
-        compiler.init(f'''{self.base_dir}packages/''')
-        compiler.setup_native_resolver(OneFile.read_text(f'''{self.base_dir}langs/NativeResolvers/typescript.ts'''))
-        compiler.new_workspace("OneLang")
-        
-        proj_dir = f'''{self.base_dir}src/'''
-        for file in list(filter(lambda x: x.endswith(".ts"), OneFile.list_files(proj_dir, True))):
-            compiler.add_project_file(file, OneFile.read_text(f'''{proj_dir}/{file}'''))
-        
-        compiler.hooks = CompilerHooks(compiler, self.base_dir)
-        
+        compiler = compHelp.CompilerHelper.init_project("OneLang", f'''{self.base_dir}src/''')
         compiler.process_workspace()
         generated = generator.generate(compiler.project_pkg)
         

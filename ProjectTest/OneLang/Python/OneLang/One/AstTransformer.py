@@ -17,6 +17,9 @@ class AstTransformer:
         self.current_statement = None
         self.name = name
     
+    def visit_attributes_and_trivia(self, node):
+        pass
+    
     def visit_type(self, type):
         if isinstance(type, astTypes.ClassType) or isinstance(type, astTypes.InterfaceType) or isinstance(type, astTypes.UnresolvedType):
             type2 = type
@@ -51,6 +54,7 @@ class AstTransformer:
     
     def visit_statement(self, stmt):
         self.current_statement = stmt
+        self.visit_attributes_and_trivia(stmt)
         if isinstance(stmt, stats.ReturnStatement):
             if stmt.expression != None:
                 stmt.expression = self.visit_expression(stmt.expression) or stmt.expression
@@ -236,6 +240,7 @@ class AstTransformer:
         return None
     
     def visit_method_parameter(self, method_parameter):
+        self.visit_attributes_and_trivia(method_parameter)
         self.visit_variable_with_initializer(method_parameter)
     
     def visit_method_base(self, method):
@@ -247,6 +252,7 @@ class AstTransformer:
     
     def visit_method(self, method):
         self.current_method = method
+        self.visit_attributes_and_trivia(method)
         self.visit_method_base(method)
         method.returns = self.visit_type(method.returns) or method.returns
         self.current_method = None
@@ -257,13 +263,16 @@ class AstTransformer:
     
     def visit_constructor(self, constructor):
         self.current_method = constructor
+        self.visit_attributes_and_trivia(constructor)
         self.visit_method_base(constructor)
         self.current_method = None
     
     def visit_field(self, field):
+        self.visit_attributes_and_trivia(field)
         self.visit_variable_with_initializer(field)
     
     def visit_property(self, prop):
+        self.visit_attributes_and_trivia(prop)
         self.visit_variable(prop)
         if prop.getter != None:
             prop.getter = self.visit_block(prop.getter) or prop.getter
@@ -272,6 +281,7 @@ class AstTransformer:
     
     def visit_interface(self, intf):
         self.current_interface = intf
+        self.visit_attributes_and_trivia(intf)
         intf.base_interfaces = list(map(lambda x: self.visit_type(x) or x, intf.base_interfaces))
         for field in intf.fields:
             self.visit_field(field)
@@ -281,6 +291,7 @@ class AstTransformer:
     
     def visit_class(self, cls_):
         self.current_interface = cls_
+        self.visit_attributes_and_trivia(cls_)
         if cls_.constructor_ != None:
             self.visit_constructor(cls_.constructor_)
         
@@ -295,15 +306,21 @@ class AstTransformer:
         self.current_interface = None
     
     def visit_enum(self, enum_):
+        self.visit_attributes_and_trivia(enum_)
         for value in enum_.values:
             self.visit_enum_member(value)
     
     def visit_enum_member(self, enum_member):
         pass
     
-    def visit_source_file(self, source_file):
+    def visit_import(self, imp):
+        self.visit_attributes_and_trivia(imp)
+    
+    def visit_file(self, source_file):
         self.error_man.reset_context(self)
         self.current_file = source_file
+        for imp in source_file.imports:
+            self.visit_import(imp)
         for enum_ in source_file.enums:
             self.visit_enum(enum_)
         for intf in source_file.interfaces:
@@ -315,6 +332,9 @@ class AstTransformer:
         source_file.main_block = self.visit_block(source_file.main_block) or source_file.main_block
         self.current_file = None
     
+    def visit_files(self, files):
+        for file in files:
+            self.visit_file(file)
+    
     def visit_package(self, pkg):
-        for file in pkg.files.values():
-            self.visit_source_file(file)
+        self.visit_files(pkg.files.values())

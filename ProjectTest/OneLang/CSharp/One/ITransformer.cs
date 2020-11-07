@@ -5,6 +5,6 @@ namespace One
     public interface ITransformer {
         string name { get; set; }
         
-        void visitPackage(Package pkg);
+        void visitFiles(SourceFile[] files);
     }
 }

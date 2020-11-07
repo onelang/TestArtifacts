@@ -68,6 +68,8 @@ use One\Ast\Types\Package;
 use One\Ast\Types\GlobalFunction;
 use One\Ast\Types\IInterface;
 use One\Ast\Types\IAstNode;
+use One\Ast\Types\IHasAttributesAndTrivia;
+use One\Ast\Types\Import;
 use One\Ast\References\ClassReference;
 use One\Ast\References\EnumReference;
 use One\Ast\References\ThisReference;
@@ -104,6 +106,10 @@ class AstTransformer implements ITransformer {
         $this->currentInterface = null;
         $this->currentMethod = null;
         $this->currentStatement = null;
+    }
+    
+    protected function visitAttributesAndTrivia($node) {
+        
     }
     
     protected function visitType($type) {
@@ -148,6 +154,7 @@ class AstTransformer implements ITransformer {
     
     protected function visitStatement($stmt) {
         $this->currentStatement = $stmt;
+        $this->visitAttributesAndTrivia($stmt);
         if ($stmt instanceof ReturnStatement) {
             if ($stmt->expression !== null)
                 $stmt->expression = $this->visitExpression($stmt->expression) ?? $stmt->expression;
@@ -346,6 +353,7 @@ class AstTransformer implements ITransformer {
     }
     
     protected function visitMethodParameter($methodParameter) {
+        $this->visitAttributesAndTrivia($methodParameter);
         $this->visitVariableWithInitializer($methodParameter);
     }
     
@@ -359,6 +367,7 @@ class AstTransformer implements ITransformer {
     
     protected function visitMethod($method) {
         $this->currentMethod = $method;
+        $this->visitAttributesAndTrivia($method);
         $this->visitMethodBase($method);
         $method->returns = $this->visitType($method->returns) ?? $method->returns;
         $this->currentMethod = null;
@@ -371,15 +380,18 @@ class AstTransformer implements ITransformer {
     
     protected function visitConstructor($constructor) {
         $this->currentMethod = $constructor;
+        $this->visitAttributesAndTrivia($constructor);
         $this->visitMethodBase($constructor);
         $this->currentMethod = null;
     }
     
     protected function visitField($field) {
+        $this->visitAttributesAndTrivia($field);
         $this->visitVariableWithInitializer($field);
     }
     
     protected function visitProperty($prop) {
+        $this->visitAttributesAndTrivia($prop);
         $this->visitVariable($prop);
         if ($prop->getter !== null)
             $prop->getter = $this->visitBlock($prop->getter) ?? $prop->getter;
@@ -389,6 +401,7 @@ class AstTransformer implements ITransformer {
     
     protected function visitInterface($intf) {
         $this->currentInterface = $intf;
+        $this->visitAttributesAndTrivia($intf);
         $intf->baseInterfaces = array_map(function ($x) { return $this->visitType($x) ?? $x; }, $intf->baseInterfaces);
         foreach ($intf->fields as $field)
             $this->visitField($field);
@@ -399,6 +412,7 @@ class AstTransformer implements ITransformer {
     
     protected function visitClass($cls) {
         $this->currentInterface = $cls;
+        $this->visitAttributesAndTrivia($cls);
         if ($cls->constructor_ !== null)
             $this->visitConstructor($cls->constructor_);
         
@@ -414,6 +428,7 @@ class AstTransformer implements ITransformer {
     }
     
     protected function visitEnum($enum_) {
+        $this->visitAttributesAndTrivia($enum_);
         foreach ($enum_->values as $value)
             $this->visitEnumMember($value);
     }
@@ -422,9 +437,15 @@ class AstTransformer implements ITransformer {
         
     }
     
-    function visitSourceFile($sourceFile) {
+    protected function visitImport($imp) {
+        $this->visitAttributesAndTrivia($imp);
+    }
+    
+    function visitFile($sourceFile) {
         $this->errorMan->resetContext($this);
         $this->currentFile = $sourceFile;
+        foreach ($sourceFile->imports as $imp)
+            $this->visitImport($imp);
         foreach ($sourceFile->enums as $enum_)
             $this->visitEnum($enum_);
         foreach ($sourceFile->interfaces as $intf)
@@ -437,8 +458,12 @@ class AstTransformer implements ITransformer {
         $this->currentFile = null;
     }
     
+    function visitFiles($files) {
+        foreach ($files as $file)
+            $this->visitFile($file);
+    }
+    
     function visitPackage($pkg) {
-        foreach (array_values($pkg->files) as $file)
-            $this->visitSourceFile($file);
+        $this->visitFiles(array_values($pkg->files));
     }
 }

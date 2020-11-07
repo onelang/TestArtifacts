@@ -22,6 +22,11 @@ namespace One
             this.currentStatement = null;
         }
         
+        protected virtual void visitAttributesAndTrivia(IHasAttributesAndTrivia node)
+        {
+            
+        }
+        
         protected virtual IType visitType(IType type)
         {
             if (type is ClassType classType || type is InterfaceType || type is UnresolvedType) {
@@ -71,6 +76,7 @@ namespace One
         protected virtual Statement visitStatement(Statement stmt)
         {
             this.currentStatement = stmt;
+            this.visitAttributesAndTrivia(stmt);
             if (stmt is ReturnStatement retStat) {
                 if (retStat.expression != null)
                     retStat.expression = this.visitExpression(retStat.expression) ?? retStat.expression;
@@ -276,6 +282,7 @@ namespace One
         
         protected void visitMethodParameter(MethodParameter methodParameter)
         {
+            this.visitAttributesAndTrivia(methodParameter);
             this.visitVariableWithInitializer(methodParameter);
         }
         
@@ -291,6 +298,7 @@ namespace One
         protected void visitMethod(Method method)
         {
             this.currentMethod = method;
+            this.visitAttributesAndTrivia(method);
             this.visitMethodBase(method);
             method.returns = this.visitType(method.returns) ?? method.returns;
             this.currentMethod = null;
@@ -305,17 +313,20 @@ namespace One
         protected void visitConstructor(Constructor constructor)
         {
             this.currentMethod = constructor;
+            this.visitAttributesAndTrivia(constructor);
             this.visitMethodBase(constructor);
             this.currentMethod = null;
         }
         
         protected virtual void visitField(Field field)
         {
+            this.visitAttributesAndTrivia(field);
             this.visitVariableWithInitializer(field);
         }
         
         protected virtual void visitProperty(Property prop)
         {
+            this.visitAttributesAndTrivia(prop);
             this.visitVariable(prop);
             if (prop.getter != null)
                 prop.getter = this.visitBlock(prop.getter) ?? prop.getter;
@@ -326,6 +337,7 @@ namespace One
         protected virtual void visitInterface(Interface intf)
         {
             this.currentInterface = intf;
+            this.visitAttributesAndTrivia(intf);
             intf.baseInterfaces = intf.baseInterfaces.map(x => this.visitType(x) ?? x);
             foreach (var field in intf.fields)
                 this.visitField(field);
@@ -337,6 +349,7 @@ namespace One
         protected virtual void visitClass(Class cls)
         {
             this.currentInterface = cls;
+            this.visitAttributesAndTrivia(cls);
             if (cls.constructor_ != null)
                 this.visitConstructor(cls.constructor_);
             
@@ -353,6 +366,7 @@ namespace One
         
         protected virtual void visitEnum(Enum_ enum_)
         {
+            this.visitAttributesAndTrivia(enum_);
             foreach (var value in enum_.values)
                 this.visitEnumMember(value);
         }
@@ -362,10 +376,17 @@ namespace One
             
         }
         
-        public virtual void visitSourceFile(SourceFile sourceFile)
+        protected void visitImport(Import imp)
+        {
+            this.visitAttributesAndTrivia(imp);
+        }
+        
+        public virtual void visitFile(SourceFile sourceFile)
         {
             this.errorMan.resetContext(this);
             this.currentFile = sourceFile;
+            foreach (var imp in sourceFile.imports)
+                this.visitImport(imp);
             foreach (var enum_ in sourceFile.enums)
                 this.visitEnum(enum_);
             foreach (var intf in sourceFile.interfaces)
@@ -378,10 +399,15 @@ namespace One
             this.currentFile = null;
         }
         
-        public virtual void visitPackage(Package pkg)
+        public virtual void visitFiles(SourceFile[] files)
         {
-            foreach (var file in Object.values(pkg.files))
-                this.visitSourceFile(file);
+            foreach (var file in files)
+                this.visitFile(file);
+        }
+        
+        public void visitPackage(Package pkg)
+        {
+            this.visitFiles(Object.values(pkg.files));
         }
     }
 }
