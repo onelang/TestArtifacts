@@ -2,8 +2,8 @@
 
 namespace One\CompilerHelper;
 
+use onepkg\OneFile\OneFile;
 use One\Compiler\Compiler;
-use One\Compiler\ICompilerHooks;
 
 class CompilerHelper {
     public static $baseDir;

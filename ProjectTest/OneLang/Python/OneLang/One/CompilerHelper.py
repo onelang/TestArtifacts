@@ -1,5 +1,5 @@
 from OneLangStdLib import *
-import OneLang.index as index
+from OneFile import *
 import OneLang.One.Compiler as comp
 import OneLangStdLib as one
 
@@ -19,10 +19,10 @@ class CompilerHelper:
         
         compiler = comp.Compiler()
         compiler.init(packages_dir or f'''{CompilerHelper.base_dir}packages/''')
-        compiler.setup_native_resolver(index.OneFile.read_text(f'''{CompilerHelper.base_dir}langs/NativeResolvers/typescript.ts'''))
+        compiler.setup_native_resolver(OneFile.read_text(f'''{CompilerHelper.base_dir}langs/NativeResolvers/typescript.ts'''))
         compiler.new_workspace(project_name)
         
-        for file in list(filter(lambda x: x.endswith(".ts"), index.OneFile.list_files(source_dir, True))):
-            compiler.add_project_file(file, index.OneFile.read_text(f'''{source_dir}/{file}'''))
+        for file in list(filter(lambda x: x.endswith(".ts"), OneFile.list_files(source_dir, True))):
+            compiler.add_project_file(file, OneFile.read_text(f'''{source_dir}/{file}'''))
         
         return compiler
