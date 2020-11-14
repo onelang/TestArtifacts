@@ -140,6 +140,11 @@ public class Map<TKey, TValue> {
     {
         return items.Values.ToArray();
     }
+
+    public int size()
+    {
+        return items.Count;
+    }
 }
 
 public static class Object {
