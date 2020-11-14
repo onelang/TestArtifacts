@@ -45,7 +45,7 @@ public class JsonSerializer {
             var rawValue = obj.getUniqueIdentifier();
             if (this.circleDetector.containsKey(rawValue))
                 return "{\"$ref\":\"" + this.circleDetector.get(rawValue) + "\"}";
-            var id = "id_" + this.circleDetector.size;
+            var id = "id_" + this.circleDetector.size();
             this.circleDetector.put(rawValue, id);
             
             var valueType = ((IType)obj.getValueType());

@@ -164,6 +164,8 @@ namespace Generator.JavaPlugins
             else if (expr is InstanceFieldReference instFieldRef && instFieldRef.object_.actualType is ClassType) {
                 if (instFieldRef.field.parentInterface.name == "RegExpExecArray" && instFieldRef.field.name == "length")
                     return $"{this.main.expr(instFieldRef.object_)}.length";
+                if (instFieldRef.field.parentInterface.name == "Map" && instFieldRef.field.name == "size")
+                    return $"{this.main.expr(instFieldRef.object_)}.size()";
             }
             else if (expr is StaticMethodCallExpression statMethCallExpr && statMethCallExpr.method.parentInterface is Class class_)
                 return this.convertMethod(class_, null, statMethCallExpr.method, statMethCallExpr.args, statMethCallExpr.actualType);

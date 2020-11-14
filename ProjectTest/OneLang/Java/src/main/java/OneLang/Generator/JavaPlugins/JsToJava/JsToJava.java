@@ -162,6 +162,8 @@ public class JsToJava implements IGeneratorPlugin {
         else if (expr instanceof InstanceFieldReference && ((InstanceFieldReference)expr).object.actualType instanceof ClassType) {
             if (((InstanceFieldReference)expr).field.parentInterface.getName().equals("RegExpExecArray") && ((InstanceFieldReference)expr).field.getName().equals("length"))
                 return this.main.expr(((InstanceFieldReference)expr).object) + ".length";
+            if (((InstanceFieldReference)expr).field.parentInterface.getName().equals("Map") && ((InstanceFieldReference)expr).field.getName().equals("size"))
+                return this.main.expr(((InstanceFieldReference)expr).object) + ".size()";
         }
         else if (expr instanceof StaticMethodCallExpression && ((StaticMethodCallExpression)expr).getMethod().parentInterface instanceof Class)
             return this.convertMethod(((Class)((StaticMethodCallExpression)expr).getMethod().parentInterface), null, ((StaticMethodCallExpression)expr).getMethod(), ((StaticMethodCallExpression)expr).getArgs(), ((StaticMethodCallExpression)expr).actualType);

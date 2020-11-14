@@ -180,6 +180,8 @@ class JsToJava implements IGeneratorPlugin {
         else if ($expr instanceof InstanceFieldReference && $expr->object->actualType instanceof ClassType) {
             if ($expr->field->parentInterface->name === "RegExpExecArray" && $expr->field->name === "length")
                 return $this->main->expr($expr->object) . ".length";
+            if ($expr->field->parentInterface->name === "Map" && $expr->field->name === "size")
+                return $this->main->expr($expr->object) . ".size()";
         }
         else if ($expr instanceof StaticMethodCallExpression && $expr->method->parentInterface instanceof Class_)
             return $this->convertMethod($expr->method->parentInterface, null, $expr->method, $expr->args, $expr->actualType);

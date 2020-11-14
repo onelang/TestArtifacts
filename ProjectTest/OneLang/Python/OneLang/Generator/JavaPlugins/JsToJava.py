@@ -140,6 +140,8 @@ class JsToJava:
         elif isinstance(expr, refs.InstanceFieldReference) and isinstance(expr.object.actual_type, astTypes.ClassType):
             if expr.field.parent_interface.name == "RegExpExecArray" and expr.field.name == "length":
                 return f'''{self.main.expr(expr.object)}.length'''
+            if expr.field.parent_interface.name == "Map" and expr.field.name == "size":
+                return f'''{self.main.expr(expr.object)}.size()'''
         elif isinstance(expr, exprs.StaticMethodCallExpression) and isinstance(expr.method.parent_interface, types.Class):
             return self.convert_method(expr.method.parent_interface, None, expr.method, expr.args, expr.actual_type)
         return None
