@@ -6,7 +6,7 @@ use onepkg\OneFile\OneFile;
 use One\Compiler\Compiler;
 
 class CompilerHelper {
-    public static $baseDir;
+    public static $baseDir = "./";
     
     static function initProject($projectName, $sourceDir, $lang = "ts", $packagesDir = null) {
         if ($lang !== "ts")

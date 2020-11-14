@@ -15,7 +15,7 @@ namespace Generator
         public CsharpGenerator()
         {
             this.reservedWords = new string[] { "object", "else", "operator", "class", "enum", "void", "string", "implicit", "Type", "Enum", "params", "using", "throw", "ref", "base", "virtual", "interface", "int", "const" };
-            this.fieldToMethodHack = new string[] { "length" };
+            this.fieldToMethodHack = new string[] { "length", "size" };
             this.instanceOfIds = new Dictionary<string, int> {};
         }
         

@@ -100,7 +100,7 @@ class CsharpGenerator implements IGenerator {
     function __construct()
     {
         $this->reservedWords = array("object", "else", "operator", "class", "enum", "void", "string", "implicit", "Type", "Enum", "params", "using", "throw", "ref", "base", "virtual", "interface", "int", "const");
-        $this->fieldToMethodHack = array("length");
+        $this->fieldToMethodHack = array("length", "size");
         $this->instanceOfIds = Array();
     }
     

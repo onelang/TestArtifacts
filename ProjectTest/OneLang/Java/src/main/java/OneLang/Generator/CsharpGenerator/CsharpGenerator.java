@@ -18,7 +18,7 @@ public class CsharpGenerator implements IGenerator {
     public CsharpGenerator()
     {
         this.reservedWords = new String[] { "object", "else", "operator", "class", "enum", "void", "string", "implicit", "Type", "Enum", "params", "using", "throw", "ref", "base", "virtual", "interface", "int", "const" };
-        this.fieldToMethodHack = new String[] { "length" };
+        this.fieldToMethodHack = new String[] { "length", "size" };
         this.instanceOfIds = new LinkedHashMap<String, Integer>();
     }
     

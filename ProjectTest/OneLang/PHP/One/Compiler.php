@@ -61,6 +61,7 @@ class Compiler {
         if ($forDeclarationFile) {
             $transforms[] = new FillParent();
             $transforms[] = new FillAttributesFromTrivia();
+            $transforms[] = new ResolveImports($this->workspace);
             $transforms[] = new ResolveGenericTypeIdentifiers();
             $transforms[] = new ResolveUnresolvedTypes();
             $transforms[] = new FillMutabilityInfo();

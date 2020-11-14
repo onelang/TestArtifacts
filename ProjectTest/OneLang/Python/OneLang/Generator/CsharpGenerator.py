@@ -15,7 +15,7 @@ class CsharpGenerator:
         self.usings = None
         self.current_class = None
         self.reserved_words = ["object", "else", "operator", "class", "enum", "void", "string", "implicit", "Type", "Enum", "params", "using", "throw", "ref", "base", "virtual", "interface", "int", "const"]
-        self.field_to_method_hack = ["length"]
+        self.field_to_method_hack = ["length", "size"]
         self.instance_of_ids = {}
     
     def get_lang_name(self):

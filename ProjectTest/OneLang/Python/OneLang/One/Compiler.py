@@ -37,6 +37,7 @@ class Compiler:
         if for_declaration_file:
             transforms.append(fillPar.FillParent())
             transforms.append(fillAttrFromTriv.FillAttributesFromTrivia())
+            transforms.append(resImps.ResolveImports(self.workspace))
             transforms.append(resGenTypeIdents.ResolveGenericTypeIdentifiers())
             transforms.append(resUnrTypes.ResolveUnresolvedTypes())
             transforms.append(fillMutInfo.FillMutabilityInfo())

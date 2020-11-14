@@ -7,7 +7,7 @@ import OneLangStdLib as one
 class CompilerHelper:
     @classmethod
     def static_init(cls):
-        cls.base_dir
+        cls.base_dir = "./"
     
     def __init__(self):
         pass

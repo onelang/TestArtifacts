@@ -29,6 +29,7 @@ public class Compiler {
         if (forDeclarationFile) {
             transforms.add(new FillParent());
             transforms.add(new FillAttributesFromTrivia());
+            transforms.add(new ResolveImports(this.workspace));
             transforms.add(new ResolveGenericTypeIdentifiers());
             transforms.add(new ResolveUnresolvedTypes());
             transforms.add(new FillMutabilityInfo());

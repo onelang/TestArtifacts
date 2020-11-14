@@ -1,7 +1,7 @@
 import java.util.Arrays;
 
 public class CompilerHelper {
-    public static String baseDir;
+    public static String baseDir = "./";
     
     public static Compiler initProject(String projectName, String sourceDir, String lang, String packagesDir) {
         if (!lang.equals("ts"))
