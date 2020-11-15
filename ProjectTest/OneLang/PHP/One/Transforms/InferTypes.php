@@ -22,6 +22,7 @@ use One\Transforms\InferTypesPlugins\ResolveMethodCalls\ResolveMethodCalls;
 use One\Transforms\InferTypesPlugins\LambdaResolver\LambdaResolver;
 use One\Ast\Statements\Statement;
 use One\Ast\Statements\Block;
+use One\Ast\Statements\ReturnStatement;
 use One\Transforms\InferTypesPlugins\ResolveEnumMemberAccess\ResolveEnumMemberAccess;
 use One\Transforms\InferTypesPlugins\InferReturnType\InferReturnType;
 use One\Transforms\InferTypesPlugins\TypeScriptNullCoalesce\TypeScriptNullCoalesce;
@@ -30,6 +31,7 @@ use One\Transforms\InferTypesPlugins\ResolveFuncCalls\ResolveFuncCalls;
 use One\Transforms\InferTypesPlugins\NullabilityCheckWithNot\NullabilityCheckWithNot;
 use One\Transforms\InferTypesPlugins\ResolveNewCall\ResolveNewCalls;
 use One\Transforms\InferTypesPlugins\ResolveElementAccess\ResolveElementAccess;
+use One\Ast\AstTypes\ClassType;
 
 class InferTypesStage {
     const INVALID = 1;
@@ -177,6 +179,13 @@ class InferTypes extends AstTransformer {
     protected function visitStatement($stmt) {
         $this->currentStatement = $stmt;
         
+        if ($stmt instanceof ReturnStatement && $stmt->expression !== null && $this->currentClosure instanceof Method && $this->currentClosure->returns !== null) {
+            $returnType = $this->currentClosure->returns;
+            if ($returnType instanceof ClassType && $returnType->decl === $this->currentFile->literalTypes->promise->decl && $this->currentClosure->async)
+                $returnType = $returnType->typeArguments[0];
+            $stmt->expression->setExpectedType($returnType);
+        }
+        
         foreach ($this->plugins as $plugin) {
             if ($plugin->handleStatement($stmt))
                 return null;
@@ -219,12 +228,17 @@ class InferTypes extends AstTransformer {
         if ($lambda->actualType !== null)
             return null;
         
+        $prevClosure = $this->currentClosure;
+        $this->currentClosure = $lambda;
+        
         foreach ($this->plugins as $plugin) {
             if ($plugin->handleLambda($lambda))
                 return $lambda;
         }
         
-        return parent::visitLambda($lambda);
+        $this->currentClosure = $prevClosure;
+        parent::visitMethodBase($lambda);
+        return null;
     }
     
     function runPluginsOn($expr) {

@@ -1,4 +1,48 @@
+package OneLang.One.Transforms.InferTypesPlugins.ResolveFieldAndPropertyAccess;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.Reference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.References.EnumReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.TypeHelper;
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.GenericsResolver.GenericsResolver;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.References.Reference;
+import OneStd.Objects;
 import java.util.Arrays;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.References.EnumReference;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
 
 public class ResolveFieldAndPropertyAccess extends InferTypesPlugin {
     public ResolveFieldAndPropertyAccess()
@@ -8,11 +52,11 @@ public class ResolveFieldAndPropertyAccess extends InferTypesPlugin {
     }
     
     protected Reference getStaticRef(Class cls, String memberName) {
-        var field = Arrays.stream(cls.getFields()).filter(x -> x.getName().equals(memberName)).findFirst().orElse(null);
+        var field = Arrays.stream(cls.getFields()).filter(x -> Objects.equals(x.getName(), memberName)).findFirst().orElse(null);
         if (field != null && field.getIsStatic())
             return new StaticFieldReference(field);
         
-        var prop = Arrays.stream(cls.properties).filter(x -> x.getName().equals(memberName)).findFirst().orElse(null);
+        var prop = Arrays.stream(cls.properties).filter(x -> Objects.equals(x.getName(), memberName)).findFirst().orElse(null);
         if (prop != null && prop.getIsStatic())
             return new StaticPropertyReference(prop);
         
@@ -22,11 +66,11 @@ public class ResolveFieldAndPropertyAccess extends InferTypesPlugin {
     
     protected Reference getInstanceRef(Class cls, String memberName, Expression obj) {
         while (true) {
-            var field = Arrays.stream(cls.getFields()).filter(x -> x.getName().equals(memberName)).findFirst().orElse(null);
+            var field = Arrays.stream(cls.getFields()).filter(x -> Objects.equals(x.getName(), memberName)).findFirst().orElse(null);
             if (field != null && !field.getIsStatic())
                 return new InstanceFieldReference(obj, field);
             
-            var prop = Arrays.stream(cls.properties).filter(x -> x.getName().equals(memberName)).findFirst().orElse(null);
+            var prop = Arrays.stream(cls.properties).filter(x -> Objects.equals(x.getName(), memberName)).findFirst().orElse(null);
             if (prop != null && !prop.getIsStatic())
                 return new InstancePropertyReference(obj, prop);
             
@@ -41,7 +85,7 @@ public class ResolveFieldAndPropertyAccess extends InferTypesPlugin {
     }
     
     protected Reference getInterfaceRef(Interface intf, String memberName, Expression obj) {
-        var field = Arrays.stream(intf.getFields()).filter(x -> x.getName().equals(memberName)).findFirst().orElse(null);
+        var field = Arrays.stream(intf.getFields()).filter(x -> Objects.equals(x.getName(), memberName)).findFirst().orElse(null);
         if (field != null && !field.getIsStatic())
             return new InstanceFieldReference(obj, field);
         

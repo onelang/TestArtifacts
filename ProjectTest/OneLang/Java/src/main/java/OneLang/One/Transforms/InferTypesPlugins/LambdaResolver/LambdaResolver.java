@@ -1,3 +1,16 @@
+package OneLang.One.Transforms.InferTypesPlugins.LambdaResolver;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneLang.One.Ast.AstTypes.TypeHelper;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Expressions.Expression;
+
 public class LambdaResolver extends InferTypesPlugin {
     public LambdaResolver()
     {

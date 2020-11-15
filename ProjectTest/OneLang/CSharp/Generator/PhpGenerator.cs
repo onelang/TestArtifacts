@@ -1,6 +1,7 @@
 using One.Ast;
 using Generator;
 using Generator.PhpPlugins;
+using One;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -29,6 +30,11 @@ namespace Generator
         public string getExtension()
         {
             return "php";
+        }
+        
+        public ITransformer[] getTransforms()
+        {
+            return new ITransformer[0];
         }
         
         public string name_(string name)

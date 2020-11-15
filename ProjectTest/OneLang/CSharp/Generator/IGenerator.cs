@@ -1,5 +1,6 @@
 using Generator;
 using One.Ast;
+using One;
 
 namespace Generator
 {
@@ -7,6 +8,8 @@ namespace Generator
         string getLangName();
         
         string getExtension();
+        
+        ITransformer[] getTransforms();
         
         GeneratedFile[] generate(Package pkg);
     }

@@ -1,3 +1,16 @@
+package OneLang.Utils.StatementDebugger;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.Utils.TSOverviewGenerator.TSOverviewGenerator;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Types.Field;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Types.Field;
+import OneLang.One.Ast.Statements.Statement;
+
 public class StatementDebugger extends AstTransformer {
     public String stmtFilterRegex;
     

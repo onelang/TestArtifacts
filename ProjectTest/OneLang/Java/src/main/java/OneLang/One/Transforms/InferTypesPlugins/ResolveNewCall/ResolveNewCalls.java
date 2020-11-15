@@ -1,3 +1,13 @@
+package OneLang.One.Transforms.InferTypesPlugins.ResolveNewCall;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.NewExpression;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.Expression;
+
 public class ResolveNewCalls extends InferTypesPlugin {
     public ResolveNewCalls()
     {
@@ -13,7 +23,8 @@ public class ResolveNewCalls extends InferTypesPlugin {
         var newExpr = ((NewExpression)expr);
         for (Integer i = 0; i < newExpr.args.length; i++) {
             newExpr.args[i].setExpectedType(newExpr.cls.decl.constructor_.getParameters()[i].getType());
-            newExpr.args[i] = this.main.runPluginsOn(newExpr.args[i]) != null ? this.main.runPluginsOn(newExpr.args[i]) : newExpr.args[i];
+            var runPluginsOnResult = this.main.runPluginsOn(newExpr.args[i]);
+            newExpr.args[i] = runPluginsOnResult != null ? runPluginsOnResult : newExpr.args[i];
         }
         expr.setActualType(newExpr.cls);
         return expr;

@@ -1,3 +1,8 @@
+package OneLang.StdLib.PackageManager;
+
+import OneStd.OneYaml;
+import OneStd.YamlValue;
+
 public class PackageNativeImpl {
     public String pkgName;
     public String pkgVendor;

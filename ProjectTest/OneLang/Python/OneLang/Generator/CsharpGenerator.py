@@ -8,6 +8,7 @@ import OneLang.Generator.GeneratedFile as genFile
 import OneLang.Generator.NameUtils as nameUtils
 import OneLang.Generator.IGenerator as iGen
 import OneLang.One.Ast.Interfaces as ints
+import OneLang.One.ITransformer as iTrans
 import re
 
 class CsharpGenerator:
@@ -23,6 +24,9 @@ class CsharpGenerator:
     
     def get_extension(self):
         return "cs"
+    
+    def get_transforms(self):
+        return []
     
     def name_(self, name):
         if name in self.reserved_words:

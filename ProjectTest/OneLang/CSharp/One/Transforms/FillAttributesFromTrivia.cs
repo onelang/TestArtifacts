@@ -36,7 +36,7 @@ namespace One.Transforms
                         // @java result.put(match[1], result.get(match[1]) + "\n" + match[2]);
                         result[match[1]] += "\n" + match[2];
                     else
-                        result.set(match.get(1), match.get(2) ?? "true");
+                        result.set(match.get(1), (match.get(2) ?? "") == "" ? "true" : match.get(2) ?? "");
                 }
             }
             return result;

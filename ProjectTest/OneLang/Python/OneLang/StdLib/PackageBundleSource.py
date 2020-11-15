@@ -9,4 +9,4 @@ class PackageBundleSource:
         raise Error("Method not implemented.")
     
     def get_all_cached(self):
-        return Promise.resolve(self.bundle)
+        return self.bundle

@@ -1,5 +1,6 @@
 using Generator;
 using One.Ast;
+using System.Collections.Generic;
 
 namespace Generator.JavaPlugins
 {
@@ -62,8 +63,10 @@ namespace Generator.JavaPlugins
                     return $"{objR}.remove({objR}.size() - 1)";
                 else if (method.name == "filter")
                     return $"{this.arrayStream(obj)}.filter({argsR.get(0)}).{this.toArray(returnType)}";
-                else if (method.name == "every")
+                else if (method.name == "every") {
+                    this.main.imports.add("OneStd.StdArrayHelper");
                     return $"StdArrayHelper.allMatch({objR}, {argsR.get(0)})";
+                }
                 else if (method.name == "some")
                     return $"{this.arrayStream(obj)}.anyMatch({argsR.get(0)})";
                 else if (method.name == "concat") {
@@ -138,6 +141,10 @@ namespace Generator.JavaPlugins
             else if (cls.name == "RegExpExecArray") {
                 if (method.name == "get")
                     return $"{objR}[{argsR.get(0)}]";
+            }
+            else if (new List<string> { "JSON", "console", "RegExp" }.includes(cls.name)) {
+                this.main.imports.add($"OneStd.{cls.name}");
+                return null;
             }
             else
                 return null;

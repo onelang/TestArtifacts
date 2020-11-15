@@ -96,6 +96,7 @@ class AstTransformer implements ITransformer {
     public $currentFile;
     public $currentInterface;
     public $currentMethod;
+    public $currentClosure;
     public $currentStatement;
     public $name;
     
@@ -105,6 +106,7 @@ class AstTransformer implements ITransformer {
         $this->currentFile = null;
         $this->currentInterface = null;
         $this->currentMethod = null;
+        $this->currentClosure = null;
         $this->currentStatement = null;
     }
     
@@ -229,7 +231,10 @@ class AstTransformer implements ITransformer {
     }
     
     protected function visitLambda($lambda) {
+        $prevClosure = $this->currentClosure;
+        $this->currentClosure = $lambda;
         $this->visitMethodBase($lambda);
+        $this->currentClosure = $prevClosure;
         return null;
     }
     
@@ -367,9 +372,11 @@ class AstTransformer implements ITransformer {
     
     protected function visitMethod($method) {
         $this->currentMethod = $method;
+        $this->currentClosure = $method;
         $this->visitAttributesAndTrivia($method);
         $this->visitMethodBase($method);
         $method->returns = $this->visitType($method->returns) ?? $method->returns;
+        $this->currentClosure = null;
         $this->currentMethod = null;
     }
     
@@ -380,8 +387,10 @@ class AstTransformer implements ITransformer {
     
     protected function visitConstructor($constructor) {
         $this->currentMethod = $constructor;
+        $this->currentClosure = $constructor;
         $this->visitAttributesAndTrivia($constructor);
         $this->visitMethodBase($constructor);
+        $this->currentClosure = null;
         $this->currentMethod = null;
     }
     

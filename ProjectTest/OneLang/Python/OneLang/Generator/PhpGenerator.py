@@ -10,6 +10,7 @@ import OneLang.Generator.IGenerator as iGen
 import OneLang.One.Ast.Interfaces as ints
 import OneLang.Generator.IGeneratorPlugin as iGenPlug
 import OneLang.Generator.PhpPlugins.JsToPhp as jsToPhp
+import OneLang.One.ITransformer as iTrans
 import re
 
 class PhpGenerator:
@@ -26,6 +27,9 @@ class PhpGenerator:
     
     def get_extension(self):
         return "php"
+    
+    def get_transforms(self):
+        return []
     
     def name_(self, name):
         if name in self.reserved_words:

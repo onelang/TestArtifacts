@@ -1,4 +1,12 @@
+package OneLang.StdLib.PackageManager;
+
+import OneStd.OneYaml;
+import OneStd.YamlValue;
+
+import OneLang.StdLib.PackageManager.InterfaceDependency;
+import OneLang.StdLib.PackageManager.InterfaceYaml;
 import java.util.Arrays;
+import OneStd.YamlValue;
 
 public class InterfaceYaml {
     public Double fileVersion;

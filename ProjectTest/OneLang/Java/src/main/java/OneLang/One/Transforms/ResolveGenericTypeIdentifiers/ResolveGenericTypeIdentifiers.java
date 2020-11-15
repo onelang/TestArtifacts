@@ -1,4 +1,19 @@
+package OneLang.One.Transforms.ResolveGenericTypeIdentifiers;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Ast.AstTypes.UnresolvedType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Interfaces.IType;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.One.Ast.AstTypes.UnresolvedType;
+import OneLang.One.Ast.Types.Class;
 import java.util.Arrays;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.AstTypes.GenericsType;
 
 public class ResolveGenericTypeIdentifiers extends AstTransformer {
     public ResolveGenericTypeIdentifiers()

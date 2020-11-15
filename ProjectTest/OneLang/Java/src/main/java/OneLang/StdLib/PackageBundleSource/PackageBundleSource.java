@@ -1,3 +1,13 @@
+package OneLang.StdLib.PackageBundleSource;
+
+import OneLang.StdLib.PackageManager.PackageSource;
+import OneLang.StdLib.PackageManager.PackageId;
+import OneLang.StdLib.PackageManager.PackageBundle;
+
+import OneLang.StdLib.PackageManager.PackageSource;
+import OneLang.StdLib.PackageManager.PackageBundle;
+import OneLang.StdLib.PackageManager.PackageId;
+
 public class PackageBundleSource implements PackageSource {
     public PackageBundle bundle;
     

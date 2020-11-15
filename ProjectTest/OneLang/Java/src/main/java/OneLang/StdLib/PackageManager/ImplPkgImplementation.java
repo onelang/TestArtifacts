@@ -1,3 +1,10 @@
+package OneLang.StdLib.PackageManager;
+
+import OneStd.OneYaml;
+import OneStd.YamlValue;
+
+import OneLang.StdLib.PackageManager.ImplPkgImplIntf;
+
 public class ImplPkgImplementation {
     public ImplPkgImplIntf interface_;
     public String language;

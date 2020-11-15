@@ -11,6 +11,7 @@ import OneLang.Generator.PythonPlugins.JsToPython as jsToPyth
 import OneLang.Generator.NameUtils as nameUtils
 import OneLang.One.Ast.Interfaces as ints
 import OneLang.Generator.IGenerator as iGen
+import OneLang.One.ITransformer as iTrans
 import re
 
 class PythonGenerator:
@@ -31,6 +32,9 @@ class PythonGenerator:
     
     def get_extension(self):
         return "py"
+    
+    def get_transforms(self):
+        return []
     
     def type(self, type):
         if isinstance(type, astTypes.ClassType):

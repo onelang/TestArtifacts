@@ -1,6 +1,28 @@
+package OneLang.One.Transforms.InferTypesPlugins.ResolveElementAccess;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveMethodCalls.ResolveMethodCalls;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.One.Ast.AstTypes.TypeHelper;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
 import java.util.List;
 import java.util.ArrayList;
+import OneLang.One.Ast.Expressions.Expression;
 import java.util.Arrays;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
 
 public class ResolveElementAccess extends InferTypesPlugin {
     public ResolveElementAccess()

@@ -1,3 +1,59 @@
+package OneLang.One.Transforms.ResolveIdentifiers;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.GlobalFunction;
+import OneLang.One.Ast.Types.IMethodBase;
+import OneLang.One.Ast.Types.Constructor;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.ErrorManager.ErrorManager;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.References.IReferencable;
+import OneLang.One.Ast.References.Reference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.AstTypes.ClassType;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Transforms.ResolveIdentifiers.SymbolLookup;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.References.Reference;
+import OneLang.One.Ast.Types.Class;
+import OneStd.Objects;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Types.Constructor;
+import OneLang.One.Ast.Types.IMethodBase;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.Types.IImportable;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.Types.GlobalFunction;
+import OneLang.One.Ast.Types.SourceFile;
+
 public class ResolveIdentifiers extends AstTransformer {
     public SymbolLookup symbolLookup;
     
@@ -16,11 +72,11 @@ public class ResolveIdentifiers extends AstTransformer {
         }
         
         Reference ref = null;
-        if (symbol instanceof Class && id.text.equals("this")) {
+        if (symbol instanceof Class && Objects.equals(id.text, "this")) {
             var withinStaticMethod = this.currentMethod instanceof Method && ((Method)this.currentMethod).getIsStatic();
             ref = withinStaticMethod ? ((Reference)new StaticThisReference(((Class)symbol))) : new ThisReference(((Class)symbol));
         }
-        else if (symbol instanceof Class && id.text.equals("super"))
+        else if (symbol instanceof Class && Objects.equals(id.text, "super"))
             ref = new SuperReference(((Class)symbol));
         else
             ref = symbol.createReference();

@@ -56,6 +56,8 @@ class ErrorManager:
                     location += f'''::{t.current_method.name}'''
                 elif isinstance(t.current_method, types.Constructor):
                     location += f'''::constructor'''
+                elif isinstance(t.current_method, types.Lambda):
+                    location += f'''::<lambda>'''
                 elif t.current_method == None:
                     pass
                 else:

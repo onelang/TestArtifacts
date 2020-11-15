@@ -1,8 +1,143 @@
+package OneLang.Parsers.TypeScriptParser2;
+
+import OneLang.Parsers.Common.Reader.Reader;
+import OneLang.Parsers.Common.Reader.IReaderHooks;
+import OneLang.Parsers.Common.Reader.ParseError;
+import OneLang.Parsers.Common.ExpressionParser.ExpressionParser;
+import OneLang.Parsers.Common.ExpressionParser.IExpressionParserHooks;
+import OneLang.Parsers.Common.NodeManager.NodeManager;
+import OneLang.Parsers.Common.IParser.IParser;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.VoidType;
+import OneLang.One.Ast.AstTypes.UnresolvedType;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.TemplateStringPart;
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.UnsetStatement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.One.Ast.Statements.ThrowStatement;
+import OneLang.One.Ast.Statements.BreakStatement;
+import OneLang.One.Ast.Statements.ExpressionStatement;
+import OneLang.One.Ast.Statements.ForeachVariable;
+import OneLang.One.Ast.Statements.ForVariable;
+import OneLang.One.Ast.Statements.DoStatement;
+import OneLang.One.Ast.Statements.ContinueStatement;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.CatchVariable;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.Types.Field;
+import OneLang.One.Ast.Types.Visibility;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.Property;
+import OneLang.One.Ast.Types.Constructor;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.EnumMember;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.Types.IMethodBase;
+import OneLang.One.Ast.Types.Import;
+import OneLang.One.Ast.Types.SourcePath;
+import OneLang.One.Ast.Types.ExportScopeRef;
+import OneLang.One.Ast.Types.Package;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.UnresolvedImport;
+import OneLang.One.Ast.Types.GlobalFunction;
+import OneLang.One.Ast.Interfaces.IType;
+
+import OneLang.Parsers.Common.IParser.IParser;
+import OneLang.Parsers.Common.ExpressionParser.IExpressionParserHooks;
+import OneLang.Parsers.Common.Reader.IReaderHooks;
 import java.util.List;
+import OneLang.Parsers.Common.Reader.Reader;
+import OneLang.Parsers.Common.ExpressionParser.ExpressionParser;
+import OneLang.Parsers.Common.NodeManager.NodeManager;
+import OneLang.One.Ast.Types.ExportScopeRef;
+import OneLang.One.Ast.Types.SourcePath;
 import java.util.ArrayList;
+import OneStd.RegExp;
 import java.util.regex.Pattern;
+import OneLang.One.Ast.AstTypes.UnresolvedType;
+import OneLang.One.Ast.Interfaces.IType;
 import java.util.stream.Collectors;
+import OneLang.Parsers.Common.Reader.ParseError;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneStd.Objects;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.TemplateStringPart;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
 import java.util.Arrays;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.Parsers.TypeScriptParser2.TypeAndInit;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.UnsetStatement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.Statements.DoStatement;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.ForeachVariable;
+import OneLang.One.Ast.Statements.ForVariable;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.CatchVariable;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.ThrowStatement;
+import OneLang.One.Ast.Statements.BreakStatement;
+import OneLang.One.Ast.Statements.ContinueStatement;
+import OneLang.One.Ast.Statements.ExpressionStatement;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.Parsers.TypeScriptParser2.MethodSignature;
+import OneLang.One.Ast.Types.Field;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.Constructor;
+import OneLang.One.Ast.Types.Property;
+import OneLang.One.Ast.Types.IMethodBase;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.Types.EnumMember;
+import OneLang.One.Ast.Types.Import;
+import OneLang.One.Ast.Types.UnresolvedImport;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.GlobalFunction;
+import OneLang.Parsers.TypeScriptParser2.TypeScriptParser2;
 
 public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IReaderHooks {
     public List<String> context;
@@ -105,15 +240,15 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         var startPos = this.reader.prevTokenOffset;
         
         IType type;
-        if (typeName.equals("string"))
+        if (Objects.equals(typeName, "string"))
             type = new UnresolvedType("TsString", new IType[0]);
-        else if (typeName.equals("boolean"))
+        else if (Objects.equals(typeName, "boolean"))
             type = new UnresolvedType("TsBoolean", new IType[0]);
-        else if (typeName.equals("number"))
+        else if (Objects.equals(typeName, "number"))
             type = new UnresolvedType("TsNumber", new IType[0]);
-        else if (typeName.equals("any"))
+        else if (Objects.equals(typeName, "any"))
             type = AnyType.instance;
-        else if (typeName.equals("void"))
+        else if (Objects.equals(typeName, "void"))
             type = VoidType.instance;
         else {
             var typeArguments = this.parseTypeArgs();
@@ -146,7 +281,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             var litPart = "";
             while (true) {
                 if (this.reader.readExactly("`")) {
-                    if (!litPart.equals("")) {
+                    if (!Objects.equals(litPart, "")) {
                         parts.add(TemplateStringPart.Literal(litPart));
                         litPart = "";
                     }
@@ -154,7 +289,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                     break;
                 }
                 else if (this.reader.readExactly("${")) {
-                    if (!litPart.equals("")) {
+                    if (!Objects.equals(litPart, "")) {
                         parts.add(TemplateStringPart.Literal(litPart));
                         litPart = "";
                     }
@@ -165,17 +300,17 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                 }
                 else if (this.reader.readExactly("\\")) {
                     var chr = this.reader.readChar();
-                    if (chr.equals("n"))
+                    if (Objects.equals(chr, "n"))
                         litPart += "\n";
-                    else if (chr.equals("r"))
+                    else if (Objects.equals(chr, "r"))
                         litPart += "\r";
-                    else if (chr.equals("t"))
+                    else if (Objects.equals(chr, "t"))
                         litPart += "\t";
-                    else if (chr.equals("`"))
+                    else if (Objects.equals(chr, "`"))
                         litPart += "`";
-                    else if (chr.equals("$"))
+                    else if (Objects.equals(chr, "$"))
                         litPart += "$";
-                    else if (chr.equals("\\"))
+                    else if (Objects.equals(chr, "\\"))
                         litPart += "\\";
                     else
                         this.reader.fail("invalid escape", this.reader.offset - 1);
@@ -183,7 +318,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                 else {
                     var chr = this.reader.readChar();
                     var chrCode = (int)chr.charAt(0);
-                    if (!(32 <= chrCode && chrCode <= 126) || chr.equals("`") || chr.equals("\\"))
+                    if (!(32 <= chrCode && chrCode <= 126) || Objects.equals(chr, "`") || Objects.equals(chr, "\\"))
                         this.reader.fail("not allowed character (code=" + chrCode + ")", this.reader.offset - 1);
                     litPart += chr;
                 }
@@ -210,11 +345,11 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             var pattern = "";
             while (true) {
                 var chr = this.reader.readChar();
-                if (chr.equals("\\")) {
+                if (Objects.equals(chr, "\\")) {
                     var chr2 = this.reader.readChar();
-                    pattern += chr2.equals("/") ? "/" : "\\" + chr2;
+                    pattern += Objects.equals(chr2, "/") ? "/" : "\\" + chr2;
                 }
-                else if (chr.equals("/"))
+                else if (Objects.equals(chr, "/"))
                     break;
                 else
                     pattern += chr;
@@ -228,16 +363,16 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             var check = this.reader.expectString();
             
             String tsType = null;
-            if (check.equals("string"))
+            if (Objects.equals(check, "string"))
                 tsType = "TsString";
-            else if (check.equals("boolean"))
+            else if (Objects.equals(check, "boolean"))
                 tsType = "TsBoolean";
-            else if (check.equals("object"))
+            else if (Objects.equals(check, "object"))
                 tsType = "Object";
-            else if (check.equals("function"))
+            else if (Objects.equals(check, "function"))
                 // TODO: ???
                 tsType = "Function";
-            else if (check.equals("undefined"))
+            else if (Objects.equals(check, "undefined"))
                 // TODO: ???
                 tsType = "Object";
             else
@@ -438,8 +573,10 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
     
     public Block expectBlock(String errorMsg) {
         var block = this.parseBlock();
-        if (block == null)
-            this.reader.fail(errorMsg != null ? errorMsg : "expected block here");
+        if (block == null) {
+            var result = errorMsg;
+            this.reader.fail(result != null ? result : "expected block here");
+        }
         return block;
     }
     
@@ -520,7 +657,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         else {
             body = this.expectBlock("method body is missing");
             var firstStmt = body.statements.size() > 0 ? body.statements.get(0) : null;
-            if (firstStmt instanceof ExpressionStatement && ((ExpressionStatement)firstStmt).expression instanceof UnresolvedCallExpression && ((UnresolvedCallExpression)((ExpressionStatement)firstStmt).expression).func instanceof Identifier && ((Identifier)((UnresolvedCallExpression)((ExpressionStatement)firstStmt).expression).func).text.equals("super")) {
+            if (firstStmt instanceof ExpressionStatement && ((ExpressionStatement)firstStmt).expression instanceof UnresolvedCallExpression && ((UnresolvedCallExpression)((ExpressionStatement)firstStmt).expression).func instanceof Identifier && Objects.equals(((Identifier)((UnresolvedCallExpression)((ExpressionStatement)firstStmt).expression).func).text, "super")) {
                 superCallArgs = ((UnresolvedCallExpression)((ExpressionStatement)firstStmt).expression).args;
                 body.statements.remove(0);
             }
@@ -530,7 +667,8 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
     }
     
     public String parseIdentifierOrString() {
-        return this.reader.readString() != null ? this.reader.readString() : this.reader.expectIdentifier();
+        var readStringResult = this.reader.readString();
+        return readStringResult != null ? readStringResult : this.reader.expectIdentifier();
     }
     
     public Interface parseInterface(String leadingTrivia, Boolean isExported) {
@@ -633,7 +771,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             var methodTypeArgs = this.parseGenericsArgs();
             if (this.reader.readToken("(")) {
                 // method
-                var isConstructor = memberName.equals("constructor");
+                var isConstructor = Objects.equals(memberName, "constructor");
                 
                 IMethodBase member;
                 var sig = this.parseMethodSignature(isConstructor, declarationOnly || isAbstract);
@@ -650,15 +788,15 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                 
                 this.getNodeManager().addNode(member, memberStart);
             }
-            else if (memberName.equals("get") || memberName.equals("set")) {
+            else if (Objects.equals(memberName, "get") || Objects.equals(memberName, "set")) {
                 // property
                 var propName = this.reader.expectIdentifier();
-                var prop = properties.stream().filter(x -> x.getName().equals(propName)).findFirst().orElse(null);
+                var prop = properties.stream().filter(x -> Objects.equals(x.getName(), propName)).findFirst().orElse(null);
                 IType propType = null;
                 Block getter = null;
                 Block setter = null;
                 
-                if (memberName.equals("get")) {
+                if (Objects.equals(memberName, "get")) {
                     // get propName(): propType { return ... }
                     this.context.add("P[G]:" + propName);
                     this.reader.expectToken("()", "expected '()' after property getter name");
@@ -674,7 +812,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                             prop.getter = getter;
                     }
                 }
-                else if (memberName.equals("set")) {
+                else if (Objects.equals(memberName, "set")) {
                     // set propName(value: propType) { ... }
                     this.context.add("P[S]:" + propName);
                     this.reader.expectToken("(", "expected '(' after property setter name");
@@ -762,12 +900,12 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         curr.remove(curr.size() - 1);
         // filename does not matter
         for (var part : relPath.split("/", -1)) {
-            if (part.equals(""))
+            if (Objects.equals(part, ""))
                 throw new Error("relPath should not contain multiple '/' next to each other (relPath='" + relPath + "')");
-            if (part.equals("."))
+            if (Objects.equals(part, "."))
                 // "./" == stay in current directory
                 continue;
-            else if (part.equals("..")) {
+            else if (Objects.equals(part, "..")) {
                 // "../" == parent directory
                 if (curr.size() == 0)
                     throw new Error("relPath goes out of root (curr='" + currFile + "', relPath='" + relPath + "')");

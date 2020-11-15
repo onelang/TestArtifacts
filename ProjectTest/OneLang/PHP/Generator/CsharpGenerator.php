@@ -89,6 +89,7 @@ use Generator\NameUtils\NameUtils;
 use Generator\IGenerator\IGenerator;
 use One\Ast\Interfaces\IExpression;
 use One\Ast\Interfaces\IType;
+use One\ITransformer\ITransformer;
 
 class CsharpGenerator implements IGenerator {
     public $usings;
@@ -110,6 +111,10 @@ class CsharpGenerator implements IGenerator {
     
     function getExtension() {
         return "cs";
+    }
+    
+    function getTransforms() {
+        return array();
     }
     
     function name_($name) {

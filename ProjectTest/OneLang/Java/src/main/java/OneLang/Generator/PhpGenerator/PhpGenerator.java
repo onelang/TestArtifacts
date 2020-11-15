@@ -1,11 +1,198 @@
+package OneLang.Generator.PhpGenerator;
+
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.CharacterLiteral;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.UnaryType;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Expressions.GlobalFunctionCallExpression;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Expressions.LambdaCallExpression;
+import OneLang.One.Ast.Expressions.IMethodCallExpression;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.One.Ast.Statements.UnsetStatement;
+import OneLang.One.Ast.Statements.ThrowStatement;
+import OneLang.One.Ast.Statements.ExpressionStatement;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.BreakStatement;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.DoStatement;
+import OneLang.One.Ast.Statements.ContinueStatement;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.IInterface;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.Types.IVariableWithInitializer;
+import OneLang.One.Ast.Types.Visibility;
+import OneLang.One.Ast.Types.Package;
+import OneLang.One.Ast.Types.IHasAttributesAndTrivia;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.AstTypes.VoidType;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneLang.One.Ast.AstTypes.NullType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.EnumReference;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.ForVariableReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.EnumMemberReference;
+import OneLang.One.Ast.References.CatchVariableReference;
+import OneLang.One.Ast.References.GlobalFunctionReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.VariableReference;
+import OneLang.Generator.GeneratedFile.GeneratedFile;
+import OneLang.Generator.NameUtils.NameUtils;
+import OneLang.Generator.IGenerator.IGenerator;
+import OneLang.One.Ast.Interfaces.IExpression;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
+import OneLang.Generator.PhpPlugins.JsToPhp.JsToPhp;
+import OneLang.One.ITransformer.ITransformer;
+
+import OneLang.Generator.IGenerator.IGenerator;
 import java.util.Set;
+import OneLang.One.Ast.Types.IInterface;
 import java.util.List;
+import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
 import java.util.ArrayList;
+import OneLang.Generator.PhpPlugins.JsToPhp.JsToPhp;
+import OneLang.One.ITransformer.ITransformer;
 import java.util.Arrays;
+import OneStd.RegExp;
 import java.util.stream.Collectors;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneStd.Objects;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.VoidType;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.NullType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Types.IHasAttributesAndTrivia;
+import OneLang.One.Ast.Types.IVariableWithInitializer;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.References.VariableReference;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.Expressions.IMethodCallExpression;
+import OneStd.StdArrayHelper;
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Expressions.GlobalFunctionCallExpression;
+import OneLang.One.Ast.Expressions.LambdaCallExpression;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneStd.JSON;
 import java.util.regex.Pattern;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.CharacterLiteral;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.EnumReference;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.ForVariableReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.CatchVariableReference;
+import OneLang.One.Ast.References.GlobalFunctionReference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.EnumMemberReference;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Interfaces.IExpression;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Statements.BreakStatement;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.One.Ast.Statements.UnsetStatement;
+import OneLang.One.Ast.Statements.ThrowStatement;
+import OneLang.One.Ast.Statements.ExpressionStatement;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.DoStatement;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.ContinueStatement;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.Field;
 import java.util.stream.Stream;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.Enum;
 import java.util.HashSet;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.Generator.GeneratedFile.GeneratedFile;
+import OneLang.One.Ast.Types.Package;
 
 public class PhpGenerator implements IGenerator {
     public Set<String> usings;
@@ -28,6 +215,10 @@ public class PhpGenerator implements IGenerator {
     
     public String getExtension() {
         return "php";
+    }
+    
+    public ITransformer[] getTransforms() {
+        return new ITransformer[0];
     }
     
     public String name_(String name) {
@@ -74,24 +265,24 @@ public class PhpGenerator implements IGenerator {
     public String type(IType t, Boolean mutates) {
         if (t instanceof ClassType) {
             //const typeArgs = this.typeArgs(t.typeArguments.map(x => this.type(x)));
-            if (((ClassType)t).decl.getName().equals("TsString"))
+            if (Objects.equals(((ClassType)t).decl.getName(), "TsString"))
                 return "string";
-            else if (((ClassType)t).decl.getName().equals("TsBoolean"))
+            else if (Objects.equals(((ClassType)t).decl.getName(), "TsBoolean"))
                 return "bool";
-            else if (((ClassType)t).decl.getName().equals("TsNumber"))
+            else if (Objects.equals(((ClassType)t).decl.getName(), "TsNumber"))
                 return "int";
-            else if (((ClassType)t).decl.getName().equals("TsArray")) {
+            else if (Objects.equals(((ClassType)t).decl.getName(), "TsArray")) {
                 if (mutates)
                     return "List_";
                 else
                     return this.type(((ClassType)t).getTypeArguments()[0]) + "[]";
             }
-            else if (((ClassType)t).decl.getName().equals("Promise"))
+            else if (Objects.equals(((ClassType)t).decl.getName(), "Promise"))
                 return this.type(((ClassType)t).getTypeArguments()[0]);
-            else if (((ClassType)t).decl.getName().equals("Object"))
+            else if (Objects.equals(((ClassType)t).decl.getName(), "Object"))
                 //this.usings.add("System");
                 return "object";
-            else if (((ClassType)t).decl.getName().equals("TsMap"))
+            else if (Objects.equals(((ClassType)t).decl.getName(), "TsMap"))
                 return "Dictionary";
             
             if (((ClassType)t).decl.getParentFile().exportScope == null)
@@ -129,7 +320,7 @@ public class PhpGenerator implements IGenerator {
     }
     
     public Boolean isTsArray(IType type) {
-        return type instanceof ClassType && ((ClassType)type).decl.getName().equals("TsArray");
+        return type instanceof ClassType && Objects.equals(((ClassType)type).decl.getName(), "TsArray");
     }
     
     public String vis(Visibility v, Boolean isProperty) {
@@ -263,15 +454,15 @@ public class PhpGenerator implements IGenerator {
                     var lit = "";
                     for (Integer i = 0; i < part.literalText.length(); i++) {
                         var chr = part.literalText.substring(i, i + 1);
-                        if (chr.equals("\n"))
+                        if (Objects.equals(chr, "\n"))
                             lit += "\\n";
-                        else if (chr.equals("\r"))
+                        else if (Objects.equals(chr, "\r"))
                             lit += "\\r";
-                        else if (chr.equals("\t"))
+                        else if (Objects.equals(chr, "\t"))
                             lit += "\\t";
-                        else if (chr.equals("\\"))
+                        else if (Objects.equals(chr, "\\"))
                             lit += "\\\\";
-                        else if (chr.equals("\""))
+                        else if (Objects.equals(chr, "\""))
                             lit += "\\\"";
                         else {
                             var chrCode = (int)chr.charAt(0);
@@ -292,22 +483,22 @@ public class PhpGenerator implements IGenerator {
         }
         else if (expr instanceof BinaryExpression) {
             var op = ((BinaryExpression)expr).operator;
-            if (op.equals("=="))
+            if (Objects.equals(op, "=="))
                 op = "===";
-            else if (op.equals("!="))
+            else if (Objects.equals(op, "!="))
                 op = "!==";
             
-            if (((BinaryExpression)expr).left.actualType != null && ((BinaryExpression)expr).left.actualType.repr().equals("C:TsString")) {
-                if (op.equals("+"))
+            if (((BinaryExpression)expr).left.actualType != null && Objects.equals(((BinaryExpression)expr).left.actualType.repr(), "C:TsString")) {
+                if (Objects.equals(op, "+"))
                     op = ".";
-                else if (op.equals("+="))
+                else if (Objects.equals(op, "+="))
                     op = ".=";
             }
             
             // const useParen = expr.left instanceof BinaryExpression && expr.left.operator !== expr.operator;
             // const leftExpr = this.expr(expr.left);
             
-            res = this.expr(((BinaryExpression)expr).left) + " " + op + " " + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator.equals("=") ? ((BinaryExpression)expr).left : null);
+            res = this.expr(((BinaryExpression)expr).left) + " " + op + " " + this.mutatedExpr(((BinaryExpression)expr).right, Objects.equals(((BinaryExpression)expr).operator, "=") ? ((BinaryExpression)expr).left : null);
         }
         else if (expr instanceof ArrayLiteral)
             res = "array(" + Arrays.stream(Arrays.stream(((ArrayLiteral)expr).items).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")";
@@ -337,7 +528,7 @@ public class PhpGenerator implements IGenerator {
             res = this.expr(((UnaryExpression)expr).operand) + ((UnaryExpression)expr).operator;
         else if (expr instanceof MapLiteral) {
             var repr = Arrays.stream(Arrays.stream(((MapLiteral)expr).items).map(item -> JSON.stringify(item.key) + " => " + this.expr(item.value)).toArray(String[]::new)).collect(Collectors.joining(",\n"));
-            res = "Array(" + (repr.equals("") ? "" : repr.contains("\n") ? "\n" + this.pad(repr) + "\n" : "(" + repr) + ")";
+            res = "Array(" + (Objects.equals(repr, "") ? "" : repr.contains("\n") ? "\n" + this.pad(repr) + "\n" : "(" + repr) + ")";
         }
         else if (expr instanceof NullLiteral)
             res = "null";
@@ -530,7 +721,7 @@ public class PhpGenerator implements IGenerator {
             methods.add((method.parentInterface instanceof Interface ? "" : this.vis(method.getVisibility(), false)) + this.preIf("static ", method.getIsStatic()) + this.preIf("/* throws */ ", method.getThrows()) + "function " + this.name_(method.name) + this.typeArgs(method.typeArguments) + "(" + Arrays.stream(Arrays.stream(method.getParameters()).map(p -> this.var(p, null)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + (method.getBody() != null ? " {\n" + this.pad(this.stmts(method.getBody().statements.toArray(Statement[]::new))) + "\n}" : ";"));
         }
         resList.add(methods.stream().collect(Collectors.joining("\n\n")));
-        return " {\n" + this.pad(Arrays.stream(resList.stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n"))) + "\n}" + (staticConstructorStmts.size() > 0 ? "\n" + this.name_(cls.getName()) + "::StaticInit();" : "");
+        return " {\n" + this.pad(Arrays.stream(resList.stream().filter(x -> !Objects.equals(x, "")).toArray(String[]::new)).collect(Collectors.joining("\n\n"))) + "\n}" + (staticConstructorStmts.size() > 0 ? "\n" + this.name_(cls.getName()) + "::StaticInit();" : "");
     }
     
     public String pad(String str) {
@@ -581,7 +772,7 @@ public class PhpGenerator implements IGenerator {
                 usingsSet.add(imp.getAttributes().get("php-use"));
             else {
                 var fileNs = this.pathToNs(imp.exportScope.scopeName);
-                if (fileNs.equals("index"))
+                if (Objects.equals(fileNs, "index"))
                     continue;
                 for (var impItem : imp.imports)
                     usingsSet.add(fileNs + "\\" + this.name_(impItem.getName()));
@@ -595,7 +786,7 @@ public class PhpGenerator implements IGenerator {
         for (var using : usingsSet)
             usings.add("use " + using + ";");
         
-        var result = Arrays.stream(new ArrayList<>(List.of(usings.stream().collect(Collectors.joining("\n")), enums.stream().collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), classes.stream().collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
+        var result = Arrays.stream(new ArrayList<>(List.of(usings.stream().collect(Collectors.joining("\n")), enums.stream().collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), classes.stream().collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !Objects.equals(x, "")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
         var nl = "\n";
         result = "<?php\n\nnamespace " + this.pathToNs(sourceFile.sourcePath.path) + ";\n\n" + result + "\n";
         return result;

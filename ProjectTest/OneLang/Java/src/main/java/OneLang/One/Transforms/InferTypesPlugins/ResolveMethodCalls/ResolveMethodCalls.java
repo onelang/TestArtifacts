@@ -1,5 +1,41 @@
+package OneLang.One.Transforms.InferTypesPlugins.ResolveMethodCalls;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Expressions.IMethodCallExpression;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.TypeHelper;
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.GenericsResolver.GenericsResolver;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.IInterface;
+import OneLang.One.Ast.Types.Method;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.Class;
 import java.util.Arrays;
+import OneLang.One.Ast.Types.IInterface;
 import java.util.ArrayList;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneStd.Objects;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.IMethodCallExpression;
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.GenericsResolver.GenericsResolver;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
 
 public class ResolveMethodCalls extends InferTypesPlugin {
     public ResolveMethodCalls()
@@ -16,7 +52,7 @@ public class ResolveMethodCalls extends InferTypesPlugin {
             for (var m : base.getMethods()) {
                 var minLen = Arrays.stream(m.getParameters()).filter(p -> p.getInitializer() == null).toArray(MethodParameter[]::new).length;
                 var maxLen = m.getParameters().length;
-                var match = m.name.equals(methodName) && m.getIsStatic() == isStatic && minLen <= args.length && args.length <= maxLen;
+                var match = Objects.equals(m.name, methodName) && m.getIsStatic() == isStatic && minLen <= args.length && args.length <= maxLen;
                 if (match)
                     methods.add(m);
             }
@@ -62,7 +98,8 @@ public class ResolveMethodCalls extends InferTypesPlugin {
             return result;
         }
         else {
-            var resolvedObject = expr.object.actualType != null ? expr.object : this.main.runPluginsOn(expr.object) != null ? this.main.runPluginsOn(expr.object) : expr.object;
+            var runPluginsOnResult = this.main.runPluginsOn(expr.object);
+            var resolvedObject = expr.object.actualType != null ? expr.object : runPluginsOnResult != null ? runPluginsOnResult : expr.object;
             var objectType = resolvedObject.getType();
             var intfType = objectType instanceof ClassType ? ((IInterface)((ClassType)objectType).decl) : objectType instanceof InterfaceType ? ((InterfaceType)objectType).decl : null;
             

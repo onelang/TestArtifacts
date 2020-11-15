@@ -1,3 +1,18 @@
+package OneLang.Test.SelfTestRunner;
+
+import OneStd.OneFile;
+import OneLang.One.CompilerHelper.CompilerHelper;
+import OneLang.Generator.IGenerator.IGenerator;
+import OneLang.One.Compiler.Compiler;
+import OneLang.One.Compiler.ICompilerHooks;
+import OneLang.Test.PackageStateCapture.PackageStateCapture;
+
+import OneLang.One.Compiler.ICompilerHooks;
+import OneLang.One.Compiler.Compiler;
+import OneLang.Test.PackageStateCapture.PackageStateCapture;
+import OneStd.Objects;
+import OneStd.console;
+
 public class CompilerHooks implements ICompilerHooks {
     public Integer stage = 0;
     public Compiler compiler;
@@ -15,7 +30,7 @@ public class CompilerHooks implements ICompilerHooks {
         this.stage++;
         var stageSummary = state.getSummary();
         var expected = OneFile.readText(stageFn);
-        if (!stageSummary.equals(expected)) {
+        if (!Objects.equals(stageSummary, expected)) {
             OneFile.writeText(stageFn + "_diff.txt", stageSummary);
             throw new Error("Stage result differs from expected: " + stageName + " -> " + stageFn);
         }

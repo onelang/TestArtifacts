@@ -18,6 +18,6 @@ class PackageBundleSource implements PackageSource {
     }
     
     function getAllCached() {
-        return \OneLang\Promise::resolve($this->bundle);
+        return $this->bundle;
     }
 }

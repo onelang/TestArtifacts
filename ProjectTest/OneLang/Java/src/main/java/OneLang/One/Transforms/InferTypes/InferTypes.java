@@ -1,7 +1,70 @@
+package OneLang.One.Transforms.InferTypes;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Types.Package;
+import OneLang.One.Ast.Types.Property;
+import OneLang.One.Ast.Types.Field;
+import OneLang.One.Ast.Types.IMethodBase;
+import OneLang.One.Ast.Types.IVariableWithInitializer;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Transforms.InferTypesPlugins.BasicTypeInfer.BasicTypeInfer;
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Transforms.InferTypesPlugins.ArrayAndMapLiteralTypeInfer.ArrayAndMapLiteralTypeInfer;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveFieldAndPropertyAccess.ResolveFieldAndPropertyAccess;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveMethodCalls.ResolveMethodCalls;
+import OneLang.One.Transforms.InferTypesPlugins.LambdaResolver.LambdaResolver;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveEnumMemberAccess.ResolveEnumMemberAccess;
+import OneLang.One.Transforms.InferTypesPlugins.InferReturnType.InferReturnType;
+import OneLang.One.Transforms.InferTypesPlugins.TypeScriptNullCoalesce.TypeScriptNullCoalesce;
+import OneLang.One.Transforms.InferTypesPlugins.InferForeachVarType.InferForeachVarType;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveFuncCalls.ResolveFuncCalls;
+import OneLang.One.Transforms.InferTypesPlugins.NullabilityCheckWithNot.NullabilityCheckWithNot;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveNewCall.ResolveNewCalls;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveElementAccess.ResolveElementAccess;
+import OneLang.One.Ast.AstTypes.ClassType;
+
+import OneLang.One.AstTransformer.AstTransformer;
 import java.util.List;
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
 import java.util.ArrayList;
+import OneLang.One.Transforms.InferTypesPlugins.BasicTypeInfer.BasicTypeInfer;
+import OneLang.One.Transforms.InferTypesPlugins.ArrayAndMapLiteralTypeInfer.ArrayAndMapLiteralTypeInfer;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveFieldAndPropertyAccess.ResolveFieldAndPropertyAccess;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveMethodCalls.ResolveMethodCalls;
+import OneLang.One.Transforms.InferTypesPlugins.LambdaResolver.LambdaResolver;
+import OneLang.One.Transforms.InferTypesPlugins.InferReturnType.InferReturnType;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveEnumMemberAccess.ResolveEnumMemberAccess;
+import OneLang.One.Transforms.InferTypesPlugins.TypeScriptNullCoalesce.TypeScriptNullCoalesce;
+import OneLang.One.Transforms.InferTypesPlugins.InferForeachVarType.InferForeachVarType;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveFuncCalls.ResolveFuncCalls;
+import OneLang.One.Transforms.InferTypesPlugins.NullabilityCheckWithNot.NullabilityCheckWithNot;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveNewCall.ResolveNewCalls;
+import OneLang.One.Transforms.InferTypesPlugins.ResolveElementAccess.ResolveElementAccess;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.IMethodBase;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Types.IVariableWithInitializer;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.Types.Field;
+import OneLang.One.Ast.Types.Property;
+import OneStd.Objects;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.SourceFile;
 
 public class InferTypes extends AstTransformer {
     protected InferTypesStage stage;
@@ -117,13 +180,15 @@ public class InferTypes extends AstTransformer {
     protected Expression visitExpression(Expression expr) {
         Expression transformedExpr = null;
         while (true) {
-            var newExpr = this.runTransformRound(transformedExpr != null ? transformedExpr : expr);
+            var result = transformedExpr;
+            var newExpr = this.runTransformRound(result != null ? result : expr);
             if (newExpr == null || newExpr == transformedExpr)
                 break;
             transformedExpr = newExpr;
         }
+        var visitExpressionResult = super.visitExpression(expr);
         // if the plugin did not handle the expression, we use the default visit method
-        var expr2 = transformedExpr != null ? transformedExpr : super.visitExpression(expr) != null ? super.visitExpression(expr) : expr;
+        var expr2 = transformedExpr != null ? transformedExpr : visitExpressionResult != null ? visitExpressionResult : expr;
         
         if (expr2.actualType != null)
             return expr2;
@@ -142,6 +207,13 @@ public class InferTypes extends AstTransformer {
     
     protected Statement visitStatement(Statement stmt) {
         this.currentStatement = stmt;
+        
+        if (stmt instanceof ReturnStatement && ((ReturnStatement)stmt).expression != null && this.currentClosure instanceof Method && ((Method)this.currentClosure).returns != null) {
+            var returnType = ((Method)this.currentClosure).returns;
+            if (returnType instanceof ClassType && ((ClassType)returnType).decl == this.currentFile.literalTypes.promise.decl && ((Method)this.currentClosure).async)
+                returnType = ((ClassType)returnType).getTypeArguments()[0];
+            ((ReturnStatement)stmt).expression.setExpectedType(returnType);
+        }
         
         for (var plugin : this.plugins) {
             if (plugin.handleStatement(stmt))
@@ -185,12 +257,17 @@ public class InferTypes extends AstTransformer {
         if (lambda.actualType != null)
             return null;
         
+        var prevClosure = this.currentClosure;
+        this.currentClosure = lambda;
+        
         for (var plugin : this.plugins) {
             if (plugin.handleLambda(lambda))
                 return lambda;
         }
         
-        return super.visitLambda(lambda);
+        this.currentClosure = prevClosure;
+        super.visitMethodBase(lambda);
+        return null;
     }
     
     public Expression runPluginsOn(Expression expr) {
@@ -198,7 +275,7 @@ public class InferTypes extends AstTransformer {
     }
     
     protected void visitClass(Class cls) {
-        if (cls.getAttributes().get("external").equals("true"))
+        if (Objects.equals(cls.getAttributes().get("external"), "true"))
             return;
         super.visitClass(cls);
     }

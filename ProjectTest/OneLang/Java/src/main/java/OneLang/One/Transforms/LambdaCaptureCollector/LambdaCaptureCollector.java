@@ -1,7 +1,31 @@
+package OneLang.One.Transforms.LambdaCaptureCollector;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Ast.AstTypes.UnresolvedType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.VariableReference;
+
+import OneLang.One.AstTransformer.AstTransformer;
 import java.util.List;
+import OneLang.One.Ast.Types.IVariable;
 import java.util.Set;
 import java.util.ArrayList;
+import OneLang.One.Ast.Types.Lambda;
 import java.util.HashSet;
+import OneLang.One.Ast.References.VariableReference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
 
 public class LambdaCaptureCollector extends AstTransformer {
     public List<Set<IVariable>> scopeVarStack;

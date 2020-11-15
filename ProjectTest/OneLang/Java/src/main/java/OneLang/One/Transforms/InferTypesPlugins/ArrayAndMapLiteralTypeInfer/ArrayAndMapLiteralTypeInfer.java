@@ -1,6 +1,31 @@
+package OneLang.One.Transforms.InferTypesPlugins.ArrayAndMapLiteralTypeInfer;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.TypeHelper;
+import OneLang.One.Ast.Interfaces.IType;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Interfaces.IType;
 import java.util.ArrayList;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.AnyType;
 import java.util.stream.Collectors;
 import java.util.Arrays;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneStd.Objects;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
 
 public class ArrayAndMapLiteralTypeInfer extends InferTypesPlugin {
     public ArrayAndMapLiteralTypeInfer()
@@ -46,7 +71,7 @@ public class ArrayAndMapLiteralTypeInfer extends InferTypesPlugin {
         // make this work: `<{ [name: string]: SomeObject }> {}`
         if (expr.parentNode instanceof CastExpression)
             expr.setExpectedType(((CastExpression)expr.parentNode).newType);
-        else if (expr.parentNode instanceof BinaryExpression && ((BinaryExpression)expr.parentNode).operator.equals("=") && ((BinaryExpression)expr.parentNode).right == expr)
+        else if (expr.parentNode instanceof BinaryExpression && Objects.equals(((BinaryExpression)expr.parentNode).operator, "=") && ((BinaryExpression)expr.parentNode).right == expr)
             expr.setExpectedType(((BinaryExpression)expr.parentNode).left.actualType);
         else if (expr.parentNode instanceof ConditionalExpression && (((ConditionalExpression)expr.parentNode).whenTrue == expr || ((ConditionalExpression)expr.parentNode).whenFalse == expr))
             expr.setExpectedType(((ConditionalExpression)expr.parentNode).whenTrue == expr ? ((ConditionalExpression)expr.parentNode).whenFalse.actualType : ((ConditionalExpression)expr.parentNode).whenTrue.actualType);

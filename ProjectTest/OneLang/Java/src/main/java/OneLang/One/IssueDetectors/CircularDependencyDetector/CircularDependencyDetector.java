@@ -1,3 +1,22 @@
+package OneLang.One.IssueDetectors.CircularDependencyDetector;
+
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.Types.IInterface;
+import OneLang.One.Ast.Types.IResolvedImportable;
+import OneLang.One.Ast.Types.Package;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.Workspace;
+
+import OneLang.One.IssueDetectors.CircularDependencyDetector.IGraphVisitor;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.IssueDetectors.CircularDependencyDetector.GraphCycleDetector;
+import OneStd.console;
+import OneLang.One.Ast.Types.IInterface;
+import OneLang.One.Ast.Types.IResolvedImportable;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.Types.Package;
+import OneLang.One.Ast.Types.Workspace;
+
 public class CircularDependencyDetector implements IGraphVisitor<SourceFile> {
     public GraphCycleDetector<SourceFile> detector;
     public DetectionMode detectionMode;

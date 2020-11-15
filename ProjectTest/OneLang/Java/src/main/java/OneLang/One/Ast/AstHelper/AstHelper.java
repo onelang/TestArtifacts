@@ -1,6 +1,17 @@
+package OneLang.One.Ast.AstHelper;
+
+import OneLang.One.Ast.Types.IInterface;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.ClassType;
+
+import OneLang.One.Ast.Types.IInterface;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
 
 public class AstHelper {
     public static IInterface[] collectAllBaseInterfaces(IInterface intf) {

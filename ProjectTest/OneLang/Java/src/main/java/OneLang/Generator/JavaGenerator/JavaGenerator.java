@@ -1,11 +1,204 @@
+package OneLang.Generator.JavaGenerator;
+
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.CharacterLiteral;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.UnaryType;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Expressions.GlobalFunctionCallExpression;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Expressions.LambdaCallExpression;
+import OneLang.One.Ast.Expressions.IMethodCallExpression;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.One.Ast.Statements.UnsetStatement;
+import OneLang.One.Ast.Statements.ThrowStatement;
+import OneLang.One.Ast.Statements.ExpressionStatement;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.BreakStatement;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.DoStatement;
+import OneLang.One.Ast.Statements.ContinueStatement;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.IInterface;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.Types.IVariableWithInitializer;
+import OneLang.One.Ast.Types.Visibility;
+import OneLang.One.Ast.Types.Package;
+import OneLang.One.Ast.Types.IHasAttributesAndTrivia;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.ExportScopeRef;
+import OneLang.One.Ast.AstTypes.VoidType;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneLang.One.Ast.AstTypes.NullType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.AstTypes.TypeHelper;
+import OneLang.One.Ast.AstTypes.IInterfaceType;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.EnumReference;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.ForVariableReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.EnumMemberReference;
+import OneLang.One.Ast.References.CatchVariableReference;
+import OneLang.One.Ast.References.GlobalFunctionReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.VariableReference;
+import OneLang.Generator.GeneratedFile.GeneratedFile;
+import OneLang.Generator.NameUtils.NameUtils;
+import OneLang.Generator.IGenerator.IGenerator;
+import OneLang.One.Ast.Interfaces.IExpression;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
+import OneLang.Generator.JavaPlugins.JsToJava.JsToJava;
+import OneLang.One.ITransformer.ITransformer;
+import OneLang.One.Transforms.ConvertNullCoalesce.ConvertNullCoalesce;
+
+import OneLang.Generator.IGenerator.IGenerator;
 import java.util.Set;
+import OneLang.One.Ast.Types.IInterface;
 import java.util.List;
+import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
 import java.util.HashSet;
 import java.util.ArrayList;
+import OneLang.Generator.JavaPlugins.JsToJava.JsToJava;
+import OneLang.One.ITransformer.ITransformer;
+import OneLang.One.Transforms.ConvertNullCoalesce.ConvertNullCoalesce;
 import java.util.Arrays;
+import OneStd.RegExp;
 import java.util.stream.Collectors;
+import OneStd.Objects;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.IInterfaceType;
+import OneLang.One.Ast.AstTypes.VoidType;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.NullType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Types.IHasAttributesAndTrivia;
+import OneLang.One.Ast.Types.IVariableWithInitializer;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.References.VariableReference;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.Expressions.IMethodCallExpression;
+import OneStd.StdArrayHelper;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.GlobalFunctionCallExpression;
+import OneLang.One.Ast.Expressions.LambdaCallExpression;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneStd.JSON;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.CharacterLiteral;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.EnumReference;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.ForVariableReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.CatchVariableReference;
+import OneLang.One.Ast.References.GlobalFunctionReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.EnumMemberReference;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Interfaces.IExpression;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Statements.BreakStatement;
+import OneLang.One.Ast.Statements.UnsetStatement;
+import OneLang.One.Ast.Statements.ThrowStatement;
+import OneLang.One.Ast.Statements.ExpressionStatement;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.DoStatement;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.ContinueStatement;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.Field;
 import java.util.stream.Stream;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.Interface;
 import java.util.regex.Pattern;
+import OneLang.One.Ast.Types.ExportScopeRef;
+import OneLang.Generator.GeneratedFile.GeneratedFile;
+import OneLang.One.Ast.Types.Package;
 
 public class JavaGenerator implements IGenerator {
     public Set<String> imports;
@@ -31,6 +224,10 @@ public class JavaGenerator implements IGenerator {
         return "java";
     }
     
+    public ITransformer[] getTransforms() {
+        return new ConvertNullCoalesce[] { new ConvertNullCoalesce() };
+    }
+    
     public String name_(String name) {
         if (Arrays.stream(this.reservedWords).anyMatch(name::equals))
             name += "_";
@@ -40,7 +237,7 @@ public class JavaGenerator implements IGenerator {
         for (Integer i = 1; i < nameParts.length; i++)
             nameParts[i] = nameParts[i].substring(0, 0 + 1).toUpperCase() + nameParts[i].substring(1);
         name = Arrays.stream(nameParts).collect(Collectors.joining(""));
-        if (name.equals("_"))
+        if (Objects.equals(name, "_"))
             name = "unused";
         return name;
     }
@@ -75,15 +272,21 @@ public class JavaGenerator implements IGenerator {
     }
     
     public String type(IType t, Boolean mutates, Boolean isNew) {
+        if (t instanceof ClassType || t instanceof InterfaceType) {
+            var decl = (((IInterfaceType)t)).getDecl();
+            if (decl.getParentFile().exportScope != null)
+                this.imports.add(this.toImport(decl.getParentFile().exportScope) + "." + decl.getName());
+        }
+        
         if (t instanceof ClassType) {
             var typeArgs = this.typeArgs(Arrays.stream(((ClassType)t).getTypeArguments()).map(x -> this.type(x)).toArray(String[]::new));
-            if (((ClassType)t).decl.getName().equals("TsString"))
+            if (Objects.equals(((ClassType)t).decl.getName(), "TsString"))
                 return "String";
-            else if (((ClassType)t).decl.getName().equals("TsBoolean"))
+            else if (Objects.equals(((ClassType)t).decl.getName(), "TsBoolean"))
                 return "Boolean";
-            else if (((ClassType)t).decl.getName().equals("TsNumber"))
+            else if (Objects.equals(((ClassType)t).decl.getName(), "TsNumber"))
                 return "Integer";
-            else if (((ClassType)t).decl.getName().equals("TsArray")) {
+            else if (Objects.equals(((ClassType)t).decl.getName(), "TsArray")) {
                 var realType = isNew ? "ArrayList" : "List";
                 if (mutates) {
                     this.imports.add("java.util." + realType);
@@ -92,22 +295,22 @@ public class JavaGenerator implements IGenerator {
                 else
                     return this.type(((ClassType)t).getTypeArguments()[0]) + "[]";
             }
-            else if (((ClassType)t).decl.getName().equals("Map")) {
+            else if (Objects.equals(((ClassType)t).decl.getName(), "Map")) {
                 var realType = isNew ? "LinkedHashMap" : "Map";
                 this.imports.add("java.util." + realType);
                 return realType + "<" + this.type(((ClassType)t).getTypeArguments()[0]) + ", " + this.type(((ClassType)t).getTypeArguments()[1]) + ">";
             }
-            else if (((ClassType)t).decl.getName().equals("Set")) {
+            else if (Objects.equals(((ClassType)t).decl.getName(), "Set")) {
                 var realType = isNew ? "HashSet" : "Set";
                 this.imports.add("java.util." + realType);
                 return realType + "<" + this.type(((ClassType)t).getTypeArguments()[0]) + ">";
             }
-            else if (((ClassType)t).decl.getName().equals("Promise"))
+            else if (Objects.equals(((ClassType)t).decl.getName(), "Promise"))
                 return ((ClassType)t).getTypeArguments()[0] instanceof VoidType ? "void" : this.type(((ClassType)t).getTypeArguments()[0]);
-            else if (((ClassType)t).decl.getName().equals("Object"))
+            else if (Objects.equals(((ClassType)t).decl.getName(), "Object"))
                 //this.imports.add("System");
                 return "Object";
-            else if (((ClassType)t).decl.getName().equals("TsMap")) {
+            else if (Objects.equals(((ClassType)t).decl.getName(), "TsMap")) {
                 var realType = isNew ? "LinkedHashMap" : "Map";
                 this.imports.add("java.util." + realType);
                 return realType + "<String, " + this.type(((ClassType)t).getTypeArguments()[0]) + ">";
@@ -149,7 +352,7 @@ public class JavaGenerator implements IGenerator {
     }
     
     public Boolean isTsArray(IType type) {
-        return type instanceof ClassType && ((ClassType)type).decl.getName().equals("TsArray");
+        return type instanceof ClassType && Objects.equals(((ClassType)type).decl.getName(), "TsArray");
     }
     
     public String vis(Visibility v) {
@@ -160,7 +363,7 @@ public class JavaGenerator implements IGenerator {
         String type;
         if (attr != null && attr.getAttributes() != null && attr.getAttributes().containsKey("java-type"))
             type = attr.getAttributes().get("java-type");
-        else if (v.getType() instanceof ClassType && ((ClassType)v.getType()).decl.getName().equals("TsArray")) {
+        else if (v.getType() instanceof ClassType && Objects.equals(((ClassType)v.getType()).decl.getName(), "TsArray")) {
             if (v.getMutability().mutated) {
                 this.imports.add("java.util.List");
                 type = "List<" + this.type(((ClassType)v.getType()).getTypeArguments()[0]) + ">";
@@ -285,15 +488,15 @@ public class JavaGenerator implements IGenerator {
                     var lit = "";
                     for (Integer i = 0; i < part.literalText.length(); i++) {
                         var chr = part.literalText.substring(i, i + 1);
-                        if (chr.equals("\n"))
+                        if (Objects.equals(chr, "\n"))
                             lit += "\\n";
-                        else if (chr.equals("\r"))
+                        else if (Objects.equals(chr, "\r"))
                             lit += "\\r";
-                        else if (chr.equals("\t"))
+                        else if (Objects.equals(chr, "\t"))
                             lit += "\\t";
-                        else if (chr.equals("\\"))
+                        else if (Objects.equals(chr, "\\"))
                             lit += "\\\\";
-                        else if (chr.equals("\""))
+                        else if (Objects.equals(chr, "\""))
                             lit += "\\\"";
                         else {
                             var chrCode = (int)chr.charAt(0);
@@ -315,19 +518,21 @@ public class JavaGenerator implements IGenerator {
         else if (expr instanceof BinaryExpression) {
             var modifies = new ArrayList<>(List.of("=", "+=", "-=")).stream().anyMatch(((BinaryExpression)expr).operator::equals);
             if (modifies && ((BinaryExpression)expr).left instanceof InstanceFieldReference && this.useGetterSetter(((InstanceFieldReference)((BinaryExpression)expr).left)))
-                res = this.expr(((InstanceFieldReference)((BinaryExpression)expr).left).object) + ".set" + this.ucFirst(((InstanceFieldReference)((BinaryExpression)expr).left).field.getName()) + "(" + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator.equals("=") ? ((InstanceFieldReference)((BinaryExpression)expr).left) : null) + ")";
+                res = this.expr(((InstanceFieldReference)((BinaryExpression)expr).left).object) + ".set" + this.ucFirst(((InstanceFieldReference)((BinaryExpression)expr).left).field.getName()) + "(" + this.mutatedExpr(((BinaryExpression)expr).right, Objects.equals(((BinaryExpression)expr).operator, "=") ? ((InstanceFieldReference)((BinaryExpression)expr).left) : null) + ")";
             else if (new ArrayList<>(List.of("==", "!=")).stream().anyMatch(((BinaryExpression)expr).operator::equals)) {
                 var lit = this.currentClass.getParentFile().literalTypes;
                 var leftType = ((BinaryExpression)expr).left.getType();
                 var rightType = ((BinaryExpression)expr).right.getType();
                 var useEquals = TypeHelper.equals(leftType, lit.string) && rightType != null && TypeHelper.equals(rightType, lit.string);
-                if (useEquals)
-                    res = (((BinaryExpression)expr).operator.equals("!=") ? "!" : "") + this.expr(((BinaryExpression)expr).left) + ".equals(" + this.expr(((BinaryExpression)expr).right) + ")";
+                if (useEquals) {
+                    this.imports.add("OneStd.Objects");
+                    res = (Objects.equals(((BinaryExpression)expr).operator, "!=") ? "!" : "") + "Objects.equals(" + this.expr(((BinaryExpression)expr).left) + ", " + this.expr(((BinaryExpression)expr).right) + ")";
+                }
                 else
                     res = this.expr(((BinaryExpression)expr).left) + " " + ((BinaryExpression)expr).operator + " " + this.expr(((BinaryExpression)expr).right);
             }
             else
-                res = this.expr(((BinaryExpression)expr).left) + " " + ((BinaryExpression)expr).operator + " " + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator.equals("=") ? ((BinaryExpression)expr).left : null);
+                res = this.expr(((BinaryExpression)expr).left) + " " + ((BinaryExpression)expr).operator + " " + this.mutatedExpr(((BinaryExpression)expr).right, Objects.equals(((BinaryExpression)expr).operator, "=") ? ((BinaryExpression)expr).left : null);
         }
         else if (expr instanceof ArrayLiteral) {
             if (((ArrayLiteral)expr).items.length == 0)
@@ -346,18 +551,20 @@ public class JavaGenerator implements IGenerator {
             res = this.expr(((InstanceOfExpression)expr).expr) + " instanceof " + this.type(((InstanceOfExpression)expr).checkType);
         else if (expr instanceof ParenthesizedExpression)
             res = "(" + this.expr(((ParenthesizedExpression)expr).expression) + ")";
-        else if (expr instanceof RegexLiteral)
+        else if (expr instanceof RegexLiteral) {
+            this.imports.add("OneStd.RegExp");
             res = "new RegExp(" + JSON.stringify(((RegexLiteral)expr).pattern) + ")";
+        }
         else if (expr instanceof Lambda) {
             String body;
             if (((Lambda)expr).getBody().statements.size() == 1 && ((Lambda)expr).getBody().statements.get(0) instanceof ReturnStatement)
-                body = this.expr((((ReturnStatement)((Lambda)expr).getBody().statements.get(0))).expression);
+                body = " " + this.expr((((ReturnStatement)((Lambda)expr).getBody().statements.get(0))).expression);
             else
-                body = "{ " + this.rawBlock(((Lambda)expr).getBody()) + " }";
+                body = this.block(((Lambda)expr).getBody(), false);
             
             var params = Arrays.stream(((Lambda)expr).getParameters()).map(x -> this.name_(x.getName())).toArray(String[]::new);
             
-            res = (params.length == 1 ? params[0] : "(" + Arrays.stream(params).collect(Collectors.joining(", ")) + ")") + " -> " + body;
+            res = (params.length == 1 ? params[0] : "(" + Arrays.stream(params).collect(Collectors.joining(", ")) + ")") + " ->" + body;
         }
         else if (expr instanceof UnaryExpression && ((UnaryExpression)expr).unaryType == UnaryType.Prefix)
             res = ((UnaryExpression)expr).operator + this.expr(((UnaryExpression)expr).operand);
@@ -613,7 +820,7 @@ public class JavaGenerator implements IGenerator {
             methods.add(this.method(method, true));
         }
         resList.add(methods.stream().collect(Collectors.joining("\n\n")));
-        return this.pad(Arrays.stream(resList.stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
+        return this.pad(Arrays.stream(resList.stream().filter(x -> !Objects.equals(x, "")).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
     }
     
     public String ucFirst(String str) {
@@ -631,7 +838,7 @@ public class JavaGenerator implements IGenerator {
         }
         
         resList.add(Arrays.stream(Arrays.stream(intf.getMethods()).map(method -> this.method(method, false)).toArray(String[]::new)).collect(Collectors.joining("\n")));
-        return this.pad(Arrays.stream(resList.stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
+        return this.pad(Arrays.stream(resList.stream().filter(x -> !Objects.equals(x, "")).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
     }
     
     public String pad(String str) {
@@ -653,23 +860,38 @@ public class JavaGenerator implements IGenerator {
         return imports.size() == 0 ? "" : Arrays.stream(imports.stream().map(x -> "import " + x + ";").toArray(String[]::new)).collect(Collectors.joining("\n")) + "\n\n";
     }
     
+    public String toImport(ExportScopeRef scope) {
+        return Objects.equals(scope.scopeName, "index") ? "OneStd" : scope.packageName + "." + scope.scopeName.replaceAll("\\.ts$", "").replaceAll("/", ".");
+    }
+    
     public GeneratedFile[] generate(Package pkg) {
         var result = new ArrayList<GeneratedFile>();
         for (var path : pkg.files.keySet().toArray(String[]::new)) {
             var file = pkg.files.get(path);
-            var dstDir = "src/main/java/" + pkg.name + "/" + file.sourcePath.path.replaceAll("\\.ts$", "");
+            var packagePath = pkg.name + "/" + file.sourcePath.path.replaceAll("\\.ts$", "");
+            var dstDir = "src/main/java/" + packagePath;
+            var packageName = packagePath.replaceAll("/", ".");
+            
+            var imports = new HashSet<String>();
+            for (var impList : file.imports) {
+                var impPkg = this.toImport(impList.exportScope);
+                for (var imp : impList.imports)
+                    imports.add(impPkg + "." + imp.getName());
+            }
+            
+            var head = "package " + packageName + ";\n\n" + Arrays.stream(Arrays.stream(imports.toArray(String[]::new)).map(x -> "import " + x + ";").toArray(String[]::new)).collect(Collectors.joining("\n")) + "\n\n";
             
             for (var enum_ : file.enums)
-                result.add(new GeneratedFile(dstDir + "/" + enum_.getName() + ".java", "public enum " + this.name_(enum_.getName()) + " { " + Arrays.stream(Arrays.stream(enum_.values).map(x -> this.name_(x.name)).toArray(String[]::new)).collect(Collectors.joining(", ")) + " }"));
+                result.add(new GeneratedFile(dstDir + "/" + enum_.getName() + ".java", head + "public enum " + this.name_(enum_.getName()) + " { " + Arrays.stream(Arrays.stream(enum_.values).map(x -> this.name_(x.name)).toArray(String[]::new)).collect(Collectors.joining(", ")) + " }"));
             
             for (var intf : file.interfaces) {
                 var res = "public interface " + this.name_(intf.getName()) + this.typeArgs(intf.getTypeArguments()) + this.preArr(" extends ", Arrays.stream(intf.getBaseInterfaces()).map(x -> this.type(x)).toArray(String[]::new)) + " {\n" + this.interface_(intf) + "\n}";
-                result.add(new GeneratedFile(dstDir + "/" + intf.getName() + ".java", this.importsHead() + res));
+                result.add(new GeneratedFile(dstDir + "/" + intf.getName() + ".java", head + this.importsHead() + res));
             }
             
             for (var cls : file.classes) {
                 var res = "public class " + this.name_(cls.getName()) + this.typeArgs(cls.getTypeArguments()) + (cls.baseClass != null ? " extends " + this.type(cls.baseClass) : "") + this.preArr(" implements ", Arrays.stream(cls.getBaseInterfaces()).map(x -> this.type(x)).toArray(String[]::new)) + " {\n" + this.class_(cls) + "\n}";
-                result.add(new GeneratedFile(dstDir + "/" + cls.getName() + ".java", this.importsHead() + res));
+                result.add(new GeneratedFile(dstDir + "/" + cls.getName() + ".java", head + this.importsHead() + res));
             }
         }
         return result.toArray(GeneratedFile[]::new);

@@ -107,6 +107,7 @@ use Generator\NameUtils\NameUtils;
 use One\Ast\Interfaces\IExpression;
 use One\Ast\Interfaces\IType;
 use Generator\IGenerator\IGenerator;
+use One\ITransformer\ITransformer;
 
 class PythonGenerator implements IGenerator {
     public $tmplStrLevel = 0;
@@ -132,6 +133,10 @@ class PythonGenerator implements IGenerator {
     
     function getExtension() {
         return "py";
+    }
+    
+    function getTransforms() {
+        return array();
     }
     
     function type($type) {

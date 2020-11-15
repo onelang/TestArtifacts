@@ -60,6 +60,7 @@ use One\Ast\Types\Visibility;
 use One\Ast\Types\Package;
 use One\Ast\Types\IHasAttributesAndTrivia;
 use One\Ast\Types\Method;
+use One\Ast\Types\ExportScopeRef;
 use One\Ast\AstTypes\VoidType;
 use One\Ast\AstTypes\ClassType;
 use One\Ast\AstTypes\InterfaceType;
@@ -69,6 +70,7 @@ use One\Ast\AstTypes\LambdaType;
 use One\Ast\AstTypes\NullType;
 use One\Ast\AstTypes\GenericsType;
 use One\Ast\AstTypes\TypeHelper;
+use One\Ast\AstTypes\IInterfaceType;
 use One\Ast\References\ThisReference;
 use One\Ast\References\EnumReference;
 use One\Ast\References\ClassReference;
@@ -93,6 +95,8 @@ use One\Ast\Interfaces\IExpression;
 use One\Ast\Interfaces\IType;
 use Generator\IGeneratorPlugin\IGeneratorPlugin;
 use Generator\JavaPlugins\JsToJava\JsToJava;
+use One\ITransformer\ITransformer;
+use One\Transforms\ConvertNullCoalesce\ConvertNullCoalesce;
 
 class JavaGenerator implements IGenerator {
     public $imports;
@@ -115,6 +119,10 @@ class JavaGenerator implements IGenerator {
     
     function getExtension() {
         return "java";
+    }
+    
+    function getTransforms() {
+        return array(new ConvertNullCoalesce());
     }
     
     function name_($name) {
@@ -161,6 +169,12 @@ class JavaGenerator implements IGenerator {
     }
     
     function type($t, $mutates = true, $isNew = false) {
+        if ($t instanceof ClassType || $t instanceof InterfaceType) {
+            $decl = ($t)->getDecl();
+            if ($decl->parentFile->exportScope !== null)
+                $this->imports->add($this->toImport($decl->parentFile->exportScope) . "." . $decl->name);
+        }
+        
         if ($t instanceof ClassType) {
             $typeArgs = $this->typeArgs(array_map(function ($x) { return $this->type($x); }, $t->typeArguments));
             if ($t->decl->name === "TsString")
@@ -399,8 +413,10 @@ class JavaGenerator implements IGenerator {
                 $leftType = $expr->left->getType();
                 $rightType = $expr->right->getType();
                 $useEquals = TypeHelper::equals($leftType, $lit->string) && $rightType !== null && TypeHelper::equals($rightType, $lit->string);
-                if ($useEquals)
-                    $res = ($expr->operator === "!=" ? "!" : "") . $this->expr($expr->left) . ".equals(" . $this->expr($expr->right) . ")";
+                if ($useEquals) {
+                    $this->imports->add("OneStd.Objects");
+                    $res = ($expr->operator === "!=" ? "!" : "") . "Objects.equals(" . $this->expr($expr->left) . ", " . $this->expr($expr->right) . ")";
+                }
                 else
                     $res = $this->expr($expr->left) . " " . $expr->operator . " " . $this->expr($expr->right);
             }
@@ -424,18 +440,20 @@ class JavaGenerator implements IGenerator {
             $res = $this->expr($expr->expr) . " instanceof " . $this->type($expr->checkType);
         else if ($expr instanceof ParenthesizedExpression)
             $res = "(" . $this->expr($expr->expression) . ")";
-        else if ($expr instanceof RegexLiteral)
+        else if ($expr instanceof RegexLiteral) {
+            $this->imports->add("OneStd.RegExp");
             $res = "new RegExp(" . json_encode($expr->pattern, JSON_UNESCAPED_SLASHES) . ")";
+        }
         else if ($expr instanceof Lambda) {
             /* @var $body */
             if (count($expr->body->statements) === 1 && $expr->body->statements[0] instanceof ReturnStatement)
-                $body = $this->expr(($expr->body->statements[0])->expression);
+                $body = " " . $this->expr(($expr->body->statements[0])->expression);
             else
-                $body = "{ " . $this->rawBlock($expr->body) . " }";
+                $body = $this->block($expr->body, false);
             
             $params = array_map(function ($x) { return $this->name_($x->name); }, $expr->parameters);
             
-            $res = (count($params) === 1 ? $params[0] : "(" . implode(", ", $params) . ")") . " -> " . $body;
+            $res = (count($params) === 1 ? $params[0] : "(" . implode(", ", $params) . ")") . " ->" . $body;
         }
         else if ($expr instanceof UnaryExpression && $expr->unaryType === UnaryType::PREFIX)
             $res = $expr->operator . $this->expr($expr->operand);
@@ -727,23 +745,38 @@ class JavaGenerator implements IGenerator {
         return count($imports) === 0 ? "" : implode("\n", array_map(function ($x) { return "import " . $x . ";"; }, $imports)) . "\n\n";
     }
     
+    function toImport($scope) {
+        return $scope->scopeName === "index" ? "OneStd" : $scope->packageName . "." . preg_replace("///", ".", preg_replace("/\\.ts$/", "", $scope->scopeName));
+    }
+    
     function generate($pkg) {
         $result = array();
         foreach (array_keys($pkg->files) as $path) {
             $file = @$pkg->files[$path] ?? null;
-            $dstDir = "src/main/java/" . $pkg->name . "/" . preg_replace("/\\.ts$/", "", $file->sourcePath->path);
+            $packagePath = $pkg->name . "/" . preg_replace("/\\.ts$/", "", $file->sourcePath->path);
+            $dstDir = "src/main/java/" . $packagePath;
+            $packageName = preg_replace("///", ".", $packagePath);
+            
+            $imports = new \OneLang\Set();
+            foreach ($file->imports as $impList) {
+                $impPkg = $this->toImport($impList->exportScope);
+                foreach ($impList->imports as $imp)
+                    $imports->add($impPkg . "." . $imp->name);
+            }
+            
+            $head = "package " . $packageName . ";\n\n" . implode("\n", array_map(function ($x) { return "import " . $x . ";"; }, \OneLang\Array_::from($imports->values()))) . "\n\n";
             
             foreach ($file->enums as $enum_)
-                $result[] = new GeneratedFile($dstDir . "/" . $enum_->name . ".java", "public enum " . $this->name_($enum_->name) . " { " . implode(", ", array_map(function ($x) { return $this->name_($x->name); }, $enum_->values)) . " }");
+                $result[] = new GeneratedFile($dstDir . "/" . $enum_->name . ".java", $head . "public enum " . $this->name_($enum_->name) . " { " . implode(", ", array_map(function ($x) { return $this->name_($x->name); }, $enum_->values)) . " }");
             
             foreach ($file->interfaces as $intf) {
                 $res = "public interface " . $this->name_($intf->name) . $this->typeArgs($intf->typeArguments) . $this->preArr(" extends ", array_map(function ($x) { return $this->type($x); }, $intf->baseInterfaces)) . " {\n" . $this->interface($intf) . "\n}";
-                $result[] = new GeneratedFile($dstDir . "/" . $intf->name . ".java", $this->importsHead() . $res);
+                $result[] = new GeneratedFile($dstDir . "/" . $intf->name . ".java", $head . $this->importsHead() . $res);
             }
             
             foreach ($file->classes as $cls) {
                 $res = "public class " . $this->name_($cls->name) . $this->typeArgs($cls->typeArguments) . ($cls->baseClass !== null ? " extends " . $this->type($cls->baseClass) : "") . $this->preArr(" implements ", array_map(function ($x) { return $this->type($x); }, $cls->baseInterfaces)) . " {\n" . $this->class($cls) . "\n}";
-                $result[] = new GeneratedFile($dstDir . "/" . $cls->name . ".java", $this->importsHead() . $res);
+                $result[] = new GeneratedFile($dstDir . "/" . $cls->name . ".java", $head . $this->importsHead() . $res);
             }
         }
         return $result;

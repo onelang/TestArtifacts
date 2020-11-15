@@ -1,4 +1,18 @@
+package OneLang.One.Transforms.ResolveImports;
+
+import OneLang.One.Ast.Types.Workspace;
+import OneLang.One.Ast.Types.UnresolvedImport;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.Package;
+import OneLang.One.AstTransformer.AstTransformer;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Ast.Types.Workspace;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.UnresolvedImport;
 import java.util.Arrays;
+import OneLang.One.Ast.Types.IImportable;
+import OneLang.One.Ast.Types.Package;
 
 public class ResolveImports extends AstTransformer {
     public Workspace workspace;

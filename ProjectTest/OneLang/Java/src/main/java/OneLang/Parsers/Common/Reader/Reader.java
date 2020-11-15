@@ -1,6 +1,16 @@
+package OneLang.Parsers.Common.Reader;
+
+import OneLang.Parsers.Common.Utils.Utils;
+
+import OneLang.Parsers.Common.Reader.CursorPositionSearch;
 import java.util.List;
+import OneLang.Parsers.Common.Reader.ParseError;
+import OneLang.Parsers.Common.Reader.IReaderHooks;
+import OneLang.Parsers.Common.Reader.Cursor;
+import OneStd.RegExp;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
+import OneStd.Objects;
 import java.util.stream.Collectors;
 import java.util.Arrays;
 
@@ -69,10 +79,10 @@ public class Reader {
         for (; this.offset < this.input.length(); this.offset++) {
             var c = this.input.substring(this.offset, this.offset + 1);
             
-            if (c.equals("\n"))
+            if (Objects.equals(c, "\n"))
                 this.wsLineCounter++;
             
-            if (!(c.equals("\n") || c.equals("\r") || c.equals("\t") || c.equals(" ")))
+            if (!(Objects.equals(c, "\n") || Objects.equals(c, "\r") || Objects.equals(c, "\t") || Objects.equals(c, " ")))
                 break;
         }
         
@@ -149,8 +159,10 @@ public class Reader {
     }
     
     public void expectToken(String token, String errorMsg) {
-        if (!this.readToken(token))
-            this.fail(errorMsg != null ? errorMsg : "expected token '" + token + "'");
+        if (!this.readToken(token)) {
+            var result = errorMsg;
+            this.fail(result != null ? result : "expected token '" + token + "'");
+        }
     }
     
     public void expectToken(String token) {
@@ -159,8 +171,10 @@ public class Reader {
     
     public String expectString(String errorMsg) {
         var result = this.readString();
-        if (result == null)
-            this.fail(errorMsg != null ? errorMsg : "expected string");
+        if (result == null) {
+            var result2 = errorMsg;
+            this.fail(result2 != null ? result2 : "expected string");
+        }
         return result;
     }
     
@@ -259,31 +273,31 @@ public class Reader {
         this.skipWhitespace();
         
         var sepChar = this.input.substring(this.offset, this.offset + 1);
-        if (!sepChar.equals("'") && !sepChar.equals("\""))
+        if (!Objects.equals(sepChar, "'") && !Objects.equals(sepChar, "\""))
             return null;
         
         var str = "";
         this.readExactly(sepChar);
         while (!this.readExactly(sepChar)) {
             var chr = this.readChar();
-            if (chr.equals("\\")) {
+            if (Objects.equals(chr, "\\")) {
                 var esc = this.readChar();
-                if (esc.equals("n"))
+                if (Objects.equals(esc, "n"))
                     str += "\n";
-                else if (esc.equals("r"))
+                else if (Objects.equals(esc, "r"))
                     str += "\r";
-                else if (esc.equals("t"))
+                else if (Objects.equals(esc, "t"))
                     str += "\t";
-                else if (esc.equals("\\"))
+                else if (Objects.equals(esc, "\\"))
                     str += "\\";
-                else if (esc.equals(sepChar))
+                else if (Objects.equals(esc, sepChar))
                     str += sepChar;
                 else
                     this.fail("invalid escape", this.offset - 1);
             }
             else {
                 var chrCode = (int)chr.charAt(0);
-                if (!(32 <= chrCode && chrCode <= 126) || chr.equals("\\") || chr.equals(sepChar))
+                if (!(32 <= chrCode && chrCode <= 126) || Objects.equals(chr, "\\") || Objects.equals(chr, sepChar))
                     this.fail("not allowed character (code=" + chrCode + ")", this.offset - 1);
                 str += chr;
             }
@@ -293,8 +307,10 @@ public class Reader {
     
     public String expectIdentifier(String errorMsg) {
         var id = this.readIdentifier();
-        if (id == null)
-            this.fail(errorMsg != null ? errorMsg : "expected identifier");
+        if (id == null) {
+            var result = errorMsg;
+            this.fail(result != null ? result : "expected identifier");
+        }
         return id;
     }
     

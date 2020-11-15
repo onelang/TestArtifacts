@@ -45,6 +45,7 @@ namespace Test
         {
             console.log("[-] SelfTestRunner :: START");
             var compiler = await CompilerHelper.initProject("OneLang", $"{this.baseDir}src/");
+            compiler.hooks = new CompilerHooks(compiler, this.baseDir);
             compiler.processWorkspace();
             var generated = generator.generate(compiler.projectPkg);
             

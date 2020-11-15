@@ -1,3 +1,25 @@
+package OneLang.One.Transforms.InferTypesPlugins.TypeScriptNullCoalesce;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.TypeHelper;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneStd.Objects;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.NullLiteral;
+
 public class TypeScriptNullCoalesce extends InferTypesPlugin {
     public TypeScriptNullCoalesce()
     {
@@ -6,14 +28,15 @@ public class TypeScriptNullCoalesce extends InferTypesPlugin {
     }
     
     public Boolean canTransform(Expression expr) {
-        return expr instanceof BinaryExpression && ((BinaryExpression)expr).operator.equals("||");
+        return expr instanceof BinaryExpression && Objects.equals(((BinaryExpression)expr).operator, "||");
     }
     
     public Expression transform(Expression expr) {
-        if (expr instanceof BinaryExpression && ((BinaryExpression)expr).operator.equals("||")) {
+        if (expr instanceof BinaryExpression && Objects.equals(((BinaryExpression)expr).operator, "||")) {
             var litTypes = this.main.currentFile.literalTypes;
+            var runPluginsOnResult = this.main.runPluginsOn(((BinaryExpression)expr).left);
             
-            ((BinaryExpression)expr).left = this.main.runPluginsOn(((BinaryExpression)expr).left) != null ? this.main.runPluginsOn(((BinaryExpression)expr).left) : ((BinaryExpression)expr).left;
+            ((BinaryExpression)expr).left = runPluginsOnResult != null ? runPluginsOnResult : ((BinaryExpression)expr).left;
             var leftType = ((BinaryExpression)expr).left.getType();
             
             if (((BinaryExpression)expr).right instanceof ArrayLiteral && ((ArrayLiteral)((BinaryExpression)expr).right).items.length == 0) {
@@ -29,8 +52,9 @@ public class TypeScriptNullCoalesce extends InferTypesPlugin {
                     return new NullCoalesceExpression(((BinaryExpression)expr).left, ((MapLiteral)((BinaryExpression)expr).right));
                 }
             }
+            var runPluginsOnResult2 = this.main.runPluginsOn(((BinaryExpression)expr).right);
             
-            ((BinaryExpression)expr).right = this.main.runPluginsOn(((BinaryExpression)expr).right) != null ? this.main.runPluginsOn(((BinaryExpression)expr).right) : ((BinaryExpression)expr).right;
+            ((BinaryExpression)expr).right = runPluginsOnResult2 != null ? runPluginsOnResult2 : ((BinaryExpression)expr).right;
             var rightType = ((BinaryExpression)expr).right.getType();
             
             if (((BinaryExpression)expr).right instanceof NullLiteral)

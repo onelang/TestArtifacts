@@ -1,4 +1,33 @@
+package OneLang.One.Transforms.ResolveUnresolvedTypes;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Ast.AstTypes.UnresolvedType;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Interfaces.IType;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.One.Ast.AstTypes.UnresolvedType;
 import java.util.Arrays;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.NewExpression;
 
 public class ResolveUnresolvedTypes extends AstTransformer {
     public ResolveUnresolvedTypes()

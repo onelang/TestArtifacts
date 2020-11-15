@@ -1,5 +1,11 @@
+package OneLang.Parsers.Common.Reader;
+
+import OneLang.Parsers.Common.Utils.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
+import OneStd.Objects;
+import OneLang.Parsers.Common.Reader.Cursor;
 
 public class CursorPositionSearch {
     public List<Integer> lineOffsets;
@@ -10,7 +16,7 @@ public class CursorPositionSearch {
         this.input = input;
         this.lineOffsets = new ArrayList<>(List.of(0));
         for (Integer i = 0; i < input.length(); i++) {
-            if (input.substring(i, i + 1).equals("\n"))
+            if (Objects.equals(input.substring(i, i + 1), "\n"))
                 this.lineOffsets.add(i + 1);
         }
         this.lineOffsets.add(input.length());

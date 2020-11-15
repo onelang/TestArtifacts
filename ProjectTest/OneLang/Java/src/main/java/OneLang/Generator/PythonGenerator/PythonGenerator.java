@@ -1,10 +1,204 @@
+package OneLang.Generator.PythonGenerator;
+
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.CharacterLiteral;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.UnaryType;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Expressions.GlobalFunctionCallExpression;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Expressions.LambdaCallExpression;
+import OneLang.One.Ast.Expressions.IMethodCallExpression;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.One.Ast.Statements.UnsetStatement;
+import OneLang.One.Ast.Statements.ThrowStatement;
+import OneLang.One.Ast.Statements.ExpressionStatement;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.BreakStatement;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.DoStatement;
+import OneLang.One.Ast.Statements.ContinueStatement;
+import OneLang.One.Ast.Statements.ForVariable;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.IClassMember;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.IMethodBase;
+import OneLang.One.Ast.Types.Constructor;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.IImportable;
+import OneLang.One.Ast.Types.UnresolvedImport;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.Types.IInterface;
+import OneLang.One.Ast.Types.Field;
+import OneLang.One.Ast.Types.Property;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.Types.IVariableWithInitializer;
+import OneLang.One.Ast.Types.Visibility;
+import OneLang.One.Ast.Types.IAstNode;
+import OneLang.One.Ast.Types.GlobalFunction;
+import OneLang.One.Ast.Types.Package;
+import OneLang.One.Ast.Types.SourcePath;
+import OneLang.One.Ast.Types.IHasAttributesAndTrivia;
+import OneLang.One.Ast.Types.ExportedScope;
+import OneLang.One.Ast.Types.ExportScopeRef;
+import OneLang.One.Ast.AstTypes.VoidType;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneLang.One.Ast.AstTypes.NullType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.EnumReference;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.ForVariableReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.EnumMemberReference;
+import OneLang.One.Ast.References.CatchVariableReference;
+import OneLang.One.Ast.References.GlobalFunctionReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.Reference;
+import OneLang.One.Ast.References.VariableReference;
+import OneLang.Generator.GeneratedFile.GeneratedFile;
+import OneLang.Utils.TSOverviewGenerator.TSOverviewGenerator;
+import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
+import OneLang.Generator.PythonPlugins.JsToPython.JsToPython;
+import OneLang.Generator.NameUtils.NameUtils;
+import OneLang.One.Ast.Interfaces.IExpression;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.Generator.IGenerator.IGenerator;
+import OneLang.One.ITransformer.ITransformer;
+
+import OneLang.Generator.IGenerator.IGenerator;
+import OneLang.One.Ast.Types.Package;
+import OneLang.One.Ast.Types.SourceFile;
 import java.util.Set;
+import OneLang.One.Ast.Types.IInterface;
 import java.util.List;
+import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
 import java.util.ArrayList;
+import OneLang.Generator.PythonPlugins.JsToPython.JsToPython;
+import OneLang.One.ITransformer.ITransformer;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneStd.Objects;
+import OneLang.One.Ast.Interfaces.IType;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import OneLang.One.Ast.Types.ExportScopeRef;
+import OneLang.One.Ast.Types.Enum;
+import OneStd.RegExp;
 import java.util.regex.Pattern;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Types.IHasAttributesAndTrivia;
+import OneLang.One.Ast.Types.IVariableWithInitializer;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.IMethodCallExpression;
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Expressions.GlobalFunctionCallExpression;
+import OneLang.One.Ast.Expressions.LambdaCallExpression;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneStd.JSON;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.CharacterLiteral;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneStd.console;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.EnumReference;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.ForVariableReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.CatchVariableReference;
+import OneLang.One.Ast.References.GlobalFunctionReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.EnumMemberReference;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Interfaces.IExpression;
+import OneLang.One.Ast.Statements.BreakStatement;
+import OneLang.One.Ast.Statements.UnsetStatement;
+import OneLang.One.Ast.Statements.ThrowStatement;
+import OneLang.One.Ast.Statements.ExpressionStatement;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.DoStatement;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.ContinueStatement;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Types.Field;
+import OneLang.One.Ast.Types.Class;
 import java.util.HashSet;
+import OneLang.One.Ast.Types.Import;
+import OneLang.Generator.GeneratedFile.GeneratedFile;
 
 public class PythonGenerator implements IGenerator {
     public Integer tmplStrLevel = 0;
@@ -33,13 +227,17 @@ public class PythonGenerator implements IGenerator {
         return "py";
     }
     
+    public ITransformer[] getTransforms() {
+        return new ITransformer[0];
+    }
+    
     public String type(IType type) {
         if (type instanceof ClassType) {
-            if (((ClassType)type).decl.getName().equals("TsString"))
+            if (Objects.equals(((ClassType)type).decl.getName(), "TsString"))
                 return "str";
-            else if (((ClassType)type).decl.getName().equals("TsBoolean"))
+            else if (Objects.equals(((ClassType)type).decl.getName(), "TsBoolean"))
                 return "bool";
-            else if (((ClassType)type).decl.getName().equals("TsNumber"))
+            else if (Objects.equals(((ClassType)type).decl.getName(), "TsNumber"))
                 return "int";
             else
                 return this.clsName(((ClassType)type).decl);
@@ -101,7 +299,7 @@ public class PythonGenerator implements IGenerator {
     
     public String clsName(IInterface cls, Boolean isDecl) {
         // TODO: hack
-        if (cls.getName().equals("Set"))
+        if (Objects.equals(cls.getName(), "Set"))
             return "dict";
         if (isDecl || cls.getParentFile().exportScope == null || cls.getParentFile() == this.currentFile)
             return cls.getName();
@@ -134,7 +332,7 @@ public class PythonGenerator implements IGenerator {
     }
     
     public Boolean isTsArray(IType type) {
-        return type instanceof ClassType && ((ClassType)type).decl.getName().equals("TsArray");
+        return type instanceof ClassType && Objects.equals(((ClassType)type).decl.getName(), "TsArray");
     }
     
     public String vis(Visibility v) {
@@ -174,7 +372,7 @@ public class PythonGenerator implements IGenerator {
         var res = "UNKNOWN-EXPR";
         if (expr instanceof NewExpression) {
             // TODO: hack
-            if (((NewExpression)expr).cls.decl.getName().equals("Set"))
+            if (Objects.equals(((NewExpression)expr).cls.decl.getName(), "Set"))
                 res = ((NewExpression)expr).args.length == 0 ? "dict()" : "dict.fromkeys" + this.callParams(((NewExpression)expr).args);
             else
                 res = this.clsName(((NewExpression)expr).cls.decl) + this.callParams(((NewExpression)expr).args);
@@ -219,19 +417,19 @@ public class PythonGenerator implements IGenerator {
                     var lit = "";
                     for (Integer i = 0; i < part.literalText.length(); i++) {
                         var chr = part.literalText.substring(i, i + 1);
-                        if (chr.equals("\n"))
+                        if (Objects.equals(chr, "\n"))
                             lit += "\\n";
-                        else if (chr.equals("\r"))
+                        else if (Objects.equals(chr, "\r"))
                             lit += "\\r";
-                        else if (chr.equals("\t"))
+                        else if (Objects.equals(chr, "\t"))
                             lit += "\\t";
-                        else if (chr.equals("\\"))
+                        else if (Objects.equals(chr, "\\"))
                             lit += "\\\\";
-                        else if (chr.equals("'"))
+                        else if (Objects.equals(chr, "'"))
                             lit += "\\'";
-                        else if (chr.equals("{"))
+                        else if (Objects.equals(chr, "{"))
                             lit += "{{";
-                        else if (chr.equals("}"))
+                        else if (Objects.equals(chr, "}"))
                             lit += "}}";
                         else {
                             var chrCode = (int)chr.charAt(0);
@@ -253,7 +451,7 @@ public class PythonGenerator implements IGenerator {
             res = this.tmplStrLevel == 1 ? "f'" + parts.stream().collect(Collectors.joining("")) + "'" : "f'''" + parts.stream().collect(Collectors.joining("")) + "'''";
         }
         else if (expr instanceof BinaryExpression) {
-            var op = ((BinaryExpression)expr).operator.equals("&&") ? "and" : ((BinaryExpression)expr).operator.equals("||") ? "or" : ((BinaryExpression)expr).operator;
+            var op = Objects.equals(((BinaryExpression)expr).operator, "&&") ? "and" : Objects.equals(((BinaryExpression)expr).operator, "||") ? "or" : ((BinaryExpression)expr).operator;
             res = this.expr(((BinaryExpression)expr).left) + " " + op + " " + this.expr(((BinaryExpression)expr).right);
         }
         else if (expr instanceof ArrayLiteral)
@@ -280,18 +478,18 @@ public class PythonGenerator implements IGenerator {
             res = "lambda " + Arrays.stream(params).collect(Collectors.joining(", ")) + ": " + body;
         }
         else if (expr instanceof UnaryExpression && ((UnaryExpression)expr).unaryType == UnaryType.Prefix) {
-            var op = ((UnaryExpression)expr).operator.equals("!") ? "not " : ((UnaryExpression)expr).operator;
-            if (op.equals("++"))
+            var op = Objects.equals(((UnaryExpression)expr).operator, "!") ? "not " : ((UnaryExpression)expr).operator;
+            if (Objects.equals(op, "++"))
                 res = this.expr(((UnaryExpression)expr).operand) + " = " + this.expr(((UnaryExpression)expr).operand) + " + 1";
-            else if (op.equals("--"))
+            else if (Objects.equals(op, "--"))
                 res = this.expr(((UnaryExpression)expr).operand) + " = " + this.expr(((UnaryExpression)expr).operand) + " - 1";
             else
                 res = op + this.expr(((UnaryExpression)expr).operand);
         }
         else if (expr instanceof UnaryExpression && ((UnaryExpression)expr).unaryType == UnaryType.Postfix) {
-            if (((UnaryExpression)expr).operator.equals("++"))
+            if (Objects.equals(((UnaryExpression)expr).operator, "++"))
                 res = this.expr(((UnaryExpression)expr).operand) + " = " + this.expr(((UnaryExpression)expr).operand) + " + 1";
-            else if (((UnaryExpression)expr).operator.equals("--"))
+            else if (Objects.equals(((UnaryExpression)expr).operator, "--"))
                 res = this.expr(((UnaryExpression)expr).operand) + " = " + this.expr(((UnaryExpression)expr).operand) + " - 1";
             else
                 res = this.expr(((UnaryExpression)expr).operand) + ((UnaryExpression)expr).operator;
@@ -412,11 +610,11 @@ public class PythonGenerator implements IGenerator {
     }
     
     public String pass(String str) {
-        return str.equals("") ? "pass" : str;
+        return Objects.equals(str, "") ? "pass" : str;
     }
     
     public String cls(Class cls) {
-        if (cls.getAttributes().get("external").equals("true"))
+        if (Objects.equals(cls.getAttributes().get("external"), "true"))
             return "";
         this.currentClass = cls;
         var resList = new ArrayList<String>();
@@ -464,14 +662,14 @@ public class PythonGenerator implements IGenerator {
             methods.add((method.getIsStatic() ? "@classmethod\n" : "") + "def " + this.name_(method.name) + "(" + (method.getIsStatic() ? "cls" : "self") + Arrays.stream(Arrays.stream(method.getParameters()).map(p -> ", " + this.var(p, null)).toArray(String[]::new)).collect(Collectors.joining("")) + "):" + "\n" + this.block(method.getBody()));
         }
         resList.add(methods.stream().collect(Collectors.joining("\n\n")));
-        var resList2 = resList.stream().filter(x -> !x.equals("")).toArray(String[]::new);
+        var resList2 = resList.stream().filter(x -> !Objects.equals(x, "")).toArray(String[]::new);
         
         var clsHdr = "class " + this.clsName(cls, true) + (cls.baseClass != null ? "(" + this.clsName((((ClassType)cls.baseClass)).decl) + ")" : "") + ":\n";
         return Arrays.stream(classAttributes.stream().map(x -> x + "\n").toArray(String[]::new)).collect(Collectors.joining("")) + clsHdr + this.pad(resList2.length > 0 ? Arrays.stream(resList2).collect(Collectors.joining("\n\n")) : "pass");
     }
     
     public String pad(String str) {
-        return str.equals("") ? "" : Arrays.stream(Arrays.stream(str.split("\\n", -1)).map(x -> "    " + x).toArray(String[]::new)).collect(Collectors.joining("\n"));
+        return Objects.equals(str, "") ? "" : Arrays.stream(Arrays.stream(str.split("\\n", -1)).map(x -> "    " + x).toArray(String[]::new)).collect(Collectors.joining("\n"));
     }
     
     public String calcRelImport(ExportScopeRef targetPath, ExportScopeRef fromPath) {
@@ -479,7 +677,7 @@ public class PythonGenerator implements IGenerator {
         var fromParts = fromPath.scopeName.split("/", -1);
         
         var sameLevel = 0;
-        while (sameLevel < targetParts.length && sameLevel < fromParts.length && targetParts[sameLevel].equals(fromParts[sameLevel]))
+        while (sameLevel < targetParts.length && sameLevel < fromParts.length && Objects.equals(targetParts[sameLevel], fromParts[sameLevel]))
             sameLevel++;
         
         var result = "";
@@ -509,7 +707,7 @@ public class PythonGenerator implements IGenerator {
             this.imports.add("from enum import Enum");
         
         for (var import_ : Arrays.stream(sourceFile.imports).filter(x -> !x.importAll).toArray(Import[]::new)) {
-            if (import_.getAttributes().get("python-ignore").equals("true"))
+            if (Objects.equals(import_.getAttributes().get("python-ignore"), "true"))
                 continue;
             
             if (import_.getAttributes().containsKey("python-import-all")) {
@@ -540,7 +738,7 @@ public class PythonGenerator implements IGenerator {
         for (var imp : this.imports)
             imports.add(imp);
         
-        return Arrays.stream(new ArrayList<>(List.of(imports.stream().collect(Collectors.joining("\n")), enums.stream().collect(Collectors.joining("\n\n")), classes.stream().collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
+        return Arrays.stream(new ArrayList<>(List.of(imports.stream().collect(Collectors.joining("\n")), enums.stream().collect(Collectors.joining("\n\n")), classes.stream().collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !Objects.equals(x, "")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
     }
     
     public GeneratedFile[] generate(Package pkg) {

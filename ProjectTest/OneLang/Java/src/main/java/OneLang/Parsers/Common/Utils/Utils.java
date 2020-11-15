@@ -1,11 +1,17 @@
+package OneLang.Parsers.Common.Utils;
+
+
+
+import OneStd.Objects;
 import java.util.Arrays;
 import java.util.ArrayList;
+import OneStd.RegExp;
 import java.util.stream.Collectors;
 
 public class Utils {
     public static Integer getPadLen(String line) {
         for (Integer i = 0; i < line.length(); i++) {
-            if (!line.substring(i, i + 1).equals(" "))
+            if (!Objects.equals(line.substring(i, i + 1), " "))
                 return i;
         }
         return -1;

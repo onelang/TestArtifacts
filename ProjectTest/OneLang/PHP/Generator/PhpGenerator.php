@@ -92,6 +92,7 @@ use One\Ast\Interfaces\IExpression;
 use One\Ast\Interfaces\IType;
 use Generator\IGeneratorPlugin\IGeneratorPlugin;
 use Generator\PhpPlugins\JsToPhp\JsToPhp;
+use One\ITransformer\ITransformer;
 
 class PhpGenerator implements IGenerator {
     public $usings;
@@ -113,6 +114,10 @@ class PhpGenerator implements IGenerator {
     
     function getExtension() {
         return "php";
+    }
+    
+    function getTransforms() {
+        return array();
     }
     
     function name_($name) {

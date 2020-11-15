@@ -3,7 +3,6 @@ import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin as infe
 import OneLang.One.Ast.Expressions as exprs
 import OneLang.One.Ast.Types as types
 import OneLang.One.Ast.AstTypes as astTypes
-import OneLang.One.Ast.Statements as stats
 
 class LambdaResolver(inferTypesPlug.InferTypesPlugin):
     def __init__(self):

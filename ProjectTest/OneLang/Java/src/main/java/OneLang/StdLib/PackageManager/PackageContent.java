@@ -1,3 +1,9 @@
+package OneLang.StdLib.PackageManager;
+
+import OneStd.OneYaml;
+import OneStd.YamlValue;
+
+import OneLang.StdLib.PackageManager.PackageId;
 import java.util.Map;
 
 public class PackageContent {

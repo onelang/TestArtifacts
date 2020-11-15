@@ -1,5 +1,44 @@
+package OneLang.One.Transforms.InstanceOfImplicitCast;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.Reference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.Utils.ArrayHelper.ArrayHelper;
+
+import OneLang.One.AstTransformer.AstTransformer;
 import java.util.List;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
 import java.util.ArrayList;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneStd.Objects;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.References.Reference;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
 
 public class InstanceOfImplicitCast extends AstTransformer {
     public List<InstanceOfExpression> casts;
@@ -40,7 +79,7 @@ public class InstanceOfImplicitCast extends AstTransformer {
         
         // MetP, V, MethP.PA, V.PA, MethP/V [ {FEVR} ], FEVR
         if (expr1 instanceof PropertyAccessExpression)
-            return expr2 instanceof PropertyAccessExpression && ((PropertyAccessExpression)expr1).propertyName.equals(((PropertyAccessExpression)expr2).propertyName) && this.equals(((PropertyAccessExpression)expr1).object, ((PropertyAccessExpression)expr2).object);
+            return expr2 instanceof PropertyAccessExpression && Objects.equals(((PropertyAccessExpression)expr1).propertyName, ((PropertyAccessExpression)expr2).propertyName) && this.equals(((PropertyAccessExpression)expr1).object, ((PropertyAccessExpression)expr2).object);
         else if (expr1 instanceof VariableDeclarationReference)
             return expr2 instanceof VariableDeclarationReference && ((VariableDeclarationReference)expr1).decl == ((VariableDeclarationReference)expr2).decl;
         else if (expr1 instanceof MethodParameterReference)
@@ -62,22 +101,28 @@ public class InstanceOfImplicitCast extends AstTransformer {
             this.visitExpression(((InstanceOfExpression)expr).expr);
             this.addCast(((InstanceOfExpression)expr));
         }
-        else if (expr instanceof BinaryExpression && ((BinaryExpression)expr).operator.equals("&&")) {
-            ((BinaryExpression)expr).left = this.visitExpression(((BinaryExpression)expr).left) != null ? this.visitExpression(((BinaryExpression)expr).left) : ((BinaryExpression)expr).left;
-            ((BinaryExpression)expr).right = this.visitExpression(((BinaryExpression)expr).right) != null ? this.visitExpression(((BinaryExpression)expr).right) : ((BinaryExpression)expr).right;
+        else if (expr instanceof BinaryExpression && Objects.equals(((BinaryExpression)expr).operator, "&&")) {
+            var visitExpressionResult = this.visitExpression(((BinaryExpression)expr).left);
+            ((BinaryExpression)expr).left = visitExpressionResult != null ? visitExpressionResult : ((BinaryExpression)expr).left;
+            var visitExpressionResult2 = this.visitExpression(((BinaryExpression)expr).right);
+            ((BinaryExpression)expr).right = visitExpressionResult2 != null ? visitExpressionResult2 : ((BinaryExpression)expr).right;
         }
         else if (expr instanceof ConditionalExpression) {
             this.pushContext();
-            ((ConditionalExpression)expr).condition = this.visitExpression(((ConditionalExpression)expr).condition) != null ? this.visitExpression(((ConditionalExpression)expr).condition) : ((ConditionalExpression)expr).condition;
-            ((ConditionalExpression)expr).whenTrue = this.visitExpression(((ConditionalExpression)expr).whenTrue) != null ? this.visitExpression(((ConditionalExpression)expr).whenTrue) : ((ConditionalExpression)expr).whenTrue;
+            var visitExpressionResult3 = this.visitExpression(((ConditionalExpression)expr).condition);
+            ((ConditionalExpression)expr).condition = visitExpressionResult3 != null ? visitExpressionResult3 : ((ConditionalExpression)expr).condition;
+            var visitExpressionResult4 = this.visitExpression(((ConditionalExpression)expr).whenTrue);
+            ((ConditionalExpression)expr).whenTrue = visitExpressionResult4 != null ? visitExpressionResult4 : ((ConditionalExpression)expr).whenTrue;
             this.popContext();
+            var visitExpressionResult5 = this.visitExpression(((ConditionalExpression)expr).whenFalse);
             
-            ((ConditionalExpression)expr).whenFalse = this.visitExpression(((ConditionalExpression)expr).whenFalse) != null ? this.visitExpression(((ConditionalExpression)expr).whenFalse) : ((ConditionalExpression)expr).whenFalse;
+            ((ConditionalExpression)expr).whenFalse = visitExpressionResult5 != null ? visitExpressionResult5 : ((ConditionalExpression)expr).whenFalse;
         }
-        else if (expr instanceof Reference && ((Reference)expr).parentNode instanceof BinaryExpression && ((BinaryExpression)((Reference)expr).parentNode).operator.equals("=") && ((BinaryExpression)((Reference)expr).parentNode).left == ((Reference)expr)) { }
+        else if (expr instanceof Reference && ((Reference)expr).parentNode instanceof BinaryExpression && Objects.equals(((BinaryExpression)((Reference)expr).parentNode).operator, "=") && ((BinaryExpression)((Reference)expr).parentNode).left == ((Reference)expr)) { }
         else {
             this.pushContext();
-            result = super.visitExpression(expr) != null ? super.visitExpression(expr) : expr;
+            var visitExpressionResult6 = super.visitExpression(expr);
+            result = visitExpressionResult6 != null ? visitExpressionResult6 : expr;
             this.popContext();
             // @java final var result2 = result;
             final var result2 = result;
@@ -97,7 +142,8 @@ public class InstanceOfImplicitCast extends AstTransformer {
         
         if (stmt instanceof IfStatement) {
             this.pushContext();
-            ((IfStatement)stmt).condition = this.visitExpression(((IfStatement)stmt).condition) != null ? this.visitExpression(((IfStatement)stmt).condition) : ((IfStatement)stmt).condition;
+            var visitExpressionResult = this.visitExpression(((IfStatement)stmt).condition);
+            ((IfStatement)stmt).condition = visitExpressionResult != null ? visitExpressionResult : ((IfStatement)stmt).condition;
             this.visitBlock(((IfStatement)stmt).then);
             this.popContext();
             
@@ -106,7 +152,8 @@ public class InstanceOfImplicitCast extends AstTransformer {
         }
         else if (stmt instanceof WhileStatement) {
             this.pushContext();
-            ((WhileStatement)stmt).condition = this.visitExpression(((WhileStatement)stmt).condition) != null ? this.visitExpression(((WhileStatement)stmt).condition) : ((WhileStatement)stmt).condition;
+            var visitExpressionResult2 = this.visitExpression(((WhileStatement)stmt).condition);
+            ((WhileStatement)stmt).condition = visitExpressionResult2 != null ? visitExpressionResult2 : ((WhileStatement)stmt).condition;
             this.visitBlock(((WhileStatement)stmt).body);
             this.popContext();
         }

@@ -1,7 +1,55 @@
+package OneLang.Parsers.Common.ExpressionParser;
+
+import OneLang.Parsers.Common.Reader.Reader;
+import OneLang.Parsers.Common.NodeManager.NodeManager;
+import OneLang.One.Ast.AstTypes.UnresolvedType;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.UnaryType;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.MapLiteralItem;
+import OneLang.Utils.ArrayHelper.ArrayHelper;
+import OneLang.One.Ast.Interfaces.IType;
+
+import OneLang.Parsers.Common.ExpressionParser.Operator;
 import java.util.Map;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.Parsers.Common.Reader.Reader;
+import OneLang.Parsers.Common.ExpressionParser.IExpressionParserHooks;
+import OneLang.Parsers.Common.NodeManager.NodeManager;
+import OneLang.Parsers.Common.ExpressionParser.ExpressionParserConfig;
+import OneLang.Parsers.Common.ExpressionParser.PrecedenceLevel;
+import OneStd.Objects;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.MapLiteralItem;
 import java.util.ArrayList;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.AstTypes.UnresolvedType;
 
 public class ExpressionParser {
     public Map<String, Operator> operatorMap;
@@ -50,21 +98,21 @@ public class ExpressionParser {
     }
     
     public void reconfigure() {
-        Arrays.stream(this.config.precedenceLevels).filter(x -> x.name.equals("propertyAccess")).findFirst().orElse(null).operators = this.config.propertyAccessOps;
+        Arrays.stream(this.config.precedenceLevels).filter(x -> Objects.equals(x.name, "propertyAccess")).findFirst().orElse(null).operators = this.config.propertyAccessOps;
         
         this.operatorMap = new LinkedHashMap<String, Operator>();
         
         for (Integer i = 0; i < this.config.precedenceLevels.length; i++) {
             var level = this.config.precedenceLevels[i];
             var precedence = i + 1;
-            if (level.name.equals("prefix"))
+            if (Objects.equals(level.name, "prefix"))
                 this.prefixPrecedence = precedence;
             
             if (level.operators == null)
                 continue;
             
             for (var opText : level.operators) {
-                var op = new Operator(opText, precedence, level.binary, Arrays.stream(this.config.rightAssoc).anyMatch(opText::equals), level.name.equals("postfix"));
+                var op = new Operator(opText, precedence, level.binary, Arrays.stream(this.config.rightAssoc).anyMatch(opText::equals), Objects.equals(level.name, "postfix"));
                 
                 this.operatorMap.put(opText, op);
             }
@@ -229,17 +277,17 @@ public class ExpressionParser {
             }
             else if (op.isPostfix)
                 left = new UnaryExpression(UnaryType.Postfix, opText, left);
-            else if (op.text.equals("?")) {
+            else if (Objects.equals(op.text, "?")) {
                 var whenTrue = this.parse();
                 this.reader.expectToken(":");
                 var whenFalse = this.parse(op.precedence - 1);
                 left = new ConditionalExpression(left, whenTrue, whenFalse);
             }
-            else if (op.text.equals("(")) {
+            else if (Objects.equals(op.text, "(")) {
                 var args = this.parseCallArguments();
                 left = new UnresolvedCallExpression(left, new IType[0], args);
             }
-            else if (op.text.equals("[")) {
+            else if (Objects.equals(op.text, "[")) {
                 var elementExpr = this.parse();
                 this.reader.expectToken("]");
                 left = new ElementAccessExpression(left, elementExpr);

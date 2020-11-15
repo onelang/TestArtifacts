@@ -1,12 +1,193 @@
+package OneLang.Generator.CsharpGenerator;
+
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.CharacterLiteral;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.UnaryType;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Expressions.GlobalFunctionCallExpression;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Expressions.LambdaCallExpression;
+import OneLang.One.Ast.Expressions.IMethodCallExpression;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.One.Ast.Statements.UnsetStatement;
+import OneLang.One.Ast.Statements.ThrowStatement;
+import OneLang.One.Ast.Statements.ExpressionStatement;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.BreakStatement;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.DoStatement;
+import OneLang.One.Ast.Statements.ContinueStatement;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.IInterface;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.Types.IVariableWithInitializer;
+import OneLang.One.Ast.Types.Visibility;
+import OneLang.One.Ast.Types.Package;
+import OneLang.One.Ast.Types.IHasAttributesAndTrivia;
+import OneLang.One.Ast.AstTypes.VoidType;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneLang.One.Ast.AstTypes.NullType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.EnumReference;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.ForVariableReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.EnumMemberReference;
+import OneLang.One.Ast.References.CatchVariableReference;
+import OneLang.One.Ast.References.GlobalFunctionReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.VariableReference;
+import OneLang.Generator.GeneratedFile.GeneratedFile;
+import OneLang.Generator.NameUtils.NameUtils;
+import OneLang.Generator.IGenerator.IGenerator;
+import OneLang.One.Ast.Interfaces.IExpression;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.One.ITransformer.ITransformer;
+
+import OneLang.Generator.IGenerator.IGenerator;
 import java.util.Set;
+import OneLang.One.Ast.Types.IInterface;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import OneLang.One.ITransformer.ITransformer;
 import java.util.Arrays;
+import OneStd.RegExp;
 import java.util.stream.Collectors;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneStd.Objects;
+import OneLang.One.Ast.AstTypes.VoidType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.NullType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.AstTypes.LambdaType;
 import java.util.ArrayList;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Types.IHasAttributesAndTrivia;
+import OneLang.One.Ast.Types.IVariableWithInitializer;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.References.VariableReference;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.Expressions.IMethodCallExpression;
+import OneStd.StdArrayHelper;
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.GlobalFunctionCallExpression;
+import OneLang.One.Ast.Expressions.LambdaCallExpression;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneStd.JSON;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.CharacterLiteral;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.EnumReference;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.ForVariableReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.CatchVariableReference;
+import OneLang.One.Ast.References.GlobalFunctionReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.EnumMemberReference;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Interfaces.IExpression;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Statements.BreakStatement;
+import OneLang.One.Ast.Statements.UnsetStatement;
+import OneLang.One.Ast.Statements.ThrowStatement;
+import OneLang.One.Ast.Statements.ExpressionStatement;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.DoStatement;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.ContinueStatement;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.Field;
 import java.util.stream.Stream;
+import OneLang.One.Ast.Types.Interface;
 import java.util.HashSet;
 import java.util.List;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.Generator.GeneratedFile.GeneratedFile;
+import OneLang.One.Ast.Types.Package;
 
 public class CsharpGenerator implements IGenerator {
     public Set<String> usings;
@@ -28,6 +209,10 @@ public class CsharpGenerator implements IGenerator {
     
     public String getExtension() {
         return "cs";
+    }
+    
+    public ITransformer[] getTransforms() {
+        return new ITransformer[0];
     }
     
     public String name_(String name) {
@@ -74,13 +259,13 @@ public class CsharpGenerator implements IGenerator {
     public String type(IType t, Boolean mutates) {
         if (t instanceof ClassType) {
             var typeArgs = this.typeArgs(Arrays.stream(((ClassType)t).getTypeArguments()).map(x -> this.type(x)).toArray(String[]::new));
-            if (((ClassType)t).decl.getName().equals("TsString"))
+            if (Objects.equals(((ClassType)t).decl.getName(), "TsString"))
                 return "string";
-            else if (((ClassType)t).decl.getName().equals("TsBoolean"))
+            else if (Objects.equals(((ClassType)t).decl.getName(), "TsBoolean"))
                 return "bool";
-            else if (((ClassType)t).decl.getName().equals("TsNumber"))
+            else if (Objects.equals(((ClassType)t).decl.getName(), "TsNumber"))
                 return "int";
-            else if (((ClassType)t).decl.getName().equals("TsArray")) {
+            else if (Objects.equals(((ClassType)t).decl.getName(), "TsArray")) {
                 if (mutates) {
                     this.usings.add("System.Collections.Generic");
                     return "List<" + this.type(((ClassType)t).getTypeArguments()[0]) + ">";
@@ -88,15 +273,15 @@ public class CsharpGenerator implements IGenerator {
                 else
                     return this.type(((ClassType)t).getTypeArguments()[0]) + "[]";
             }
-            else if (((ClassType)t).decl.getName().equals("Promise")) {
+            else if (Objects.equals(((ClassType)t).decl.getName(), "Promise")) {
                 this.usings.add("System.Threading.Tasks");
                 return ((ClassType)t).getTypeArguments()[0] instanceof VoidType ? "Task" : "Task" + typeArgs;
             }
-            else if (((ClassType)t).decl.getName().equals("Object")) {
+            else if (Objects.equals(((ClassType)t).decl.getName(), "Object")) {
                 this.usings.add("System");
                 return "object";
             }
-            else if (((ClassType)t).decl.getName().equals("TsMap")) {
+            else if (Objects.equals(((ClassType)t).decl.getName(), "TsMap")) {
                 this.usings.add("System.Collections.Generic");
                 return "Dictionary<string, " + this.type(((ClassType)t).getTypeArguments()[0]) + ">";
             }
@@ -133,7 +318,7 @@ public class CsharpGenerator implements IGenerator {
     }
     
     public Boolean isTsArray(IType type) {
-        return type instanceof ClassType && ((ClassType)type).decl.getName().equals("TsArray");
+        return type instanceof ClassType && Objects.equals(((ClassType)type).decl.getName(), "TsArray");
     }
     
     public String vis(Visibility v) {
@@ -144,7 +329,7 @@ public class CsharpGenerator implements IGenerator {
         String type;
         if (attr != null && attr.getAttributes() != null && attr.getAttributes().containsKey("csharp-type"))
             type = attr.getAttributes().get("csharp-type");
-        else if (v.getType() instanceof ClassType && ((ClassType)v.getType()).decl.getName().equals("TsArray")) {
+        else if (v.getType() instanceof ClassType && Objects.equals(((ClassType)v.getType()).decl.getName(), "TsArray")) {
             if (v.getMutability().mutated) {
                 this.usings.add("System.Collections.Generic");
                 type = "List<" + this.type(((ClassType)v.getType()).getTypeArguments()[0]) + ">";
@@ -256,19 +441,19 @@ public class CsharpGenerator implements IGenerator {
                     var lit = "";
                     for (Integer i = 0; i < part.literalText.length(); i++) {
                         var chr = part.literalText.substring(i, i + 1);
-                        if (chr.equals("\n"))
+                        if (Objects.equals(chr, "\n"))
                             lit += "\\n";
-                        else if (chr.equals("\r"))
+                        else if (Objects.equals(chr, "\r"))
                             lit += "\\r";
-                        else if (chr.equals("\t"))
+                        else if (Objects.equals(chr, "\t"))
                             lit += "\\t";
-                        else if (chr.equals("\\"))
+                        else if (Objects.equals(chr, "\\"))
                             lit += "\\\\";
-                        else if (chr.equals("\""))
+                        else if (Objects.equals(chr, "\""))
                             lit += "\\\"";
-                        else if (chr.equals("{"))
+                        else if (Objects.equals(chr, "{"))
                             lit += "{{";
-                        else if (chr.equals("}"))
+                        else if (Objects.equals(chr, "}"))
                             lit += "}}";
                         else {
                             var chrCode = (int)chr.charAt(0);
@@ -288,7 +473,7 @@ public class CsharpGenerator implements IGenerator {
             res = "$\"" + parts.stream().collect(Collectors.joining("")) + "\"";
         }
         else if (expr instanceof BinaryExpression)
-            res = this.expr(((BinaryExpression)expr).left) + " " + ((BinaryExpression)expr).operator + " " + this.mutatedExpr(((BinaryExpression)expr).right, ((BinaryExpression)expr).operator.equals("=") ? ((BinaryExpression)expr).left : null);
+            res = this.expr(((BinaryExpression)expr).left) + " " + ((BinaryExpression)expr).operator + " " + this.mutatedExpr(((BinaryExpression)expr).right, Objects.equals(((BinaryExpression)expr).operator, "=") ? ((BinaryExpression)expr).left : null);
         else if (expr instanceof ArrayLiteral) {
             if (((ArrayLiteral)expr).items.length == 0)
                 res = "new " + this.type(((ArrayLiteral)expr).actualType) + "()";
@@ -335,7 +520,7 @@ public class CsharpGenerator implements IGenerator {
             res = this.expr(((UnaryExpression)expr).operand) + ((UnaryExpression)expr).operator;
         else if (expr instanceof MapLiteral) {
             var repr = Arrays.stream(Arrays.stream(((MapLiteral)expr).items).map(item -> "[" + JSON.stringify(item.key) + "] = " + this.expr(item.value)).toArray(String[]::new)).collect(Collectors.joining(",\n"));
-            res = "new " + this.type(((MapLiteral)expr).actualType) + " " + (repr.equals("") ? "{}" : repr.contains("\n") ? "{\n" + this.pad(repr) + "\n}" : "{ " + repr + " }");
+            res = "new " + this.type(((MapLiteral)expr).actualType) + " " + (Objects.equals(repr, "") ? "{}" : repr.contains("\n") ? "{\n" + this.pad(repr) + "\n}" : "{ " + repr + " }");
         }
         else if (expr instanceof NullLiteral)
             res = "null";
@@ -504,7 +689,7 @@ public class CsharpGenerator implements IGenerator {
             methods.add((method.parentInterface instanceof Interface ? "" : this.vis(method.getVisibility()) + " ") + this.preIf("static ", method.getIsStatic()) + this.preIf("virtual ", method.overrides == null && method.overriddenBy.size() > 0) + this.preIf("override ", method.overrides != null) + this.preIf("async ", method.async) + this.preIf("/* throws */ ", method.getThrows()) + this.type(method.returns, false) + " " + this.name_(method.name) + this.typeArgs(method.typeArguments) + "(" + Arrays.stream(Arrays.stream(method.getParameters()).map(p -> this.var(p, null)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + (method.getBody() != null ? "\n{\n" + this.pad(this.stmts(method.getBody().statements.toArray(Statement[]::new))) + "\n}" : ";"));
         }
         resList.add(methods.stream().collect(Collectors.joining("\n\n")));
-        return this.pad(Arrays.stream(resList.stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
+        return this.pad(Arrays.stream(resList.stream().filter(x -> !Objects.equals(x, "")).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
     }
     
     public String pad(String str) {
@@ -546,7 +731,7 @@ public class CsharpGenerator implements IGenerator {
         for (var using : usingsSet.toArray(String[]::new))
             usings.add("using " + using + ";");
         
-        var result = Arrays.stream(new ArrayList<>(List.of(Arrays.stream(enums).collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), classes.stream().collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
+        var result = Arrays.stream(new ArrayList<>(List.of(Arrays.stream(enums).collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), classes.stream().collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !Objects.equals(x, "")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
         var nl = "\n";
         // Python fix
         result = usings.stream().collect(Collectors.joining(nl)) + "\n\nnamespace " + this.pathToNs(sourceFile.sourcePath.path) + "\n{\n" + this.pad(result) + "\n}";

@@ -1,3 +1,11 @@
+package OneLang.StdLib.PackageManager;
+
+import OneStd.OneYaml;
+import OneStd.YamlValue;
+
+import OneLang.StdLib.PackageManager.InterfaceYaml;
+import OneLang.StdLib.PackageManager.PackageContent;
+
 public class InterfacePackage {
     public InterfaceYaml interfaceYaml;
     public String definition;

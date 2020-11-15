@@ -1,3 +1,7 @@
+package OneLang.Parsers.Common.Reader;
+
+import OneLang.Parsers.Common.Utils.Utils;
+
 public class Cursor {
     public Integer offset;
     public Integer line;

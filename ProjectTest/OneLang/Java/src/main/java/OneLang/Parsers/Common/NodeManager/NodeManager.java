@@ -1,4 +1,9 @@
+package OneLang.Parsers.Common.NodeManager;
+
+import OneLang.Parsers.Common.Reader.Reader;
+
 import java.util.List;
+import OneLang.Parsers.Common.Reader.Reader;
 import java.util.ArrayList;
 
 public class NodeManager {

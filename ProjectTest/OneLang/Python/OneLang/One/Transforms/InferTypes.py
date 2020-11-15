@@ -18,6 +18,7 @@ import OneLang.One.Transforms.InferTypesPlugins.ResolveFuncCalls as resFuncCalls
 import OneLang.One.Transforms.InferTypesPlugins.NullabilityCheckWithNot as nullCheckWithNot
 import OneLang.One.Transforms.InferTypesPlugins.ResolveNewCall as resNewCall
 import OneLang.One.Transforms.InferTypesPlugins.ResolveElementAccess as resElemAccs
+import OneLang.One.Ast.AstTypes as astTypes
 
 class INFER_TYPES_STAGE(Enum):
     INVALID = 1
@@ -145,6 +146,12 @@ class InferTypes(astTrans.AstTransformer):
     def visit_statement(self, stmt):
         self.current_statement = stmt
         
+        if isinstance(stmt, stats.ReturnStatement) and stmt.expression != None and isinstance(self.current_closure, types.Method) and self.current_closure.returns != None:
+            return_type = self.current_closure.returns
+            if isinstance(return_type, astTypes.ClassType) and return_type.decl == self.current_file.literal_types.promise.decl and self.current_closure.async_:
+                return_type = return_type.type_arguments[0]
+            stmt.expression.set_expected_type(return_type)
+        
         for plugin in self.plugins:
             if plugin.handle_statement(stmt):
                 return None
@@ -180,11 +187,16 @@ class InferTypes(astTrans.AstTransformer):
         if lambda_.actual_type != None:
             return None
         
+        prev_closure = self.current_closure
+        self.current_closure = lambda_
+        
         for plugin in self.plugins:
             if plugin.handle_lambda(lambda_):
                 return lambda_
         
-        return super().visit_lambda(lambda_)
+        self.current_closure = prev_closure
+        super().visit_method_base(lambda_)
+        return None
     
     def run_plugins_on(self, expr):
         return self.visit_expression(expr)

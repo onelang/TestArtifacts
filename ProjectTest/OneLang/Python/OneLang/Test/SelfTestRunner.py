@@ -32,6 +32,7 @@ class SelfTestRunner:
     def run_test(self, generator):
         console.log("[-] SelfTestRunner :: START")
         compiler = compHelp.CompilerHelper.init_project("OneLang", f'''{self.base_dir}src/''')
+        compiler.hooks = CompilerHooks(compiler, self.base_dir)
         compiler.process_workspace()
         generated = generator.generate(compiler.project_pkg)
         

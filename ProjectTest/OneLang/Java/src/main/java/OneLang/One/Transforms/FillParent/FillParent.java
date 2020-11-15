@@ -1,5 +1,39 @@
+package OneLang.One.Transforms.FillParent;
+
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.IInterface;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.Field;
+import OneLang.One.Ast.Types.Property;
+import OneLang.One.Ast.Types.IAstNode;
+import OneLang.One.Ast.Types.IMethodBase;
+import OneLang.One.Ast.Types.Constructor;
+import OneLang.One.Ast.Types.GlobalFunction;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.AstTransformer.AstTransformer;
+
+import OneLang.One.AstTransformer.AstTransformer;
 import java.util.List;
+import OneLang.One.Ast.Types.IAstNode;
 import java.util.ArrayList;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.GlobalFunction;
+import OneLang.One.Ast.Types.Field;
+import OneLang.One.Ast.Types.Property;
+import OneLang.One.Ast.Types.Constructor;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.IMethodBase;
+import OneLang.One.Ast.Types.SourceFile;
 
 public class FillParent extends AstTransformer {
     public List<IAstNode> parentNodeStack;

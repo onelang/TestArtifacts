@@ -54,6 +54,7 @@ class JsToJava:
             elif method.name == "filter":
                 return f'''{self.array_stream(obj)}.filter({args_r[0]}).{self.to_array(return_type)}'''
             elif method.name == "every":
+                self.main.imports["OneStd.StdArrayHelper"] = None
                 return f'''StdArrayHelper.allMatch({obj_r}, {args_r[0]})'''
             elif method.name == "some":
                 return f'''{self.array_stream(obj)}.anyMatch({args_r[0]})'''
@@ -119,6 +120,9 @@ class JsToJava:
         elif cls_.name == "RegExpExecArray":
             if method.name == "get":
                 return f'''{obj_r}[{args_r[0]}]'''
+        elif cls_.name in ["JSON", "console", "RegExp"]:
+            self.main.imports[f'''OneStd.{cls_.name}'''] = None
+            return None
         else:
             return None
         

@@ -1,7 +1,19 @@
+package OneLang.StdLib.PackageManager;
+
+import OneStd.OneYaml;
+import OneStd.YamlValue;
+
 import java.util.List;
+import OneLang.StdLib.PackageManager.InterfacePackage;
+import OneLang.StdLib.PackageManager.ImplementationPackage;
+import OneLang.StdLib.PackageManager.PackageSource;
 import java.util.ArrayList;
 import java.util.Arrays;
+import OneLang.StdLib.PackageManager.PackageContent;
+import OneLang.StdLib.PackageManager.ImplPkgImplementation;
+import OneStd.Objects;
 import java.util.stream.Collectors;
+import OneLang.StdLib.PackageManager.PackageNativeImpl;
 import java.util.LinkedHashMap;
 
 public class PackageManager {
@@ -31,7 +43,7 @@ public class PackageManager {
         for (var pkg : this.implementationPkgs)
             for (var impl : pkg.implementations)
                 allImpls.add(impl);
-        return allImpls.stream().filter(x -> x.language.equals(langName)).toArray(ImplPkgImplementation[]::new);
+        return allImpls.stream().filter(x -> Objects.equals(x.language, langName)).toArray(ImplPkgImplementation[]::new);
     }
     
     public String getInterfaceDefinitions() {
@@ -41,7 +53,7 @@ public class PackageManager {
     public PackageNativeImpl[] getLangNativeImpls(String langName) {
         var result = new ArrayList<PackageNativeImpl>();
         for (var pkg : this.implementationPkgs)
-            for (var pkgImpl : pkg.implementations.stream().filter(x -> x.language.equals(langName)).toArray(ImplPkgImplementation[]::new)) {
+            for (var pkgImpl : pkg.implementations.stream().filter(x -> Objects.equals(x.language, langName)).toArray(ImplPkgImplementation[]::new)) {
                 var fileNamePaths = new LinkedHashMap<String, String>();
                 for (var fileName : pkgImpl.nativeIncludes)
                     fileNamePaths.put(fileName, "native/" + fileName);

@@ -10,6 +10,7 @@ use One\Ast\Types\IAstNode;
 use One\Ast\Types\Field;
 use One\Ast\Types\Property;
 use One\Ast\Types\Constructor;
+use One\Ast\Types\Lambda;
 use One\AstTransformer\AstTransformer;
 use One\Ast\Statements\Statement;
 use Utils\TSOverviewGenerator\TSOverviewGenerator;
@@ -69,6 +70,8 @@ class ErrorManager {
                     $location .= "::" . $t->currentMethod->name;
                 else if ($t->currentMethod instanceof Constructor)
                     $location .= "::constructor";
+                else if ($t->currentMethod instanceof Lambda)
+                    $location .= "::<lambda>";
                 else if ($t->currentMethod === null) { }
                 else { }
             }

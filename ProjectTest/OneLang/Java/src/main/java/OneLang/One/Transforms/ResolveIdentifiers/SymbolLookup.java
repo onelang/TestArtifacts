@@ -1,4 +1,35 @@
+package OneLang.One.Transforms.ResolveIdentifiers;
+
+import OneLang.One.AstTransformer.AstTransformer;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.GlobalFunction;
+import OneLang.One.Ast.Types.IMethodBase;
+import OneLang.One.Ast.Types.Constructor;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.ErrorManager.ErrorManager;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.References.IReferencable;
+import OneLang.One.Ast.References.Reference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.AstTypes.ClassType;
+
+import OneLang.One.ErrorManager.ErrorManager;
 import java.util.List;
+import OneLang.One.Ast.References.IReferencable;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

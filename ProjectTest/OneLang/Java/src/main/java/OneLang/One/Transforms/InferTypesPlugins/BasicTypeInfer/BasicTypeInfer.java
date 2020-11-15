@@ -1,5 +1,65 @@
+package OneLang.One.Transforms.InferTypesPlugins.BasicTypeInfer;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Expressions.LambdaCallExpression;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.ForVariableReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.References.CatchVariableReference;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.AstTypes.NullType;
+import OneLang.One.Ast.AstTypes.TypeHelper;
+
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin.InferTypesPlugin;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.ForVariableReference;
+import OneLang.One.Ast.References.CatchVariableReference;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneStd.Objects;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.Expressions.BinaryExpression;
 import java.util.List;
 import java.util.ArrayList;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Expressions.AwaitExpression;
 
 public class BasicTypeInfer extends InferTypesPlugin {
     public BasicTypeInfer()
@@ -50,15 +110,15 @@ public class BasicTypeInfer extends InferTypesPlugin {
             if (operandType instanceof ClassType) {
                 var opId = ((UnaryExpression)expr).operator + ((ClassType)operandType).decl.getName();
                 
-                if (opId.equals("-TsNumber"))
+                if (Objects.equals(opId, "-TsNumber"))
                     ((UnaryExpression)expr).setActualType(litTypes.numeric);
-                else if (opId.equals("+TsNumber"))
+                else if (Objects.equals(opId, "+TsNumber"))
                     ((UnaryExpression)expr).setActualType(litTypes.numeric);
-                else if (opId.equals("!TsBoolean"))
+                else if (Objects.equals(opId, "!TsBoolean"))
                     ((UnaryExpression)expr).setActualType(litTypes.boolean_);
-                else if (opId.equals("++TsNumber"))
+                else if (Objects.equals(opId, "++TsNumber"))
                     ((UnaryExpression)expr).setActualType(litTypes.numeric);
-                else if (opId.equals("--TsNumber"))
+                else if (Objects.equals(opId, "--TsNumber"))
                     ((UnaryExpression)expr).setActualType(litTypes.numeric);
                 else { }
             }
@@ -69,8 +129,8 @@ public class BasicTypeInfer extends InferTypesPlugin {
         else if (expr instanceof BinaryExpression) {
             var leftType = ((BinaryExpression)expr).left.getType();
             var rightType = ((BinaryExpression)expr).right.getType();
-            var isEqOrNeq = ((BinaryExpression)expr).operator.equals("==") || ((BinaryExpression)expr).operator.equals("!=");
-            if (((BinaryExpression)expr).operator.equals("=")) {
+            var isEqOrNeq = Objects.equals(((BinaryExpression)expr).operator, "==") || Objects.equals(((BinaryExpression)expr).operator, "!=");
+            if (Objects.equals(((BinaryExpression)expr).operator, "=")) {
                 if (TypeHelper.isAssignableTo(rightType, leftType))
                     ((BinaryExpression)expr).setActualType(leftType, false, true);
                 else
@@ -89,7 +149,7 @@ public class BasicTypeInfer extends InferTypesPlugin {
                     ((BinaryExpression)expr).setActualType(litTypes.boolean_);
                 else if (((ClassType)leftType).decl == litTypes.boolean_.decl && ((ClassType)rightType).decl == litTypes.boolean_.decl && new ArrayList<>(List.of("||", "&&")).stream().anyMatch(((BinaryExpression)expr).operator::equals))
                     ((BinaryExpression)expr).setActualType(litTypes.boolean_);
-                else if (((ClassType)leftType).decl == litTypes.string.decl && ((ClassType)rightType).decl == litTypes.map.decl && ((BinaryExpression)expr).operator.equals("in"))
+                else if (((ClassType)leftType).decl == litTypes.string.decl && ((ClassType)rightType).decl == litTypes.map.decl && Objects.equals(((BinaryExpression)expr).operator, "in"))
                     ((BinaryExpression)expr).setActualType(litTypes.boolean_);
                 else { }
             }

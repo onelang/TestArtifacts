@@ -1,3 +1,8 @@
+package OneLang.StdLib.PackageManager;
+
+import OneStd.OneYaml;
+import OneStd.YamlValue;
+
 public class PackageId {
     public PackageType type;
     public String name;

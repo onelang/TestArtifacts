@@ -18,7 +18,7 @@ namespace StdLib
         
         public async Task<PackageBundle> getAllCached()
         {
-            return await Promise.resolve(this.bundle);
+            return this.bundle;
         }
     }
 }

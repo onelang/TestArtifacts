@@ -10,6 +10,8 @@ import OneLang.Generator.IGenerator as iGen
 import OneLang.One.Ast.Interfaces as ints
 import OneLang.Generator.IGeneratorPlugin as iGenPlug
 import OneLang.Generator.JavaPlugins.JsToJava as jsToJava
+import OneLang.One.ITransformer as iTrans
+import OneLang.One.Transforms.ConvertNullCoalesce as convNullCoal
 import re
 
 class JavaGenerator:
@@ -26,6 +28,9 @@ class JavaGenerator:
     
     def get_extension(self):
         return "java"
+    
+    def get_transforms(self):
+        return [convNullCoal.ConvertNullCoalesce()]
     
     def name_(self, name):
         if name in self.reserved_words:
@@ -67,6 +72,11 @@ class JavaGenerator:
         return self.type_args(list(map(lambda x: self.type(x), args)))
     
     def type(self, t, mutates = True, is_new = False):
+        if isinstance(t, astTypes.ClassType) or isinstance(t, astTypes.InterfaceType):
+            decl = (t).get_decl()
+            if decl.parent_file.export_scope != None:
+                self.imports[self.to_import(decl.parent_file.export_scope) + "." + decl.name] = None
+        
         if isinstance(t, astTypes.ClassType):
             type_args = self.type_args(list(map(lambda x: self.type(x), t.type_arguments)))
             if t.decl.name == "TsString":
@@ -279,7 +289,8 @@ class JavaGenerator:
                 right_type = expr.right.get_type()
                 use_equals = astTypes.TypeHelper.equals(left_type, lit.string) and right_type != None and astTypes.TypeHelper.equals(right_type, lit.string)
                 if use_equals:
-                    res = f'''{("!" if expr.operator == "!=" else "")}{self.expr(expr.left)}.equals({self.expr(expr.right)})'''
+                    self.imports["OneStd.Objects"] = None
+                    res = f'''{("!" if expr.operator == "!=" else "")}Objects.equals({self.expr(expr.left)}, {self.expr(expr.right)})'''
                 else:
                     res = f'''{self.expr(expr.left)} {expr.operator} {self.expr(expr.right)}'''
             else:
@@ -300,17 +311,18 @@ class JavaGenerator:
         elif isinstance(expr, exprs.ParenthesizedExpression):
             res = f'''({self.expr(expr.expression)})'''
         elif isinstance(expr, exprs.RegexLiteral):
+            self.imports[f'''OneStd.RegExp'''] = None
             res = f'''new RegExp({JSON.stringify(expr.pattern)})'''
         elif isinstance(expr, types.Lambda):
             
             if len(expr.body.statements) == 1 and isinstance(expr.body.statements[0], stats.ReturnStatement):
-                body = self.expr((expr.body.statements[0]).expression)
+                body = " " + self.expr((expr.body.statements[0]).expression)
             else:
-                body = f'''{{ {self.raw_block(expr.body)} }}'''
+                body = self.block(expr.body, False)
             
             params = list(map(lambda x: self.name_(x.name), expr.parameters))
             
-            res = f'''{(params[0] if len(params) == 1 else f'({", ".join(params)})')} -> {body}'''
+            res = f'''{(params[0] if len(params) == 1 else f'({", ".join(params)})')} ->{body}'''
         elif isinstance(expr, exprs.UnaryExpression) and expr.unary_type == exprs.UNARY_TYPE.PREFIX:
             res = f'''{expr.operator}{self.expr(expr.operand)}'''
         elif isinstance(expr, exprs.UnaryExpression) and expr.unary_type == exprs.UNARY_TYPE.POSTFIX:
@@ -576,20 +588,33 @@ class JavaGenerator:
         self.imports = dict()
         return "" if len(imports) == 0 else "\n".join(list(map(lambda x: f'''import {x};''', imports))) + "\n\n"
     
+    def to_import(self, scope):
+        return f'''OneStd''' if scope.scope_name == "index" else f'''{scope.package_name}.{re.sub("/", ".", re.sub("\\.ts$", "", scope.scope_name))}'''
+    
     def generate(self, pkg):
         result = []
         for path in pkg.files.keys():
             file = pkg.files.get(path)
-            dst_dir = f'''src/main/java/{pkg.name}/{re.sub("\\.ts$", "", file.source_path.path)}'''
+            package_path = f'''{pkg.name}/{re.sub("\\.ts$", "", file.source_path.path)}'''
+            dst_dir = f'''src/main/java/{package_path}'''
+            package_name = re.sub("/", ".", package_path)
+            
+            imports = dict()
+            for imp_list in file.imports:
+                imp_pkg = self.to_import(imp_list.export_scope)
+                for imp in imp_list.imports:
+                    imports[f'''{imp_pkg}.{imp.name}'''] = None
+            
+            head = f'''package {package_name};\n\n{"\n".join(list(map(lambda x: f'import {x};', Array.from_(imports.keys()))))}\n\n'''
             
             for enum_ in file.enums:
-                result.append(genFile.GeneratedFile(f'''{dst_dir}/{enum_.name}.java''', f'''public enum {self.name_(enum_.name)} {{ {", ".join(list(map(lambda x: self.name_(x.name), enum_.values)))} }}'''))
+                result.append(genFile.GeneratedFile(f'''{dst_dir}/{enum_.name}.java''', f'''{head}public enum {self.name_(enum_.name)} {{ {", ".join(list(map(lambda x: self.name_(x.name), enum_.values)))} }}'''))
             
             for intf in file.interfaces:
                 res = f'''public interface {self.name_(intf.name)}{self.type_args(intf.type_arguments)}''' + f'''{self.pre_arr(" extends ", list(map(lambda x: self.type(x), intf.base_interfaces)))} {{\n{self.interface(intf)}\n}}'''
-                result.append(genFile.GeneratedFile(f'''{dst_dir}/{intf.name}.java''', self.imports_head() + res))
+                result.append(genFile.GeneratedFile(f'''{dst_dir}/{intf.name}.java''', f'''{head}{self.imports_head()}{res}'''))
             
             for cls_ in file.classes:
                 res = f'''public class {self.name_(cls_.name)}{self.type_args(cls_.type_arguments)}''' + (f''' extends {self.type(cls_.base_class)}''' if cls_.base_class != None else "") + self.pre_arr(" implements ", list(map(lambda x: self.type(x), cls_.base_interfaces))) + f''' {{\n{self.class(cls_)}\n}}'''
-                result.append(genFile.GeneratedFile(f'''{dst_dir}/{cls_.name}.java''', self.imports_head() + res))
+                result.append(genFile.GeneratedFile(f'''{dst_dir}/{cls_.name}.java''', f'''{head}{self.imports_head()}{res}'''))
         return result

@@ -79,8 +79,10 @@ class JsToJava implements IGeneratorPlugin {
                 return $objR . ".remove(" . $objR . ".size() - 1)";
             else if ($method->name === "filter")
                 return $this->arrayStream($obj) . ".filter(" . $argsR[0] . ")." . $this->toArray($returnType);
-            else if ($method->name === "every")
+            else if ($method->name === "every") {
+                $this->main->imports->add("OneStd.StdArrayHelper");
                 return "StdArrayHelper.allMatch(" . $objR . ", " . $argsR[0] . ")";
+            }
             else if ($method->name === "some")
                 return $this->arrayStream($obj) . ".anyMatch(" . $argsR[0] . ")";
             else if ($method->name === "concat") {
@@ -155,6 +157,10 @@ class JsToJava implements IGeneratorPlugin {
         else if ($cls->name === "RegExpExecArray") {
             if ($method->name === "get")
                 return $objR . "[" . $argsR[0] . "]";
+        }
+        else if (in_array($cls->name, array("JSON", "console", "RegExp"))) {
+            $this->main->imports->add("OneStd." . $cls->name);
+            return null;
         }
         else
             return null;

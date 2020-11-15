@@ -1,7 +1,184 @@
+package OneLang.Utils.TSOverviewGenerator;
+
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.CharacterLiteral;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.UnaryType;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Expressions.GlobalFunctionCallExpression;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Expressions.LambdaCallExpression;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.One.Ast.Statements.UnsetStatement;
+import OneLang.One.Ast.Statements.ThrowStatement;
+import OneLang.One.Ast.Statements.ExpressionStatement;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.BreakStatement;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.DoStatement;
+import OneLang.One.Ast.Statements.ContinueStatement;
+import OneLang.One.Ast.Statements.ForVariable;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.IClassMember;
+import OneLang.One.Ast.Types.SourceFile;
+import OneLang.One.Ast.Types.IMethodBase;
+import OneLang.One.Ast.Types.Constructor;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.IImportable;
+import OneLang.One.Ast.Types.UnresolvedImport;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.Types.IInterface;
+import OneLang.One.Ast.Types.Field;
+import OneLang.One.Ast.Types.Property;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.Types.IVariableWithInitializer;
+import OneLang.One.Ast.Types.Visibility;
+import OneLang.One.Ast.Types.IAstNode;
+import OneLang.One.Ast.Types.GlobalFunction;
+import OneLang.One.Ast.Types.IHasAttributesAndTrivia;
+import OneLang.One.Ast.AstTypes.VoidType;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.EnumReference;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.ForVariableReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.EnumMemberReference;
+import OneLang.One.Ast.References.CatchVariableReference;
+import OneLang.One.Ast.References.GlobalFunctionReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.Interfaces.IExpression;
+import OneLang.One.Ast.Interfaces.IType;
+
+import OneLang.Utils.TSOverviewGenerator.TSOverviewGenerator;
+import OneStd.JSON;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import OneLang.One.Ast.Types.IHasAttributesAndTrivia;
+import OneStd.Objects;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.One.Ast.Types.Property;
+import OneLang.One.Ast.Types.Field;
+import OneLang.One.Ast.Types.IClassMember;
+import OneLang.One.Ast.Statements.VariableDeclaration;
+import OneLang.One.Ast.Statements.ForVariable;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.Types.IVariableWithInitializer;
+import OneLang.One.Ast.Types.IVariable;
+import OneLang.One.Ast.Expressions.NewExpression;
+import OneLang.One.Ast.Expressions.UnresolvedNewExpression;
+import OneLang.One.Ast.Expressions.Identifier;
+import OneLang.One.Ast.Expressions.PropertyAccessExpression;
+import OneLang.One.Ast.Expressions.UnresolvedCallExpression;
+import OneLang.One.Ast.Expressions.UnresolvedMethodCallExpression;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Expressions.GlobalFunctionCallExpression;
+import OneLang.One.Ast.Expressions.LambdaCallExpression;
+import OneLang.One.Ast.Expressions.BooleanLiteral;
+import OneLang.One.Ast.Expressions.StringLiteral;
+import OneLang.One.Ast.Expressions.NumericLiteral;
+import OneLang.One.Ast.Expressions.CharacterLiteral;
+import OneLang.One.Ast.Expressions.ElementAccessExpression;
+import OneLang.One.Ast.Expressions.TemplateString;
+import OneLang.One.Ast.Expressions.BinaryExpression;
+import OneLang.One.Ast.Expressions.ArrayLiteral;
+import OneLang.One.Ast.Expressions.CastExpression;
+import OneLang.One.Ast.Expressions.ConditionalExpression;
+import OneLang.One.Ast.Expressions.InstanceOfExpression;
+import OneLang.One.Ast.Expressions.ParenthesizedExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Expressions.UnaryExpression;
+import OneLang.One.Ast.Expressions.MapLiteral;
+import OneLang.One.Ast.Expressions.NullLiteral;
+import OneLang.One.Ast.Expressions.AwaitExpression;
+import OneLang.One.Ast.References.ThisReference;
+import OneLang.One.Ast.References.StaticThisReference;
+import OneLang.One.Ast.References.EnumReference;
+import OneLang.One.Ast.References.ClassReference;
+import OneLang.One.Ast.References.MethodParameterReference;
+import OneLang.One.Ast.References.VariableDeclarationReference;
+import OneLang.One.Ast.References.ForVariableReference;
+import OneLang.One.Ast.References.ForeachVariableReference;
+import OneLang.One.Ast.References.CatchVariableReference;
+import OneLang.One.Ast.References.GlobalFunctionReference;
+import OneLang.One.Ast.References.SuperReference;
+import OneLang.One.Ast.References.StaticFieldReference;
+import OneLang.One.Ast.References.StaticPropertyReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.EnumMemberReference;
+import OneLang.One.Ast.Expressions.NullCoalesceExpression;
+import OneLang.One.Ast.Interfaces.IExpression;
+import OneLang.One.Ast.Statements.Block;
+import OneLang.One.Ast.Statements.BreakStatement;
+import OneLang.One.Ast.Statements.ReturnStatement;
+import OneLang.One.Ast.Statements.UnsetStatement;
+import OneLang.One.Ast.Statements.ThrowStatement;
+import OneLang.One.Ast.Statements.ExpressionStatement;
+import OneLang.One.Ast.Statements.ForeachStatement;
+import OneLang.One.Ast.Statements.IfStatement;
+import OneLang.One.Ast.Statements.WhileStatement;
+import OneLang.One.Ast.Statements.ForStatement;
+import OneLang.One.Ast.Statements.DoStatement;
+import OneLang.One.Ast.Statements.TryStatement;
+import OneLang.One.Ast.Statements.ContinueStatement;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.Constructor;
+import OneLang.One.Ast.Types.GlobalFunction;
+import OneLang.One.Ast.AstTypes.VoidType;
+import OneLang.One.Ast.Types.IMethodBase;
 import java.util.ArrayList;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.IInterface;
+import OneStd.RegExp;
+import OneLang.One.Ast.Types.UnresolvedImport;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.Types.IImportable;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Types.IAstNode;
 import java.util.List;
+import OneLang.One.Ast.Types.SourceFile;
 
 public class TSOverviewGenerator {
     public static TSOverviewGenerator preview;
@@ -53,7 +230,7 @@ public class TSOverviewGenerator {
     
     public String type(IType t, Boolean raw) {
         var repr = t == null ? "???" : t.repr();
-        if (repr.equals("U:UNKNOWN")) { }
+        if (Objects.equals(repr, "U:UNKNOWN")) { }
         return (raw ? "" : "{T}") + repr;
     }
     
@@ -148,7 +325,7 @@ public class TSOverviewGenerator {
             res = this.expr(((UnaryExpression)expr).operand) + ((UnaryExpression)expr).operator;
         else if (expr instanceof MapLiteral) {
             var repr = Arrays.stream(Arrays.stream(((MapLiteral)expr).items).map(item -> item.key + ": " + this.expr(item.value)).toArray(String[]::new)).collect(Collectors.joining(",\n"));
-            res = "{L:M}" + (repr.equals("") ? "{}" : repr.contains("\n") ? "{\n" + this.pad(repr) + "\n}" : "{ " + repr + " }");
+            res = "{L:M}" + (Objects.equals(repr, "") ? "{}" : repr.contains("\n") ? "{\n" + this.pad(repr) + "\n}" : "{ " + repr + " }");
         }
         else if (expr instanceof NullLiteral)
             res = "null";
@@ -267,7 +444,7 @@ public class TSOverviewGenerator {
             resList.add(this.methodBase(((Class)cls).constructor_, VoidType.instance));
         }
         resList.add(Arrays.stream(Arrays.stream(cls.getMethods()).map(method -> this.method(method)).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
-        return this.pad(Arrays.stream(resList.stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
+        return this.pad(Arrays.stream(resList.stream().filter(x -> !Objects.equals(x, "")).toArray(String[]::new)).collect(Collectors.joining("\n\n")));
     }
     
     public String pad(String str) {
@@ -294,7 +471,7 @@ public class TSOverviewGenerator {
         var classes = Arrays.stream(sourceFile.classes).map(cls -> this.leading(cls) + "class " + cls.getName() + this.typeArgs(cls.getTypeArguments()) + this.pre(" extends ", cls.baseClass != null ? this.type(cls.baseClass) : null) + this.preArr(" implements ", Arrays.stream(cls.getBaseInterfaces()).map(x -> this.type(x)).toArray(String[]::new)) + " {\n" + this.classLike(cls) + "\n}").toArray(String[]::new);
         var funcs = Arrays.stream(sourceFile.funcs).map(func -> this.leading(func) + "function " + func.getName() + this.methodBase(func, func.returns)).toArray(String[]::new);
         var main = this.rawBlock(sourceFile.mainBlock);
-        var result = "// export scope: " + sourceFile.exportScope.packageName + "/" + sourceFile.exportScope.scopeName + "\n" + Arrays.stream(new ArrayList<>(List.of(Arrays.stream(imps).collect(Collectors.joining("\n")), Arrays.stream(enums).collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), Arrays.stream(classes).collect(Collectors.joining("\n\n")), Arrays.stream(funcs).collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !x.equals("")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
+        var result = "// export scope: " + sourceFile.exportScope.packageName + "/" + sourceFile.exportScope.scopeName + "\n" + Arrays.stream(new ArrayList<>(List.of(Arrays.stream(imps).collect(Collectors.joining("\n")), Arrays.stream(enums).collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), Arrays.stream(classes).collect(Collectors.joining("\n\n")), Arrays.stream(funcs).collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !Objects.equals(x, "")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));
         return result;
     }
 }

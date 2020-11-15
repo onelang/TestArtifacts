@@ -2,6 +2,7 @@ using One.Ast;
 using Generator;
 using Utils;
 using Generator.PythonPlugins;
+using One;
 using System.Collections.Generic;
 
 namespace Generator
@@ -33,6 +34,11 @@ namespace Generator
         public string getExtension()
         {
             return "py";
+        }
+        
+        public ITransformer[] getTransforms()
+        {
+            return new ITransformer[0];
         }
         
         public string type(IType type)

@@ -1,5 +1,25 @@
+package OneLang.One.Ast.AstTypes;
+
+import OneLang.One.Ast.Types.Enum;
+import OneLang.One.Ast.Types.Interface;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.Types.IInterface;
+import OneLang.One.Ast.Interfaces.IType;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import OneLang.One.Ast.Interfaces.IType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneLang.One.Ast.AstTypes.VoidType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneStd.Objects;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneStd.StdArrayHelper;
+import OneLang.One.Ast.AstTypes.NullType;
 
 public class TypeHelper {
     public static String argsRepr(IType[] args) {
@@ -27,7 +47,7 @@ public class TypeHelper {
         if (type1 instanceof AnyType && type2 instanceof AnyType)
             return true;
         if (type1 instanceof GenericsType && type2 instanceof GenericsType)
-            return ((GenericsType)type1).typeVarName.equals(((GenericsType)type2).typeVarName);
+            return Objects.equals(((GenericsType)type1).typeVarName, ((GenericsType)type2).typeVarName);
         if (type1 instanceof EnumType && type2 instanceof EnumType)
             return ((EnumType)type1).decl == ((EnumType)type2).decl;
         if (type1 instanceof LambdaType && type2 instanceof LambdaType)

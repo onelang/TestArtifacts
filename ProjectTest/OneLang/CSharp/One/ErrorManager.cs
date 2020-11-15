@@ -58,6 +58,8 @@ namespace One
                             location += $"::{meth2.name}";
                         else if (t.currentMethod is Constructor)
                             location += $"::constructor";
+                        else if (t.currentMethod is Lambda)
+                            location += $"::<lambda>";
                         else if (t.currentMethod == null) { }
                         else { }
                     }

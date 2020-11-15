@@ -1,7 +1,41 @@
+package OneLang.Generator.PhpPlugins.JsToPhp;
+
+import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.Interfaces.IExpression;
+import OneLang.Generator.PhpGenerator.PhpGenerator;
+
+import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
 import java.util.Set;
+import OneLang.Generator.PhpGenerator.PhpGenerator;
 import java.util.HashSet;
+import OneStd.Objects;
 import java.util.Arrays;
+import OneLang.One.Ast.Expressions.RegexLiteral;
+import OneStd.RegExp;
 import java.util.regex.Pattern;
+import OneStd.JSON;
+import OneStd.console;
+import OneLang.One.Ast.Types.Class;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.References.InstancePropertyReference;
+import OneLang.One.Ast.References.InstanceFieldReference;
+import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
+import OneLang.One.Ast.Interfaces.IExpression;
+import OneLang.One.Ast.Statements.Statement;
 
 public class JsToPhp implements IGeneratorPlugin {
     public Set<String> unhandledMethods;
@@ -14,40 +48,40 @@ public class JsToPhp implements IGeneratorPlugin {
     }
     
     public String convertMethod(Class cls, Expression obj, Method method, Expression[] args) {
-        if (cls.getName().equals("TsArray")) {
+        if (Objects.equals(cls.getName(), "TsArray")) {
             var objR = this.main.expr(obj);
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name.equals("includes"))
+            if (Objects.equals(method.name, "includes"))
                 return "in_array(" + argsR[0] + ", " + objR + ")";
-            else if (method.name.equals("set"))
+            else if (Objects.equals(method.name, "set"))
                 return objR + "[" + argsR[0] + "] = " + argsR[1];
-            else if (method.name.equals("get"))
+            else if (Objects.equals(method.name, "get"))
                 return objR + "[" + argsR[0] + "]";
-            else if (method.name.equals("join"))
+            else if (Objects.equals(method.name, "join"))
                 return "implode(" + argsR[0] + ", " + objR + ")";
-            else if (method.name.equals("map"))
+            else if (Objects.equals(method.name, "map"))
                 return "array_map(" + argsR[0] + ", " + objR + ")";
-            else if (method.name.equals("push"))
+            else if (Objects.equals(method.name, "push"))
                 return objR + "[] = " + argsR[0];
-            else if (method.name.equals("pop"))
+            else if (Objects.equals(method.name, "pop"))
                 return "array_pop(" + objR + ")";
-            else if (method.name.equals("filter"))
+            else if (Objects.equals(method.name, "filter"))
                 return "array_values(array_filter(" + objR + ", " + argsR[0] + "))";
-            else if (method.name.equals("every"))
+            else if (Objects.equals(method.name, "every"))
                 return "\\OneLang\\ArrayHelper::every(" + objR + ", " + argsR[0] + ")";
-            else if (method.name.equals("some"))
+            else if (Objects.equals(method.name, "some"))
                 return "\\OneLang\\ArrayHelper::some(" + objR + ", " + argsR[0] + ")";
-            else if (method.name.equals("concat"))
+            else if (Objects.equals(method.name, "concat"))
                 return "array_merge(" + objR + ", " + argsR[0] + ")";
-            else if (method.name.equals("shift"))
+            else if (Objects.equals(method.name, "shift"))
                 return "array_shift(" + objR + ")";
-            else if (method.name.equals("find"))
+            else if (Objects.equals(method.name, "find"))
                 return "\\OneLang\\ArrayHelper::find(" + objR + ", " + argsR[0] + ")";
         }
-        else if (cls.getName().equals("TsString")) {
+        else if (Objects.equals(cls.getName(), "TsString")) {
             var objR = this.main.expr(obj);
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name.equals("split")) {
+            if (Objects.equals(method.name, "split")) {
                 if (args[0] instanceof RegexLiteral) {
                     var pattern = (((RegexLiteral)args[0])).pattern;
                     var modPattern = "/" + pattern.replaceAll("/", "\\/") + "/";
@@ -56,84 +90,84 @@ public class JsToPhp implements IGeneratorPlugin {
                 
                 return "explode(" + argsR[0] + ", " + objR + ")";
             }
-            else if (method.name.equals("replace")) {
+            else if (Objects.equals(method.name, "replace")) {
                 if (args[0] instanceof RegexLiteral)
                     return "preg_replace(" + JSON.stringify("/" + (((RegexLiteral)args[0])).pattern + "/") + ", " + argsR[1] + ", " + objR + ")";
                 
                 return argsR[0] + ".replace(" + objR + ", " + argsR[1] + ")";
             }
-            else if (method.name.equals("includes"))
+            else if (Objects.equals(method.name, "includes"))
                 return "strpos(" + objR + ", " + argsR[0] + ") !== false";
-            else if (method.name.equals("startsWith")) {
+            else if (Objects.equals(method.name, "startsWith")) {
                 if (argsR.length > 1)
                     return "substr_compare(" + objR + ", " + argsR[0] + ", " + argsR[1] + ", strlen(" + argsR[0] + ")) === 0";
                 else
                     return "substr_compare(" + objR + ", " + argsR[0] + ", 0, strlen(" + argsR[0] + ")) === 0";
             }
-            else if (method.name.equals("endsWith")) {
+            else if (Objects.equals(method.name, "endsWith")) {
                 if (argsR.length > 1)
                     return "substr_compare(" + objR + ", " + argsR[0] + ", " + argsR[1] + " - strlen(" + argsR[0] + "), strlen(" + argsR[0] + ")) === 0";
                 else
                     return "substr_compare(" + objR + ", " + argsR[0] + ", strlen(" + objR + ") - strlen(" + argsR[0] + "), strlen(" + argsR[0] + ")) === 0";
             }
-            else if (method.name.equals("indexOf"))
+            else if (Objects.equals(method.name, "indexOf"))
                 return "strpos(" + objR + ", " + argsR[0] + ", " + argsR[1] + ")";
-            else if (method.name.equals("lastIndexOf"))
+            else if (Objects.equals(method.name, "lastIndexOf"))
                 return "strrpos(" + objR + ", " + argsR[0] + ", " + argsR[1] + " - strlen(" + objR + "))";
-            else if (method.name.equals("substr")) {
+            else if (Objects.equals(method.name, "substr")) {
                 if (argsR.length > 1)
                     return "substr(" + objR + ", " + argsR[0] + ", " + argsR[1] + ")";
                 else
                     return "substr(" + objR + ", " + argsR[0] + ")";
             }
-            else if (method.name.equals("substring"))
+            else if (Objects.equals(method.name, "substring"))
                 return "substr(" + objR + ", " + argsR[0] + ", " + argsR[1] + " - (" + argsR[0] + "))";
-            else if (method.name.equals("repeat"))
+            else if (Objects.equals(method.name, "repeat"))
                 return "str_repeat(" + objR + ", " + argsR[0] + ")";
-            else if (method.name.equals("toUpperCase"))
+            else if (Objects.equals(method.name, "toUpperCase"))
                 return "strtoupper(" + objR + ")";
-            else if (method.name.equals("toLowerCase"))
+            else if (Objects.equals(method.name, "toLowerCase"))
                 return "strtolower(" + objR + ")";
-            else if (method.name.equals("get"))
+            else if (Objects.equals(method.name, "get"))
                 return objR + "[" + argsR[0] + "]";
-            else if (method.name.equals("charCodeAt"))
+            else if (Objects.equals(method.name, "charCodeAt"))
                 return "ord(" + objR + "[" + argsR[0] + "])";
         }
-        else if (cls.getName().equals("TsMap")) {
+        else if (Objects.equals(cls.getName(), "TsMap")) {
             var objR = this.main.expr(obj);
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name.equals("set"))
+            if (Objects.equals(method.name, "set"))
                 return objR + "[" + argsR[0] + "] = " + argsR[1];
-            else if (method.name.equals("get"))
+            else if (Objects.equals(method.name, "get"))
                 return "@" + objR + "[" + argsR[0] + "] ?? null";
-            else if (method.name.equals("hasKey"))
+            else if (Objects.equals(method.name, "hasKey"))
                 return "array_key_exists(" + argsR[0] + ", " + objR + ")";
         }
-        else if (cls.getName().equals("Object")) {
+        else if (Objects.equals(cls.getName(), "Object")) {
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name.equals("keys"))
+            if (Objects.equals(method.name, "keys"))
                 return "array_keys(" + argsR[0] + ")";
-            else if (method.name.equals("values"))
+            else if (Objects.equals(method.name, "values"))
                 return "array_values(" + argsR[0] + ")";
         }
-        else if (cls.getName().equals("ArrayHelper")) {
+        else if (Objects.equals(cls.getName(), "ArrayHelper")) {
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name.equals("sortBy"))
+            if (Objects.equals(method.name, "sortBy"))
                 return "\\OneLang\\ArrayHelper::sortBy(" + argsR[0] + ", " + argsR[1] + ")";
-            else if (method.name.equals("removeLastN"))
+            else if (Objects.equals(method.name, "removeLastN"))
                 return "array_splice(" + argsR[0] + ", -" + argsR[1] + ")";
         }
-        else if (cls.getName().equals("Math")) {
+        else if (Objects.equals(cls.getName(), "Math")) {
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name.equals("floor"))
+            if (Objects.equals(method.name, "floor"))
                 return "floor(" + argsR[0] + ")";
         }
-        else if (cls.getName().equals("JSON")) {
+        else if (Objects.equals(cls.getName(), "JSON")) {
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
-            if (method.name.equals("stringify"))
+            if (Objects.equals(method.name, "stringify"))
                 return "json_encode(" + argsR[0] + ", JSON_UNESCAPED_SLASHES)";
         }
-        else if (cls.getName().equals("RegExpExecArray")) {
+        else if (Objects.equals(cls.getName(), "RegExpExecArray")) {
             var objR = this.main.expr(obj);
             var argsR = Arrays.stream(args).map(x -> this.main.expr(x)).toArray(String[]::new);
             return objR + "[" + argsR[0] + "]";
@@ -154,13 +188,13 @@ public class JsToPhp implements IGeneratorPlugin {
         if (expr instanceof InstanceMethodCallExpression && ((InstanceMethodCallExpression)expr).object.actualType instanceof ClassType)
             return this.convertMethod(((ClassType)((InstanceMethodCallExpression)expr).object.actualType).decl, ((InstanceMethodCallExpression)expr).object, ((InstanceMethodCallExpression)expr).getMethod(), ((InstanceMethodCallExpression)expr).getArgs());
         else if (expr instanceof InstancePropertyReference && ((InstancePropertyReference)expr).object.actualType instanceof ClassType) {
-            if (((InstancePropertyReference)expr).property.parentClass.getName().equals("TsString") && ((InstancePropertyReference)expr).property.getName().equals("length"))
+            if (Objects.equals(((InstancePropertyReference)expr).property.parentClass.getName(), "TsString") && Objects.equals(((InstancePropertyReference)expr).property.getName(), "length"))
                 return "strlen(" + this.main.expr(((InstancePropertyReference)expr).object) + ")";
-            if (((InstancePropertyReference)expr).property.parentClass.getName().equals("TsArray") && ((InstancePropertyReference)expr).property.getName().equals("length"))
+            if (Objects.equals(((InstancePropertyReference)expr).property.parentClass.getName(), "TsArray") && Objects.equals(((InstancePropertyReference)expr).property.getName(), "length"))
                 return "count(" + this.main.expr(((InstancePropertyReference)expr).object) + ")";
         }
         else if (expr instanceof InstanceFieldReference && ((InstanceFieldReference)expr).object.actualType instanceof ClassType) {
-            if (((InstanceFieldReference)expr).field.parentInterface.getName().equals("RegExpExecArray") && ((InstanceFieldReference)expr).field.getName().equals("length"))
+            if (Objects.equals(((InstanceFieldReference)expr).field.parentInterface.getName(), "RegExpExecArray") && Objects.equals(((InstanceFieldReference)expr).field.getName(), "length"))
                 return "count(" + this.main.expr(((InstanceFieldReference)expr).object) + ")";
         }
         else if (expr instanceof StaticMethodCallExpression && ((StaticMethodCallExpression)expr).getMethod().parentInterface instanceof Class)

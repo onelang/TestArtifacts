@@ -1,3 +1,7 @@
+package OneLang.Generator.GeneratedFile;
+
+
+
 public class GeneratedFile {
     public String path;
     public String content;

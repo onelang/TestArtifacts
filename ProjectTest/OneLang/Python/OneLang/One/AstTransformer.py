@@ -14,6 +14,7 @@ class AstTransformer:
         self.current_file = None
         self.current_interface = None
         self.current_method = None
+        self.current_closure = None
         self.current_statement = None
         self.name = name
     
@@ -121,7 +122,10 @@ class AstTransformer:
         return None
     
     def visit_lambda(self, lambda_):
+        prev_closure = self.current_closure
+        self.current_closure = lambda_
         self.visit_method_base(lambda_)
+        self.current_closure = prev_closure
         return None
     
     def visit_variable_reference(self, var_ref):
@@ -252,9 +256,11 @@ class AstTransformer:
     
     def visit_method(self, method):
         self.current_method = method
+        self.current_closure = method
         self.visit_attributes_and_trivia(method)
         self.visit_method_base(method)
         method.returns = self.visit_type(method.returns) or method.returns
+        self.current_closure = None
         self.current_method = None
     
     def visit_global_function(self, func):
@@ -263,8 +269,10 @@ class AstTransformer:
     
     def visit_constructor(self, constructor):
         self.current_method = constructor
+        self.current_closure = constructor
         self.visit_attributes_and_trivia(constructor)
         self.visit_method_base(constructor)
+        self.current_closure = None
         self.current_method = None
     
     def visit_field(self, field):

@@ -3,7 +3,6 @@
 namespace One\Transforms\InstanceOfImplicitCast;
 
 use One\AstTransformer\AstTransformer;
-use One\ErrorManager\ErrorManager;
 use One\Ast\Expressions\InstanceOfExpression;
 use One\Ast\Expressions\BinaryExpression;
 use One\Ast\Expressions\Expression;
@@ -12,10 +11,7 @@ use One\Ast\Expressions\ConditionalExpression;
 use One\Ast\Expressions\PropertyAccessExpression;
 use One\Ast\Statements\Statement;
 use One\Ast\Statements\IfStatement;
-use One\Ast\Statements\VariableDeclaration;
 use One\Ast\Statements\WhileStatement;
-use One\Ast\Statements\ExpressionStatement;
-use One\Ast\Statements\ReturnStatement;
 use One\Ast\References\ForeachVariableReference;
 use One\Ast\References\VariableDeclarationReference;
 use One\Ast\References\MethodParameterReference;

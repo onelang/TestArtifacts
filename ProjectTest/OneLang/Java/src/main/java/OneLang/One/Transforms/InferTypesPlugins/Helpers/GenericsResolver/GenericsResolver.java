@@ -1,6 +1,32 @@
+package OneLang.One.Transforms.InferTypesPlugins.Helpers.GenericsResolver;
+
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.IMethodCallExpression;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.AstTypes.AnyType;
+import OneLang.One.Ast.AstTypes.TypeHelper;
+import OneLang.One.Ast.Types.MethodParameter;
+import OneLang.One.Ast.Interfaces.IType;
+
+import OneLang.One.Ast.Interfaces.IType;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import OneLang.One.Transforms.InferTypesPlugins.Helpers.GenericsResolver.GenericsResolver;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Expressions.IMethodCallExpression;
+import OneLang.One.Ast.AstTypes.ClassType;
+import OneLang.One.Ast.AstTypes.InterfaceType;
+import OneLang.One.Ast.AstTypes.GenericsType;
+import OneStd.StdArrayHelper;
+import OneLang.One.Ast.AstTypes.LambdaType;
+import OneLang.One.Ast.AstTypes.EnumType;
+import OneLang.One.Ast.AstTypes.AnyType;
 import java.util.Arrays;
+import OneLang.One.Ast.Types.MethodParameter;
 
 public class GenericsResolver {
     public Map<String, IType> resolutionMap;

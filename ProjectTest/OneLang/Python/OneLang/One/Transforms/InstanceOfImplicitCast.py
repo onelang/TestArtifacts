@@ -1,6 +1,5 @@
 from OneLangStdLib import *
 import OneLang.One.AstTransformer as astTrans
-import OneLang.One.ErrorManager as errorMan
 import OneLang.One.Ast.Expressions as exprs
 import OneLang.One.Ast.Statements as stats
 import OneLang.One.Ast.References as refs

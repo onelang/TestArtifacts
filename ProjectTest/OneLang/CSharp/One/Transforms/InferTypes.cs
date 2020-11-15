@@ -160,6 +160,13 @@ namespace One.Transforms
         {
             this.currentStatement = stmt;
             
+            if (stmt is ReturnStatement retStat && retStat.expression != null && this.currentClosure is Method meth && meth.returns != null) {
+                var returnType = meth.returns;
+                if (returnType is ClassType classType && classType.decl == this.currentFile.literalTypes.promise.decl && meth.async)
+                    returnType = classType.typeArguments.get(0);
+                retStat.expression.setExpectedType(returnType);
+            }
+            
             foreach (var plugin in this.plugins) {
                 if (plugin.handleStatement(stmt))
                     return null;
@@ -206,12 +213,17 @@ namespace One.Transforms
             if (lambda.actualType != null)
                 return null;
             
+            var prevClosure = this.currentClosure;
+            this.currentClosure = lambda;
+            
             foreach (var plugin in this.plugins) {
                 if (plugin.handleLambda(lambda))
                     return lambda;
             }
             
-            return base.visitLambda(lambda);
+            this.currentClosure = prevClosure;
+            base.visitMethodBase(lambda);
+            return null;
         }
         
         public Expression runPluginsOn(Expression expr)

@@ -1,3 +1,22 @@
+package OneLang.One.Transforms.InferTypesPlugins.Helpers.InferTypesPlugin;
+
+import OneLang.One.ErrorManager.ErrorManager;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Transforms.InferTypes.InferTypes;
+import OneLang.One.Ast.Statements.Statement;
+import OneLang.One.Ast.Types.Property;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.Method;
+import OneLang.One.Ast.Types.IMethodBase;
+
+import OneLang.One.Transforms.InferTypes.InferTypes;
+import OneLang.One.ErrorManager.ErrorManager;
+import OneLang.One.Ast.Expressions.Expression;
+import OneLang.One.Ast.Types.Property;
+import OneLang.One.Ast.Types.Lambda;
+import OneLang.One.Ast.Types.IMethodBase;
+import OneLang.One.Ast.Statements.Statement;
+
 public class InferTypesPlugin {
     public InferTypes main;
     public ErrorManager errorMan;

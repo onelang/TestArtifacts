@@ -7,8 +7,6 @@ use One\Ast\Expressions\Expression;
 use One\Ast\Types\Lambda;
 use One\Ast\AstTypes\LambdaType;
 use One\Ast\AstTypes\TypeHelper;
-use One\Ast\Statements\ReturnStatement;
-use One\Ast\Statements\Statement;
 
 class LambdaResolver extends InferTypesPlugin {
     function __construct() {

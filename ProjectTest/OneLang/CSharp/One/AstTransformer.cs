@@ -9,6 +9,7 @@ namespace One
         public SourceFile currentFile;
         public IInterface currentInterface;
         public IMethodBase currentMethod;
+        public IMethodBase currentClosure;
         public Statement currentStatement;
         public string name { get; set; }
         
@@ -19,6 +20,7 @@ namespace One
             this.currentFile = null;
             this.currentInterface = null;
             this.currentMethod = null;
+            this.currentClosure = null;
             this.currentStatement = null;
         }
         
@@ -155,7 +157,10 @@ namespace One
         
         protected virtual Lambda visitLambda(Lambda lambda)
         {
+            var prevClosure = this.currentClosure;
+            this.currentClosure = lambda;
             this.visitMethodBase(lambda);
+            this.currentClosure = prevClosure;
             return null;
         }
         
@@ -298,9 +303,11 @@ namespace One
         protected void visitMethod(Method method)
         {
             this.currentMethod = method;
+            this.currentClosure = method;
             this.visitAttributesAndTrivia(method);
             this.visitMethodBase(method);
             method.returns = this.visitType(method.returns) ?? method.returns;
+            this.currentClosure = null;
             this.currentMethod = null;
         }
         
@@ -313,8 +320,10 @@ namespace One
         protected void visitConstructor(Constructor constructor)
         {
             this.currentMethod = constructor;
+            this.currentClosure = constructor;
             this.visitAttributesAndTrivia(constructor);
             this.visitMethodBase(constructor);
+            this.currentClosure = null;
             this.currentMethod = null;
         }
         
