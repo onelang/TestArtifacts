@@ -1,3 +1,5 @@
+package OneStd;
+
 import org.yaml.snakeyaml.Yaml;
 import java.util.Map;
 

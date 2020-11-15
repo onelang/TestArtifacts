@@ -1,3 +1,7 @@
+package OneStd;
+
+import OneLang.One.Ast.Interfaces.IType;
+
 public class ReflectedValue
 {
     public IType getDeclaredType() { return null; }

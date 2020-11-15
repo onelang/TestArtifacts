@@ -1,10 +1,12 @@
+package OneStd;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegExp {
     String pattern;
     String modifiers;
-    Integer lastIndex;
+    public Integer lastIndex;
 
     public RegExp(String pattern) { this(pattern, null); }
     public RegExp(String pattern, String modifiers) {

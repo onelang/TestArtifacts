@@ -1,3 +1,5 @@
+package OneStd;
+
 public class console {
     public static void log(String data) {
         System.out.println(data);
