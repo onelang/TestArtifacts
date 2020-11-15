@@ -364,6 +364,10 @@ public static class ExtensionMethods {
         return items.OrderBy(x => x, new LambdaComparer<T>(comparer)).ToArray();
     }
 
+    public static void sort(this List<string> items) {
+        items.Sort(StringComparer.OrdinalIgnoreCase);
+    }
+
     public static bool hasKey<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) {
         return dict.ContainsKey(key);
     }
