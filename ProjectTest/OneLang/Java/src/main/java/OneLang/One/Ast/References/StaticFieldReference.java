@@ -42,15 +42,7 @@ public class StaticFieldReference extends VariableReference {
     public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric) {
         if (TypeHelper.isGeneric(type))
             throw new Error("StaticField's type cannot be Generic");
-        super.setActualType(type);
-    }
-    
-    public void setActualType(IType type, Boolean allowVoid) {
-        this.setActualType(type, allowVoid, false);
-    }
-    
-    public void setActualType(IType type) {
-        this.setActualType(type, false, false);
+        super.setActualType(type, false, false);
     }
     
     public IVariable getVariable() {

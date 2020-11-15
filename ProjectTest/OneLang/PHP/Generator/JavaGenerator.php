@@ -97,6 +97,7 @@ use Generator\IGeneratorPlugin\IGeneratorPlugin;
 use Generator\JavaPlugins\JsToJava\JsToJava;
 use One\ITransformer\ITransformer;
 use One\Transforms\ConvertNullCoalesce\ConvertNullCoalesce;
+use One\Transforms\UseDefaultCallArgsExplicitly\UseDefaultCallArgsExplicitly;
 
 class JavaGenerator implements IGenerator {
     public $imports;
@@ -122,7 +123,7 @@ class JavaGenerator implements IGenerator {
     }
     
     function getTransforms() {
-        return array(new ConvertNullCoalesce());
+        return array(new ConvertNullCoalesce(), new UseDefaultCallArgsExplicitly());
     }
     
     function name_($name) {
@@ -198,7 +199,7 @@ class JavaGenerator implements IGenerator {
                 return $realType . "<" . $this->type($t->typeArguments[0]) . ", " . $this->type($t->typeArguments[1]) . ">";
             }
             else if ($t->decl->name === "Set") {
-                $realType = $isNew ? "HashSet" : "Set";
+                $realType = $isNew ? "LinkedHashSet" : "Set";
                 $this->imports->add("java.util." . $realType);
                 return $realType . "<" . $this->type($t->typeArguments[0]) . ">";
             }
@@ -603,35 +604,15 @@ class JavaGenerator implements IGenerator {
         return $this->stmts($block->statements);
     }
     
-    function overloadMethodGen($prefix, $method, $params, $body) {
-        $methods = array();
-        $methods[] = $prefix . "(" . implode(", ", array_map(function ($p) { return $this->varWoInit($p, $p); }, $params)) . ")" . $body;
-        
-        for ($paramLen = count($params) - 1; $paramLen >= 0; $paramLen--) {
-            if ($params[$paramLen]->initializer === null)
-                break;
-            
-            $methodParams = array();
-            $methodArgs = array();
-            for ($i = 0; $i < count($params); $i++) {
-                $p = $params[$i];
-                if ($i < $paramLen)
-                    $methodParams[] = $this->varWoInit($p, null);
-                $methodArgs[] = $i >= $paramLen ? $this->expr($p->initializer) : $p->name;
-            }
-            
-            $baseName = ($method !== null && $method->isStatic ? $this->currentClass->name : "this") . ($method !== null ? "." . $method->name : "");
-            $methods[] = $prefix . "(" . implode(", ", $methodParams) . ") {\n" . $this->pad(($method !== null && !($method->returns instanceof VoidType) ? "return " : "") . $baseName . "(" . implode(", ", $methodArgs) . ");") . "\n}";
-        }
-        
-        return implode("\n\n", $methods);
+    function methodGen($prefix, $params, $body) {
+        return $prefix . "(" . implode(", ", array_map(function ($p) { return $this->varWoInit($p, $p); }, $params)) . ")" . $body;
     }
     
     function method($method, $isCls) {
         // TODO: final
         $prefix = ($isCls ? $this->vis($method->visibility) . " " : "") . $this->preIf("static ", $method->isStatic) . $this->preIf("/* throws */ ", $method->throws) . (count($method->typeArguments) > 0 ? "<" . implode(", ", $method->typeArguments) . "> " : "") . $this->type($method->returns, false) . " " . $this->name_($method->name);
         
-        return $this->overloadMethodGen($prefix, $method, $method->parameters, $method->body === null ? ";" : " {\n" . $this->pad($this->stmts($method->body->statements)) . "\n}");
+        return $this->methodGen($prefix, $method->parameters, $method->body === null ? ";" : " {\n" . $this->pad($this->stmts($method->body->statements)) . "\n}");
     }
     
     function class($cls) {
@@ -692,7 +673,7 @@ class JavaGenerator implements IGenerator {
             $superCall = $cls->constructor_->superCallArgs !== null ? "super(" . implode(", ", array_map(function ($x) { return $this->expr($x); }, $cls->constructor_->superCallArgs)) . ");\n" : "";
             
             // TODO: super calls
-            $resList[] = $this->overloadMethodGen("public " . $this->preIf("/* throws */ ", $cls->constructor_->throws) . $this->name_($cls->name), null, $cls->constructor_->parameters, "\n{\n" . $this->pad($superCall . $this->stmts(array_merge(array_merge($constrFieldInits, $complexFieldInits), $cls->constructor_->body->statements))) . "\n}");
+            $resList[] = $this->methodGen("public " . $this->preIf("/* throws */ ", $cls->constructor_->throws) . $this->name_($cls->name), $cls->constructor_->parameters, "\n{\n" . $this->pad($superCall . $this->stmts(array_merge(array_merge($constrFieldInits, $complexFieldInits), $cls->constructor_->body->statements))) . "\n}");
         }
         else if (count($complexFieldInits) > 0)
             $resList[] = "public " . $this->name_($cls->name) . "()\n{\n" . $this->pad($this->stmts($complexFieldInits)) . "\n}";

@@ -76,7 +76,7 @@ public class ResolveMethodCalls extends InferTypesPlugin {
             // actually doesn't have to resolve, but must check if generic type confirm the previous argument with the same generic type
             var paramType = genericsResolver.resolveType(expr.getMethod().getParameters()[i].getType(), false);
             if (paramType != null)
-                expr.getArgs()[i].setExpectedType(paramType);
+                expr.getArgs()[i].setExpectedType(paramType, false);
             expr.getArgs()[i] = this.main.runPluginsOn(expr.getArgs()[i]);
             genericsResolver.collectResolutionsFromActualType(paramType, expr.getArgs()[i].actualType);
         }
@@ -110,7 +110,7 @@ public class ResolveMethodCalls extends InferTypesPlugin {
                 return result;
             }
             else if (objectType instanceof AnyType) {
-                expr.setActualType(AnyType.instance);
+                expr.setActualType(AnyType.instance, false, false);
                 return expr;
             }
             else { }

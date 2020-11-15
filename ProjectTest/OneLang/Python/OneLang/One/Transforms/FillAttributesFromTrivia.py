@@ -18,7 +18,7 @@ class FillAttributesFromTrivia(astTrans.AstTransformer):
     def process_trivia(cls, trivia):
         result = {}
         if trivia != None and trivia != "":
-            regex = RegExp("(?:\\n|^)\\s*(?://|#|/\\*\\*?)\\s*@([a-z0-9_.-]+) ?((?!\\n|\\*/|$).+)?")
+            regex = RegExp("(?:\\n|^)\\s*(?://|#|/\\*\\*?)\\s*@([A-Za-z0-9_.-]+) ?((?!\\n|\\*/|$).+)?")
             while True:
                 match = regex.exec(trivia)
                 if match == None:

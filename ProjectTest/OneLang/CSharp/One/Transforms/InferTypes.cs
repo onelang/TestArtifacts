@@ -1,7 +1,7 @@
-using One;
 using One.Ast;
-using One.Transforms.InferTypesPlugins;
 using One.Transforms.InferTypesPlugins.Helpers;
+using One.Transforms.InferTypesPlugins;
+using One;
 using System.Collections.Generic;
 using System;
 
@@ -139,7 +139,9 @@ namespace One.Transforms
                 transformedExpr = newExpr;
             }
             // if the plugin did not handle the expression, we use the default visit method
-            var expr2 = transformedExpr != null ? transformedExpr : base.visitExpression(expr) ?? expr;
+            var expr2 = transformedExpr;
+            if (expr2 == null)
+                expr2 = base.visitExpression(expr) ?? expr;
             
             if (expr2.actualType != null)
                 return expr2;

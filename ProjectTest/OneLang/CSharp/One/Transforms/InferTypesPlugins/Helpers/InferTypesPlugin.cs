@@ -1,6 +1,6 @@
-using One;
 using One.Ast;
 using One.Transforms;
+using One;
 
 namespace One.Transforms.InferTypesPlugins.Helpers
 {

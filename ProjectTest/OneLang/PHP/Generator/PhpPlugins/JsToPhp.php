@@ -56,6 +56,8 @@ class JsToPhp implements IGeneratorPlugin {
                 return "array_shift(" . $objR . ")";
             else if ($method->name === "find")
                 return "\\OneLang\\ArrayHelper::find(" . $objR . ", " . $argsR[0] . ")";
+            else if ($method->name === "sort")
+                return "sort(" . $objR . ")";
         }
         else if ($cls->name === "TsString") {
             $objR = $this->main->expr($obj);

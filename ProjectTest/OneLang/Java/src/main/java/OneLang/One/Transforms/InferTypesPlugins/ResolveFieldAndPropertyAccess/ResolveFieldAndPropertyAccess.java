@@ -122,7 +122,7 @@ public class ResolveFieldAndPropertyAccess extends InferTypesPlugin {
             this.errorMan.throw_("Type was not inferred yet (prop=\"" + expr.propertyName + "\")");
         else if (type instanceof AnyType)
             //this.errorMan.throw(`Object has any type (prop="${expr.propertyName}")`);
-            expr.setActualType(AnyType.instance);
+            expr.setActualType(AnyType.instance, false, false);
         else
             this.errorMan.throw_("Expected class as variable type, but got: " + type.repr() + " (prop=\"" + expr.propertyName + "\")");
         
@@ -149,7 +149,7 @@ public class ResolveFieldAndPropertyAccess extends InferTypesPlugin {
         }
         else if (expr instanceof InstancePropertyReference) {
             var actualType = GenericsResolver.fromObject(((InstancePropertyReference)expr).object).resolveType(((InstancePropertyReference)expr).property.getType(), true);
-            ((InstancePropertyReference)expr).setActualType(actualType);
+            ((InstancePropertyReference)expr).setActualType(actualType, false, false);
             return true;
         }
         else if (expr instanceof StaticPropertyReference) {

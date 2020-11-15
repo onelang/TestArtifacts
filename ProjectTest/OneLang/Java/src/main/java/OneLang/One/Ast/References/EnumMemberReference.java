@@ -42,14 +42,6 @@ public class EnumMemberReference extends Reference {
     public void setActualType(IType type, Boolean allowVoid, Boolean allowGeneric) {
         if (!(type instanceof EnumType))
             throw new Error("Expected EnumType!");
-        super.setActualType(type);
-    }
-    
-    public void setActualType(IType type, Boolean allowVoid) {
-        this.setActualType(type, allowVoid, false);
-    }
-    
-    public void setActualType(IType type) {
-        this.setActualType(type, false, false);
+        super.setActualType(type, false, false);
     }
 }

@@ -24,7 +24,7 @@ namespace One.Transforms
         {
             var result = new Dictionary<string, string> {};
             if (trivia != null && trivia != "") {
-                var regex = new RegExp("(?:\\n|^)\\s*(?://|#|/\\*\\*?)\\s*@([a-z0-9_.-]+) ?((?!\\n|\\*/|$).+)?");
+                var regex = new RegExp("(?:\\n|^)\\s*(?://|#|/\\*\\*?)\\s*@([A-Za-z0-9_.-]+) ?((?!\\n|\\*/|$).+)?");
                 while (true) {
                     var match = regex.exec(trivia);
                     if (match == null)

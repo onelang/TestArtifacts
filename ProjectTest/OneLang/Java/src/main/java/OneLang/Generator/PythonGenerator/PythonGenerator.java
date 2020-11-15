@@ -196,7 +196,7 @@ import OneLang.One.Ast.Statements.ContinueStatement;
 import OneLang.One.Ast.Statements.Block;
 import OneLang.One.Ast.Types.Field;
 import OneLang.One.Ast.Types.Class;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import OneLang.One.Ast.Types.Import;
 import OneLang.Generator.GeneratedFile.GeneratedFile;
 
@@ -240,7 +240,7 @@ public class PythonGenerator implements IGenerator {
             else if (Objects.equals(((ClassType)type).decl.getName(), "TsNumber"))
                 return "int";
             else
-                return this.clsName(((ClassType)type).decl);
+                return this.clsName(((ClassType)type).decl, false);
         }
         else
             return "NOT-HANDLED-TYPE";
@@ -289,10 +289,6 @@ public class PythonGenerator implements IGenerator {
         return this.calcImportedName(enum_.getParentFile().exportScope, name);
     }
     
-    public String enumName(Enum enum_) {
-        return this.enumName(enum_, false);
-    }
-    
     public String enumMemberName(String name) {
         return this.name_(name).toUpperCase();
     }
@@ -304,10 +300,6 @@ public class PythonGenerator implements IGenerator {
         if (isDecl || cls.getParentFile().exportScope == null || cls.getParentFile() == this.currentFile)
             return cls.getName();
         return this.calcImportedName(cls.getParentFile().exportScope, cls.getName());
-    }
-    
-    public String clsName(IInterface cls) {
-        return this.clsName(cls, false);
     }
     
     public String leading(Statement item) {
@@ -375,7 +367,7 @@ public class PythonGenerator implements IGenerator {
             if (Objects.equals(((NewExpression)expr).cls.decl.getName(), "Set"))
                 res = ((NewExpression)expr).args.length == 0 ? "dict()" : "dict.fromkeys" + this.callParams(((NewExpression)expr).args);
             else
-                res = this.clsName(((NewExpression)expr).cls.decl) + this.callParams(((NewExpression)expr).args);
+                res = this.clsName(((NewExpression)expr).cls.decl, false) + this.callParams(((NewExpression)expr).args);
         }
         else if (expr instanceof UnresolvedNewExpression)
             res = "/* TODO: UnresolvedNewExpression */ " + ((UnresolvedNewExpression)expr).cls.typeName + "(" + Arrays.stream(Arrays.stream(((UnresolvedNewExpression)expr).args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")";
@@ -391,7 +383,7 @@ public class PythonGenerator implements IGenerator {
             res = this.expr(((InstanceMethodCallExpression)expr).object) + "." + this.methodCall(((InstanceMethodCallExpression)expr));
         else if (expr instanceof StaticMethodCallExpression) {
             //const parent = expr.method.parentInterface === this.currentClass ? "cls" : this.clsName(expr.method.parentInterface);
-            var parent = this.clsName(((StaticMethodCallExpression)expr).getMethod().parentInterface);
+            var parent = this.clsName(((StaticMethodCallExpression)expr).getMethod().parentInterface, false);
             res = parent + "." + this.methodCall(((StaticMethodCallExpression)expr));
         }
         else if (expr instanceof GlobalFunctionCallExpression) {
@@ -507,7 +499,7 @@ public class PythonGenerator implements IGenerator {
         else if (expr instanceof StaticThisReference)
             res = "cls";
         else if (expr instanceof EnumReference)
-            res = this.enumName(((EnumReference)expr).decl);
+            res = this.enumName(((EnumReference)expr).decl, false);
         else if (expr instanceof ClassReference)
             res = this.name_(((ClassReference)expr).decl.getName());
         else if (expr instanceof MethodParameterReference)
@@ -525,15 +517,15 @@ public class PythonGenerator implements IGenerator {
         else if (expr instanceof SuperReference)
             res = "super()";
         else if (expr instanceof StaticFieldReference)
-            res = this.clsName(((StaticFieldReference)expr).decl.parentInterface) + "." + this.name_(((StaticFieldReference)expr).decl.getName());
+            res = this.clsName(((StaticFieldReference)expr).decl.parentInterface, false) + "." + this.name_(((StaticFieldReference)expr).decl.getName());
         else if (expr instanceof StaticPropertyReference)
-            res = this.clsName(((StaticPropertyReference)expr).decl.parentClass) + ".get_" + this.name_(((StaticPropertyReference)expr).decl.getName()) + "()";
+            res = this.clsName(((StaticPropertyReference)expr).decl.parentClass, false) + ".get_" + this.name_(((StaticPropertyReference)expr).decl.getName()) + "()";
         else if (expr instanceof InstanceFieldReference)
             res = this.expr(((InstanceFieldReference)expr).object) + "." + this.name_(((InstanceFieldReference)expr).field.getName());
         else if (expr instanceof InstancePropertyReference)
             res = this.expr(((InstancePropertyReference)expr).object) + ".get_" + this.name_(((InstancePropertyReference)expr).property.getName()) + "()";
         else if (expr instanceof EnumMemberReference)
-            res = this.enumName(((EnumMemberReference)expr).decl.parentEnum) + "." + this.enumMemberName(((EnumMemberReference)expr).decl.name);
+            res = this.enumName(((EnumMemberReference)expr).decl.parentEnum, false) + "." + this.enumMemberName(((EnumMemberReference)expr).decl.name);
         else if (expr instanceof NullCoalesceExpression)
             res = this.expr(((NullCoalesceExpression)expr).defaultExpr) + " or " + this.expr(((NullCoalesceExpression)expr).exprIfNull);
         else { }
@@ -555,19 +547,19 @@ public class PythonGenerator implements IGenerator {
         else if (stmt instanceof VariableDeclaration)
             return ((VariableDeclaration)stmt).getInitializer() != null ? this.name_(((VariableDeclaration)stmt).getName()) + " = " + this.expr(((VariableDeclaration)stmt).getInitializer()) : "";
         else if (stmt instanceof ForeachStatement)
-            return "for " + this.name_(((ForeachStatement)stmt).itemVar.getName()) + " in " + this.expr(((ForeachStatement)stmt).items) + ":\n" + this.block(((ForeachStatement)stmt).body);
+            return "for " + this.name_(((ForeachStatement)stmt).itemVar.getName()) + " in " + this.expr(((ForeachStatement)stmt).items) + ":\n" + this.block(((ForeachStatement)stmt).body, false);
         else if (stmt instanceof IfStatement) {
             var elseIf = ((IfStatement)stmt).else_ != null && ((IfStatement)stmt).else_.statements.size() == 1 && ((IfStatement)stmt).else_.statements.get(0) instanceof IfStatement;
-            return "if " + this.expr(((IfStatement)stmt).condition) + ":\n" + this.block(((IfStatement)stmt).then) + (elseIf ? "\nel" + this.stmt(((IfStatement)stmt).else_.statements.get(0)) : "") + (!elseIf && ((IfStatement)stmt).else_ != null ? "\nelse:\n" + this.block(((IfStatement)stmt).else_) : "");
+            return "if " + this.expr(((IfStatement)stmt).condition) + ":\n" + this.block(((IfStatement)stmt).then, false) + (elseIf ? "\nel" + this.stmt(((IfStatement)stmt).else_.statements.get(0)) : "") + (!elseIf && ((IfStatement)stmt).else_ != null ? "\nelse:\n" + this.block(((IfStatement)stmt).else_, false) : "");
         }
         else if (stmt instanceof WhileStatement)
-            return "while " + this.expr(((WhileStatement)stmt).condition) + ":\n" + this.block(((WhileStatement)stmt).body);
+            return "while " + this.expr(((WhileStatement)stmt).condition) + ":\n" + this.block(((WhileStatement)stmt).body, false);
         else if (stmt instanceof ForStatement)
-            return (((ForStatement)stmt).itemVar != null ? this.var(((ForStatement)stmt).itemVar, null) + "\n" : "") + "\nwhile " + this.expr(((ForStatement)stmt).condition) + ":\n" + this.block(((ForStatement)stmt).body) + "\n" + this.pad(this.expr(((ForStatement)stmt).incrementor));
+            return (((ForStatement)stmt).itemVar != null ? this.var(((ForStatement)stmt).itemVar, null) + "\n" : "") + "\nwhile " + this.expr(((ForStatement)stmt).condition) + ":\n" + this.block(((ForStatement)stmt).body, false) + "\n" + this.pad(this.expr(((ForStatement)stmt).incrementor));
         else if (stmt instanceof DoStatement)
-            return "while True:\n" + this.block(((DoStatement)stmt).body) + "\n" + this.pad("if not (" + this.expr(((DoStatement)stmt).condition) + "):" + nl + this.pad("break"));
+            return "while True:\n" + this.block(((DoStatement)stmt).body, false) + "\n" + this.pad("if not (" + this.expr(((DoStatement)stmt).condition) + "):" + nl + this.pad("break"));
         else if (stmt instanceof TryStatement)
-            return "try:\n" + this.block(((TryStatement)stmt).tryBody) + (((TryStatement)stmt).catchBody != null ? "\nexcept Exception as " + this.name_(((TryStatement)stmt).catchVar.getName()) + ":\n" + this.block(((TryStatement)stmt).catchBody) : "") + (((TryStatement)stmt).finallyBody != null ? "\nfinally:\n" + this.block(((TryStatement)stmt).finallyBody) : "");
+            return "try:\n" + this.block(((TryStatement)stmt).tryBody, false) + (((TryStatement)stmt).catchBody != null ? "\nexcept Exception as " + this.name_(((TryStatement)stmt).catchVar.getName()) + ":\n" + this.block(((TryStatement)stmt).catchBody, false) : "") + (((TryStatement)stmt).finallyBody != null ? "\nfinally:\n" + this.block(((TryStatement)stmt).finallyBody, false) : "");
         else if (stmt instanceof ContinueStatement)
             return "continue";
         else
@@ -597,16 +589,8 @@ public class PythonGenerator implements IGenerator {
         return this.pad(stmts.length == 0 && !skipPass ? "pass" : Arrays.stream(Arrays.stream(stmts).map(stmt -> this.stmt(stmt)).toArray(String[]::new)).collect(Collectors.joining("\n")));
     }
     
-    public String stmts(Statement[] stmts) {
-        return this.stmts(stmts, false);
-    }
-    
     public String block(Block block, Boolean skipPass) {
         return this.stmts(block.statements.toArray(Statement[]::new), skipPass);
-    }
-    
-    public String block(Block block) {
-        return this.block(block, false);
     }
     
     public String pass(String str) {
@@ -651,7 +635,7 @@ public class PythonGenerator implements IGenerator {
         
         for (var prop : cls.properties) {
             if (prop.getter != null)
-                resList.add("def get_" + this.name_(prop.getName()) + "(self):\n" + this.block(prop.getter));
+                resList.add("def get_" + this.name_(prop.getName()) + "(self):\n" + this.block(prop.getter, false));
         }
         
         var methods = new ArrayList<String>();
@@ -659,12 +643,12 @@ public class PythonGenerator implements IGenerator {
             if (method.getBody() == null)
                 continue;
             // declaration only
-            methods.add((method.getIsStatic() ? "@classmethod\n" : "") + "def " + this.name_(method.name) + "(" + (method.getIsStatic() ? "cls" : "self") + Arrays.stream(Arrays.stream(method.getParameters()).map(p -> ", " + this.var(p, null)).toArray(String[]::new)).collect(Collectors.joining("")) + "):" + "\n" + this.block(method.getBody()));
+            methods.add((method.getIsStatic() ? "@classmethod\n" : "") + "def " + this.name_(method.name) + "(" + (method.getIsStatic() ? "cls" : "self") + Arrays.stream(Arrays.stream(method.getParameters()).map(p -> ", " + this.var(p, null)).toArray(String[]::new)).collect(Collectors.joining("")) + "):" + "\n" + this.block(method.getBody(), false));
         }
         resList.add(methods.stream().collect(Collectors.joining("\n\n")));
         var resList2 = resList.stream().filter(x -> !Objects.equals(x, "")).toArray(String[]::new);
         
-        var clsHdr = "class " + this.clsName(cls, true) + (cls.baseClass != null ? "(" + this.clsName((((ClassType)cls.baseClass)).decl) + ")" : "") + ":\n";
+        var clsHdr = "class " + this.clsName(cls, true) + (cls.baseClass != null ? "(" + this.clsName((((ClassType)cls.baseClass)).decl, false) + ")" : "") + ":\n";
         return Arrays.stream(classAttributes.stream().map(x -> x + "\n").toArray(String[]::new)).collect(Collectors.joining("")) + clsHdr + this.pad(resList2.length > 0 ? Arrays.stream(resList2).collect(Collectors.joining("\n\n")) : "pass");
     }
     
@@ -698,8 +682,8 @@ public class PythonGenerator implements IGenerator {
     
     public String genFile(SourceFile sourceFile) {
         this.currentFile = sourceFile;
-        this.imports = new HashSet<String>();
-        this.importAllScopes = new HashSet<String>();
+        this.imports = new LinkedHashSet<String>();
+        this.importAllScopes = new LinkedHashSet<String>();
         this.imports.add("from OneLangStdLib import *");
         // TODO: do not add this globally, just for nativeResolver methods
                
@@ -732,7 +716,7 @@ public class PythonGenerator implements IGenerator {
         for (var cls : sourceFile.classes)
             classes.add(this.cls(cls));
         
-        var main = sourceFile.mainBlock.statements.size() > 0 ? this.block(sourceFile.mainBlock) : "";
+        var main = sourceFile.mainBlock.statements.size() > 0 ? this.block(sourceFile.mainBlock, false) : "";
         
         var imports = new ArrayList<String>();
         for (var imp : this.imports)

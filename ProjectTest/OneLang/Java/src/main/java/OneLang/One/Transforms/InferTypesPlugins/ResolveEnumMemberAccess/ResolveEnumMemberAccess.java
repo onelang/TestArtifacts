@@ -41,7 +41,7 @@ public class ResolveEnumMemberAccess extends InferTypesPlugin {
     }
     
     public Boolean detectType(Expression expr) {
-        expr.setActualType((((EnumMemberReference)expr)).decl.parentEnum.type);
+        expr.setActualType((((EnumMemberReference)expr)).decl.parentEnum.type, false, false);
         return true;
     }
 }

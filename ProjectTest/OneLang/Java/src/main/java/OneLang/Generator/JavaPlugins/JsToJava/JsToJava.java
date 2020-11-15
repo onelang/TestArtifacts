@@ -26,7 +26,7 @@ import OneLang.Generator.JavaGenerator.JavaGenerator;
 import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
 import java.util.Set;
 import OneLang.Generator.JavaGenerator.JavaGenerator;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import OneLang.One.Ast.References.VariableReference;
 import OneLang.One.Ast.Expressions.StaticMethodCallExpression;
 import OneLang.One.Ast.Expressions.InstanceMethodCallExpression;
@@ -54,7 +54,7 @@ public class JsToJava implements IGeneratorPlugin {
     public JsToJava(JavaGenerator main)
     {
         this.main = main;
-        this.unhandledMethods = new HashSet<String>();
+        this.unhandledMethods = new LinkedHashSet<String>();
     }
     
     public Boolean isArray(Expression arrayExpr) {
@@ -72,11 +72,7 @@ public class JsToJava implements IGeneratorPlugin {
     
     public String toArray(IType arrayType, Integer typeArgIdx) {
         var type = (((ClassType)arrayType)).getTypeArguments()[typeArgIdx];
-        return "toArray(" + this.main.type(type) + "[]::new)";
-    }
-    
-    public String toArray(IType arrayType) {
-        return this.toArray(arrayType, 0);
+        return "toArray(" + this.main.type(type, true, false) + "[]::new)";
     }
     
     public String convertMethod(Class cls, Expression obj, Method method, Expression[] args, IType returnType) {
@@ -99,13 +95,13 @@ public class JsToJava implements IGeneratorPlugin {
             }
             else if (Objects.equals(method.name, "map"))
                 //if (returnType.repr() !== "C:TsArray<C:TsString>") debugger;
-                return this.arrayStream(obj) + ".map(" + argsR[0] + ")." + this.toArray(returnType);
+                return this.arrayStream(obj) + ".map(" + argsR[0] + ")." + this.toArray(returnType, 0);
             else if (Objects.equals(method.name, "push"))
                 return objR + ".add(" + argsR[0] + ")";
             else if (Objects.equals(method.name, "pop"))
                 return objR + ".remove(" + objR + ".size() - 1)";
             else if (Objects.equals(method.name, "filter"))
-                return this.arrayStream(obj) + ".filter(" + argsR[0] + ")." + this.toArray(returnType);
+                return this.arrayStream(obj) + ".filter(" + argsR[0] + ")." + this.toArray(returnType, 0);
             else if (Objects.equals(method.name, "every")) {
                 this.main.imports.add("OneStd.StdArrayHelper");
                 return "StdArrayHelper.allMatch(" + objR + ", " + argsR[0] + ")";
@@ -114,12 +110,16 @@ public class JsToJava implements IGeneratorPlugin {
                 return this.arrayStream(obj) + ".anyMatch(" + argsR[0] + ")";
             else if (Objects.equals(method.name, "concat")) {
                 this.main.imports.add("java.util.stream.Stream");
-                return "Stream.of(" + objR + ", " + argsR[0] + ").flatMap(Stream::of)." + this.toArray(obj.getType());
+                return "Stream.of(" + objR + ", " + argsR[0] + ").flatMap(Stream::of)." + this.toArray(obj.getType(), 0);
             }
             else if (Objects.equals(method.name, "shift"))
                 return objR + ".remove(0)";
             else if (Objects.equals(method.name, "find"))
                 return this.arrayStream(obj) + ".filter(" + argsR[0] + ").findFirst().orElse(null)";
+            else if (Objects.equals(method.name, "sort")) {
+                this.main.imports.add("java.util.Collections");
+                return "Collections.sort(" + objR + ")";
+            }
         }
         else if (Objects.equals(cls.getName(), "TsString")) {
             if (Objects.equals(method.name, "replace")) {
@@ -162,11 +162,11 @@ public class JsToJava implements IGeneratorPlugin {
             if (Objects.equals(method.name, "keys"))
                 return argsR[0] + ".keySet().toArray(String[]::new)";
             else if (Objects.equals(method.name, "values"))
-                return argsR[0] + ".values()." + this.toArray(args[0].getType());
+                return argsR[0] + ".values()." + this.toArray(args[0].getType(), 0);
         }
         else if (Objects.equals(cls.getName(), "Set")) {
             if (Objects.equals(method.name, "values"))
-                return objR + "." + this.toArray(obj.getType());
+                return objR + "." + this.toArray(obj.getType(), 0);
             else if (Objects.equals(method.name, "has"))
                 return objR + ".contains(" + argsR[0] + ")";
             else if (Objects.equals(method.name, "add"))

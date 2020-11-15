@@ -1,8 +1,8 @@
-using One.Ast;
-using Generator;
 using Generator.JavaPlugins;
-using One;
+using Generator;
+using One.Ast;
 using One.Transforms;
+using One;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -36,7 +36,7 @@ namespace Generator
         
         public ITransformer[] getTransforms()
         {
-            return new ConvertNullCoalesce[] { new ConvertNullCoalesce() };
+            return new ITransformer[] { ((ITransformer)new ConvertNullCoalesce()), ((ITransformer)new UseDefaultCallArgsExplicitly()) };
         }
         
         public string name_(string name)
@@ -120,7 +120,7 @@ namespace Generator
                     return $"{realType}<{this.type(classType2.typeArguments.get(0))}, {this.type(classType2.typeArguments.get(1))}>";
                 }
                 else if (classType2.decl.name == "Set") {
-                    var realType = isNew ? "HashSet" : "Set";
+                    var realType = isNew ? "LinkedHashSet" : "Set";
                     this.imports.add($"java.util.{realType}");
                     return $"{realType}<{this.type(classType2.typeArguments.get(0))}>";
                 }
@@ -544,29 +544,9 @@ namespace Generator
             return this.stmts(block.statements.ToArray());
         }
         
-        public string overloadMethodGen(string prefix, Method method, MethodParameter[] params_, string body)
+        public string methodGen(string prefix, MethodParameter[] params_, string body)
         {
-            var methods = new List<string>();
-            methods.push(prefix + $"({params_.map(p => this.varWoInit(p, p)).join(", ")})" + body);
-            
-            for (int paramLen = params_.length() - 1; paramLen >= 0; paramLen--) {
-                if (params_.get(paramLen).initializer == null)
-                    break;
-                
-                var methodParams = new List<string>();
-                var methodArgs = new List<string>();
-                for (int i = 0; i < params_.length(); i++) {
-                    var p = params_.get(i);
-                    if (i < paramLen)
-                        methodParams.push(this.varWoInit(p, null));
-                    methodArgs.push(i >= paramLen ? this.expr(p.initializer) : p.name);
-                }
-                
-                var baseName = $"{(method != null && method.isStatic ? this.currentClass.name : "this")}{(method != null ? $".{method.name}" : "")}";
-                methods.push($"{prefix}({methodParams.join(", ")}) {{\n{this.pad($"{(method != null && !(method.returns is VoidType) ? "return " : "")}{baseName}({methodArgs.join(", ")});")}\n}}");
-            }
-            
-            return methods.join("\n\n");
+            return $"{prefix}({params_.map(p => this.varWoInit(p, p)).join(", ")}){body}";
         }
         
         public string method(Method method, bool isCls)
@@ -574,7 +554,7 @@ namespace Generator
             // TODO: final
             var prefix = (isCls ? this.vis(method.visibility) + " " : "") + this.preIf("static ", method.isStatic) + this.preIf("/* throws */ ", method.throws) + (method.typeArguments.length() > 0 ? $"<{method.typeArguments.join(", ")}> " : "") + $"{this.type(method.returns, false)} " + this.name_(method.name);
             
-            return this.overloadMethodGen(prefix, method, method.parameters, method.body == null ? ";" : $" {{\n{this.pad(this.stmts(method.body.statements.ToArray()))}\n}}");
+            return this.methodGen(prefix, method.parameters, method.body == null ? ";" : $" {{\n{this.pad(this.stmts(method.body.statements.ToArray()))}\n}}");
         }
         
         public string class_(Class cls)
@@ -636,7 +616,7 @@ namespace Generator
                 var superCall = cls.constructor_.superCallArgs != null ? $"super({cls.constructor_.superCallArgs.map(x => this.expr(x)).join(", ")});\n" : "";
                 
                 // TODO: super calls
-                resList.push(this.overloadMethodGen("public " + this.preIf("/* throws */ ", cls.constructor_.throws) + this.name_(cls.name), null, cls.constructor_.parameters, $"\n{{\n{this.pad(superCall + this.stmts(constrFieldInits.concat(complexFieldInits.ToArray()).concat(cls.constructor_.body.statements.ToArray())))}\n}}"));
+                resList.push(this.methodGen("public " + this.preIf("/* throws */ ", cls.constructor_.throws) + this.name_(cls.name), cls.constructor_.parameters, $"\n{{\n{this.pad(superCall + this.stmts(constrFieldInits.concat(complexFieldInits.ToArray()).concat(cls.constructor_.body.statements.ToArray())))}\n}}"));
             }
             else if (complexFieldInits.length() > 0)
                 resList.push($"public {this.name_(cls.name)}()\n{{\n{this.pad(this.stmts(complexFieldInits.ToArray()))}\n}}");

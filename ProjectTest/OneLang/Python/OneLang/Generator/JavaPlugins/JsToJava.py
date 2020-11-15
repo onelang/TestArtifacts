@@ -65,6 +65,9 @@ class JsToJava:
                 return f'''{obj_r}.remove(0)'''
             elif method.name == "find":
                 return f'''{self.array_stream(obj)}.filter({args_r[0]}).findFirst().orElse(null)'''
+            elif method.name == "sort":
+                self.main.imports["java.util.Collections"] = None
+                return f'''Collections.sort({obj_r})'''
         elif cls_.name == "TsString":
             if method.name == "replace":
                 if isinstance(args[0], exprs.RegexLiteral):

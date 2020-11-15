@@ -77,6 +77,10 @@ namespace Generator.JavaPlugins
                     return $"{objR}.remove(0)";
                 else if (method.name == "find")
                     return $"{this.arrayStream(obj)}.filter({argsR.get(0)}).findFirst().orElse(null)";
+                else if (method.name == "sort") {
+                    this.main.imports.add("java.util.Collections");
+                    return $"Collections.sort({objR})";
+                }
             }
             else if (cls.name == "TsString") {
                 if (method.name == "replace") {

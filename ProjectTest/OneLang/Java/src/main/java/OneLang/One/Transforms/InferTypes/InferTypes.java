@@ -122,7 +122,7 @@ public class InferTypes extends AstTransformer {
     
     protected IVariableWithInitializer visitVariableWithInitializer(IVariableWithInitializer variable) {
         if (variable.getType() != null && variable.getInitializer() != null)
-            variable.getInitializer().setExpectedType(variable.getType());
+            variable.getInitializer().setExpectedType(variable.getType(), false);
         
         super.visitVariableWithInitializer(variable);
         
@@ -186,9 +186,12 @@ public class InferTypes extends AstTransformer {
                 break;
             transformedExpr = newExpr;
         }
-        var visitExpressionResult = super.visitExpression(expr);
         // if the plugin did not handle the expression, we use the default visit method
-        var expr2 = transformedExpr != null ? transformedExpr : visitExpressionResult != null ? visitExpressionResult : expr;
+        var expr2 = transformedExpr;
+        if (expr2 == null) {
+            var visitExpressionResult = super.visitExpression(expr);
+            expr2 = visitExpressionResult != null ? visitExpressionResult : expr;
+        }
         
         if (expr2.actualType != null)
             return expr2;
@@ -212,7 +215,7 @@ public class InferTypes extends AstTransformer {
             var returnType = ((Method)this.currentClosure).returns;
             if (returnType instanceof ClassType && ((ClassType)returnType).decl == this.currentFile.literalTypes.promise.decl && ((Method)this.currentClosure).async)
                 returnType = ((ClassType)returnType).getTypeArguments()[0];
-            ((ReturnStatement)stmt).expression.setExpectedType(returnType);
+            ((ReturnStatement)stmt).expression.setExpectedType(returnType, false);
         }
         
         for (var plugin : this.plugins) {

@@ -95,17 +95,19 @@ import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
 import OneLang.Generator.JavaPlugins.JsToJava.JsToJava;
 import OneLang.One.ITransformer.ITransformer;
 import OneLang.One.Transforms.ConvertNullCoalesce.ConvertNullCoalesce;
+import OneLang.One.Transforms.UseDefaultCallArgsExplicitly.UseDefaultCallArgsExplicitly;
 
 import OneLang.Generator.IGenerator.IGenerator;
 import java.util.Set;
 import OneLang.One.Ast.Types.IInterface;
 import java.util.List;
 import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.ArrayList;
 import OneLang.Generator.JavaPlugins.JsToJava.JsToJava;
 import OneLang.One.ITransformer.ITransformer;
 import OneLang.One.Transforms.ConvertNullCoalesce.ConvertNullCoalesce;
+import OneLang.One.Transforms.UseDefaultCallArgsExplicitly.UseDefaultCallArgsExplicitly;
 import java.util.Arrays;
 import OneStd.RegExp;
 import java.util.stream.Collectors;
@@ -209,7 +211,7 @@ public class JavaGenerator implements IGenerator {
     
     public JavaGenerator()
     {
-        this.imports = new HashSet<String>();
+        this.imports = new LinkedHashSet<String>();
         this.reservedWords = new String[] { "class", "interface", "throws", "package", "throw", "boolean" };
         this.fieldToMethodHack = new String[0];
         this.plugins = new ArrayList<IGeneratorPlugin>();
@@ -225,7 +227,7 @@ public class JavaGenerator implements IGenerator {
     }
     
     public ITransformer[] getTransforms() {
-        return new ConvertNullCoalesce[] { new ConvertNullCoalesce() };
+        return new ITransformer[] { ((ITransformer)new ConvertNullCoalesce()), ((ITransformer)new UseDefaultCallArgsExplicitly()) };
     }
     
     public String name_(String name) {
@@ -268,7 +270,7 @@ public class JavaGenerator implements IGenerator {
     }
     
     public String typeArgs2(IType[] args) {
-        return this.typeArgs(Arrays.stream(args).map(x -> this.type(x)).toArray(String[]::new));
+        return this.typeArgs(Arrays.stream(args).map(x -> this.type(x, true, false)).toArray(String[]::new));
     }
     
     public String type(IType t, Boolean mutates, Boolean isNew) {
@@ -279,7 +281,7 @@ public class JavaGenerator implements IGenerator {
         }
         
         if (t instanceof ClassType) {
-            var typeArgs = this.typeArgs(Arrays.stream(((ClassType)t).getTypeArguments()).map(x -> this.type(x)).toArray(String[]::new));
+            var typeArgs = this.typeArgs(Arrays.stream(((ClassType)t).getTypeArguments()).map(x -> this.type(x, true, false)).toArray(String[]::new));
             if (Objects.equals(((ClassType)t).decl.getName(), "TsString"))
                 return "String";
             else if (Objects.equals(((ClassType)t).decl.getName(), "TsBoolean"))
@@ -290,35 +292,35 @@ public class JavaGenerator implements IGenerator {
                 var realType = isNew ? "ArrayList" : "List";
                 if (mutates) {
                     this.imports.add("java.util." + realType);
-                    return realType + "<" + this.type(((ClassType)t).getTypeArguments()[0]) + ">";
+                    return realType + "<" + this.type(((ClassType)t).getTypeArguments()[0], true, false) + ">";
                 }
                 else
-                    return this.type(((ClassType)t).getTypeArguments()[0]) + "[]";
+                    return this.type(((ClassType)t).getTypeArguments()[0], true, false) + "[]";
             }
             else if (Objects.equals(((ClassType)t).decl.getName(), "Map")) {
                 var realType = isNew ? "LinkedHashMap" : "Map";
                 this.imports.add("java.util." + realType);
-                return realType + "<" + this.type(((ClassType)t).getTypeArguments()[0]) + ", " + this.type(((ClassType)t).getTypeArguments()[1]) + ">";
+                return realType + "<" + this.type(((ClassType)t).getTypeArguments()[0], true, false) + ", " + this.type(((ClassType)t).getTypeArguments()[1], true, false) + ">";
             }
             else if (Objects.equals(((ClassType)t).decl.getName(), "Set")) {
-                var realType = isNew ? "HashSet" : "Set";
+                var realType = isNew ? "LinkedHashSet" : "Set";
                 this.imports.add("java.util." + realType);
-                return realType + "<" + this.type(((ClassType)t).getTypeArguments()[0]) + ">";
+                return realType + "<" + this.type(((ClassType)t).getTypeArguments()[0], true, false) + ">";
             }
             else if (Objects.equals(((ClassType)t).decl.getName(), "Promise"))
-                return ((ClassType)t).getTypeArguments()[0] instanceof VoidType ? "void" : this.type(((ClassType)t).getTypeArguments()[0]);
+                return ((ClassType)t).getTypeArguments()[0] instanceof VoidType ? "void" : this.type(((ClassType)t).getTypeArguments()[0], true, false);
             else if (Objects.equals(((ClassType)t).decl.getName(), "Object"))
                 //this.imports.add("System");
                 return "Object";
             else if (Objects.equals(((ClassType)t).decl.getName(), "TsMap")) {
                 var realType = isNew ? "LinkedHashMap" : "Map";
                 this.imports.add("java.util." + realType);
-                return realType + "<String, " + this.type(((ClassType)t).getTypeArguments()[0]) + ">";
+                return realType + "<String, " + this.type(((ClassType)t).getTypeArguments()[0], true, false) + ">";
             }
             return this.name_(((ClassType)t).decl.getName()) + typeArgs;
         }
         else if (t instanceof InterfaceType)
-            return this.name_(((InterfaceType)t).decl.getName()) + this.typeArgs(Arrays.stream(((InterfaceType)t).getTypeArguments()).map(x -> this.type(x)).toArray(String[]::new));
+            return this.name_(((InterfaceType)t).decl.getName()) + this.typeArgs(Arrays.stream(((InterfaceType)t).getTypeArguments()).map(x -> this.type(x, true, false)).toArray(String[]::new));
         else if (t instanceof VoidType)
             return "void";
         else if (t instanceof EnumType)
@@ -331,9 +333,9 @@ public class JavaGenerator implements IGenerator {
             return ((GenericsType)t).typeVarName;
         else if (t instanceof LambdaType) {
             var isFunc = !(((LambdaType)t).returnType instanceof VoidType);
-            var paramTypes = new ArrayList<>(Arrays.asList(Arrays.stream(((LambdaType)t).parameters).map(x -> this.type(x.getType())).toArray(String[]::new)));
+            var paramTypes = new ArrayList<>(Arrays.asList(Arrays.stream(((LambdaType)t).parameters).map(x -> this.type(x.getType(), true, false)).toArray(String[]::new)));
             if (isFunc)
-                paramTypes.add(this.type(((LambdaType)t).returnType));
+                paramTypes.add(this.type(((LambdaType)t).returnType, true, false));
             this.imports.add("java.util.function." + (isFunc ? "Function" : "Consumer"));
             return (isFunc ? "Function" : "Consumer") + "<" + paramTypes.stream().collect(Collectors.joining(", ")) + ">";
         }
@@ -341,14 +343,6 @@ public class JavaGenerator implements IGenerator {
             return "/* TODO */ object";
         else
             return "/* MISSING */";
-    }
-    
-    public String type(IType t, Boolean mutates) {
-        return this.type(t, mutates, false);
-    }
-    
-    public String type(IType t) {
-        return this.type(t, true, false);
     }
     
     public Boolean isTsArray(IType type) {
@@ -366,13 +360,13 @@ public class JavaGenerator implements IGenerator {
         else if (v.getType() instanceof ClassType && Objects.equals(((ClassType)v.getType()).decl.getName(), "TsArray")) {
             if (v.getMutability().mutated) {
                 this.imports.add("java.util.List");
-                type = "List<" + this.type(((ClassType)v.getType()).getTypeArguments()[0]) + ">";
+                type = "List<" + this.type(((ClassType)v.getType()).getTypeArguments()[0], true, false) + ">";
             }
             else
-                type = this.type(((ClassType)v.getType()).getTypeArguments()[0]) + "[]";
+                type = this.type(((ClassType)v.getType()).getTypeArguments()[0], true, false) + "[]";
         }
         else
-            type = this.type(v.getType());
+            type = this.type(v.getType(), true, false);
         return type;
     }
     
@@ -392,7 +386,7 @@ public class JavaGenerator implements IGenerator {
         if (this.isTsArray(arg.actualType)) {
             var itemType = (((ClassType)arg.actualType)).getTypeArguments()[0];
             if (arg instanceof ArrayLiteral && !shouldBeMutable)
-                return ((ArrayLiteral)arg).items.length == 0 && !this.isTsArray(itemType) ? "new " + this.type(itemType) + "[0]" : "new " + this.type(itemType) + "[] { " + Arrays.stream(Arrays.stream(((ArrayLiteral)arg).items).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + " }";
+                return ((ArrayLiteral)arg).items.length == 0 && !this.isTsArray(itemType) ? "new " + this.type(itemType, true, false) + "[0]" : "new " + this.type(itemType, true, false) + "[] { " + Arrays.stream(Arrays.stream(((ArrayLiteral)arg).items).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + " }";
             
             var currentlyMutable = shouldBeMutable;
             if (arg instanceof VariableReference)
@@ -401,7 +395,7 @@ public class JavaGenerator implements IGenerator {
                 currentlyMutable = false;
             
             if (currentlyMutable && !shouldBeMutable)
-                return this.expr(arg) + ".toArray(" + this.type(itemType) + "[]::new)";
+                return this.expr(arg) + ".toArray(" + this.type(itemType, true, false) + "[]::new)";
             else if (!currentlyMutable && shouldBeMutable) {
                 this.imports.add("java.util.Arrays");
                 this.imports.add("java.util.ArrayList");
@@ -454,7 +448,7 @@ public class JavaGenerator implements IGenerator {
         if (expr instanceof NewExpression)
             res = "new " + this.type(((NewExpression)expr).cls, true, true) + this.callParams(((NewExpression)expr).args, ((NewExpression)expr).cls.decl.constructor_ != null ? ((NewExpression)expr).cls.decl.constructor_.getParameters() : new MethodParameter[0]);
         else if (expr instanceof UnresolvedNewExpression)
-            res = "/* TODO: UnresolvedNewExpression */ new " + this.type(((UnresolvedNewExpression)expr).cls) + "(" + Arrays.stream(Arrays.stream(((UnresolvedNewExpression)expr).args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")";
+            res = "/* TODO: UnresolvedNewExpression */ new " + this.type(((UnresolvedNewExpression)expr).cls, true, false) + "(" + Arrays.stream(Arrays.stream(((UnresolvedNewExpression)expr).args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")";
         else if (expr instanceof Identifier)
             res = "/* TODO: Identifier */ " + ((Identifier)expr).text;
         else if (expr instanceof PropertyAccessExpression)
@@ -544,11 +538,11 @@ public class JavaGenerator implements IGenerator {
             }
         }
         else if (expr instanceof CastExpression)
-            res = "((" + this.type(((CastExpression)expr).newType) + ")" + this.expr(((CastExpression)expr).expression) + ")";
+            res = "((" + this.type(((CastExpression)expr).newType, true, false) + ")" + this.expr(((CastExpression)expr).expression) + ")";
         else if (expr instanceof ConditionalExpression)
             res = this.expr(((ConditionalExpression)expr).condition) + " ? " + this.expr(((ConditionalExpression)expr).whenTrue) + " : " + this.mutatedExpr(((ConditionalExpression)expr).whenFalse, ((ConditionalExpression)expr).whenTrue);
         else if (expr instanceof InstanceOfExpression)
-            res = this.expr(((InstanceOfExpression)expr).expr) + " instanceof " + this.type(((InstanceOfExpression)expr).checkType);
+            res = this.expr(((InstanceOfExpression)expr).expr) + " instanceof " + this.type(((InstanceOfExpression)expr).checkType, true, false);
         else if (expr instanceof ParenthesizedExpression)
             res = "(" + this.expr(((ParenthesizedExpression)expr).expression) + ")";
         else if (expr instanceof RegexLiteral) {
@@ -637,10 +631,6 @@ public class JavaGenerator implements IGenerator {
         return stmtLen == 0 ? " { }" : allowOneLiner && stmtLen == 1 && !(block.statements.get(0) instanceof IfStatement) && !(block.statements.get(0) instanceof VariableDeclaration) ? "\n" + this.pad(this.rawBlock(block)) : " {\n" + this.pad(this.rawBlock(block)) + "\n}";
     }
     
-    public String block(Block block) {
-        return this.block(block, true);
-    }
-    
     public String stmtDefault(Statement stmt) {
         var res = "UNKNOWN-STATEMENT";
         if (stmt instanceof BreakStatement)
@@ -655,32 +645,32 @@ public class JavaGenerator implements IGenerator {
             res = this.expr(((ExpressionStatement)stmt).expression) + ";";
         else if (stmt instanceof VariableDeclaration) {
             if (((VariableDeclaration)stmt).getInitializer() instanceof NullLiteral)
-                res = this.type(((VariableDeclaration)stmt).getType(), ((VariableDeclaration)stmt).getMutability().mutated) + " " + this.name_(((VariableDeclaration)stmt).getName()) + " = null;";
+                res = this.type(((VariableDeclaration)stmt).getType(), ((VariableDeclaration)stmt).getMutability().mutated, false) + " " + this.name_(((VariableDeclaration)stmt).getName()) + " = null;";
             else if (((VariableDeclaration)stmt).getInitializer() != null)
                 res = "var " + this.name_(((VariableDeclaration)stmt).getName()) + " = " + this.mutateArg(((VariableDeclaration)stmt).getInitializer(), ((VariableDeclaration)stmt).getMutability().mutated) + ";";
             else
-                res = this.type(((VariableDeclaration)stmt).getType()) + " " + this.name_(((VariableDeclaration)stmt).getName()) + ";";
+                res = this.type(((VariableDeclaration)stmt).getType(), true, false) + " " + this.name_(((VariableDeclaration)stmt).getName()) + ";";
         }
         else if (stmt instanceof ForeachStatement)
-            res = "for (var " + this.name_(((ForeachStatement)stmt).itemVar.getName()) + " : " + this.expr(((ForeachStatement)stmt).items) + ")" + this.block(((ForeachStatement)stmt).body);
+            res = "for (var " + this.name_(((ForeachStatement)stmt).itemVar.getName()) + " : " + this.expr(((ForeachStatement)stmt).items) + ")" + this.block(((ForeachStatement)stmt).body, true);
         else if (stmt instanceof IfStatement) {
             var elseIf = ((IfStatement)stmt).else_ != null && ((IfStatement)stmt).else_.statements.size() == 1 && ((IfStatement)stmt).else_.statements.get(0) instanceof IfStatement;
-            res = "if (" + this.expr(((IfStatement)stmt).condition) + ")" + this.block(((IfStatement)stmt).then);
-            res += (elseIf ? "\nelse " + this.stmt(((IfStatement)stmt).else_.statements.get(0)) : "") + (!elseIf && ((IfStatement)stmt).else_ != null ? "\nelse" + this.block(((IfStatement)stmt).else_) : "");
+            res = "if (" + this.expr(((IfStatement)stmt).condition) + ")" + this.block(((IfStatement)stmt).then, true);
+            res += (elseIf ? "\nelse " + this.stmt(((IfStatement)stmt).else_.statements.get(0)) : "") + (!elseIf && ((IfStatement)stmt).else_ != null ? "\nelse" + this.block(((IfStatement)stmt).else_, true) : "");
         }
         else if (stmt instanceof WhileStatement)
-            res = "while (" + this.expr(((WhileStatement)stmt).condition) + ")" + this.block(((WhileStatement)stmt).body);
+            res = "while (" + this.expr(((WhileStatement)stmt).condition) + ")" + this.block(((WhileStatement)stmt).body, true);
         else if (stmt instanceof ForStatement)
-            res = "for (" + (((ForStatement)stmt).itemVar != null ? this.var(((ForStatement)stmt).itemVar, null) : "") + "; " + this.expr(((ForStatement)stmt).condition) + "; " + this.expr(((ForStatement)stmt).incrementor) + ")" + this.block(((ForStatement)stmt).body);
+            res = "for (" + (((ForStatement)stmt).itemVar != null ? this.var(((ForStatement)stmt).itemVar, null) : "") + "; " + this.expr(((ForStatement)stmt).condition) + "; " + this.expr(((ForStatement)stmt).incrementor) + ")" + this.block(((ForStatement)stmt).body, true);
         else if (stmt instanceof DoStatement)
-            res = "do" + this.block(((DoStatement)stmt).body) + " while (" + this.expr(((DoStatement)stmt).condition) + ");";
+            res = "do" + this.block(((DoStatement)stmt).body, true) + " while (" + this.expr(((DoStatement)stmt).condition) + ");";
         else if (stmt instanceof TryStatement) {
             res = "try" + this.block(((TryStatement)stmt).tryBody, false);
             if (((TryStatement)stmt).catchBody != null)
                 //this.imports.add("System");
                 res += " catch (Exception " + this.name_(((TryStatement)stmt).catchVar.getName()) + ") " + this.block(((TryStatement)stmt).catchBody, false);
             if (((TryStatement)stmt).finallyBody != null)
-                res += "finally" + this.block(((TryStatement)stmt).finallyBody);
+                res += "finally" + this.block(((TryStatement)stmt).finallyBody, true);
         }
         else if (stmt instanceof ContinueStatement)
             res = "continue;";
@@ -718,35 +708,15 @@ public class JavaGenerator implements IGenerator {
         return this.stmts(block.statements.toArray(Statement[]::new));
     }
     
-    public String overloadMethodGen(String prefix, Method method, MethodParameter[] params, String body) {
-        var methods = new ArrayList<String>();
-        methods.add(prefix + "(" + Arrays.stream(Arrays.stream(params).map(p -> this.varWoInit(p, p)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + body);
-        
-        for (Integer paramLen = params.length - 1; paramLen >= 0; paramLen--) {
-            if (params[paramLen].getInitializer() == null)
-                break;
-            
-            var methodParams = new ArrayList<String>();
-            var methodArgs = new ArrayList<String>();
-            for (Integer i = 0; i < params.length; i++) {
-                var p = params[i];
-                if (i < paramLen)
-                    methodParams.add(this.varWoInit(p, null));
-                methodArgs.add(i >= paramLen ? this.expr(p.getInitializer()) : p.getName());
-            }
-            
-            var baseName = (method != null && method.getIsStatic() ? this.currentClass.getName() : "this") + (method != null ? "." + method.name : "");
-            methods.add(prefix + "(" + methodParams.stream().collect(Collectors.joining(", ")) + ") {\n" + this.pad((method != null && !(method.returns instanceof VoidType) ? "return " : "") + baseName + "(" + methodArgs.stream().collect(Collectors.joining(", ")) + ");") + "\n}");
-        }
-        
-        return methods.stream().collect(Collectors.joining("\n\n"));
+    public String methodGen(String prefix, MethodParameter[] params, String body) {
+        return prefix + "(" + Arrays.stream(Arrays.stream(params).map(p -> this.varWoInit(p, p)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + body;
     }
     
     public String method(Method method, Boolean isCls) {
         // TODO: final
-        var prefix = (isCls ? this.vis(method.getVisibility()) + " " : "") + this.preIf("static ", method.getIsStatic()) + this.preIf("/* throws */ ", method.getThrows()) + (method.typeArguments.length > 0 ? "<" + Arrays.stream(method.typeArguments).collect(Collectors.joining(", ")) + "> " : "") + this.type(method.returns, false) + " " + this.name_(method.name);
+        var prefix = (isCls ? this.vis(method.getVisibility()) + " " : "") + this.preIf("static ", method.getIsStatic()) + this.preIf("/* throws */ ", method.getThrows()) + (method.typeArguments.length > 0 ? "<" + Arrays.stream(method.typeArguments).collect(Collectors.joining(", ")) + "> " : "") + this.type(method.returns, false, false) + " " + this.name_(method.name);
         
-        return this.overloadMethodGen(prefix, method, method.getParameters(), method.getBody() == null ? ";" : " {\n" + this.pad(this.stmts(method.getBody().statements.toArray(Statement[]::new))) + "\n}");
+        return this.methodGen(prefix, method.getParameters(), method.getBody() == null ? ";" : " {\n" + this.pad(this.stmts(method.getBody().statements.toArray(Statement[]::new))) + "\n}");
     }
     
     public String class_(Class cls) {
@@ -785,10 +755,10 @@ public class JavaGenerator implements IGenerator {
         for (var prop : cls.properties) {
             var prefix = this.vis(prop.getVisibility()) + " " + this.preIf("static ", prop.getIsStatic());
             if (prop.getter != null)
-                resList.add(prefix + this.type(prop.getType()) + " get" + this.ucFirst(prop.getName()) + "()" + this.block(prop.getter, false));
+                resList.add(prefix + this.type(prop.getType(), true, false) + " get" + this.ucFirst(prop.getName()) + "()" + this.block(prop.getter, false));
             
             if (prop.setter != null)
-                resList.add(prefix + "void set" + this.ucFirst(prop.getName()) + "(" + this.type(prop.getType()) + " value)" + this.block(prop.setter, false));
+                resList.add(prefix + "void set" + this.ucFirst(prop.getName()) + "(" + this.type(prop.getType(), true, false) + " value)" + this.block(prop.setter, false));
         }
         
         if (staticConstructorStmts.size() > 0)
@@ -807,7 +777,7 @@ public class JavaGenerator implements IGenerator {
             var superCall = cls.constructor_.superCallArgs != null ? "super(" + Arrays.stream(Arrays.stream(cls.constructor_.superCallArgs).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ");\n" : "";
             
             // TODO: super calls
-            resList.add(this.overloadMethodGen("public " + this.preIf("/* throws */ ", cls.constructor_.getThrows()) + this.name_(cls.getName()), null, cls.constructor_.getParameters(), "\n{\n" + this.pad(superCall + this.stmts(Stream.of(Stream.of(constrFieldInits, complexFieldInits).flatMap(Stream::of).toArray(Statement[]::new), cls.constructor_.getBody().statements).flatMap(Stream::of).toArray(Statement[]::new))) + "\n}"));
+            resList.add(this.methodGen("public " + this.preIf("/* throws */ ", cls.constructor_.getThrows()) + this.name_(cls.getName()), cls.constructor_.getParameters(), "\n{\n" + this.pad(superCall + this.stmts(Stream.of(Stream.of(constrFieldInits, complexFieldInits).flatMap(Stream::of).toArray(Statement[]::new), cls.constructor_.getBody().statements).flatMap(Stream::of).toArray(Statement[]::new))) + "\n}"));
         }
         else if (complexFieldInits.size() > 0)
             resList.add("public " + this.name_(cls.getName()) + "()\n{\n" + this.pad(this.stmts(complexFieldInits.toArray(Statement[]::new))) + "\n}");
@@ -856,7 +826,7 @@ public class JavaGenerator implements IGenerator {
         var imports = new ArrayList<String>();
         for (var imp : this.imports.toArray(String[]::new))
             imports.add(imp);
-        this.imports = new HashSet<String>();
+        this.imports = new LinkedHashSet<String>();
         return imports.size() == 0 ? "" : Arrays.stream(imports.stream().map(x -> "import " + x + ";").toArray(String[]::new)).collect(Collectors.joining("\n")) + "\n\n";
     }
     
@@ -872,7 +842,7 @@ public class JavaGenerator implements IGenerator {
             var dstDir = "src/main/java/" + packagePath;
             var packageName = packagePath.replaceAll("/", ".");
             
-            var imports = new HashSet<String>();
+            var imports = new LinkedHashSet<String>();
             for (var impList : file.imports) {
                 var impPkg = this.toImport(impList.exportScope);
                 for (var imp : impList.imports)
@@ -885,12 +855,12 @@ public class JavaGenerator implements IGenerator {
                 result.add(new GeneratedFile(dstDir + "/" + enum_.getName() + ".java", head + "public enum " + this.name_(enum_.getName()) + " { " + Arrays.stream(Arrays.stream(enum_.values).map(x -> this.name_(x.name)).toArray(String[]::new)).collect(Collectors.joining(", ")) + " }"));
             
             for (var intf : file.interfaces) {
-                var res = "public interface " + this.name_(intf.getName()) + this.typeArgs(intf.getTypeArguments()) + this.preArr(" extends ", Arrays.stream(intf.getBaseInterfaces()).map(x -> this.type(x)).toArray(String[]::new)) + " {\n" + this.interface_(intf) + "\n}";
+                var res = "public interface " + this.name_(intf.getName()) + this.typeArgs(intf.getTypeArguments()) + this.preArr(" extends ", Arrays.stream(intf.getBaseInterfaces()).map(x -> this.type(x, true, false)).toArray(String[]::new)) + " {\n" + this.interface_(intf) + "\n}";
                 result.add(new GeneratedFile(dstDir + "/" + intf.getName() + ".java", head + this.importsHead() + res));
             }
             
             for (var cls : file.classes) {
-                var res = "public class " + this.name_(cls.getName()) + this.typeArgs(cls.getTypeArguments()) + (cls.baseClass != null ? " extends " + this.type(cls.baseClass) : "") + this.preArr(" implements ", Arrays.stream(cls.getBaseInterfaces()).map(x -> this.type(x)).toArray(String[]::new)) + " {\n" + this.class_(cls) + "\n}";
+                var res = "public class " + this.name_(cls.getName()) + this.typeArgs(cls.getTypeArguments()) + (cls.baseClass != null ? " extends " + this.type(cls.baseClass, true, false) : "") + this.preArr(" implements ", Arrays.stream(cls.getBaseInterfaces()).map(x -> this.type(x, true, false)).toArray(String[]::new)) + " {\n" + this.class_(cls) + "\n}";
                 result.add(new GeneratedFile(dstDir + "/" + cls.getName() + ".java", head + this.importsHead() + res));
             }
         }

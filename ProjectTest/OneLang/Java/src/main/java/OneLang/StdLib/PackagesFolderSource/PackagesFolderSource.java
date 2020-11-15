@@ -27,10 +27,6 @@ public class PackagesFolderSource implements PackageSource {
         this.packagesDir = packagesDir;
     }
     
-    public PackagesFolderSource() {
-        this("packages");
-    }
-    
     public PackageBundle getPackageBundle(PackageId[] ids, Boolean cachedOnly) {
         throw new Error("Method not implemented.");
     }

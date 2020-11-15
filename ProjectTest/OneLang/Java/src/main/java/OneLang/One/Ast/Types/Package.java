@@ -69,10 +69,6 @@ public class Package {
         return scope;
     }
     
-    public static ExportedScope collectExportsFromFile(SourceFile file, Boolean exportAll) {
-        return Package.collectExportsFromFile(file, exportAll, null);
-    }
-    
     public void addFile(SourceFile file, Boolean exportAll) {
         if (file.sourcePath.pkg != this || !Objects.equals(file.exportScope.packageName, this.name))
             throw new Error("This file belongs to another package!");
@@ -80,10 +76,6 @@ public class Package {
         this.files.put(file.sourcePath.path, file);
         var scopeName = file.exportScope.scopeName;
         this.exportedScopes.put(scopeName, Package.collectExportsFromFile(file, exportAll, this.exportedScopes.get(scopeName)));
-    }
-    
-    public void addFile(SourceFile file) {
-        this.addFile(file, false);
     }
     
     public ExportedScope getExportedScope(String name) {

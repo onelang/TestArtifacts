@@ -179,6 +179,6 @@ public class ResolveIdentifiers extends AstTransformer {
         super.visitFile(sourceFile);
         
         this.symbolLookup.popContext();
-        this.errorMan.resetContext();
+        this.errorMan.resetContext(null);
     }
 }

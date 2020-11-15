@@ -159,7 +159,9 @@ class InferTypes extends AstTransformer {
             $transformedExpr = $newExpr;
         }
         // if the plugin did not handle the expression, we use the default visit method
-        $expr2 = $transformedExpr !== null ? $transformedExpr : parent::visitExpression($expr) ?? $expr;
+        $expr2 = $transformedExpr;
+        if ($expr2 === null)
+            $expr2 = parent::visitExpression($expr) ?? $expr;
         
         if ($expr2->actualType !== null)
             return $expr2;

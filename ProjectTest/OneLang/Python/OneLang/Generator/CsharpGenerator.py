@@ -433,7 +433,10 @@ class CsharpGenerator:
                     mp_ref.set_actual_type(field.type, False, False)
                     constr_field_inits.append(stats.ExpressionStatement(exprs.BinaryExpression(field_ref, "=", mp_ref)))
                 
-                res_list.append("public " + self.pre_if("/* throws */ ", cls_.constructor_.throws) + self.name_(cls_.name) + f'''({", ".join(list(map(lambda p: self.var(p, p), cls_.constructor_.parameters)))})''' + (f''': base({", ".join(list(map(lambda x: self.expr(x), cls_.constructor_.super_call_args)))})''' if cls_.constructor_.super_call_args != None else "") + f'''\n{{\n{self.pad(self.stmts(constr_field_inits + complex_field_inits + cls_.constructor_.body.statements))}\n}}''')
+                # @java var stmts = Stream.concat(Stream.concat(constrFieldInits.stream(), complexFieldInits.stream()), ((Class)cls).constructor_.getBody().statements.stream()).toArray(Statement[]::new);
+                # @java-import java.util.stream.Stream
+                stmts = constr_field_inits + complex_field_inits + cls_.constructor_.body.statements
+                res_list.append("public " + self.pre_if("/* throws */ ", cls_.constructor_.throws) + self.name_(cls_.name) + f'''({", ".join(list(map(lambda p: self.var(p, p), cls_.constructor_.parameters)))})''' + (f''': base({", ".join(list(map(lambda x: self.expr(x), cls_.constructor_.super_call_args)))})''' if cls_.constructor_.super_call_args != None else "") + f'''\n{{\n{self.pad(self.stmts(stmts))}\n}}''')
             elif len(complex_field_inits) > 0:
                 res_list.append(f'''public {self.name_(cls_.name)}()\n{{\n{self.pad(self.stmts(complex_field_inits))}\n}}''')
         elif isinstance(cls_, types.Interface):
@@ -475,7 +478,8 @@ class CsharpGenerator:
         
         main = f'''public class Program\n{{\n    static void Main(string[] args)\n    {{\n{self.pad(self.raw_block(source_file.main_block))}\n    }}\n}}''' if len(source_file.main_block.statements) > 0 else ""
         
-        # @java var usingsSet = new HashSet<String>(Arrays.stream(sourceFile.imports).map(x -> this.pathToNs(x.exportScope.scopeName)).filter(x -> x != "").collect(Collectors.toList()));
+        # @java var usingsSet = new LinkedHashSet<String>(Arrays.stream(sourceFile.imports).map(x -> this.pathToNs(x.exportScope.scopeName)).filter(x -> x != "").collect(Collectors.toList()));
+        # @java-import java.util.LinkedHashSet
         usings_set = dict.fromkeys(list(filter(lambda x: x != "", list(map(lambda x: self.path_to_ns(x.export_scope.scope_name), source_file.imports)))))
         for using in self.usings.keys():
             usings_set[using] = None
@@ -483,6 +487,7 @@ class CsharpGenerator:
         usings = []
         for using in usings_set.keys():
             usings.append(f'''using {using};''')
+        usings.sort()
         
         result = "\n\n".join(list(filter(lambda x: x != "", ["\n".join(enums), "\n\n".join(intfs), "\n\n".join(classes), main])))
         nl = "\n"

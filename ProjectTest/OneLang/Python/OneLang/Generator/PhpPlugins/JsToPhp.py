@@ -44,6 +44,8 @@ class JsToPhp:
                 return f'''array_shift({obj_r})'''
             elif method.name == "find":
                 return f'''\\OneLang\\ArrayHelper::find({obj_r}, {args_r[0]})'''
+            elif method.name == "sort":
+                return f'''sort({obj_r})'''
         elif cls_.name == "TsString":
             obj_r = self.main.expr(obj)
             args_r = list(map(lambda x: self.main.expr(x), args))

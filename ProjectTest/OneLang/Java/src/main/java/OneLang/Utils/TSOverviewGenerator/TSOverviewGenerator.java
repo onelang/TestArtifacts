@@ -186,21 +186,13 @@ public class TSOverviewGenerator {
     public Boolean showTypes;
     
     static {
-        TSOverviewGenerator.preview = new TSOverviewGenerator(true);
+        TSOverviewGenerator.preview = new TSOverviewGenerator(true, false);
     }
     
     public TSOverviewGenerator(Boolean previewOnly, Boolean showTypes)
     {
         this.previewOnly = previewOnly;
         this.showTypes = showTypes;
-    }
-    
-    public TSOverviewGenerator(Boolean previewOnly) {
-        this(previewOnly, false);
-    }
-    
-    public TSOverviewGenerator() {
-        this(false, false);
     }
     
     public String leading(IHasAttributesAndTrivia item) {
@@ -234,10 +226,6 @@ public class TSOverviewGenerator {
         return (raw ? "" : "{T}") + repr;
     }
     
-    public String type(IType t) {
-        return this.type(t, false);
-    }
-    
     public String var(IVariable v) {
         var result = "";
         var isProp = v instanceof Property;
@@ -252,7 +240,7 @@ public class TSOverviewGenerator {
             result += (v.getMutability().mutated ? "@mutated " : "");
             result += (v.getMutability().reassigned ? "@reass " : "");
         }
-        result += v.getName() + (isProp ? "()" : "") + ": " + this.type(v.getType());
+        result += v.getName() + (isProp ? "()" : "") + ": " + this.type(v.getType(), false);
         if (v instanceof VariableDeclaration || v instanceof ForVariable || v instanceof Field || v instanceof MethodParameter) {
             var init = (((IVariableWithInitializer)v)).getInitializer();
             if (init != null)
@@ -264,27 +252,27 @@ public class TSOverviewGenerator {
     public String expr(IExpression expr) {
         var res = "UNKNOWN-EXPR";
         if (expr instanceof NewExpression)
-            res = "new " + this.type(((NewExpression)expr).cls) + "(" + (this.previewOnly ? "..." : Arrays.stream(Arrays.stream(((NewExpression)expr).args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", "))) + ")";
+            res = "new " + this.type(((NewExpression)expr).cls, false) + "(" + (this.previewOnly ? "..." : Arrays.stream(Arrays.stream(((NewExpression)expr).args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", "))) + ")";
         else if (expr instanceof UnresolvedNewExpression)
-            res = "new " + this.type(((UnresolvedNewExpression)expr).cls) + "(" + (this.previewOnly ? "..." : Arrays.stream(Arrays.stream(((UnresolvedNewExpression)expr).args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", "))) + ")";
+            res = "new " + this.type(((UnresolvedNewExpression)expr).cls, false) + "(" + (this.previewOnly ? "..." : Arrays.stream(Arrays.stream(((UnresolvedNewExpression)expr).args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", "))) + ")";
         else if (expr instanceof Identifier)
             res = "{ID}" + ((Identifier)expr).text;
         else if (expr instanceof PropertyAccessExpression)
             res = this.expr(((PropertyAccessExpression)expr).object) + ".{PA}" + ((PropertyAccessExpression)expr).propertyName;
         else if (expr instanceof UnresolvedCallExpression) {
-            var typeArgs = ((UnresolvedCallExpression)expr).typeArgs.length > 0 ? "<" + Arrays.stream(Arrays.stream(((UnresolvedCallExpression)expr).typeArgs).map(x -> this.type(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ">" : "";
+            var typeArgs = ((UnresolvedCallExpression)expr).typeArgs.length > 0 ? "<" + Arrays.stream(Arrays.stream(((UnresolvedCallExpression)expr).typeArgs).map(x -> this.type(x, false)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ">" : "";
             res = this.expr(((UnresolvedCallExpression)expr).func) + typeArgs + "(" + (this.previewOnly ? "..." : Arrays.stream(Arrays.stream(((UnresolvedCallExpression)expr).args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", "))) + ")";
         }
         else if (expr instanceof UnresolvedMethodCallExpression) {
-            var typeArgs = ((UnresolvedMethodCallExpression)expr).typeArgs.length > 0 ? "<" + Arrays.stream(Arrays.stream(((UnresolvedMethodCallExpression)expr).typeArgs).map(x -> this.type(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ">" : "";
+            var typeArgs = ((UnresolvedMethodCallExpression)expr).typeArgs.length > 0 ? "<" + Arrays.stream(Arrays.stream(((UnresolvedMethodCallExpression)expr).typeArgs).map(x -> this.type(x, false)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ">" : "";
             res = this.expr(((UnresolvedMethodCallExpression)expr).object) + ".{UM}" + ((UnresolvedMethodCallExpression)expr).methodName + typeArgs + "(" + (this.previewOnly ? "..." : Arrays.stream(Arrays.stream(((UnresolvedMethodCallExpression)expr).args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", "))) + ")";
         }
         else if (expr instanceof InstanceMethodCallExpression) {
-            var typeArgs = ((InstanceMethodCallExpression)expr).getTypeArgs().length > 0 ? "<" + Arrays.stream(Arrays.stream(((InstanceMethodCallExpression)expr).getTypeArgs()).map(x -> this.type(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ">" : "";
+            var typeArgs = ((InstanceMethodCallExpression)expr).getTypeArgs().length > 0 ? "<" + Arrays.stream(Arrays.stream(((InstanceMethodCallExpression)expr).getTypeArgs()).map(x -> this.type(x, false)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ">" : "";
             res = this.expr(((InstanceMethodCallExpression)expr).object) + ".{M}" + ((InstanceMethodCallExpression)expr).getMethod().name + typeArgs + "(" + (this.previewOnly ? "..." : Arrays.stream(Arrays.stream(((InstanceMethodCallExpression)expr).getArgs()).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", "))) + ")";
         }
         else if (expr instanceof StaticMethodCallExpression) {
-            var typeArgs = ((StaticMethodCallExpression)expr).getTypeArgs().length > 0 ? "<" + Arrays.stream(Arrays.stream(((StaticMethodCallExpression)expr).getTypeArgs()).map(x -> this.type(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ">" : "";
+            var typeArgs = ((StaticMethodCallExpression)expr).getTypeArgs().length > 0 ? "<" + Arrays.stream(Arrays.stream(((StaticMethodCallExpression)expr).getTypeArgs()).map(x -> this.type(x, false)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ">" : "";
             res = ((StaticMethodCallExpression)expr).getMethod().parentInterface.getName() + ".{M}" + ((StaticMethodCallExpression)expr).getMethod().name + typeArgs + "(" + (this.previewOnly ? "..." : Arrays.stream(Arrays.stream(((StaticMethodCallExpression)expr).getArgs()).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", "))) + ")";
         }
         else if (expr instanceof GlobalFunctionCallExpression)
@@ -308,17 +296,17 @@ public class TSOverviewGenerator {
         else if (expr instanceof ArrayLiteral)
             res = "[" + Arrays.stream(Arrays.stream(((ArrayLiteral)expr).items).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + "]";
         else if (expr instanceof CastExpression)
-            res = "<" + this.type(((CastExpression)expr).newType) + ">(" + this.expr(((CastExpression)expr).expression) + ")";
+            res = "<" + this.type(((CastExpression)expr).newType, false) + ">(" + this.expr(((CastExpression)expr).expression) + ")";
         else if (expr instanceof ConditionalExpression)
             res = this.expr(((ConditionalExpression)expr).condition) + " ? " + this.expr(((ConditionalExpression)expr).whenTrue) + " : " + this.expr(((ConditionalExpression)expr).whenFalse);
         else if (expr instanceof InstanceOfExpression)
-            res = this.expr(((InstanceOfExpression)expr).expr) + " instanceof " + this.type(((InstanceOfExpression)expr).checkType);
+            res = this.expr(((InstanceOfExpression)expr).expr) + " instanceof " + this.type(((InstanceOfExpression)expr).checkType, false);
         else if (expr instanceof ParenthesizedExpression)
             res = "(" + this.expr(((ParenthesizedExpression)expr).expression) + ")";
         else if (expr instanceof RegexLiteral)
             res = "/" + ((RegexLiteral)expr).pattern + "/" + (((RegexLiteral)expr).global ? "g" : "") + (((RegexLiteral)expr).caseInsensitive ? "g" : "");
         else if (expr instanceof Lambda)
-            res = "(" + Arrays.stream(Arrays.stream(((Lambda)expr).getParameters()).map(x -> x.getName() + (x.getType() != null ? ": " + this.type(x.getType()) : "")).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + (((Lambda)expr).captures != null && ((Lambda)expr).captures.size() > 0 ? " @captures(" + Arrays.stream(((Lambda)expr).captures.stream().map(x -> x.getName()).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" : "") + " => { " + this.rawBlock(((Lambda)expr).getBody()) + " }";
+            res = "(" + Arrays.stream(Arrays.stream(((Lambda)expr).getParameters()).map(x -> x.getName() + (x.getType() != null ? ": " + this.type(x.getType(), false) : "")).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + (((Lambda)expr).captures != null && ((Lambda)expr).captures.size() > 0 ? " @captures(" + Arrays.stream(((Lambda)expr).captures.stream().map(x -> x.getName()).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" : "") + " => { " + this.rawBlock(((Lambda)expr).getBody()) + " }";
         else if (expr instanceof UnaryExpression && ((UnaryExpression)expr).unaryType == UnaryType.Prefix)
             res = ((UnaryExpression)expr).operator + this.expr(((UnaryExpression)expr).operand);
         else if (expr instanceof UnaryExpression && ((UnaryExpression)expr).unaryType == UnaryType.Postfix)
@@ -380,10 +368,6 @@ public class TSOverviewGenerator {
         return stmtLen == 0 ? " { }" : allowOneLiner && stmtLen == 1 ? "\n" + this.pad(this.rawBlock(block)) : " {\n" + this.pad(this.rawBlock(block)) + "\n}";
     }
     
-    public String block(Block block) {
-        return this.block(block, true);
-    }
-    
     public String stmt(Statement stmt) {
         var res = "UNKNOWN-STATEMENT";
         if (stmt instanceof BreakStatement)
@@ -399,21 +383,21 @@ public class TSOverviewGenerator {
         else if (stmt instanceof VariableDeclaration)
             res = "var " + this.var(((VariableDeclaration)stmt)) + ";";
         else if (stmt instanceof ForeachStatement)
-            res = "for (const " + ((ForeachStatement)stmt).itemVar.getName() + " of " + this.expr(((ForeachStatement)stmt).items) + ")" + this.block(((ForeachStatement)stmt).body);
+            res = "for (const " + ((ForeachStatement)stmt).itemVar.getName() + " of " + this.expr(((ForeachStatement)stmt).items) + ")" + this.block(((ForeachStatement)stmt).body, true);
         else if (stmt instanceof IfStatement) {
             var elseIf = ((IfStatement)stmt).else_ != null && ((IfStatement)stmt).else_.statements.size() == 1 && ((IfStatement)stmt).else_.statements.get(0) instanceof IfStatement;
-            res = "if (" + this.expr(((IfStatement)stmt).condition) + ")" + this.block(((IfStatement)stmt).then);
+            res = "if (" + this.expr(((IfStatement)stmt).condition) + ")" + this.block(((IfStatement)stmt).then, true);
             if (!this.previewOnly)
-                res += (elseIf ? "\nelse " + this.stmt(((IfStatement)stmt).else_.statements.get(0)) : "") + (!elseIf && ((IfStatement)stmt).else_ != null ? "\nelse" + this.block(((IfStatement)stmt).else_) : "");
+                res += (elseIf ? "\nelse " + this.stmt(((IfStatement)stmt).else_.statements.get(0)) : "") + (!elseIf && ((IfStatement)stmt).else_ != null ? "\nelse" + this.block(((IfStatement)stmt).else_, true) : "");
         }
         else if (stmt instanceof WhileStatement)
-            res = "while (" + this.expr(((WhileStatement)stmt).condition) + ")" + this.block(((WhileStatement)stmt).body);
+            res = "while (" + this.expr(((WhileStatement)stmt).condition) + ")" + this.block(((WhileStatement)stmt).body, true);
         else if (stmt instanceof ForStatement)
-            res = "for (" + (((ForStatement)stmt).itemVar != null ? this.var(((ForStatement)stmt).itemVar) : "") + "; " + this.expr(((ForStatement)stmt).condition) + "; " + this.expr(((ForStatement)stmt).incrementor) + ")" + this.block(((ForStatement)stmt).body);
+            res = "for (" + (((ForStatement)stmt).itemVar != null ? this.var(((ForStatement)stmt).itemVar) : "") + "; " + this.expr(((ForStatement)stmt).condition) + "; " + this.expr(((ForStatement)stmt).incrementor) + ")" + this.block(((ForStatement)stmt).body, true);
         else if (stmt instanceof DoStatement)
-            res = "do" + this.block(((DoStatement)stmt).body) + " while (" + this.expr(((DoStatement)stmt).condition) + ")";
+            res = "do" + this.block(((DoStatement)stmt).body, true) + " while (" + this.expr(((DoStatement)stmt).condition) + ")";
         else if (stmt instanceof TryStatement)
-            res = "try" + this.block(((TryStatement)stmt).tryBody, false) + (((TryStatement)stmt).catchBody != null ? " catch (" + ((TryStatement)stmt).catchVar.getName() + ")" + this.block(((TryStatement)stmt).catchBody) : "") + (((TryStatement)stmt).finallyBody != null ? "finally" + this.block(((TryStatement)stmt).finallyBody) : "");
+            res = "try" + this.block(((TryStatement)stmt).tryBody, false) + (((TryStatement)stmt).catchBody != null ? " catch (" + ((TryStatement)stmt).catchVar.getName() + ")" + this.block(((TryStatement)stmt).catchBody, true) : "") + (((TryStatement)stmt).finallyBody != null ? "finally" + this.block(((TryStatement)stmt).finallyBody, true) : "");
         else if (stmt instanceof ContinueStatement)
             res = "continue;";
         else { }
@@ -429,7 +413,7 @@ public class TSOverviewGenerator {
             return "";
         var name = method instanceof Method ? ((Method)method).name : method instanceof Constructor ? "constructor" : method instanceof GlobalFunction ? ((GlobalFunction)method).getName() : "???";
         var typeArgs = method instanceof Method ? ((Method)method).typeArguments : null;
-        return this.preIf("/* throws */ ", method.getThrows()) + name + this.typeArgs(typeArgs) + "(" + Arrays.stream(Arrays.stream(method.getParameters()).map(p -> this.leading(p) + this.var(p)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + (returns instanceof VoidType ? "" : ": " + this.type(returns)) + (method.getBody() != null ? " {\n" + this.pad(this.rawBlock(method.getBody())) + "\n}" : ";");
+        return this.preIf("/* throws */ ", method.getThrows()) + name + this.typeArgs(typeArgs) + "(" + Arrays.stream(Arrays.stream(method.getParameters()).map(p -> this.leading(p) + this.var(p)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")" + (returns instanceof VoidType ? "" : ": " + this.type(returns, false)) + (method.getBody() != null ? " {\n" + this.pad(this.rawBlock(method.getBody())) + "\n}" : ";");
     }
     
     public String method(Method method) {
@@ -467,8 +451,8 @@ public class TSOverviewGenerator {
     public String generate(SourceFile sourceFile) {
         var imps = Arrays.stream(sourceFile.imports).map(imp -> (imp.importAll ? "import * as " + imp.importAs : "import { " + Arrays.stream(Arrays.stream(imp.imports).map(x -> this.imp(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + " }") + " from \"" + imp.exportScope.packageName + this.pre("/", imp.exportScope.scopeName) + "\";").toArray(String[]::new);
         var enums = Arrays.stream(sourceFile.enums).map(enum_ -> this.leading(enum_) + "enum " + enum_.getName() + " { " + Arrays.stream(Arrays.stream(enum_.values).map(x -> x.name).toArray(String[]::new)).collect(Collectors.joining(", ")) + " }").toArray(String[]::new);
-        var intfs = Arrays.stream(sourceFile.interfaces).map(intf -> this.leading(intf) + "interface " + intf.getName() + this.typeArgs(intf.getTypeArguments()) + this.preArr(" extends ", Arrays.stream(intf.getBaseInterfaces()).map(x -> this.type(x)).toArray(String[]::new)) + " {\n" + this.classLike(intf) + "\n}").toArray(String[]::new);
-        var classes = Arrays.stream(sourceFile.classes).map(cls -> this.leading(cls) + "class " + cls.getName() + this.typeArgs(cls.getTypeArguments()) + this.pre(" extends ", cls.baseClass != null ? this.type(cls.baseClass) : null) + this.preArr(" implements ", Arrays.stream(cls.getBaseInterfaces()).map(x -> this.type(x)).toArray(String[]::new)) + " {\n" + this.classLike(cls) + "\n}").toArray(String[]::new);
+        var intfs = Arrays.stream(sourceFile.interfaces).map(intf -> this.leading(intf) + "interface " + intf.getName() + this.typeArgs(intf.getTypeArguments()) + this.preArr(" extends ", Arrays.stream(intf.getBaseInterfaces()).map(x -> this.type(x, false)).toArray(String[]::new)) + " {\n" + this.classLike(intf) + "\n}").toArray(String[]::new);
+        var classes = Arrays.stream(sourceFile.classes).map(cls -> this.leading(cls) + "class " + cls.getName() + this.typeArgs(cls.getTypeArguments()) + this.pre(" extends ", cls.baseClass != null ? this.type(cls.baseClass, false) : null) + this.preArr(" implements ", Arrays.stream(cls.getBaseInterfaces()).map(x -> this.type(x, false)).toArray(String[]::new)) + " {\n" + this.classLike(cls) + "\n}").toArray(String[]::new);
         var funcs = Arrays.stream(sourceFile.funcs).map(func -> this.leading(func) + "function " + func.getName() + this.methodBase(func, func.returns)).toArray(String[]::new);
         var main = this.rawBlock(sourceFile.mainBlock);
         var result = "// export scope: " + sourceFile.exportScope.packageName + "/" + sourceFile.exportScope.scopeName + "\n" + Arrays.stream(new ArrayList<>(List.of(Arrays.stream(imps).collect(Collectors.joining("\n")), Arrays.stream(enums).collect(Collectors.joining("\n")), Arrays.stream(intfs).collect(Collectors.joining("\n\n")), Arrays.stream(classes).collect(Collectors.joining("\n\n")), Arrays.stream(funcs).collect(Collectors.joining("\n\n")), main)).stream().filter(x -> !Objects.equals(x, "")).toArray(String[]::new)).collect(Collectors.joining("\n\n"));

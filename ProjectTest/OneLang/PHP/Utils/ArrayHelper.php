@@ -7,7 +7,7 @@ class ArrayHelper {
         // @java-import java.util.Arrays
         // @java Arrays.sort(items, (a, b) -> keySelector.apply(a) - keySelector.apply(b));
         // @java return items;
-        return $items->sort(function ($a, $b) { return $keySelector($a) - $keySelector($b); });
+        return sort($items);
     }
     
     static function removeLastN<T>($items, $count) {

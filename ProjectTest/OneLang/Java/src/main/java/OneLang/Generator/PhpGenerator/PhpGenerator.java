@@ -189,7 +189,7 @@ import OneLang.One.Ast.Types.Field;
 import java.util.stream.Stream;
 import OneLang.One.Ast.Types.Interface;
 import OneLang.One.Ast.Types.Enum;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import OneLang.One.Ast.Types.SourceFile;
 import OneLang.Generator.GeneratedFile.GeneratedFile;
 import OneLang.One.Ast.Types.Package;
@@ -259,7 +259,7 @@ public class PhpGenerator implements IGenerator {
     }
     
     public String typeArgs2(IType[] args) {
-        return this.typeArgs(Arrays.stream(args).map(x -> this.type(x)).toArray(String[]::new));
+        return this.typeArgs(Arrays.stream(args).map(x -> this.type(x, true)).toArray(String[]::new));
     }
     
     public String type(IType t, Boolean mutates) {
@@ -275,10 +275,10 @@ public class PhpGenerator implements IGenerator {
                 if (mutates)
                     return "List_";
                 else
-                    return this.type(((ClassType)t).getTypeArguments()[0]) + "[]";
+                    return this.type(((ClassType)t).getTypeArguments()[0], true) + "[]";
             }
             else if (Objects.equals(((ClassType)t).decl.getName(), "Promise"))
-                return this.type(((ClassType)t).getTypeArguments()[0]);
+                return this.type(((ClassType)t).getTypeArguments()[0], true);
             else if (Objects.equals(((ClassType)t).decl.getName(), "Object"))
                 //this.usings.add("System");
                 return "object";
@@ -291,7 +291,7 @@ public class PhpGenerator implements IGenerator {
                 return this.name_(((ClassType)t).decl.getName());
         }
         else if (t instanceof InterfaceType)
-            return this.name_(((InterfaceType)t).decl.getName()) + this.typeArgs(Arrays.stream(((InterfaceType)t).getTypeArguments()).map(x -> this.type(x)).toArray(String[]::new));
+            return this.name_(((InterfaceType)t).decl.getName()) + this.typeArgs(Arrays.stream(((InterfaceType)t).getTypeArguments()).map(x -> this.type(x, true)).toArray(String[]::new));
         else if (t instanceof VoidType)
             return "void";
         else if (t instanceof EnumType)
@@ -304,19 +304,15 @@ public class PhpGenerator implements IGenerator {
             return ((GenericsType)t).typeVarName;
         else if (t instanceof LambdaType) {
             var isFunc = !(((LambdaType)t).returnType instanceof VoidType);
-            var paramTypes = new ArrayList<>(Arrays.asList(Arrays.stream(((LambdaType)t).parameters).map(x -> this.type(x.getType())).toArray(String[]::new)));
+            var paramTypes = new ArrayList<>(Arrays.asList(Arrays.stream(((LambdaType)t).parameters).map(x -> this.type(x.getType(), true)).toArray(String[]::new)));
             if (isFunc)
-                paramTypes.add(this.type(((LambdaType)t).returnType));
+                paramTypes.add(this.type(((LambdaType)t).returnType, true));
             return (isFunc ? "Func" : "Action") + "<" + paramTypes.stream().collect(Collectors.joining(", ")) + ">";
         }
         else if (t == null)
             return "/* TODO */ object";
         else
             return "/* MISSING */";
-    }
-    
-    public String type(IType t) {
-        return this.type(t, true);
     }
     
     public Boolean isTsArray(IType type) {
@@ -409,9 +405,9 @@ public class PhpGenerator implements IGenerator {
         
         var res = "UNKNOWN-EXPR";
         if (expr instanceof NewExpression)
-            res = "new " + this.type(((NewExpression)expr).cls) + this.callParams(((NewExpression)expr).args, ((NewExpression)expr).cls.decl.constructor_ != null ? ((NewExpression)expr).cls.decl.constructor_.getParameters() : new MethodParameter[0]);
+            res = "new " + this.type(((NewExpression)expr).cls, true) + this.callParams(((NewExpression)expr).args, ((NewExpression)expr).cls.decl.constructor_ != null ? ((NewExpression)expr).cls.decl.constructor_.getParameters() : new MethodParameter[0]);
         else if (expr instanceof UnresolvedNewExpression)
-            res = "/* TODO: UnresolvedNewExpression */ new " + this.type(((UnresolvedNewExpression)expr).cls) + "(" + Arrays.stream(Arrays.stream(((UnresolvedNewExpression)expr).args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")";
+            res = "/* TODO: UnresolvedNewExpression */ new " + this.type(((UnresolvedNewExpression)expr).cls, true) + "(" + Arrays.stream(Arrays.stream(((UnresolvedNewExpression)expr).args).map(x -> this.expr(x)).toArray(String[]::new)).collect(Collectors.joining(", ")) + ")";
         else if (expr instanceof Identifier)
             res = "/* TODO: Identifier */ " + ((Identifier)expr).text;
         else if (expr instanceof PropertyAccessExpression)
@@ -511,7 +507,7 @@ public class PhpGenerator implements IGenerator {
             res = this.expr(((ConditionalExpression)expr).condition) + " ? " + this.expr(((ConditionalExpression)expr).whenTrue) + " : " + whenFalseExpr;
         }
         else if (expr instanceof InstanceOfExpression)
-            res = this.expr(((InstanceOfExpression)expr).expr) + " instanceof " + this.type(((InstanceOfExpression)expr).checkType);
+            res = this.expr(((InstanceOfExpression)expr).expr) + " instanceof " + this.type(((InstanceOfExpression)expr).checkType, true);
         else if (expr instanceof ParenthesizedExpression)
             res = "(" + this.expr(((ParenthesizedExpression)expr).expression) + ")";
         else if (expr instanceof RegexLiteral)
@@ -577,10 +573,6 @@ public class PhpGenerator implements IGenerator {
         return stmtLen == 0 ? " { }" : allowOneLiner && stmtLen == 1 && !(block.statements.get(0) instanceof IfStatement) ? "\n" + this.pad(this.rawBlock(block)) : " {\n" + this.pad(this.rawBlock(block)) + "\n}";
     }
     
-    public String block(Block block) {
-        return this.block(block, true);
-    }
-    
     public String stmtDefault(Statement stmt) {
         var res = "UNKNOWN-STATEMENT";
         if (stmt.getAttributes() != null && stmt.getAttributes().containsKey("csharp"))
@@ -604,25 +596,25 @@ public class PhpGenerator implements IGenerator {
                 res = "/* @var $" + this.name_(((VariableDeclaration)stmt).getName()) + " */";
         }
         else if (stmt instanceof ForeachStatement)
-            res = "foreach (" + this.expr(((ForeachStatement)stmt).items) + " as $" + this.name_(((ForeachStatement)stmt).itemVar.getName()) + ")" + this.block(((ForeachStatement)stmt).body);
+            res = "foreach (" + this.expr(((ForeachStatement)stmt).items) + " as $" + this.name_(((ForeachStatement)stmt).itemVar.getName()) + ")" + this.block(((ForeachStatement)stmt).body, true);
         else if (stmt instanceof IfStatement) {
             var elseIf = ((IfStatement)stmt).else_ != null && ((IfStatement)stmt).else_.statements.size() == 1 && ((IfStatement)stmt).else_.statements.get(0) instanceof IfStatement;
-            res = "if (" + this.expr(((IfStatement)stmt).condition) + ")" + this.block(((IfStatement)stmt).then);
-            res += (elseIf ? "\nelse " + this.stmt(((IfStatement)stmt).else_.statements.get(0)) : "") + (!elseIf && ((IfStatement)stmt).else_ != null ? "\nelse" + this.block(((IfStatement)stmt).else_) : "");
+            res = "if (" + this.expr(((IfStatement)stmt).condition) + ")" + this.block(((IfStatement)stmt).then, true);
+            res += (elseIf ? "\nelse " + this.stmt(((IfStatement)stmt).else_.statements.get(0)) : "") + (!elseIf && ((IfStatement)stmt).else_ != null ? "\nelse" + this.block(((IfStatement)stmt).else_, true) : "");
         }
         else if (stmt instanceof WhileStatement)
-            res = "while (" + this.expr(((WhileStatement)stmt).condition) + ")" + this.block(((WhileStatement)stmt).body);
+            res = "while (" + this.expr(((WhileStatement)stmt).condition) + ")" + this.block(((WhileStatement)stmt).body, true);
         else if (stmt instanceof ForStatement)
-            res = "for (" + (((ForStatement)stmt).itemVar != null ? this.var(((ForStatement)stmt).itemVar, null) : "") + "; " + this.expr(((ForStatement)stmt).condition) + "; " + this.expr(((ForStatement)stmt).incrementor) + ")" + this.block(((ForStatement)stmt).body);
+            res = "for (" + (((ForStatement)stmt).itemVar != null ? this.var(((ForStatement)stmt).itemVar, null) : "") + "; " + this.expr(((ForStatement)stmt).condition) + "; " + this.expr(((ForStatement)stmt).incrementor) + ")" + this.block(((ForStatement)stmt).body, true);
         else if (stmt instanceof DoStatement)
-            res = "do" + this.block(((DoStatement)stmt).body) + " while (" + this.expr(((DoStatement)stmt).condition) + ");";
+            res = "do" + this.block(((DoStatement)stmt).body, true) + " while (" + this.expr(((DoStatement)stmt).condition) + ");";
         else if (stmt instanceof TryStatement) {
             res = "try" + this.block(((TryStatement)stmt).tryBody, false);
             if (((TryStatement)stmt).catchBody != null)
                 //                this.usings.add("System");
                 res += " catch (Exception $" + this.name_(((TryStatement)stmt).catchVar.getName()) + ")" + this.block(((TryStatement)stmt).catchBody, false);
             if (((TryStatement)stmt).finallyBody != null)
-                res += "finally" + this.block(((TryStatement)stmt).finallyBody);
+                res += "finally" + this.block(((TryStatement)stmt).finallyBody, true);
         }
         else if (stmt instanceof ContinueStatement)
             res = "continue;";
@@ -739,16 +731,12 @@ public class PhpGenerator implements IGenerator {
         return enum_.getName();
     }
     
-    public String enumName(Enum enum_) {
-        return this.enumName(enum_, false);
-    }
-    
     public String enumMemberName(String name) {
         return this.name_(name).toUpperCase();
     }
     
     public String genFile(SourceFile sourceFile) {
-        this.usings = new HashSet<String>();
+        this.usings = new LinkedHashSet<String>();
         
         var enums = new ArrayList<String>();
         for (var enum_ : sourceFile.enums) {
@@ -758,15 +746,15 @@ public class PhpGenerator implements IGenerator {
             enums.add("class " + this.enumName(enum_, true) + " {\n" + this.pad(values.stream().collect(Collectors.joining("\n"))) + "\n}");
         }
         
-        var intfs = Arrays.stream(sourceFile.interfaces).map(intf -> "interface " + this.name_(intf.getName()) + this.typeArgs(intf.getTypeArguments()) + this.preArr(" extends ", Arrays.stream(intf.getBaseInterfaces()).map(x -> this.type(x)).toArray(String[]::new)) + this.classLike(intf)).toArray(String[]::new);
+        var intfs = Arrays.stream(sourceFile.interfaces).map(intf -> "interface " + this.name_(intf.getName()) + this.typeArgs(intf.getTypeArguments()) + this.preArr(" extends ", Arrays.stream(intf.getBaseInterfaces()).map(x -> this.type(x, true)).toArray(String[]::new)) + this.classLike(intf)).toArray(String[]::new);
         
         var classes = new ArrayList<String>();
         for (var cls : sourceFile.classes)
-            classes.add("class " + this.name_(cls.getName()) + (cls.baseClass != null ? " extends " + this.type(cls.baseClass) : "") + this.preArr(" implements ", Arrays.stream(cls.getBaseInterfaces()).map(x -> this.type(x)).toArray(String[]::new)) + this.classLike(cls));
+            classes.add("class " + this.name_(cls.getName()) + (cls.baseClass != null ? " extends " + this.type(cls.baseClass, true) : "") + this.preArr(" implements ", Arrays.stream(cls.getBaseInterfaces()).map(x -> this.type(x, true)).toArray(String[]::new)) + this.classLike(cls));
         
         var main = this.rawBlock(sourceFile.mainBlock);
         
-        var usingsSet = new HashSet<String>();
+        var usingsSet = new LinkedHashSet<String>();
         for (var imp : sourceFile.imports) {
             if (imp.getAttributes().containsKey("php-use"))
                 usingsSet.add(imp.getAttributes().get("php-use"));

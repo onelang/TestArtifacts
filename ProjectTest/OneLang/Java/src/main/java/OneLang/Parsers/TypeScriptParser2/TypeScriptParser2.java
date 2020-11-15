@@ -162,19 +162,11 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         this.exportScope = this.path != null ? new ExportScopeRef(this.path.pkg.name, this.path.path != null ? this.path.path.replaceAll(".ts$", "") : null) : null;
     }
     
-    public TypeScriptParser2(String source) {
-        this(source, null);
-    }
-    
     public ExpressionParser createExpressionParser(Reader reader, NodeManager nodeManager) {
-        var expressionParser = new ExpressionParser(reader, this, nodeManager);
+        var expressionParser = new ExpressionParser(reader, this, nodeManager, null);
         expressionParser.stringLiteralType = new UnresolvedType("TsString", new IType[0]);
         expressionParser.numericLiteralType = new UnresolvedType("TsNumber", new IType[0]);
         return expressionParser;
-    }
-    
-    public ExpressionParser createExpressionParser(Reader reader) {
-        return this.createExpressionParser(reader, null);
     }
     
     public void errorCallback(ParseError error) {
@@ -184,7 +176,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
     public Expression infixPrehook(Expression left) {
         if (left instanceof PropertyAccessExpression && this.reader.peekRegex("<[A-Za-z0-9_<>]*?>\\(") != null) {
             var typeArgs = this.parseTypeArgs();
-            this.reader.expectToken("(");
+            this.reader.expectToken("(", null);
             var args = this.expressionParser.parseCallArguments();
             return new UnresolvedCallExpression(((PropertyAccessExpression)left), typeArgs, args);
         }
@@ -206,37 +198,37 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         var params = new ArrayList<MethodParameter>();
         if (!this.reader.readToken(")")) {
             do {
-                var paramName = this.reader.expectIdentifier();
+                var paramName = this.reader.expectIdentifier(null);
                 var type = this.reader.readToken(":") ? this.parseType() : null;
                 params.add(new MethodParameter(paramName, type, null, null));
             } while (this.reader.readToken(","));
-            this.reader.expectToken(")");
+            this.reader.expectToken(")", null);
         }
         return params.toArray(MethodParameter[]::new);
     }
     
     public IType parseType() {
         if (this.reader.readToken("{")) {
-            this.reader.expectToken("[");
+            this.reader.expectToken("[", null);
             this.reader.readIdentifier();
-            this.reader.expectToken(":");
-            this.reader.expectToken("string");
-            this.reader.expectToken("]");
-            this.reader.expectToken(":");
+            this.reader.expectToken(":", null);
+            this.reader.expectToken("string", null);
+            this.reader.expectToken("]", null);
+            this.reader.expectToken(":", null);
             var mapValueType = this.parseType();
             this.reader.readToken(";");
-            this.reader.expectToken("}");
+            this.reader.expectToken("}", null);
             return new UnresolvedType("TsMap", new IType[] { mapValueType });
         }
         
         if (this.reader.peekToken("(")) {
             var params = this.parseLambdaParams();
-            this.reader.expectToken("=>");
+            this.reader.expectToken("=>", null);
             var returnType = this.parseType();
             return new LambdaType(params, returnType);
         }
         
-        var typeName = this.reader.expectIdentifier();
+        var typeName = this.reader.expectIdentifier(null);
         var startPos = this.reader.prevTokenOffset;
         
         IType type;
@@ -266,7 +258,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
     }
     
     public Expression parseExpression() {
-        return this.expressionParser.parse();
+        return this.expressionParser.parse(0, true);
     }
     
     public Expression unaryPrehook() {
@@ -296,7 +288,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                     
                     var expr = this.parseExpression();
                     parts.add(TemplateStringPart.Expression(expr));
-                    this.reader.expectToken("}");
+                    this.reader.expectToken("}", null);
                 }
                 else if (this.reader.readExactly("\\")) {
                     var chr = this.reader.readChar();
@@ -328,7 +320,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         else if (this.reader.readToken("new")) {
             var type = this.parseType();
             if (type instanceof UnresolvedType) {
-                this.reader.expectToken("(");
+                this.reader.expectToken("(", null);
                 var args = this.expressionParser.parseCallArguments();
                 return new UnresolvedNewExpression(((UnresolvedType)type), args);
             }
@@ -337,7 +329,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         }
         else if (this.reader.readToken("<")) {
             var newType = this.parseType();
-            this.reader.expectToken(">");
+            this.reader.expectToken(">", null);
             var expression = this.parseExpression();
             return new CastExpression(newType, expression);
         }
@@ -358,9 +350,9 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             return new RegexLiteral(pattern, Arrays.stream(modifiers).anyMatch("i"::equals), Arrays.stream(modifiers).anyMatch("g"::equals));
         }
         else if (this.reader.readToken("typeof")) {
-            var expr = this.expressionParser.parse(this.expressionParser.prefixPrecedence);
-            this.reader.expectToken("===");
-            var check = this.reader.expectString();
+            var expr = this.expressionParser.parse(this.expressionParser.prefixPrecedence, true);
+            this.reader.expectToken("===", null);
+            var check = this.reader.expectString(null);
             
             String tsType = null;
             if (Objects.equals(check, "string"))
@@ -376,13 +368,13 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                 // TODO: ???
                 tsType = "Object";
             else
-                this.reader.fail("unexpected typeof comparison");
+                this.reader.fail("unexpected typeof comparison", -1);
             
             return new InstanceOfExpression(expr, new UnresolvedType(tsType, new IType[0]));
         }
         else if (this.reader.peekRegex("\\([A-Za-z0-9_]+\\s*[:,]|\\(\\)") != null) {
             var params = this.parseLambdaParams();
-            this.reader.expectToken("=>");
+            this.reader.expectToken("=>", null);
             var block = this.parseLambdaBlock();
             return new Lambda(params, block);
         }
@@ -391,11 +383,11 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             return new AwaitExpression(expression);
         }
         
-        var mapLiteral = this.expressionParser.parseMapLiteral();
+        var mapLiteral = this.expressionParser.parseMapLiteral(":", "{", "}");
         if (mapLiteral != null)
             return mapLiteral;
         
-        var arrayLiteral = this.expressionParser.parseArrayLiteral();
+        var arrayLiteral = this.expressionParser.parseArrayLiteral("[", "]");
         if (arrayLiteral != null)
             return arrayLiteral;
         
@@ -418,7 +410,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         var init = this.reader.readToken("=") ? this.parseExpression() : null;
         
         if (type == null && init == null)
-            this.reader.fail("expected type declaration or initializer");
+            this.reader.fail("expected type declaration or initializer", -1);
         
         return new TypeAndInit(type, init);
     }
@@ -452,38 +444,38 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             statement = new UnsetStatement(this.parseExpression());
         else if (this.reader.readToken("if")) {
             requiresClosing = false;
-            this.reader.expectToken("(");
+            this.reader.expectToken("(", null);
             var condition = this.parseExpression();
-            this.reader.expectToken(")");
+            this.reader.expectToken(")", null);
             var then = this.expectBlockOrStatement();
             var else_ = this.reader.readToken("else") ? this.expectBlockOrStatement() : null;
             statement = new IfStatement(condition, then, else_);
         }
         else if (this.reader.readToken("while")) {
             requiresClosing = false;
-            this.reader.expectToken("(");
+            this.reader.expectToken("(", null);
             var condition = this.parseExpression();
-            this.reader.expectToken(")");
+            this.reader.expectToken(")", null);
             var body = this.expectBlockOrStatement();
             statement = new WhileStatement(condition, body);
         }
         else if (this.reader.readToken("do")) {
             requiresClosing = false;
             var body = this.expectBlockOrStatement();
-            this.reader.expectToken("while");
-            this.reader.expectToken("(");
+            this.reader.expectToken("while", null);
+            this.reader.expectToken("(", null);
             var condition = this.parseExpression();
-            this.reader.expectToken(")");
+            this.reader.expectToken(")", null);
             statement = new DoStatement(condition, body);
         }
         else if (this.reader.readToken("for")) {
             requiresClosing = false;
-            this.reader.expectToken("(");
+            this.reader.expectToken("(", null);
             var varDeclMod = this.reader.readAnyOf(new String[] { "const", "let", "var" });
-            var itemVarName = varDeclMod == null ? null : this.reader.expectIdentifier();
+            var itemVarName = varDeclMod == null ? null : this.reader.expectIdentifier(null);
             if (itemVarName != null && this.reader.readToken("of")) {
                 var items = this.parseExpression();
-                this.reader.expectToken(")");
+                this.reader.expectToken(")", null);
                 var body = this.expectBlockOrStatement();
                 statement = new ForeachStatement(new ForeachVariable(itemVarName), items, body);
             }
@@ -493,11 +485,11 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                     var typeAndInit = this.parseTypeAndInit();
                     forVar = new ForVariable(itemVarName, typeAndInit.type, typeAndInit.init);
                 }
-                this.reader.expectToken(";");
+                this.reader.expectToken(";", null);
                 var condition = this.parseExpression();
-                this.reader.expectToken(";");
+                this.reader.expectToken(";", null);
                 var incrementor = this.parseExpression();
-                this.reader.expectToken(")");
+                this.reader.expectToken(")", null);
                 var body = this.expectBlockOrStatement();
                 statement = new ForStatement(forVar, condition, incrementor, body);
             }
@@ -508,13 +500,13 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             CatchVariable catchVar = null;
             Block catchBody = null;
             if (this.reader.readToken("catch")) {
-                this.reader.expectToken("(");
-                catchVar = new CatchVariable(this.reader.expectIdentifier(), null);
-                this.reader.expectToken(")");
+                this.reader.expectToken("(", null);
+                catchVar = new CatchVariable(this.reader.expectIdentifier(null), null);
+                this.reader.expectToken(")", null);
                 catchBody = this.expectBlock("catch body is missing");
             }
             
-            var finallyBody = this.reader.readToken("finally") ? this.expectBlock() : null;
+            var finallyBody = this.reader.readToken("finally") ? this.expectBlock(null) : null;
             return new TryStatement(block, catchVar, catchBody, finallyBody);
         }
         else if (this.reader.readToken("return")) {
@@ -537,11 +529,11 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             var isBinarySet = expr instanceof BinaryExpression && new ArrayList<>(List.of("=", "+=", "-=")).stream().anyMatch(((BinaryExpression)expr).operator::equals);
             var isUnarySet = expr instanceof UnaryExpression && new ArrayList<>(List.of("++", "--")).stream().anyMatch(((UnaryExpression)expr).operator::equals);
             if (!(expr instanceof UnresolvedCallExpression || isBinarySet || isUnarySet || expr instanceof AwaitExpression))
-                this.reader.fail("this expression is not allowed as statement");
+                this.reader.fail("this expression is not allowed as statement", -1);
         }
         
         if (statement == null)
-            this.reader.fail("unknown statement");
+            this.reader.fail("unknown statement", -1);
         
         statement.setLeadingTrivia(leadingTrivia);
         this.getNodeManager().addNode(statement, startPos);
@@ -575,13 +567,9 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         var block = this.parseBlock();
         if (block == null) {
             var result = errorMsg;
-            this.reader.fail(result != null ? result : "expected block here");
+            this.reader.fail(result != null ? result : "expected block here", -1);
         }
         return block;
-    }
-    
-    public Block expectBlock() {
-        return this.expectBlock(null);
     }
     
     public IType[] parseTypeArgs() {
@@ -591,7 +579,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                 var generics = this.parseType();
                 typeArguments.add(generics);
             } while (this.reader.readToken(","));
-            this.reader.expectToken(">");
+            this.reader.expectToken(">", null);
         }
         return typeArguments.toArray(IType[]::new);
     }
@@ -600,16 +588,16 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         var typeArguments = new ArrayList<String>();
         if (this.reader.readToken("<")) {
             do {
-                var generics = this.reader.expectIdentifier();
+                var generics = this.reader.expectIdentifier(null);
                 typeArguments.add(generics);
             } while (this.reader.readToken(","));
-            this.reader.expectToken(">");
+            this.reader.expectToken(">", null);
         }
         return typeArguments.toArray(String[]::new);
     }
     
     public ExpressionStatement parseExprStmtFromString(String expression) {
-        var expr = this.createExpressionParser(new Reader(expression)).parse();
+        var expr = this.createExpressionParser(new Reader(expression), null).parse(0, true);
         return new ExpressionStatement(expr);
     }
     
@@ -622,9 +610,9 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                 var paramStart = this.reader.offset;
                 var isPublic = this.reader.readToken("public");
                 if (isPublic && !isConstructor)
-                    this.reader.fail("public modifier is only allowed in constructor definition");
+                    this.reader.fail("public modifier is only allowed in constructor definition", -1);
                 
-                var paramName = this.reader.expectIdentifier();
+                var paramName = this.reader.expectIdentifier(null);
                 this.context.add("arg:" + paramName);
                 var typeAndInit = this.parseTypeAndInit();
                 var param = new MethodParameter(paramName, typeAndInit.type, typeAndInit.init, leadingTrivia);
@@ -642,7 +630,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                 this.context.remove(this.context.size() - 1);
             } while (this.reader.readToken(","));
             
-            this.reader.expectToken(")");
+            this.reader.expectToken(")", null);
         }
         
         IType returns = null;
@@ -653,7 +641,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         Block body = null;
         Expression[] superCallArgs = null;
         if (declarationOnly)
-            this.reader.expectToken(";");
+            this.reader.expectToken(";", null);
         else {
             body = this.expectBlock("method body is missing");
             var firstStmt = body.statements.size() > 0 ? body.statements.get(0) : null;
@@ -668,7 +656,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
     
     public String parseIdentifierOrString() {
         var readStringResult = this.reader.readString();
-        return readStringResult != null ? readStringResult : this.reader.expectIdentifier();
+        return readStringResult != null ? readStringResult : this.reader.expectIdentifier(null);
     }
     
     public Interface parseInterface(String leadingTrivia, Boolean isExported) {
@@ -689,7 +677,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         var methods = new ArrayList<Method>();
         var fields = new ArrayList<Field>();
         
-        this.reader.expectToken("{");
+        this.reader.expectToken("{", null);
         while (!this.reader.readToken("}")) {
             var memberLeadingTrivia = this.reader.readLeadingTrivia();
             
@@ -699,7 +687,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                 this.context.add("F:" + memberName);
                 
                 var fieldType = this.parseType();
-                this.reader.expectToken(";");
+                this.reader.expectToken(";", null);
                 
                 var field = new Field(memberName, fieldType, null, Visibility.Public, false, null, memberLeadingTrivia);
                 fields.add(field);
@@ -710,7 +698,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             else {
                 this.context.add("M:" + memberName);
                 var methodTypeArgs = this.parseGenericsArgs();
-                this.reader.expectToken("(");
+                this.reader.expectToken("(", null);
                 // method
                    
                 var sig = this.parseMethodSignature(false, true);
@@ -756,7 +744,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         var methods = new ArrayList<Method>();
         var properties = new ArrayList<Property>();
         
-        this.reader.expectToken("{");
+        this.reader.expectToken("{", null);
         while (!this.reader.readToken("}")) {
             var memberLeadingTrivia = this.reader.readLeadingTrivia();
             
@@ -790,7 +778,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             }
             else if (Objects.equals(memberName, "get") || Objects.equals(memberName, "set")) {
                 // property
-                var propName = this.reader.expectIdentifier();
+                var propName = this.reader.expectIdentifier(null);
                 var prop = properties.stream().filter(x -> Objects.equals(x.getName(), propName)).findFirst().orElse(null);
                 IType propType = null;
                 Block getter = null;
@@ -803,8 +791,8 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                     propType = this.reader.readToken(":") ? this.parseType() : null;
                     if (declarationOnly) {
                         if (propType == null)
-                            this.reader.fail("Type is missing for property in declare class");
-                        this.reader.expectToken(";");
+                            this.reader.fail("Type is missing for property in declare class", -1);
+                        this.reader.expectToken(";", null);
                     }
                     else {
                         getter = this.expectBlock("property getter body is missing");
@@ -816,13 +804,13 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                     // set propName(value: propType) { ... }
                     this.context.add("P[S]:" + propName);
                     this.reader.expectToken("(", "expected '(' after property setter name");
-                    this.reader.expectIdentifier();
+                    this.reader.expectIdentifier(null);
                     propType = this.reader.readToken(":") ? this.parseType() : null;
-                    this.reader.expectToken(")");
+                    this.reader.expectToken(")", null);
                     if (declarationOnly) {
                         if (propType == null)
-                            this.reader.fail("Type is missing for property in declare class");
-                        this.reader.expectToken(";");
+                            this.reader.fail("Type is missing for property in declare class", -1);
+                        this.reader.expectToken(";", null);
                     }
                     else {
                         setter = this.expectBlock("property setter body is missing");
@@ -843,7 +831,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
                 this.context.add("F:" + memberName);
                 
                 var typeAndInit = this.parseTypeAndInit();
-                this.reader.expectToken(";");
+                this.reader.expectToken(";", null);
                 
                 var field = new Field(memberName, typeAndInit.type, typeAndInit.init, visibility, isStatic, null, memberLeadingTrivia);
                 fields.add(field);
@@ -869,21 +857,21 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         
         var members = new ArrayList<EnumMember>();
         
-        this.reader.expectToken("{");
+        this.reader.expectToken("{", null);
         if (!this.reader.readToken("}")) {
             do {
                 if (this.reader.peekToken("}"))
                     break;
                 // eg. "enum { A, B, }" (but multiline)
                 
-                var enumMember = new EnumMember(this.reader.expectIdentifier());
+                var enumMember = new EnumMember(this.reader.expectIdentifier(null));
                 members.add(enumMember);
                 this.getNodeManager().addNode(enumMember, this.reader.prevTokenOffset);
                 
                 // TODO: generated code compatibility
                 this.reader.readToken("= \"" + enumMember.name + "\"");
             } while (this.reader.readToken(","));
-            this.reader.expectToken("}");
+            this.reader.expectToken("}", null);
         }
         
         var enumObj = new Enum(name, members.toArray(EnumMember[]::new), isExported, leadingTrivia);
@@ -942,27 +930,27 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
         var importParts = new ArrayList<UnresolvedImport>();
         
         if (this.reader.readToken("*")) {
-            this.reader.expectToken("as");
-            importAllAlias = this.reader.expectIdentifier();
+            this.reader.expectToken("as", null);
+            importAllAlias = this.reader.expectIdentifier(null);
         }
         else {
-            this.reader.expectToken("{");
+            this.reader.expectToken("{", null);
             do {
                 if (this.reader.peekToken("}"))
                     break;
                 
-                var imp = this.reader.expectIdentifier();
+                var imp = this.reader.expectIdentifier(null);
                 if (this.reader.readToken("as"))
-                    this.reader.fail("This is not yet supported");
+                    this.reader.fail("This is not yet supported", -1);
                 importParts.add(new UnresolvedImport(imp));
                 this.getNodeManager().addNode(imp, this.reader.prevTokenOffset);
             } while (this.reader.readToken(","));
-            this.reader.expectToken("}");
+            this.reader.expectToken("}", null);
         }
         
-        this.reader.expectToken("from");
-        var moduleName = this.reader.expectString();
-        this.reader.expectToken(";");
+        this.reader.expectToken("from", null);
+        var moduleName = this.reader.expectString(null);
+        this.reader.expectToken(";", null);
         
         var importScope = this.exportScope != null ? TypeScriptParser2.calculateImportScope(this.exportScope, moduleName) : null;
         
@@ -1018,7 +1006,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             
             if (this.reader.readToken("function")) {
                 var funcName = this.readIdentifier();
-                this.reader.expectToken("(");
+                this.reader.expectToken("(", null);
                 var sig = this.parseMethodSignature(false, isDeclaration);
                 funcs.add(new GlobalFunction(funcName, sig.params, sig.body, sig.returns, isExported, leadingTrivia));
                 continue;
@@ -1027,7 +1015,7 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
             break;
         }
         
-        this.reader.skipWhitespace();
+        this.reader.skipWhitespace(false);
         
         var stmts = new ArrayList<Statement>();
         while (true) {
@@ -1052,9 +1040,5 @@ public class TypeScriptParser2 implements IParser, IExpressionParserHooks, IRead
     
     public static SourceFile parseFile(String source, SourcePath path) {
         return new TypeScriptParser2(source, path).parseSourceFile();
-    }
-    
-    public static SourceFile parseFile(String source) {
-        return TypeScriptParser2.parseFile(source, null);
     }
 }

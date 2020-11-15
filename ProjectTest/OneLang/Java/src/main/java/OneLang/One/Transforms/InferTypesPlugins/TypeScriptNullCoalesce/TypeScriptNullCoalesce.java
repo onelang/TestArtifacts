@@ -41,14 +41,14 @@ public class TypeScriptNullCoalesce extends InferTypesPlugin {
             
             if (((BinaryExpression)expr).right instanceof ArrayLiteral && ((ArrayLiteral)((BinaryExpression)expr).right).items.length == 0) {
                 if (leftType instanceof ClassType && ((ClassType)leftType).decl == litTypes.array.decl) {
-                    ((ArrayLiteral)((BinaryExpression)expr).right).setActualType(((ClassType)leftType));
+                    ((ArrayLiteral)((BinaryExpression)expr).right).setActualType(((ClassType)leftType), false, false);
                     return new NullCoalesceExpression(((BinaryExpression)expr).left, ((ArrayLiteral)((BinaryExpression)expr).right));
                 }
             }
             
             if (((BinaryExpression)expr).right instanceof MapLiteral && ((MapLiteral)((BinaryExpression)expr).right).items.length == 0) {
                 if (leftType instanceof ClassType && ((ClassType)leftType).decl == litTypes.map.decl) {
-                    ((MapLiteral)((BinaryExpression)expr).right).setActualType(((ClassType)leftType));
+                    ((MapLiteral)((BinaryExpression)expr).right).setActualType(((ClassType)leftType), false, false);
                     return new NullCoalesceExpression(((BinaryExpression)expr).left, ((MapLiteral)((BinaryExpression)expr).right));
                 }
             }

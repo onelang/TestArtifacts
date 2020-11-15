@@ -12,6 +12,7 @@ import OneLang.Generator.IGeneratorPlugin as iGenPlug
 import OneLang.Generator.JavaPlugins.JsToJava as jsToJava
 import OneLang.One.ITransformer as iTrans
 import OneLang.One.Transforms.ConvertNullCoalesce as convNullCoal
+import OneLang.One.Transforms.UseDefaultCallArgsExplicitly as useDefCallArgsExpl
 import re
 
 class JavaGenerator:
@@ -30,7 +31,7 @@ class JavaGenerator:
         return "java"
     
     def get_transforms(self):
-        return [convNullCoal.ConvertNullCoalesce()]
+        return [convNullCoal.ConvertNullCoalesce(), useDefCallArgsExpl.UseDefaultCallArgsExplicitly()]
     
     def name_(self, name):
         if name in self.reserved_words:
@@ -97,7 +98,7 @@ class JavaGenerator:
                 self.imports[f'''java.util.{real_type}'''] = None
                 return f'''{real_type}<{self.type(t.type_arguments[0])}, {self.type(t.type_arguments[1])}>'''
             elif t.decl.name == "Set":
-                real_type = "HashSet" if is_new else "Set"
+                real_type = "LinkedHashSet" if is_new else "Set"
                 self.imports[f'''java.util.{real_type}'''] = None
                 return f'''{real_type}<{self.type(t.type_arguments[0])}>'''
             elif t.decl.name == "Promise":
@@ -458,38 +459,14 @@ class JavaGenerator:
     def raw_block(self, block):
         return self.stmts(block.statements)
     
-    def overload_method_gen(self, prefix, method, params, body):
-        methods = []
-        methods.append(prefix + f'''({", ".join(list(map(lambda p: self.var_wo_init(p, p), params)))})''' + body)
-        
-        param_len = len(params) - 1
-        
-        while param_len >= 0:
-            if params[param_len].initializer == None:
-                break
-            
-            method_params = []
-            method_args = []
-            i = 0
-            
-            while i < len(params):
-                p = params[i]
-                if i < param_len:
-                    method_params.append(self.var_wo_init(p, None))
-                method_args.append(self.expr(p.initializer) if i >= param_len else p.name)
-                i = i + 1
-            
-            base_name = f'''{(self.current_class.name if method != None and method.is_static else "this")}{(f'.{method.name}' if method != None else "")}'''
-            methods.append(f'''{prefix}({", ".join(method_params)}) {{\n{self.pad(f'{("return " if method != None and not (isinstance(method.returns, astTypes.VoidType)) else "")}{base_name}({", ".join(method_args)});')}\n}}''')
-            param_len = param_len - 1
-        
-        return "\n\n".join(methods)
+    def method_gen(self, prefix, params, body):
+        return f'''{prefix}({", ".join(list(map(lambda p: self.var_wo_init(p, p), params)))}){body}'''
     
     def method(self, method, is_cls):
         # TODO: final
         prefix = (self.vis(method.visibility) + " " if is_cls else "") + self.pre_if("static ", method.is_static) + self.pre_if("/* throws */ ", method.throws) + (f'''<{", ".join(method.type_arguments)}> ''' if len(method.type_arguments) > 0 else "") + f'''{self.type(method.returns, False)} ''' + self.name_(method.name)
         
-        return self.overload_method_gen(prefix, method, method.parameters, ";" if method.body == None else f''' {{\n{self.pad(self.stmts(method.body.statements))}\n}}''')
+        return self.method_gen(prefix, method.parameters, ";" if method.body == None else f''' {{\n{self.pad(self.stmts(method.body.statements))}\n}}''')
     
     def class(self, cls_):
         self.current_class = cls_
@@ -544,7 +521,7 @@ class JavaGenerator:
             super_call = f'''super({", ".join(list(map(lambda x: self.expr(x), cls_.constructor_.super_call_args)))});\n''' if cls_.constructor_.super_call_args != None else ""
             
             # TODO: super calls
-            res_list.append(self.overload_method_gen("public " + self.pre_if("/* throws */ ", cls_.constructor_.throws) + self.name_(cls_.name), None, cls_.constructor_.parameters, f'''\n{{\n{self.pad(super_call + self.stmts(constr_field_inits + complex_field_inits + cls_.constructor_.body.statements))}\n}}'''))
+            res_list.append(self.method_gen("public " + self.pre_if("/* throws */ ", cls_.constructor_.throws) + self.name_(cls_.name), cls_.constructor_.parameters, f'''\n{{\n{self.pad(super_call + self.stmts(constr_field_inits + complex_field_inits + cls_.constructor_.body.statements))}\n}}'''))
         elif len(complex_field_inits) > 0:
             res_list.append(f'''public {self.name_(cls_.name)}()\n{{\n{self.pad(self.stmts(complex_field_inits))}\n}}''')
         

@@ -36,14 +36,14 @@ public class ResolveFuncCalls extends InferTypesPlugin {
                 var runPluginsOnResult = this.main.runPluginsOn(arg);
                 return runPluginsOnResult != null ? runPluginsOnResult : arg;
             }).toArray(Expression[]::new);
-            newExpr.setActualType(((GlobalFunctionReference)callExpr.func).decl.returns);
+            newExpr.setActualType(((GlobalFunctionReference)callExpr.func).decl.returns, false, false);
             return newExpr;
         }
         else {
             this.main.processExpression(expr);
             if (callExpr.func.actualType instanceof LambdaType) {
                 var newExpr = new LambdaCallExpression(callExpr.func, callExpr.args);
-                newExpr.setActualType(((LambdaType)callExpr.func.actualType).returnType);
+                newExpr.setActualType(((LambdaType)callExpr.func.actualType).returnType, false, false);
                 return newExpr;
             }
             else

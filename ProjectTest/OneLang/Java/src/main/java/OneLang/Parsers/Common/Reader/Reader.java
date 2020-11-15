@@ -71,10 +71,6 @@ public class Reader {
             throw new Error(message + " at " + error.cursor.line + ":" + error.cursor.column + "\n" + this.linePreview(error.cursor));
     }
     
-    public void fail(String message) {
-        this.fail(message, -1);
-    }
-    
     public void skipWhitespace(Boolean includeInTrivia) {
         for (; this.offset < this.input.length(); this.offset++) {
             var c = this.input.substring(this.offset, this.offset + 1);
@@ -88,10 +84,6 @@ public class Reader {
         
         if (!includeInTrivia)
             this.wsOffset = this.offset;
-    }
-    
-    public void skipWhitespace() {
-        this.skipWhitespace(false);
     }
     
     public Boolean skipUntil(String token) {
@@ -161,31 +153,23 @@ public class Reader {
     public void expectToken(String token, String errorMsg) {
         if (!this.readToken(token)) {
             var result = errorMsg;
-            this.fail(result != null ? result : "expected token '" + token + "'");
+            this.fail(result != null ? result : "expected token '" + token + "'", -1);
         }
-    }
-    
-    public void expectToken(String token) {
-        this.expectToken(token, null);
     }
     
     public String expectString(String errorMsg) {
         var result = this.readString();
         if (result == null) {
             var result2 = errorMsg;
-            this.fail(result2 != null ? result2 : "expected string");
+            this.fail(result2 != null ? result2 : "expected string", -1);
         }
         return result;
-    }
-    
-    public String expectString() {
-        return this.expectString(null);
     }
     
     public String expectOneOf(String[] tokens) {
         var result = this.readAnyOf(tokens);
         if (result == null)
-            this.fail("expected one of the following tokens: " + Arrays.stream(tokens).collect(Collectors.joining(", ")));
+            this.fail("expected one of the following tokens: " + Arrays.stream(tokens).collect(Collectors.joining(", ")), -1);
         return result;
     }
     
@@ -228,7 +212,7 @@ public class Reader {
                 this.skipLine();
             else if (this.supportsBlockComment && this.input.startsWith(this.blockCommentStart, this.offset)) {
                 if (!this.skipUntil(this.blockCommentEnd))
-                    this.fail("block comment end (\"" + this.blockCommentEnd + "\") was not found");
+                    this.fail("block comment end (\"" + this.blockCommentEnd + "\") was not found", -1);
             }
             else
                 break;
@@ -249,7 +233,7 @@ public class Reader {
     }
     
     public String readIdentifier() {
-        this.skipWhitespace();
+        this.skipWhitespace(false);
         var idMatch = this.readRegex(this.identifierRegex);
         if (idMatch == null)
             return null;
@@ -258,19 +242,19 @@ public class Reader {
     }
     
     public String readNumber() {
-        this.skipWhitespace();
+        this.skipWhitespace(false);
         var numMatch = this.readRegex(this.numberRegex);
         if (numMatch == null)
             return null;
         
         if (this.readRegex("[0-9a-zA-Z]") != null)
-            this.fail("invalid character in number");
+            this.fail("invalid character in number", -1);
         
         return numMatch[0];
     }
     
     public String readString() {
-        this.skipWhitespace();
+        this.skipWhitespace(false);
         
         var sepChar = this.input.substring(this.offset, this.offset + 1);
         if (!Objects.equals(sepChar, "'") && !Objects.equals(sepChar, "\""))
@@ -309,13 +293,9 @@ public class Reader {
         var id = this.readIdentifier();
         if (id == null) {
             var result = errorMsg;
-            this.fail(result != null ? result : "expected identifier");
+            this.fail(result != null ? result : "expected identifier", -1);
         }
         return id;
-    }
-    
-    public String expectIdentifier() {
-        return this.expectIdentifier(null);
     }
     
     public String[] readModifiers(String[] modifiers) {

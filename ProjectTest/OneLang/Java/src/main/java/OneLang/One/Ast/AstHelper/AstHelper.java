@@ -6,7 +6,7 @@ import OneLang.One.Ast.AstTypes.InterfaceType;
 import OneLang.One.Ast.AstTypes.ClassType;
 
 import OneLang.One.Ast.Types.IInterface;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ArrayList;
 import OneLang.One.Ast.Types.Class;
@@ -15,7 +15,7 @@ import OneLang.One.Ast.AstTypes.InterfaceType;
 
 public class AstHelper {
     public static IInterface[] collectAllBaseInterfaces(IInterface intf) {
-        var result = new HashSet<IInterface>();
+        var result = new LinkedHashSet<IInterface>();
         var toBeProcessed = new ArrayList<>(List.of(intf));
         
         while (toBeProcessed.size() > 0) {

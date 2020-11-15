@@ -18,7 +18,7 @@ import OneLang.Generator.PhpGenerator.PhpGenerator;
 import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
 import java.util.Set;
 import OneLang.Generator.PhpGenerator.PhpGenerator;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import OneStd.Objects;
 import java.util.Arrays;
 import OneLang.One.Ast.Expressions.RegexLiteral;
@@ -44,7 +44,7 @@ public class JsToPhp implements IGeneratorPlugin {
     public JsToPhp(PhpGenerator main)
     {
         this.main = main;
-        this.unhandledMethods = new HashSet<String>();
+        this.unhandledMethods = new LinkedHashSet<String>();
     }
     
     public String convertMethod(Class cls, Expression obj, Method method, Expression[] args) {
@@ -77,6 +77,8 @@ public class JsToPhp implements IGeneratorPlugin {
                 return "array_shift(" + objR + ")";
             else if (Objects.equals(method.name, "find"))
                 return "\\OneLang\\ArrayHelper::find(" + objR + ", " + argsR[0] + ")";
+            else if (Objects.equals(method.name, "sort"))
+                return "sort(" + objR + ")";
         }
         else if (Objects.equals(cls.getName(), "TsString")) {
             var objR = this.main.expr(obj);

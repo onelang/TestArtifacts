@@ -1,5 +1,5 @@
-using One.Ast;
 using Generator;
+using One.Ast;
 using One;
 using System.Collections.Generic;
 using System.Linq;
@@ -509,7 +509,10 @@ namespace Generator
                         constrFieldInits.push(new ExpressionStatement(new BinaryExpression(fieldRef, "=", mpRef)));
                     }
                     
-                    resList.push("public " + this.preIf("/* throws */ ", class_.constructor_.throws) + this.name_(class_.name) + $"({class_.constructor_.parameters.map(p => this.var(p, p)).join(", ")})" + (class_.constructor_.superCallArgs != null ? $": base({class_.constructor_.superCallArgs.map(x => this.expr(x)).join(", ")})" : "") + $"\n{{\n{this.pad(this.stmts(constrFieldInits.concat(complexFieldInits.ToArray()).concat(class_.constructor_.body.statements.ToArray())))}\n}}");
+                    // @java var stmts = Stream.concat(Stream.concat(constrFieldInits.stream(), complexFieldInits.stream()), ((Class)cls).constructor_.getBody().statements.stream()).toArray(Statement[]::new);
+                    // @java-import java.util.stream.Stream
+                    var stmts = constrFieldInits.concat(complexFieldInits.ToArray()).concat(class_.constructor_.body.statements.ToArray());
+                    resList.push("public " + this.preIf("/* throws */ ", class_.constructor_.throws) + this.name_(class_.name) + $"({class_.constructor_.parameters.map(p => this.var(p, p)).join(", ")})" + (class_.constructor_.superCallArgs != null ? $": base({class_.constructor_.superCallArgs.map(x => this.expr(x)).join(", ")})" : "") + $"\n{{\n{this.pad(this.stmts(stmts))}\n}}");
                 }
                 else if (complexFieldInits.length() > 0)
                     resList.push($"public {this.name_(class_.name)}()\n{{\n{this.pad(this.stmts(complexFieldInits.ToArray()))}\n}}");
@@ -561,7 +564,8 @@ namespace Generator
             
             var main = sourceFile.mainBlock.statements.length() > 0 ? $"public class Program\n{{\n    static void Main(string[] args)\n    {{\n{this.pad(this.rawBlock(sourceFile.mainBlock))}\n    }}\n}}" : "";
             
-            // @java var usingsSet = new HashSet<String>(Arrays.stream(sourceFile.imports).map(x -> this.pathToNs(x.exportScope.scopeName)).filter(x -> x != "").collect(Collectors.toList()));
+            // @java var usingsSet = new LinkedHashSet<String>(Arrays.stream(sourceFile.imports).map(x -> this.pathToNs(x.exportScope.scopeName)).filter(x -> x != "").collect(Collectors.toList()));
+            // @java-import java.util.LinkedHashSet
             var usingsSet = new Set<string>(sourceFile.imports.map(x => this.pathToNs(x.exportScope.scopeName)).filter(x => x != ""));
             foreach (var using_ in this.usings.values())
                 usingsSet.add(using_);
@@ -569,6 +573,7 @@ namespace Generator
             var usings = new List<string>();
             foreach (var using_ in usingsSet.values())
                 usings.push($"using {using_};");
+            usings.sort();
             
             var result = new List<string> { enums.join("\n"), intfs.join("\n\n"), classes.join("\n\n"), main }.filter(x => x != "").join("\n\n");
             var nl = "\n";

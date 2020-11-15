@@ -44,12 +44,4 @@ public class ThisReference extends Reference {
             throw new Error("Expected ClassType!");
         super.setActualType(type, false, this.cls.getTypeArguments().length > 0);
     }
-    
-    public void setActualType(IType type, Boolean allowVoid) {
-        this.setActualType(type, allowVoid, false);
-    }
-    
-    public void setActualType(IType type) {
-        this.setActualType(type, false, false);
-    }
 }

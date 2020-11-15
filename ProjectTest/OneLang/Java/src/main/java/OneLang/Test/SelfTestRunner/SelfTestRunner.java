@@ -25,7 +25,7 @@ public class SelfTestRunner {
     
     public Boolean runTest(IGenerator generator) {
         console.log("[-] SelfTestRunner :: START");
-        var compiler = CompilerHelper.initProject("OneLang", this.baseDir + "src/");
+        var compiler = CompilerHelper.initProject("OneLang", this.baseDir + "src/", "ts", null);
         compiler.hooks = new CompilerHooks(compiler, this.baseDir);
         compiler.processWorkspace();
         var generated = generator.generate(compiler.projectPkg);

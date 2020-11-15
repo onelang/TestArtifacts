@@ -91,10 +91,6 @@ public class ErrorManager {
         this.transformer = transformer;
     }
     
-    public void resetContext() {
-        this.resetContext(null);
-    }
-    
     public void log(LogType type, String msg) {
         var t = this.transformer;
         var text = (t != null ? "[" + t.getName() + "] " : "") + msg;

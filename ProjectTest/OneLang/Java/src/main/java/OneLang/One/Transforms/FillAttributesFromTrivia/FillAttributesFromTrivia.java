@@ -40,7 +40,7 @@ public class FillAttributesFromTrivia extends AstTransformer {
     public static Map<String, String> processTrivia(String trivia) {
         var result = new LinkedHashMap<String, String>();
         if (trivia != null && !Objects.equals(trivia, "")) {
-            var regex = new RegExp("(?:\\n|^)\\s*(?://|#|/\\*\\*?)\\s*@([a-z0-9_.-]+) ?((?!\\n|\\*/|$).+)?");
+            var regex = new RegExp("(?:\\n|^)\\s*(?://|#|/\\*\\*?)\\s*@([A-Za-z0-9_.-]+) ?((?!\\n|\\*/|$).+)?");
             while (true) {
                 var match = regex.exec(trivia);
                 if (match == null)

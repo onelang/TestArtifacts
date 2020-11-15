@@ -20,7 +20,7 @@ import OneLang.One.Ast.Types.IVariable;
 import java.util.Set;
 import java.util.ArrayList;
 import OneLang.One.Ast.Types.Lambda;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import OneLang.One.Ast.References.VariableReference;
 import OneLang.One.Ast.References.StaticFieldReference;
 import OneLang.One.Ast.References.InstanceFieldReference;
@@ -44,8 +44,8 @@ public class LambdaCaptureCollector extends AstTransformer {
         if (this.scopeVars != null)
             this.scopeVarStack.add(this.scopeVars);
         
-        this.scopeVars = new HashSet<IVariable>();
-        this.capturedVars = new HashSet<IVariable>();
+        this.scopeVars = new LinkedHashSet<IVariable>();
+        this.capturedVars = new LinkedHashSet<IVariable>();
         
         super.visitLambda(lambda);
         lambda.captures = new ArrayList<IVariable>();

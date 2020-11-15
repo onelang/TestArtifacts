@@ -128,7 +128,9 @@ class InferTypes(astTrans.AstTransformer):
                 break
             transformed_expr = new_expr
         # if the plugin did not handle the expression, we use the default visit method
-        expr2 = transformed_expr if transformed_expr != None else super().visit_expression(expr) or expr
+        expr2 = transformed_expr
+        if expr2 == None:
+            expr2 = super().visit_expression(expr) or expr
         
         if expr2.actual_type != None:
             return expr2

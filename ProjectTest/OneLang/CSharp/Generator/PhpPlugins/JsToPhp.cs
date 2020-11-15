@@ -44,6 +44,8 @@ namespace Generator.PhpPlugins
                     return $"array_shift({objR})";
                 else if (method.name == "find")
                     return $"\\OneLang\\ArrayHelper::find({objR}, {argsR.get(0)})";
+                else if (method.name == "sort")
+                    return $"sort({objR})";
             }
             else if (cls.name == "TsString") {
                 var objR = this.main.expr(obj);

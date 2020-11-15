@@ -22,11 +22,11 @@ public class ResolveNewCalls extends InferTypesPlugin {
     public Expression transform(Expression expr) {
         var newExpr = ((NewExpression)expr);
         for (Integer i = 0; i < newExpr.args.length; i++) {
-            newExpr.args[i].setExpectedType(newExpr.cls.decl.constructor_.getParameters()[i].getType());
+            newExpr.args[i].setExpectedType(newExpr.cls.decl.constructor_.getParameters()[i].getType(), false);
             var runPluginsOnResult = this.main.runPluginsOn(newExpr.args[i]);
             newExpr.args[i] = runPluginsOnResult != null ? runPluginsOnResult : newExpr.args[i];
         }
-        expr.setActualType(newExpr.cls);
+        expr.setActualType(newExpr.cls, false, false);
         return expr;
     }
 }

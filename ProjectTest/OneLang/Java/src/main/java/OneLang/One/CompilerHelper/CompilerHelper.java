@@ -25,12 +25,4 @@ public class CompilerHelper {
         
         return compiler;
     }
-    
-    public static Compiler initProject(String projectName, String sourceDir, String lang) {
-        return CompilerHelper.initProject(projectName, sourceDir, lang, null);
-    }
-    
-    public static Compiler initProject(String projectName, String sourceDir) {
-        return CompilerHelper.initProject(projectName, sourceDir, "ts", null);
-    }
 }

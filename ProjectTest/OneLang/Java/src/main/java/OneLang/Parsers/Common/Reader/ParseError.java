@@ -16,12 +16,4 @@ public class ParseError {
         this.cursor = cursor;
         this.reader = reader;
     }
-    
-    public ParseError(String message, Cursor cursor) {
-        this(message, cursor, null);
-    }
-    
-    public ParseError(String message) {
-        this(message, null, null);
-    }
 }

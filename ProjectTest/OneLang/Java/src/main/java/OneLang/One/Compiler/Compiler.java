@@ -107,8 +107,8 @@ public class Compiler {
     }
     
     public void setupNativeResolver(String content) {
-        this.nativeFile = TypeScriptParser2.parseFile(content);
-        this.nativeExports = Package.collectExportsFromFile(this.nativeFile, true);
+        this.nativeFile = TypeScriptParser2.parseFile(content, null);
+        this.nativeExports = Package.collectExportsFromFile(this.nativeFile, true, null);
         for (var trans : this.getTransformers(true))
             trans.visitFiles(new SourceFile[] { this.nativeFile });
     }
@@ -122,10 +122,6 @@ public class Compiler {
         
         this.projectPkg = new Package(pkgName, false);
         this.workspace.addPackage(this.projectPkg);
-    }
-    
-    public void newWorkspace() {
-        this.newWorkspace("@");
     }
     
     public void addInterfacePackage(String libName, String definitionFileContent) {
@@ -145,7 +141,7 @@ public class Compiler {
     public void addProjectFile(String fn, String content) {
         var file = TypeScriptParser2.parseFile(content, new SourcePath(this.projectPkg, fn));
         this.setupFile(file);
-        this.projectPkg.addFile(file);
+        this.projectPkg.addFile(file, false);
     }
     
     public void processFiles(SourceFile[] files) {

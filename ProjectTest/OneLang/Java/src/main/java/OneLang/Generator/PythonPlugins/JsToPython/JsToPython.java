@@ -18,7 +18,7 @@ import OneLang.One.Ast.Interfaces.IExpression;
 import OneLang.Generator.IGeneratorPlugin.IGeneratorPlugin;
 import java.util.Set;
 import OneLang.Generator.PythonGenerator.PythonGenerator;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import OneStd.Objects;
 import java.util.Arrays;
 import OneLang.One.Ast.Expressions.RegexLiteral;
@@ -43,7 +43,7 @@ public class JsToPython implements IGeneratorPlugin {
     public JsToPython(PythonGenerator main)
     {
         this.main = main;
-        this.unhandledMethods = new HashSet<String>();
+        this.unhandledMethods = new LinkedHashSet<String>();
     }
     
     public String convertMethod(Class cls, Expression obj, Method method, Expression[] args) {

@@ -75,18 +75,6 @@ public class ExpressionParser {
         this.reconfigure();
     }
     
-    public ExpressionParser(Reader reader, IExpressionParserHooks hooks, NodeManager nodeManager) {
-        this(reader, hooks, nodeManager, null);
-    }
-    
-    public ExpressionParser(Reader reader, IExpressionParserHooks hooks) {
-        this(reader, hooks, null, null);
-    }
-    
-    public ExpressionParser(Reader reader) {
-        this(reader, null, null, null);
-    }
-    
     public static ExpressionParserConfig defaultConfig() {
         var config = new ExpressionParserConfig();
         config.unary = new String[] { "++", "--", "!", "not", "+", "-", "~" };
@@ -134,25 +122,13 @@ public class ExpressionParser {
             if (name == null)
                 name = this.reader.expectIdentifier("expected string or identifier as map key");
             
-            this.reader.expectToken(keySeparator);
-            var initializer = this.parse();
+            this.reader.expectToken(keySeparator, null);
+            var initializer = this.parse(0, true);
             items.add(new MapLiteralItem(name, initializer));
         } while (this.reader.readToken(","));
         
-        this.reader.expectToken(endToken);
+        this.reader.expectToken(endToken, null);
         return new MapLiteral(items.toArray(MapLiteralItem[]::new));
-    }
-    
-    public MapLiteral parseMapLiteral(String keySeparator, String startToken) {
-        return this.parseMapLiteral(keySeparator, startToken, "}");
-    }
-    
-    public MapLiteral parseMapLiteral(String keySeparator) {
-        return this.parseMapLiteral(keySeparator, "{", "}");
-    }
-    
-    public MapLiteral parseMapLiteral() {
-        return this.parseMapLiteral(":", "{", "}");
     }
     
     public ArrayLiteral parseArrayLiteral(String startToken, String endToken) {
@@ -162,21 +138,13 @@ public class ExpressionParser {
         var items = new ArrayList<Expression>();
         if (!this.reader.readToken(endToken)) {
             do {
-                var item = this.parse();
+                var item = this.parse(0, true);
                 items.add(item);
             } while (this.reader.readToken(","));
             
-            this.reader.expectToken(endToken);
+            this.reader.expectToken(endToken, null);
         }
         return new ArrayLiteral(items.toArray(Expression[]::new));
-    }
-    
-    public ArrayLiteral parseArrayLiteral(String startToken) {
-        return this.parseArrayLiteral(startToken, "]");
-    }
-    
-    public ArrayLiteral parseArrayLiteral() {
-        return this.parseArrayLiteral("[", "]");
     }
     
     public Expression parseLeft(Boolean required) {
@@ -186,7 +154,7 @@ public class ExpressionParser {
         
         var unary = this.reader.readAnyOf(this.config.unary);
         if (unary != null) {
-            var right = this.parse(this.prefixPrecedence);
+            var right = this.parse(this.prefixPrecedence, true);
             return new UnaryExpression(UnaryType.Prefix, unary, right);
         }
         
@@ -203,19 +171,15 @@ public class ExpressionParser {
             return new StringLiteral(str);
         
         if (this.reader.readToken("(")) {
-            var expr = this.parse();
-            this.reader.expectToken(")");
+            var expr = this.parse(0, true);
+            this.reader.expectToken(")", null);
             return new ParenthesizedExpression(expr);
         }
         
         if (required)
-            this.reader.fail("unknown (literal / unary) token in expression");
+            this.reader.fail("unknown (literal / unary) token in expression", -1);
         
         return null;
-    }
-    
-    public Expression parseLeft() {
-        return this.parseLeft(true);
     }
     
     public Operator parseOperator() {
@@ -232,11 +196,11 @@ public class ExpressionParser {
         
         if (!this.reader.readToken(")")) {
             do {
-                var arg = this.parse();
+                var arg = this.parse(0, true);
                 args.add(arg);
             } while (this.reader.readToken(","));
             
-            this.reader.expectToken(")");
+            this.reader.expectToken(")", null);
         }
         
         return args.toArray(Expression[]::new);
@@ -248,7 +212,7 @@ public class ExpressionParser {
     }
     
     public Expression parse(Integer precedence, Boolean required) {
-        this.reader.skipWhitespace();
+        this.reader.skipWhitespace(false);
         var leftStart = this.reader.offset;
         var left = this.parseLeft(required);
         if (left == null)
@@ -268,19 +232,19 @@ public class ExpressionParser {
             var op = this.parseOperator();
             if (op == null || op.precedence <= precedence)
                 break;
-            this.reader.expectToken(op.text);
+            this.reader.expectToken(op.text, null);
             var opText = this.config.aliases.containsKey(op.text) ? this.config.aliases.get(op.text) : op.text;
             
             if (op.isBinary) {
-                var right = this.parse(op.isRightAssoc ? op.precedence - 1 : op.precedence);
+                var right = this.parse(op.isRightAssoc ? op.precedence - 1 : op.precedence, true);
                 left = new BinaryExpression(left, opText, right);
             }
             else if (op.isPostfix)
                 left = new UnaryExpression(UnaryType.Postfix, opText, left);
             else if (Objects.equals(op.text, "?")) {
-                var whenTrue = this.parse();
-                this.reader.expectToken(":");
-                var whenFalse = this.parse(op.precedence - 1);
+                var whenTrue = this.parse(0, true);
+                this.reader.expectToken(":", null);
+                var whenFalse = this.parse(op.precedence - 1, true);
                 left = new ConditionalExpression(left, whenTrue, whenFalse);
             }
             else if (Objects.equals(op.text, "(")) {
@@ -288,8 +252,8 @@ public class ExpressionParser {
                 left = new UnresolvedCallExpression(left, new IType[0], args);
             }
             else if (Objects.equals(op.text, "[")) {
-                var elementExpr = this.parse();
-                this.reader.expectToken("]");
+                var elementExpr = this.parse(0, true);
+                this.reader.expectToken("]", null);
                 left = new ElementAccessExpression(left, elementExpr);
             }
             else if (Arrays.stream(this.config.propertyAccessOps).anyMatch(op.text::equals)) {
@@ -297,7 +261,7 @@ public class ExpressionParser {
                 left = new PropertyAccessExpression(left, prop);
             }
             else
-                this.reader.fail("parsing '" + op.text + "' is not yet implemented");
+                this.reader.fail("parsing '" + op.text + "' is not yet implemented", -1);
             
             this.addNode(left, leftStart);
         }
@@ -309,13 +273,5 @@ public class ExpressionParser {
         }
         
         return left;
-    }
-    
-    public Expression parse(Integer precedence) {
-        return this.parse(precedence, true);
-    }
-    
-    public Expression parse() {
-        return this.parse(0, true);
     }
 }

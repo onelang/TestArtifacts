@@ -55,14 +55,6 @@ public class Expression implements IAstNode, IExpression {
         this.actualType = actualType;
     }
     
-    public void setActualType(IType actualType, Boolean allowVoid) {
-        this.setActualType(actualType, allowVoid, false);
-    }
-    
-    public void setActualType(IType actualType) {
-        this.setActualType(actualType, false, false);
-    }
-    
     public void setExpectedType(IType type, Boolean allowVoid) {
         if (this.actualType != null)
             throw new Error("Cannot set expected type after actual type was already set!");
@@ -73,10 +65,6 @@ public class Expression implements IAstNode, IExpression {
         this.typeCheck(type, allowVoid);
         
         this.expectedType = type;
-    }
-    
-    public void setExpectedType(IType type) {
-        this.setExpectedType(type, false);
     }
     
     public IType getType() {

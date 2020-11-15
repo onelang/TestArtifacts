@@ -567,7 +567,10 @@ class CsharpGenerator implements IGenerator {
                     $constrFieldInits[] = new ExpressionStatement(new BinaryExpression($fieldRef, "=", $mpRef));
                 }
                 
-                $resList[] = "public " . $this->preIf("/* throws */ ", $cls->constructor_->throws) . $this->name_($cls->name) . "(" . implode(", ", array_map(function ($p) { return $this->var($p, $p); }, $cls->constructor_->parameters)) . ")" . ($cls->constructor_->superCallArgs !== null ? ": base(" . implode(", ", array_map(function ($x) { return $this->expr($x); }, $cls->constructor_->superCallArgs)) . ")" : "") . "\n{\n" . $this->pad($this->stmts(array_merge(array_merge($constrFieldInits, $complexFieldInits), $cls->constructor_->body->statements))) . "\n}";
+                // @java var stmts = Stream.concat(Stream.concat(constrFieldInits.stream(), complexFieldInits.stream()), ((Class)cls).constructor_.getBody().statements.stream()).toArray(Statement[]::new);
+                // @java-import java.util.stream.Stream
+                $stmts = array_merge(array_merge($constrFieldInits, $complexFieldInits), $cls->constructor_->body->statements);
+                $resList[] = "public " . $this->preIf("/* throws */ ", $cls->constructor_->throws) . $this->name_($cls->name) . "(" . implode(", ", array_map(function ($p) { return $this->var($p, $p); }, $cls->constructor_->parameters)) . ")" . ($cls->constructor_->superCallArgs !== null ? ": base(" . implode(", ", array_map(function ($x) { return $this->expr($x); }, $cls->constructor_->superCallArgs)) . ")" : "") . "\n{\n" . $this->pad($this->stmts($stmts)) . "\n}";
             }
             else if (count($complexFieldInits) > 0)
                 $resList[] = "public " . $this->name_($cls->name) . "()\n{\n" . $this->pad($this->stmts($complexFieldInits)) . "\n}";
@@ -616,7 +619,8 @@ class CsharpGenerator implements IGenerator {
         
         $main = count($sourceFile->mainBlock->statements) > 0 ? "public class Program\n{\n    static void Main(string[] args)\n    {\n" . $this->pad($this->rawBlock($sourceFile->mainBlock)) . "\n    }\n}" : "";
         
-        // @java var usingsSet = new HashSet<String>(Arrays.stream(sourceFile.imports).map(x -> this.pathToNs(x.exportScope.scopeName)).filter(x -> x != "").collect(Collectors.toList()));
+        // @java var usingsSet = new LinkedHashSet<String>(Arrays.stream(sourceFile.imports).map(x -> this.pathToNs(x.exportScope.scopeName)).filter(x -> x != "").collect(Collectors.toList()));
+        // @java-import java.util.LinkedHashSet
         $usingsSet = new \OneLang\Set(array_values(array_filter(array_map(function ($x) { return $this->pathToNs($x->exportScope->scopeName); }, $sourceFile->imports), function ($x) { return $x !== ""; })));
         foreach ($this->usings->values() as $using)
             $usingsSet->add($using);
@@ -624,6 +628,7 @@ class CsharpGenerator implements IGenerator {
         $usings = array();
         foreach ($usingsSet->values() as $using)
             $usings[] = "using " . $using . ";";
+        sort($usings);
         
         $result = implode("\n\n", array_values(array_filter(array(implode("\n", $enums), implode("\n\n", $intfs), implode("\n\n", $classes), $main), function ($x) { return $x !== ""; })));
         $nl = "\n";

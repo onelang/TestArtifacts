@@ -63,7 +63,7 @@ public class SourceFile {
         this.exportScope = exportScope;
         this.availableSymbols = new LinkedHashMap<String, IImportable>();
         this.arrayTypes = new ClassType[0];
-        var fileScope = Package.collectExportsFromFile(this, true);
+        var fileScope = Package.collectExportsFromFile(this, true, null);
         this.addAvailableSymbols(fileScope.getAllExports());
     }
     
